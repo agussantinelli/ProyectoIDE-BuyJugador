@@ -1,34 +1,23 @@
-using System;
-
 namespace Dominio_Modelo
 {
     public class Cancelacion
     {
-        public int Id { get; private set; }
-        public string Motivo { get; private set; }
+        public int NroVenta { get; private set; }
         public DateTime Fecha { get; private set; }
-        public int IdVenta { get; private set; }
+        public string Motivo { get; private set; }
 
-        public Cancelacion(int id, string motivo, DateTime fecha, int idVenta)
+        public Cancelacion(int nroVenta, DateTime fecha, string motivo)
         {
-            SetId(id);
-            SetMotivo(motivo);
+            SetNroVenta(nroVenta);
             SetFecha(fecha);
-            SetIdVenta(idVenta);
+            SetMotivo(motivo);
         }
 
-        public void SetId(int id)
+        public void SetNroVenta(int nroVenta)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID de cancelación debe ser positivo.", nameof(id));
-            Id = id;
-        }
-
-        public void SetMotivo(string motivo)
-        {
-            if (string.IsNullOrWhiteSpace(motivo))
-                throw new ArgumentException("El motivo no puede ser nulo o vacío.", nameof(motivo));
-            Motivo = motivo;
+            if (nroVenta <= 0)
+                throw new ArgumentException("El nÃºmero de venta debe ser positivo.", nameof(nroVenta));
+            NroVenta = nroVenta;
         }
 
         public void SetFecha(DateTime fecha)
@@ -38,11 +27,11 @@ namespace Dominio_Modelo
             Fecha = fecha;
         }
 
-        public void SetIdVenta(int idVenta)
+        public void SetMotivo(string motivo)
         {
-            if (idVenta <= 0)
-                throw new ArgumentException("El ID de venta debe ser positivo.", nameof(idVenta));
-            IdVenta = idVenta;
+            if (string.IsNullOrWhiteSpace(motivo))
+                throw new ArgumentException("El motivo no puede ser nulo o vacÃ­o.", nameof(motivo));
+            Motivo = motivo;
         }
     }
 }
