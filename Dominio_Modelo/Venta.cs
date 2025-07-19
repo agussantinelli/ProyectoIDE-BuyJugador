@@ -1,29 +1,29 @@
-﻿using System;
+using System;
 
 namespace Dominio_Modelo
 {
     public class Venta
     {
-        public int Id { get; private set; }
+        public int NroVenta { get; private set; }
         public DateTime Fecha { get; private set; }
         public string Estado { get; private set; }
         public decimal MontoTotal { get; private set; }
-        public int IdCliente { get; private set; }
+        public int LegajoCliente { get; private set; }
 
-        public Venta(int id, DateTime fecha, string estado, decimal montoTotal, int idCliente)
+        public Venta(int nroVenta, DateTime fecha, string estado, decimal montoTotal, int legajoCliente)
         {
-            SetId(id);
+            SetNroVenta(nroVenta);
             SetFecha(fecha);
             SetEstado(estado);
             SetMontoTotal(montoTotal);
-            SetIdCliente(idCliente);
+            SetLegajoCliente(legajoCliente);
         }
 
-        public void SetId(int id)
+        public void SetNroVenta(int nroVenta)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID de la venta debe ser positivo.", nameof(id));
-            Id = id;
+            if (nroVenta <= 0)
+                throw new ArgumentException("El número de venta debe ser positivo.", nameof(nroVenta));
+            NroVenta = nroVenta;
         }
 
         public void SetFecha(DateTime fecha)
@@ -47,11 +47,11 @@ namespace Dominio_Modelo
             MontoTotal = montoTotal;
         }
 
-        public void SetIdCliente(int idCliente)
+        public void SetLegajoCliente(int legajoCliente)
         {
-            if (idCliente <= 0)
-                throw new ArgumentException("El ID del cliente debe ser positivo.", nameof(idCliente));
-            IdCliente = idCliente;
+            if (legajoCliente <= 0)
+                throw new ArgumentException("El legajo del cliente debe ser positivo.", nameof(legajoCliente));
+            LegajoCliente = legajoCliente;
         }
     }
 }
