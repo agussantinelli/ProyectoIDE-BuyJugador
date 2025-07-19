@@ -42,7 +42,7 @@ CREATE TABLE Cliente (
 );
 
 CREATE TABLE Producto (
-    idObjeto INT AUTO_INCREMENT PRIMARY KEY,
+    idProducto INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     caracteristicas TEXT,
     stock INT NOT NULL DEFAULT 0,
