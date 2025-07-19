@@ -1,33 +1,40 @@
-using System;
-
 namespace Dominio_Modelo
 {
     public class Producto
     {
-        public int Id { get; private set; }
+        public int IdProducto { get; private set; }
+        public string Nombre { get; private set; }
         public string Caracteristicas { get; private set; }
         public int Stock { get; private set; }
-        public int IdTipoProducto { get; private set; }
+        public int CodTipoProducto { get; private set; }
 
-        public Producto(int id, string caracteristicas, int stock, int idTipoProducto)
+        public Producto(int idProducto, string nombre, string caracteristicas, int stock, int codTipoProducto)
         {
-            SetId(id);
+            SetIdProducto(idProducto);
+            SetNombre(nombre);
             SetCaracteristicas(caracteristicas);
             SetStock(stock);
-            SetIdTipoProducto(idTipoProducto);
+            SetCodTipoProducto(codTipoProducto);
         }
 
-        public void SetId(int id)
+        public void SetIdProducto(int idProducto)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID del producto debe ser positivo.", nameof(id));
-            Id = id;
+            if (idProducto <= 0)
+                throw new ArgumentException("El ID de producto debe ser positivo.", nameof(idProducto));
+            IdProducto = idProducto;
+        }
+
+        public void SetNombre(string nombre)
+        {
+            if (string.IsNullOrWhiteSpace(nombre))
+                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombre));
+            Nombre = nombre;
         }
 
         public void SetCaracteristicas(string caracteristicas)
         {
             if (string.IsNullOrWhiteSpace(caracteristicas))
-                throw new ArgumentException("Las caracter�sticas no pueden ser nulas o vac�as.", nameof(caracteristicas));
+                throw new ArgumentException("Las características no pueden ser nulas o vacías.", nameof(caracteristicas));
             Caracteristicas = caracteristicas;
         }
 
@@ -38,11 +45,11 @@ namespace Dominio_Modelo
             Stock = stock;
         }
 
-        public void SetIdTipoProducto(int idTipoProducto)
+        public void SetCodTipoProducto(int codTipoProducto)
         {
-            if (idTipoProducto <= 0)
-                throw new ArgumentException("El ID de tipo de producto debe ser positivo.", nameof(idTipoProducto));
-            IdTipoProducto = idTipoProducto;
+            if (codTipoProducto <= 0)
+                throw new ArgumentException("El código de tipo de producto debe ser positivo.", nameof(codTipoProducto));
+            CodTipoProducto = codTipoProducto;
         }
     }
 }
