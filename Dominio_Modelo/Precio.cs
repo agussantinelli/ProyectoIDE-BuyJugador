@@ -4,24 +4,31 @@ namespace Dominio_Modelo
 {
     public class Precio
     {
-        public int Id { get; private set; }
+        public int IdPrecio { get; private set; }
+        public int IdProducto { get; private set; }
         public decimal Monto { get; private set; }
         public DateTime Fecha { get; private set; }
-        public int IdProducto { get; private set; }
 
-        public Precio(int id, decimal monto, DateTime fecha, int idProducto)
+        public Precio(int idPrecio, int idProducto, decimal monto, DateTime fecha)
         {
-            SetId(id);
+            SetIdPrecio(idPrecio);
+            SetIdProducto(idProducto);
             SetMonto(monto);
             SetFecha(fecha);
-            SetIdProducto(idProducto);
         }
 
-        public void SetId(int id)
+        public void SetIdPrecio(int idPrecio)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID del precio debe ser positivo.", nameof(id));
-            Id = id;
+            if (idPrecio <= 0)
+                throw new ArgumentException("El ID de precio debe ser positivo.", nameof(idPrecio));
+            IdPrecio = idPrecio;
+        }
+
+        public void SetIdProducto(int idProducto)
+        {
+            if (idProducto <= 0)
+                throw new ArgumentException("El ID de producto debe ser positivo.", nameof(idProducto));
+            IdProducto = idProducto;
         }
 
         public void SetMonto(decimal monto)
@@ -36,13 +43,6 @@ namespace Dominio_Modelo
             if (fecha == default)
                 throw new ArgumentException("La fecha no puede ser nula.", nameof(fecha));
             Fecha = fecha;
-        }
-
-        public void SetIdProducto(int idProducto)
-        {
-            if (idProducto <= 0)
-                throw new ArgumentException("El ID del producto debe ser positivo.", nameof(idProducto));
-            IdProducto = idProducto;
         }
     }
 }
