@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS buyjugador;
+USE buyjugador;
+
 CREATE TABLE Provincia (
     codProvincia INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
