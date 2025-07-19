@@ -4,24 +4,15 @@ namespace Dominio_Modelo
 {
     public class Precio
     {
-        public int IdPrecio { get; private set; }
         public int IdProducto { get; private set; }
         public decimal Monto { get; private set; }
         public DateTime Fecha { get; private set; }
 
-        public Precio(int idPrecio, int idProducto, decimal monto, DateTime fecha)
+        public Precio(int idProducto, decimal monto, DateTime fecha)
         {
-            SetIdPrecio(idPrecio);
             SetIdProducto(idProducto);
             SetMonto(monto);
             SetFecha(fecha);
-        }
-
-        public void SetIdPrecio(int idPrecio)
-        {
-            if (idPrecio <= 0)
-                throw new ArgumentException("El ID de precio debe ser positivo.", nameof(idPrecio));
-            IdPrecio = idPrecio;
         }
 
         public void SetIdProducto(int idProducto)
