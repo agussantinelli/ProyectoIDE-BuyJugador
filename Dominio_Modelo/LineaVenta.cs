@@ -4,33 +4,31 @@ namespace Dominio_Modelo
 {
     public class LineaVenta
     {
-        public int Id { get; private set; }
-        public int Numero { get; private set; }
-        public int Cantidad { get; private set; }
-        public int IdVenta { get; private set; }
+        public int NroVenta { get; private set; }
         public int IdProducto { get; private set; }
+        public int Cantidad { get; private set; }
+        public decimal PrecioUnitario { get; private set; }
 
-        public LineaVenta(int id, int numero, int cantidad, int idVenta, int idProducto)
+        public LineaVenta(int nroVenta, int idProducto, int cantidad, decimal precioUnitario)
         {
-            SetId(id);
-            SetNumero(numero);
-            SetCantidad(cantidad);
-            SetIdVenta(idVenta);
+            SetNroVenta(nroVenta);
             SetIdProducto(idProducto);
+            SetCantidad(cantidad);
+            SetPrecioUnitario(precioUnitario);
         }
 
-        public void SetId(int id)
+        public void SetNroVenta(int nroVenta)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID de la línea de venta debe ser positivo.", nameof(id));
-            Id = id;
+            if (nroVenta <= 0)
+                throw new ArgumentException("El nÃºmero de venta debe ser positivo.", nameof(nroVenta));
+            NroVenta = nroVenta;
         }
 
-        public void SetNumero(int numero)
+        public void SetIdProducto(int idProducto)
         {
-            if (numero <= 0)
-                throw new ArgumentException("El número de línea debe ser positivo.", nameof(numero));
-            Numero = numero;
+            if (idProducto <= 0)
+                throw new ArgumentException("El ID de producto debe ser positivo.", nameof(idProducto));
+            IdProducto = idProducto;
         }
 
         public void SetCantidad(int cantidad)
@@ -40,18 +38,11 @@ namespace Dominio_Modelo
             Cantidad = cantidad;
         }
 
-        public void SetIdVenta(int idVenta)
+        public void SetPrecioUnitario(decimal precioUnitario)
         {
-            if (idVenta <= 0)
-                throw new ArgumentException("El ID de venta debe ser positivo.", nameof(idVenta));
-            IdVenta = idVenta;
-        }
-
-        public void SetIdProducto(int idProducto)
-        {
-            if (idProducto <= 0)
-                throw new ArgumentException("El ID de producto debe ser positivo.", nameof(idProducto));
-            IdProducto = idProducto;
+            if (precioUnitario <= 0)
+                throw new ArgumentException("El precio unitario debe ser positivo.", nameof(precioUnitario));
+            PrecioUnitario = precioUnitario;
         }
     }
 }
