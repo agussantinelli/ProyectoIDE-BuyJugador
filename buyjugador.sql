@@ -19,7 +19,7 @@ CREATE TABLE Persona (
     nombre VARCHAR(150) NOT NULL
 );
 
-CREATE TABLE Admin (
+CREATE TABLE Administrador (
     legajoPersona INT PRIMARY KEY,
     FOREIGN KEY (legajoPersona) REFERENCES Persona(legajo) ON DELETE CASCADE
 );
