@@ -52,10 +52,10 @@ CREATE TABLE Producto (
 
 CREATE TABLE Precios (
     idPrecio INT AUTO_INCREMENT PRIMARY KEY,
-    idObjeto INT NOT NULL,
+    idProducto INT NOT NULL,
     monto DECIMAL(10, 2) NOT NULL,
     fecha DATE NOT NULL,
-    FOREIGN KEY (idObjeto) REFERENCES Producto(idObjeto)
+    FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
 
 CREATE TABLE Venta (
@@ -76,11 +76,11 @@ CREATE TABLE Cancelacion (
 
 CREATE TABLE Linea_Venta (
     nroVenta INT NOT NULL,
-    idObjeto INT NOT NULL,
+    idProducto INT NOT NULL,
     cantidad INT NOT NULL,
     precioUnitario DECIMAL(10, 2) NOT NULL,
 
-    PRIMARY KEY (nroVenta, idObjeto),
+    PRIMARY KEY (nroVenta, idProducto),
     FOREIGN KEY (nroVenta) REFERENCES Venta(nroVenta) ON DELETE CASCADE,
-    FOREIGN KEY (idObjeto) REFERENCES Producto(idObjeto)
+    FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
