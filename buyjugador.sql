@@ -51,8 +51,7 @@ CREATE TABLE Producto (
 );
 
 CREATE TABLE Precios (
-    idPrecio INT AUTO_INCREMENT PRIMARY KEY,
-    idProducto INT NOT NULL,
+    idProducto INT NOT NULL PRIMARY KEY,
     monto DECIMAL(10, 2) NOT NULL,
     fecha DATE NOT NULL,
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)

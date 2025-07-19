@@ -4,20 +4,20 @@ namespace Dominio_Modelo
 {
     public class TipoProducto
     {
-        public int Id { get; private set; }
+        public int CodTipoProducto { get; private set; }
         public string Nombre { get; private set; }
 
-        public TipoProducto(int id, string nombre)
+        public TipoProducto(int codTipoProducto, string nombre)
         {
-            SetId(id);
+            SetCodTipoProducto(codTipoProducto);
             SetNombre(nombre);
         }
 
-        public void SetId(int id)
+        public void SetCodTipoProducto(int codTipoProducto)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID del tipo de producto debe ser positivo.", nameof(id));
-            Id = id;
+            if (codTipoProducto <= 0)
+                throw new ArgumentException("El código del tipo de producto debe ser positivo.", nameof(codTipoProducto));
+            CodTipoProducto = codTipoProducto;
         }
 
         public void SetNombre(string nombre)

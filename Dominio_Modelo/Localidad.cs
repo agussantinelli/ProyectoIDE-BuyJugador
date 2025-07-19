@@ -4,22 +4,22 @@ namespace Dominio_Modelo
 {
     public class Localidad
     {
-        public int Id { get; private set; }
+        public int CodLocalidad { get; private set; }
         public string Nombre { get; private set; }
-        public int IdProvincia { get; private set; }
+        public int CodProvincia { get; private set; }
 
-        public Localidad(int id, string nombre, int idProvincia)
+        public Localidad(int codLocalidad, string nombre, int codProvincia)
         {
-            SetId(id);
+            SetCodLocalidad(codLocalidad);
             SetNombre(nombre);
-            SetIdProvincia(idProvincia);
+            SetCodProvincia(codProvincia);
         }
 
-        public void SetId(int id)
+        public void SetCodLocalidad(int codLocalidad)
         {
-            if (id <= 0)
-                throw new ArgumentException("El ID de localidad debe ser positivo.", nameof(id));
-            Id = id;
+            if (codLocalidad <= 0)
+                throw new ArgumentException("El código de localidad debe ser positivo.", nameof(codLocalidad));
+            CodLocalidad = codLocalidad;
         }
 
         public void SetNombre(string nombre)
@@ -29,11 +29,11 @@ namespace Dominio_Modelo
             Nombre = nombre;
         }
 
-        public void SetIdProvincia(int idProvincia)
+        public void SetCodProvincia(int codProvincia)
         {
-            if (idProvincia <= 0)
-                throw new ArgumentException("El ID de provincia debe ser positivo.", nameof(idProvincia));
-            IdProvincia = idProvincia;
+            if (codProvincia <= 0)
+                throw new ArgumentException("El código de provincia debe ser positivo.", nameof(codProvincia));
+            CodProvincia = codProvincia;
         }
     }
 }
