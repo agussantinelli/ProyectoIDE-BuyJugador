@@ -1,11 +1,11 @@
-﻿namespace DTO
+﻿namespace DTOs
 {
     public class Producto
     {
         public int IdProducto { get; private set; }
-        public string Nombre { get; private set; }
-        public string Caracteristicas { get; private set; }
+        public string NombreProducto { get; private set; }
+        public string DescripcionProducto { get; private set; }
         public int Stock { get; private set; }
-        public int CodTipoProducto { get; private set; }
+        public int IdTipoProducto { get; private set; }
     }
 }

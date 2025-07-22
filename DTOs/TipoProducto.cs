@@ -1,8 +1,8 @@
-﻿namespace DTO
+﻿namespace DTOs
 {
     public class TipoProducto
     {
-        public int CodTipoProducto { get; private set; }
-        public string Nombre { get; private set; }
+        public int IdTipoProducto { get; private set; }
+        public string NombreTipoProducto { get; private set; }
     }
 }

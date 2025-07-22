@@ -1,9 +1,10 @@
-﻿namespace DTO
+﻿namespace DTOs
 {
+    
     public class Localidad
     {
-        public int CodLocalidad { get; private set; }
-        public string Nombre { get; private set; }
-        public int CodProvincia { get; private set; }
+        public int CodigoLocalidad { get; private set; }
+        public string NombreLocalidad { get; private set; }
+        public int CodigoProvincia { get; private set; }
     }
 }

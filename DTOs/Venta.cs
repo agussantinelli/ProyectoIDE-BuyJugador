@@ -1,11 +1,11 @@
-﻿namespace DTO
+﻿namespace DTOs
 {
     public class Venta
     {
-        public int NroVenta { get; private set; }
-        public DateTime Fecha { get; private set; }
-        public string Estado { get; private set; }
-        public decimal MontoTotal { get; private set; }
-        public int LegajoCliente { get; private set; }
+        public int IdVenta { get; private set; }
+        public DateTime FechaVenta { get; private set; }
+        public string EstadoVenta { get; private set; }
+        public decimal MontoTotalVenta { get; private set; }
+        public int DniVendedor { get; private set; }
     }
 }
