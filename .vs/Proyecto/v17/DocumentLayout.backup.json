@@ -3,6 +3,34 @@
   "WorkspaceRootPath": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\cliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\cliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\cancelacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\cancelacion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\administrador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\administrador.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\venta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\venta.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\tipoproducto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\tipoproducto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\provincia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\provincia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dominio_modelo\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{87585DEC-DC83-41A7-9C40-BCD2E248F516}|Dominio_Modelo\\Dominio_Modelo.csproj|solutionrelative:dominio_modelo\\producto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{7C1C9BDB-2F2F-443C-B359-1E441FF418BE}|DTOs\\DTOs.csproj|c:\\users\\agus\\documents\\ide\\tp-buyjugador\\dtos\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{7C1C9BDB-2F2F-443C-B359-1E441FF418BE}|DTOs\\DTOs.csproj|solutionrelative:dtos\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -27,19 +55,110 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Cliente.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Cliente.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Cliente.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Cliente.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Cliente.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:17:35.811Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Cancelacion.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Cancelacion.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Cancelacion.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Cancelacion.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Cancelacion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:17:29.631Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Administrador.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Administrador.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Administrador.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Administrador.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Administrador.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:17:27.861Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Venta.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Venta.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Venta.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Venta.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Venta.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:17:24.762Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Provincia.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Provincia.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Provincia.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Provincia.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Provincia.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:17:17.415Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Producto.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Producto.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\Producto.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\Producto.cs",
+              "RelativeToolTip": "Dominio_Modelo\\Producto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-21T19:06:12.804Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TipoProducto.cs",
+              "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\TipoProducto.cs",
+              "RelativeDocumentMoniker": "Dominio_Modelo\\TipoProducto.cs",
+              "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Modelo\\TipoProducto.cs",
+              "RelativeToolTip": "Dominio_Modelo\\TipoProducto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-07-19T05:11:36.04Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\DTOs\\Class1.cs",
               "RelativeDocumentMoniker": "DTOs\\Class1.cs",
               "ToolTip": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\DTOs\\Class1.cs",
               "RelativeToolTip": "DTOs\\Class1.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAwwAcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-17T21:00:04.652Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 8,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Data\\Class1.cs",
               "RelativeDocumentMoniker": "Data\\Class1.cs",
@@ -51,7 +170,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 9,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\Agus\\Documents\\IDE\\TP-BuyJugador\\Dominio_Servicios\\Class1.cs",
               "RelativeDocumentMoniker": "Dominio_Servicios\\Class1.cs",
