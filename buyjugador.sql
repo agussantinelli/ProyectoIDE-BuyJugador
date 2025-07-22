@@ -77,7 +77,7 @@ CREATE TABLE LineaVenta (
     nroLineaVenta INT,
     cantidadVenta INT NOT NULL,
     idProducto INT NOT NULL,
-    PRIMARY KEY (idVenta, numeroLinea),
+    PRIMARY KEY (idVenta, nroLineaVenta),
     FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
