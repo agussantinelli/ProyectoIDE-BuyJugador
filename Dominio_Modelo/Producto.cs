@@ -4,15 +4,15 @@ namespace Dominio_Modelo
     {
         public int IdProducto { get; private set; }
         public string NombreProducto { get; private set; }
-        public string Caracteristicas { get; private set; }
+        public string DescripcionProducto { get; private set; }
         public int Stock { get; private set; }
         public int IdTipoProducto { get; private set; }
 
-        public Producto(int idProducto, string nombreProducto, string caracteristicas, int stock, int idTipoProducto)
+        public Producto(int idProducto, string nombreProducto, string descripcionProducto, int stock, int idTipoProducto)
         {
             SetIdProducto(idProducto);
             SetNombreProducto(nombreProducto);
-            SetCaracteristicas(caracteristicas);
+            SetDescripcionProducto(descripcionProducto);
             SetStock(stock);
             SetIdTipoProducto(idTipoProducto);
         }
@@ -31,11 +31,11 @@ namespace Dominio_Modelo
             NombreProducto = nombreProducto;
         }
 
-        public void SetCaracteristicas(string caracteristicas)
+        public void SetDescripcionProducto(string descripcionProducto)
         {
-            if (string.IsNullOrWhiteSpace(caracteristicas))
-                throw new ArgumentException("Las características no pueden ser nulas o vacías.", nameof(caracteristicas));
-            Caracteristicas = caracteristicas;
+            if (string.IsNullOrWhiteSpace(descripcionProducto))
+                throw new ArgumentException("Las características no pueden ser nulas o vacías.", nameof(descripcionProducto));
+            DescripcionProducto = descripcionProducto;
         }
 
         public void SetStock(int stock)

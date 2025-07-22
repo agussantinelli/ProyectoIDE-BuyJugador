@@ -1,12 +1,6 @@
-ï»¿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Dominio_Modelo
 {
-    internal class LineaPedido
+    public class LineaPedido
     {
         public int IdPedido { get; private set; }
         public decimal NroLineaPedido { get; private set; }
@@ -24,14 +18,14 @@ namespace Dominio_Modelo
         public void SetIdPedido(int idPedido)
         {
             if (idPedido <= 0)
-                throw new ArgumentException("El ID de Pedido debe ser positivo.", nameof(idPedido));
+                throw new ArgumentException("El ID de pedido debe ser positivo.", nameof(idPedido));
             IdPedido = idPedido;
         }
 
         public void SetNroLineaPedido(decimal nroLineaPedido)
         {
             if (nroLineaPedido <= 0)
-                throw new ArgumentException("El nÃºmero de lÃ­nea de Pedido debe ser positivo.", nameof(nroLineaPedido));
+                throw new ArgumentException("El número de línea de pedido debe ser positivo.", nameof(nroLineaPedido));
             NroLineaPedido = nroLineaPedido;
         }
 
@@ -45,7 +39,7 @@ namespace Dominio_Modelo
         public void SetCantidadPedido(int cantidadPedido)
         {
             if (cantidadPedido <= 0)
-                throw new ArgumentException("La cantidad de Pedido debe ser positiva.", nameof(cantidadPedido));
+                throw new ArgumentException("La cantidad de pedido debe ser positiva.", nameof(cantidadPedido));
             CantidadPedido = cantidadPedido;
         }
     }

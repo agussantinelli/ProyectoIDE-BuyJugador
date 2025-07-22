@@ -2,77 +2,101 @@ CREATE DATABASE IF NOT EXISTS buyjugador;
 USE buyjugador;
 
 CREATE TABLE Provincia (
-    codProvincia INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion TEXT
-);
-
-CREATE TABLE TipoProducto (
-    codTipoProducto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
-);
-
-CREATE TABLE Persona (
-    legajo INT AUTO_INCREMENT PRIMARY KEY,
-    mail VARCHAR(255) NOT NULL UNIQUE,
-    contrasenia VARCHAR(255) NOT NULL,
-    nombre VARCHAR(150) NOT NULL
-);
-
-CREATE TABLE Administrador (
-    legajoPersona INT PRIMARY KEY,
-    FOREIGN KEY (legajoPersona) REFERENCES Persona(legajo) ON DELETE CASCADE
+    codigoProvincia INT PRIMARY KEY,
+    nombreProvincia VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Localidad (
-    codLocalidad INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    codProvincia INT NOT NULL,
-    FOREIGN KEY (codProvincia) REFERENCES Provincia(codProvincia)
+    codigoLocalidad INT PRIMARY KEY,
+    nombreProvincia VARCHAR(100) NOT NULL,
+    codigoProvincia INT NOT NULL,
+    FOREIGN KEY (codigoProvincia) REFERENCES Provincia(codigoProvincia)
 );
 
-CREATE TABLE Cliente (
-    legajoPersona INT PRIMARY KEY,
-    fechaNacimiento DATE,
-    telefono VARCHAR(25),
-    codLocalidad INT,
-	edad INT,
-    FOREIGN KEY (legajoPersona) REFERENCES Persona(legajo) ON DELETE CASCADE,
-    FOREIGN KEY (codLocalidad) REFERENCES Localidad(codLocalidad)
+CREATE TABLE TipoProducto (
+    idTipoProducto INT PRIMARY KEY,
+    nombreTipoProducto VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Producto (
-    idProducto INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(255) NOT NULL,
-    caracteristicas TEXT,
+    idProducto INT PRIMARY KEY,
+    nombreProducto VARCHAR(100) NOT NULL,
+    descripcionProducto VARCHAR(200) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
-    codTipoProducto INT,
-    FOREIGN KEY (codTipoProducto) REFERENCES TipoProducto(codTipoProducto)
+    idTipoProducto INT NOT NULL,
+    FOREIGN KEY (idTipoProducto) REFERENCES TipoProducto(idTipoProducto)
 );
 
-CREATE TABLE Precios (
-    idProducto INT NOT NULL PRIMARY KEY,
-    monto DECIMAL(10, 2) NOT NULL,
-    fecha DATE NOT NULL,
+CREATE TABLE Precio (
+    idProducto INT,
+    fechaDesde DATE,
+    monto DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (idProducto, fechaDesde),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
 
-CREATE TABLE Venta (
-    nroVenta INT AUTO_INCREMENT PRIMARY KEY,
-    fecha DATETIME NOT NULL,
-    estado VARCHAR(50), 
-    montoTotal DECIMAL(12, 2),
-    legajoCliente INT NOT NULL,
-    FOREIGN KEY (legajoCliente) REFERENCES Cliente(legajoPersona)
+CREATE TABLE Proveedor (
+    cuil VARCHAR(20) PRIMARY KEY,
+    razonSocial VARCHAR(100) NOT NULL,
+    telefonoProveedor VARCHAR(20),
+    mailProveedor VARCHAR(100),
+    codigoLocalidad INT,
+    FOREIGN KEY (codigoLocalidad) REFERENCES Localidad(codigoLocalidad)
 );
 
-CREATE TABLE Linea_Venta (
-    nroVenta INT NOT NULL,
-    idProducto INT NOT NULL,
-    cantidad INT NOT NULL,
-    precioUnitario DECIMAL(10, 2) NOT NULL,
+CREATE TABLE Persona (
+    dni VARCHAR(20) PRIMARY KEY,
+    nombrePersona VARCHAR(100) NOT NULL,
+    contrasenia VARCHAR(100) NOT NULL,
+    telefonoPersona VARCHAR(20),
+    mailPersona VARCHAR(100)
+);
 
-    PRIMARY KEY (nroVenta, idProducto),
-    FOREIGN KEY (nroVenta) REFERENCES Venta(nroVenta) ON DELETE CASCADE,
+CREATE TABLE Empleado (
+    dni VARCHAR(20) PRIMARY KEY,
+    fechaIngreso DATE NOT NULL,
+    FOREIGN KEY (dni) REFERENCES Persona(dni)
+);
+
+CREATE TABLE Duenio (
+    dniDuenio VARCHAR(20) PRIMARY KEY,
+    FOREIGN KEY (dniDuenio) REFERENCES Persona(dni)
+);
+
+CREATE TABLE Venta (
+    idVenta INT PRIMARY KEY,
+    fechaVenta DATE NOT NULL,
+    estadoVenta VARCHAR(50) NOT NULL,
+    montoTotalVenta INT NOT NULL,
+    dniVendedor VARCHAR(20) NOT NULL,
+    FOREIGN KEY (dniVendedor) REFERENCES Persona(dni)
+);
+
+CREATE TABLE LineaVenta (
+    idVenta INT,
+    nroLineaVenta INT,
+    cantidadVenta INT NOT NULL,
+    idProducto INT NOT NULL,
+    PRIMARY KEY (idVenta, nroLineaVenta),
+    FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
+    FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
+);
+
+CREATE TABLE Pedido (
+    idPedido INT PRIMARY KEY,
+    fechaPedido DATE NOT NULL,
+    estadoPedido VARCHAR(50) NOT NULL,
+    montoTotalPedido INT NOT NULL,
+    cuilProveedor VARCHAR(20) NOT NULL,
+    FOREIGN KEY (cuilProveedor) REFERENCES Proveedor(cuil)
+);
+
+CREATE TABLE LineaPedido (
+    idPedido INT,
+    nroLineaPedido INT,
+    cantidadPedido INT NOT NULL,
+    idProducto INT NOT NULL,
+    PRIMARY KEY (idPedido, nroLineaPedido),
+    FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
