@@ -1,0 +1,5 @@
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Dominio_Modelo\obj\Debug\net8.0\Dominio_Modelo.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Dominio_Modelo\obj\Debug\net8.0\Dominio_Modelo.AssemblyInfoInputs.cache
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Dominio_Modelo\obj\Debug\net8.0\Dominio_Modelo.AssemblyInfo.cs
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Dominio_Modelo\obj\Debug\net8.0\Dominio_Modelo.csproj.CoreCompileInputs.cache
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Dominio_Modelo\obj\Debug\net8.0\Dominio_Modelo.sourcelink.json
