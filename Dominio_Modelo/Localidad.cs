@@ -22,11 +22,11 @@ namespace Dominio_Modelo
             CodigoLocalidad = codigoLocalidad;
         }
 
-        public void SetNombreLocalidad(string nombreLoc)
+        public void SetNombreLocalidad(string nombreLocalidad)
         {
-            if (string.IsNullOrWhiteSpace(nombreLoc))
-                throw new ArgumentException("El nombre de la localidad no puede ser nulo o vacío.", nameof(nombreLoc));
-            NombreLocalidad = nombreLoc;
+            if (string.IsNullOrWhiteSpace(nombreLocalidad))
+                throw new ArgumentException("El nombre de la localidad no puede ser nulo o vacío.", nameof(nombreLocalidad));
+            NombreLocalidad = nombreLocalidad;
         }
 
         public void SetCodigoProvincia(int codigoProvincia)

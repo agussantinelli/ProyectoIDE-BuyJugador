@@ -1,9 +1,8 @@
-﻿namespace DTO
+﻿namespace DTOs
 {
     public class Provincia
     {
-        public int CodProvincia { get; private set; }
-        public string Nombre { get; private set; }
-        public string Descripcion { get; private set; }
+        public int CodigoProvincia { get; private set; }
+        public string NombreProvincia { get; private set; }
     }
 }
