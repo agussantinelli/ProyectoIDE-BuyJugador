@@ -6,13 +6,13 @@ namespace Dominio_Modelo
     {
         public int IdProducto { get; private set; }
         public decimal Monto { get; private set; }
-        public DateTime Fecha { get; private set; }
+        public DateTime FechaDesde { get; private set; }
 
-        public Precio(int idProducto, decimal monto, DateTime fecha)
+        public Precio(int idProducto, decimal monto, DateTime fechaDesde)
         {
             SetIdProducto(idProducto);
             SetMonto(monto);
-            SetFecha(fecha);
+            SetFechaDesde(fechaDesde);
         }
 
         public void SetIdProducto(int idProducto)
@@ -29,11 +29,11 @@ namespace Dominio_Modelo
             Monto = monto;
         }
 
-        public void SetFecha(DateTime fecha)
+        public void SetFechaDesde(DateTime fechaDesde)
         {
-            if (fecha == default)
-                throw new ArgumentException("La fecha no puede ser nula.", nameof(fecha));
-            Fecha = fecha;
+            if (fechaDesde == default)
+                throw new ArgumentException("La fecha no puede ser nula.", nameof(fechaDesde));
+            FechaDesde = fechaDesde;
         }
     }
 }

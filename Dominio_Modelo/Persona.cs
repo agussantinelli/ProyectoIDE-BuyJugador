@@ -5,38 +5,40 @@ namespace Dominio_Modelo
 {
     public abstract class Persona
     {
-        public int Legajo { get; private set; }
-        public string Nombre { get; private set; }
-        public string Mail { get; private set; }
+        public int Dni { get; private set; }
+        public string NombrePer { get; private set; }
+        public string MailPer { get; private set; }
         public string Contrasenia { get; private set; }
+        public string TelefonoPer { get; private set; }
 
-        protected Persona(int legajo, string nombre, string mail, string contrasenia)
+        protected Persona(int dni, string nombrePer, string mailPer, string contrasenia, string telefonoPer)
         {
-            SetLegajo(legajo);
-            SetNombre(nombre);
-            SetMail(mail);
+            SetDni(dni);
+            SetNombrePer(nombrePer);
+            SetMailPer(mailPer);
             SetContrasenia(contrasenia);
+            SetTelefonoPer(telefonoPer);
         }
 
-        public void SetLegajo(int legajo)
+        public void SetDni(int dni)
         {
-            if (legajo <= 0)
-                throw new ArgumentException("El legajo debe ser un número positivo.", nameof(legajo));
-            Legajo = legajo;
+            if (dni <= 0)
+                throw new ArgumentException("El legajo debe ser un número positivo.", nameof(dni));
+            Dni = dni;
         }
 
-        public void SetNombre(string nombre)
+        public void SetNombrePer(string nombrePer)
         {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombre));
-            Nombre = nombre;
+            if (string.IsNullOrWhiteSpace(nombrePer))
+                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombrePer));
+            NombrePer = nombrePer;
         }
 
-        public void SetMail(string mail)
+        public void SetMailPer(string mailPer)
         {
-            if (!EsMailValido(mail))
-                throw new ArgumentException("El mail no tiene un formato válido.", nameof(mail));
-            Mail = mail;
+            if (!EsMailValido(mailPer))
+                throw new ArgumentException("El mail no tiene un formato válido.", nameof(mailPer));
+            MailPer = mailPer;
         }
 
         public void SetContrasenia(string contrasenia)
@@ -44,6 +46,13 @@ namespace Dominio_Modelo
             if (string.IsNullOrWhiteSpace(contrasenia))
                 throw new ArgumentException("La contraseña no puede ser nula o vacía.", nameof(contrasenia));
             Contrasenia = contrasenia;
+        }
+
+        public void SetTelefonoPer(string telefonoPer)
+        {
+            if (string.IsNullOrWhiteSpace(telefonoPer))
+                throw new ArgumentException("El teléfono no puede ser nulo o vacío.", nameof(telefonoPer));
+            TelefonoPer = telefonoPer;
         }
 
         private static bool EsMailValido(string email)

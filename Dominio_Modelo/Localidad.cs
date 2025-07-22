@@ -5,13 +5,13 @@ namespace Dominio_Modelo
     public class Localidad
     {
         public int CodLocalidad { get; private set; }
-        public string Nombre { get; private set; }
+        public string NombreLocalidad { get; private set; }
         public int CodProvincia { get; private set; }
 
-        public Localidad(int codLocalidad, string nombre, int codProvincia)
+        public Localidad(int codLocalidad, string nombreLocalidad, int codProvincia)
         {
             SetCodLocalidad(codLocalidad);
-            SetNombre(nombre);
+            SetNombreLocalidad(nombreLocalidad);
             SetCodProvincia(codProvincia);
         }
 
@@ -22,11 +22,11 @@ namespace Dominio_Modelo
             CodLocalidad = codLocalidad;
         }
 
-        public void SetNombre(string nombre)
+        public void SetNombreLocalidad(string nombreLoc)
         {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombre));
-            Nombre = nombre;
+            if (string.IsNullOrWhiteSpace(nombreLoc))
+                throw new ArgumentException("El nombre de la localidad no puede ser nulo o vacío.", nameof(nombreLoc));
+            NombreLocalidad = nombreLoc;
         }
 
         public void SetCodProvincia(int codProvincia)
