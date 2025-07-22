@@ -66,13 +66,6 @@ CREATE TABLE Venta (
     FOREIGN KEY (legajoCliente) REFERENCES Cliente(legajoPersona)
 );
 
-CREATE TABLE Cancelacion (
-    nroVenta INT PRIMARY KEY,
-    fecha DATETIME NOT NULL,
-    motivo TEXT,
-    FOREIGN KEY (nroVenta) REFERENCES Venta(nroVenta) ON DELETE CASCADE
-);
-
 CREATE TABLE Linea_Venta (
     nroVenta INT NOT NULL,
     idProducto INT NOT NULL,
