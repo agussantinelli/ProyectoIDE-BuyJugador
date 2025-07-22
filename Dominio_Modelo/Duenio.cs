@@ -1,6 +1,4 @@
-using Dominio_Modelo;
-
-namespace Domain.Model
+namespace  Dominio_Modelo
 {
 	public class Duenio : Persona
 	{

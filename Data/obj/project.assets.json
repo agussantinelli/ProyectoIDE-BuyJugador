@@ -1,11 +1,30 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {}
+    "net8.0": {
+      "Dominio_Modelo/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/Dominio_Modelo.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Dominio_Modelo.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Dominio_Modelo/1.0.0": {
+      "type": "project",
+      "path": "../Dominio_Modelo/Dominio_Modelo.csproj",
+      "msbuildProject": "../Dominio_Modelo/Dominio_Modelo.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0": []
+    "net8.0": [
+      "Dominio_Modelo >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\Agus\\.nuget\\packages\\": {},
@@ -38,7 +57,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\Dominio_Modelo.csproj": {
+              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\Dominio_Modelo.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

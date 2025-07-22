@@ -1,0 +1,5 @@
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Data\obj\Debug\net8.0\Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Data\obj\Debug\net8.0\Data.AssemblyInfoInputs.cache
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Data\obj\Debug\net8.0\Data.AssemblyInfo.cs
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Data\obj\Debug\net8.0\Data.csproj.CoreCompileInputs.cache
+C:\Users\Agus\Documents\IDE\ProyectoIDE-BuyJugador\Data\obj\Debug\net8.0\Data.sourcelink.json

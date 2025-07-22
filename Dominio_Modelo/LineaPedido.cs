@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Dominio_Modelo
 {
-    internal class LineaPedido
+    public class LineaPedido
     {
         public int IdPedido { get; private set; }
         public decimal NroLineaPedido { get; private set; }
