@@ -2,20 +2,20 @@ namespace Dominio_Modelo
 {
     public class Provincia
     {
-        public int CodProvincia { get; private set; }
+        public int CodigoProvincia { get; private set; }
         public string NombreProvincia { get; private set; }
 
-        public Provincia(int codProvincia, string nombreProvincia)
+        public Provincia(int codigoProvincia, string nombreProvincia)
         {
-            SetCodProvincia(codProvincia);
+            SetCodigoProvincia(codigoProvincia);
             SetNombreProvincia(nombreProvincia);
         }
 
-        public void SetCodProvincia(int codProvincia)
+        public void SetCodigoProvincia(int codigoProvincia)
         {
-            if (codProvincia <= 0)
-                throw new ArgumentException("El código de provincia debe ser positivo.", nameof(codProvincia));
-            CodProvincia = codProvincia;
+            if (codigoProvincia <= 0)
+                throw new ArgumentException("El código de provincia debe ser positivo.", nameof(codigoProvincia));
+            CodigoProvincia = codigoProvincia;
         }
 
         public void SetNombreProvincia(string nombreProvincia)

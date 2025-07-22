@@ -10,18 +10,18 @@ namespace Dominio_Modelo
     {
         public string Cuil { get; private set; }
         public string RazonSocial { get; private set; }
-        public string TelefonoProve { get; private set; }
-        public string MailProve { get; private set; }
+        public string TelefonoProveedor { get; private set; }
+        public string MailProveedor { get; private set; }
 
-        public Proveedor(string cuil, string razonSocial, string telefonoProve, string mailProve)
+        public Proveedor(string cuil, string razonSocial, string telefonoProveedor, string mailProveedor)
         {
-            SetCuit(cuil);
+            SetCuil(cuil);
             SetRazonSocial(razonSocial);
-            SetTelefonoProve(telefonoProve);
-            SetMailProve(mailProve);
+            SetTelefonoProveedor(telefonoProveedor);
+            SetMailProveedor(mailProveedor);
         }
 
-        public void SetCuit(string cuil)
+        public void SetCuil(string cuil)
         {
             if (string.IsNullOrWhiteSpace(cuil))
                 throw new ArgumentException("El CUIT no puede ser nulo o vacío.", nameof(cuil));
@@ -35,18 +35,18 @@ namespace Dominio_Modelo
             RazonSocial = razonSocial;
         }
 
-        public void SetTelefonoProve(string telefonoProve)
+        public void SetTelefonoProveedor(string telefonoProveedor)
         {
-            if (string.IsNullOrWhiteSpace(telefonoProve))
-                throw new ArgumentException("El teléfono no puede ser nulo o vacío.", nameof(telefonoProve));
-            TelefonoProve = telefonoProve;
+            if (string.IsNullOrWhiteSpace(telefonoProveedor))
+                throw new ArgumentException("El teléfono no puede ser nulo o vacío.", nameof(telefonoProveedor));
+            TelefonoProveedor = telefonoProveedor;
         }
 
-        public void SetMailProve(string mailProve)
+        public void SetMailProveedor(string mailProveedor)
         {
-            if (string.IsNullOrWhiteSpace(mailProve))
-                throw new ArgumentException("El mail no puede ser nulo o vacío.", nameof(mailProve));
-            MailProve = mailProve;
+            if (string.IsNullOrWhiteSpace(mailProveedor))
+                throw new ArgumentException("El mail no puede ser nulo o vacío.", nameof(mailProveedor));
+            MailProveedor = mailProveedor;
         }
     }
 }

@@ -12,13 +12,17 @@ namespace Dominio_Modelo
         public DateTime FechaPedido { get; private set; }
         public string EstadoPedido { get; private set; }
         public decimal MontoTotalPedido { get; private set; }
+        public string CuilProveedor { get; private set; }
 
-        public Pedido(int idPedido, DateTime fechaPedido, string estadoPedido, decimal montoTotalPedido)
+
+        public Pedido(int idPedido, DateTime fechaPedido, string estadoPedido, decimal montoTotalPedido, string cuilProveedor)
         {
             SetIdPedido(idPedido);
             SetFechaPedido(fechaPedido);
             SetEstadoPedido(estadoPedido);
             SetMontoTotalPedido(montoTotalPedido);
+            SetCuilProveedor(cuilProveedor);
+
         }
 
         public void SetIdPedido(int idPedido)
@@ -48,5 +52,13 @@ namespace Dominio_Modelo
                 throw new ArgumentException("El monto total del pedido no puede ser negativo.", nameof(montoTotalPedido));
             MontoTotalPedido = montoTotalPedido;
         }
+
+        public void SetCuilProveedor(string cuil)
+        {
+            if (string.IsNullOrWhiteSpace(cuil))
+                throw new ArgumentException("El CUIT no puede ser nulo o vacío.", nameof(cuil));
+            CuilProveedor = cuil;
+        }
+
     }
 }
