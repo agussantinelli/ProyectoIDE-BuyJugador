@@ -1,50 +1,61 @@
-﻿using Dominio_Modelo;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Dominio_Modelo;
 using Data;
 
 namespace Dominio_Servicios
 {
-    public class EmpleadoService
+    public class ProductoService
     {
-        public void Add(Empleado empleado)
+        public bool Add(Producto producto)
         {
-            EmpleadoInMemory.Empleados.Add(empleado);
+            if (ProductoInMemory.Productos.Any(p => p.NombreProducto.Equals(producto.NombreProducto, StringComparison.OrdinalIgnoreCase)))
+                return false; 
+
+            producto.SetIdProducto(GetNextId());
+            ProductoInMemory.Productos.Add(producto);
+            return true;
         }
 
-        public bool Delete(int dni)
+        public bool Delete(int id)
         {
-            var obj = EmpleadoInMemory.Empleados.Find(x => x.Dni == dni);
-            if (obj != null)
+            var productoToDelete = ProductoInMemory.Productos.FirstOrDefault(x => x.IdProducto == id);
+            if (productoToDelete != null)
             {
-                EmpleadoInMemory.Empleados.Remove(obj);
+                ProductoInMemory.Productos.Remove(productoToDelete);
                 return true;
             }
             return false;
         }
 
-        public Empleado? Get(int dni)
+        public Producto? Get(int id)
         {
-            return EmpleadoInMemory.Empleados.Find(x => x.Dni == dni);
+            return ProductoInMemory.Productos.FirstOrDefault(x => x.IdProducto == id);
         }
 
-        public IEnumerable<Empleado> GetAll()
+        public IEnumerable<Producto> GetAll()
         {
-            return EmpleadoInMemory.Empleados.ToList();
+            return ProductoInMemory.Productos.AsReadOnly();
         }
 
-        public bool Update(Empleado empleado)
+        public bool Update(Producto producto)
         {
-            var obj = EmpleadoInMemory.Empleados.Find(x => x.Dni == empleado.Dni);
-            if (obj != null)
+            var productoToUpdate = ProductoInMemory.Productos.FirstOrDefault(x => x.IdProducto == producto.IdProducto);
+            if (productoToUpdate != null)
             {
-                obj.SetNombrePersona(empleado.NombrePersona);
-                obj.SetMailPersona(empleado.MailPersona);
-                obj.SetContrasenia(empleado.Contrasenia);
-                obj.SetTelefonoPersona(empleado.TelefonoPersona);
-                obj.SetFechaIngreso(empleado.FechaIngreso);
+                productoToUpdate.SetNombreProducto(producto.NombreProducto);
+                productoToUpdate.SetDescripcionProducto(producto.DescripcionProducto);
+                productoToUpdate.SetStock(producto.Stock);
+                productoToUpdate.SetIdTipoProducto(producto.IdTipoProducto);
                 return true;
             }
             return false;
+        }
+
+        private static int GetNextId()
+        {
+            return ProductoInMemory.Productos.Any() ? ProductoInMemory.Productos.Max(x => x.IdProducto) + 1 : 1;
         }
     }
 }
-

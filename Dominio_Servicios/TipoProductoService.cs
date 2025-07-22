@@ -1,18 +1,26 @@
-﻿using Dominio_Modelo;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Dominio_Modelo;
 using Data;
+
 namespace Dominio_Servicios
 {
     public class TipoProductoService
     {
-        public void Add(TipoProducto tipoProducto)
+        public bool Add(TipoProducto tipoProducto)
         {
+            if (TipoProductoInMemory.TiposProducto.Any(tp => tp.NombreTipoProducto.Equals(tipoProducto.NombreTipoProducto, StringComparison.OrdinalIgnoreCase)))
+                return false;
+
             tipoProducto.SetIdTipoProducto(GetNextId());
             TipoProductoInMemory.TiposProducto.Add(tipoProducto);
+            return true;
         }
 
         public bool Delete(int id)
         {
-            var tipoProductoToDelete = TipoProductoInMemory.TiposProducto.Find(x => x.IdTipoProducto == id);
+            var tipoProductoToDelete = TipoProductoInMemory.TiposProducto.FirstOrDefault(x => x.IdTipoProducto == id);
             if (tipoProductoToDelete != null)
             {
                 TipoProductoInMemory.TiposProducto.Remove(tipoProductoToDelete);
@@ -21,19 +29,19 @@ namespace Dominio_Servicios
             return false;
         }
 
-        public TipoProducto Get(int id)
+        public TipoProducto? Get(int id)
         {
-            return TipoProductoInMemory.TiposProducto.Find(x => x.IdTipoProducto == id);
+            return TipoProductoInMemory.TiposProducto.FirstOrDefault(x => x.IdTipoProducto == id);
         }
 
-        public IEnumerable<TipoProducto> GetAll()
+        public IReadOnlyList<TipoProducto> GetAll()
         {
-            return TipoProductoInMemory.TiposProducto.ToList();
+            return TipoProductoInMemory.TiposProducto.AsReadOnly();
         }
 
         public bool Update(TipoProducto tipoProducto)
         {
-            var tipoProductoToUpdate = TipoProductoInMemory.TiposProducto.Find(x => x.IdTipoProducto == tipoProducto.IdTipoProducto);
+            var tipoProductoToUpdate = TipoProductoInMemory.TiposProducto.FirstOrDefault(x => x.IdTipoProducto == tipoProducto.IdTipoProducto);
             if (tipoProductoToUpdate != null)
             {
                 tipoProductoToUpdate.SetNombreTipoProducto(tipoProducto.NombreTipoProducto);
@@ -44,7 +52,7 @@ namespace Dominio_Servicios
 
         private static int GetNextId()
         {
-            return TipoProductoInMemory.TiposProducto.Count > 0 ? TipoProductoInMemory.TiposProducto.Max(x => x.IdTipoProducto) + 1 : 1;
+            return TipoProductoInMemory.TiposProducto.Any() ? TipoProductoInMemory.TiposProducto.Max(x => x.IdTipoProducto) + 1 : 1;
         }
     }
 }

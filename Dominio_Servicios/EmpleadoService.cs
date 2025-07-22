@@ -1,19 +1,24 @@
 ﻿using Dominio_Modelo;
 using Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dominio_Servicios
 {
     public class EmpleadoService
     {
-        public void Add(Empleado empleado)
+        public bool Add(Empleado empleado)
         {
-            empleado.SetId(GetNextId());
+            if (EmpleadoInMemory.Empleados.Any(e => e.Dni == empleado.Dni))
+                return false; // 
+
             EmpleadoInMemory.Empleados.Add(empleado);
+            return true;
         }
 
-        public bool Delete(int id)
+        public bool Delete(int dni)
         {
-            var obj = EmpleadoInMemory.Empleados.Find(x => x.Id == id);
+            var obj = EmpleadoInMemory.Empleados.Find(x => x.Dni == dni);
             if (obj != null)
             {
                 EmpleadoInMemory.Empleados.Remove(obj);
@@ -22,9 +27,9 @@ namespace Dominio_Servicios
             return false;
         }
 
-        public Empleado? Get(int id)
+        public Empleado? Get(int dni)
         {
-            return EmpleadoInMemory.Empleados.Find(x => x.Id == id);
+            return EmpleadoInMemory.Empleados.Find(x => x.Dni == dni);
         }
 
         public IEnumerable<Empleado> GetAll()
@@ -34,10 +39,9 @@ namespace Dominio_Servicios
 
         public bool Update(Empleado empleado)
         {
-            var obj = EmpleadoInMemory.Empleados.Find(x => x.Id == empleado.Id);
+            var obj = EmpleadoInMemory.Empleados.Find(x => x.Dni == empleado.Dni);
             if (obj != null)
             {
-                obj.SetDni(empleado.Dni);
                 obj.SetNombrePersona(empleado.NombrePersona);
                 obj.SetMailPersona(empleado.MailPersona);
                 obj.SetContrasenia(empleado.Contrasenia);
@@ -46,11 +50,6 @@ namespace Dominio_Servicios
                 return true;
             }
             return false;
-        }
-
-        private static int GetNextId()
-        {
-            return EmpleadoInMemory.Empleados.Count > 0 ? EmpleadoInMemory.Empleados.Max(x => x.Id) + 1 : 1;
         }
     }
 }
