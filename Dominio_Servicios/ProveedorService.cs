@@ -1,19 +1,24 @@
-﻿
-using Dominio_Modelo;
+﻿using Dominio_Modelo;
 using Data;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Dominio_Servicios
 {
     public class ProveedorService
     {
-        public void Add(Proveedor proveedor)
-        { 
+        public bool Add(Proveedor proveedor)
+        {
+            if (ProveedorInMemory.Proveedores.Any(p => p.Cuil == proveedor.Cuil))
+                return false;
+
             ProveedorInMemory.Proveedores.Add(proveedor);
+            return true;
         }
 
         public bool Delete(string cuil)
         {
-            var obj = ProveedorInMemory.Proveedores.Find(x => x.Cuil == cuil);
+            var obj = ProveedorInMemory.Proveedores.FirstOrDefault(x => x.Cuil == cuil);
             if (obj != null)
             {
                 ProveedorInMemory.Proveedores.Remove(obj);
@@ -24,17 +29,17 @@ namespace Dominio_Servicios
 
         public Proveedor? Get(string cuil)
         {
-            return ProveedorInMemory.Proveedores.Find(x => x.Cuil == cuil);
+            return ProveedorInMemory.Proveedores.FirstOrDefault(x => x.Cuil == cuil);
         }
 
-        public IEnumerable<Proveedor> GetAll()
+        public IReadOnlyList<Proveedor> GetAll()
         {
-            return ProveedorInMemory.Proveedores.ToList();
+            return ProveedorInMemory.Proveedores.AsReadOnly();
         }
 
         public bool Update(Proveedor proveedor)
         {
-            var obj = ProveedorInMemory.Proveedores.Find(x => x.Cuil == proveedor.Cuil);
+            var obj = ProveedorInMemory.Proveedores.FirstOrDefault(x => x.Cuil == proveedor.Cuil);
             if (obj != null)
             {
                 obj.SetRazonSocial(proveedor.RazonSocial);

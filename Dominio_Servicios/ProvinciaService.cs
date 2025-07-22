@@ -1,18 +1,25 @@
 ﻿using Dominio_Modelo;
 using Data;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Dominio_Servicios
 {
     public class ProvinciaService
     {
-        public void Add(Provincia provincia)
+        public bool Add(Provincia provincia)
         {
+            if (ProvinciaInMemory.Provincias.Any(p => p.NombreProvincia.Equals(provincia.NombreProvincia, System.StringComparison.OrdinalIgnoreCase)))
+                return false;
+
             provincia.SetCodigoProvincia(GetNextCodigoProvincia());
             ProvinciaInMemory.Provincias.Add(provincia);
+            return true;
         }
 
         public bool Delete(int codigoProvincia)
         {
-            var provinciaToDelete = ProvinciaInMemory.Provincias.Find(x => x.CodigoProvincia == codigoProvincia);
+            var provinciaToDelete = ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == codigoProvincia);
             if (provinciaToDelete != null)
             {
                 ProvinciaInMemory.Provincias.Remove(provinciaToDelete);
@@ -21,19 +28,19 @@ namespace Dominio_Servicios
             return false;
         }
 
-        public Provincia Get(int codigoProvincia)
+        public Provincia? Get(int codigoProvincia)
         {
-            return ProvinciaInMemory.Provincias.Find(x => x.CodigoProvincia == codigoProvincia);
+            return ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == codigoProvincia);
         }
 
-        public IEnumerable<Provincia> GetAll()
+        public IReadOnlyList<Provincia> GetAll()
         {
-            return ProvinciaInMemory.Provincias.ToList();
+            return ProvinciaInMemory.Provincias.AsReadOnly();
         }
 
         public bool Update(Provincia provincia)
         {
-            var provinciaToUpdate = ProvinciaInMemory.Provincias.Find(x => x.CodigoProvincia == provincia.CodigoProvincia);
+            var provinciaToUpdate = ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == provincia.CodigoProvincia);
             if (provinciaToUpdate != null)
             {
                 provinciaToUpdate.SetNombreProvincia(provincia.NombreProvincia);
@@ -44,7 +51,7 @@ namespace Dominio_Servicios
 
         private static int GetNextCodigoProvincia()
         {
-            return ProvinciaInMemory.Provincias.Count > 0 ? ProvinciaInMemory.Provincias.Max(x => x.CodigoProvincia) + 1 : 1;
+            return ProvinciaInMemory.Provincias.Any() ? ProvinciaInMemory.Provincias.Max(x => x.CodigoProvincia) + 1 : 1;
         }
     }
 }
