@@ -3,30 +3,31 @@ USE buyjugador;
 
 CREATE TABLE Provincia (
     codigoProvincia INT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    nombreProvincia VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Localidad (
     codigoLocalidad INT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    nombreProvincia VARCHAR(100) NOT NULL,
     codigoProvincia INT NOT NULL,
     FOREIGN KEY (codigoProvincia) REFERENCES Provincia(codigoProvincia)
 );
 
 CREATE TABLE TipoProducto (
     idTipoProducto INT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    nombreTipoProducto VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Producto (
     idProducto INT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    nombreProducto VARCHAR(100) NOT NULL,
+    descripcionProducto VARCHAR(200) NOT NULL,
     stock INT NOT NULL DEFAULT 0,
     idTipoProducto INT NOT NULL,
     FOREIGN KEY (idTipoProducto) REFERENCES TipoProducto(idTipoProducto)
 );
 
-CREATE TABLE PrecioProducto (
+CREATE TABLE Precio (
     idProducto INT,
     fechaDesde DATE,
     monto DECIMAL(10,2) NOT NULL,
@@ -37,18 +38,18 @@ CREATE TABLE PrecioProducto (
 CREATE TABLE Proveedor (
     cuil VARCHAR(20) PRIMARY KEY,
     razonSocial VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20),
-    mail VARCHAR(100),
+    telefonoProveedor VARCHAR(20),
+    mailProveedor VARCHAR(100),
     codigoLocalidad INT,
     FOREIGN KEY (codigoLocalidad) REFERENCES Localidad(codigoLocalidad)
 );
 
 CREATE TABLE Persona (
     dni VARCHAR(20) PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    contraseña VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20),
-    mail VARCHAR(100)
+    nombrePersona VARCHAR(100) NOT NULL,
+    contrasenia VARCHAR(100) NOT NULL,
+    telefonoPersona VARCHAR(20),
+    mailPersona VARCHAR(100)
 );
 
 CREATE TABLE Empleado (
@@ -57,23 +58,24 @@ CREATE TABLE Empleado (
     FOREIGN KEY (dni) REFERENCES Persona(dni)
 );
 
-CREATE TABLE Dueño (
-    dni VARCHAR(20) PRIMARY KEY,
-    FOREIGN KEY (dni) REFERENCES Persona(dni)
+CREATE TABLE Duenio (
+    dniDuenio VARCHAR(20) PRIMARY KEY,
+    FOREIGN KEY (dniDuenio) REFERENCES Persona(dni)
 );
 
 CREATE TABLE Venta (
     idVenta INT PRIMARY KEY,
     fechaVenta DATE NOT NULL,
-    estado VARCHAR(50) NOT NULL,
+    estadoVenta VARCHAR(50) NOT NULL,
+    montoTotalVenta INT NOT NULL,
     dniVendedor VARCHAR(20) NOT NULL,
     FOREIGN KEY (dniVendedor) REFERENCES Persona(dni)
 );
 
 CREATE TABLE LineaVenta (
     idVenta INT,
-    numeroLinea INT,
-    cantidad INT NOT NULL,
+    nroLineaVenta INT,
+    cantidadVenta INT NOT NULL,
     idProducto INT NOT NULL,
     PRIMARY KEY (idVenta, numeroLinea),
     FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
@@ -82,18 +84,19 @@ CREATE TABLE LineaVenta (
 
 CREATE TABLE Pedido (
     idPedido INT PRIMARY KEY,
-    fecha DATE NOT NULL,
-    estado VARCHAR(50) NOT NULL,
+    fechaPedido DATE NOT NULL,
+    estadoPedido VARCHAR(50) NOT NULL,
+    montoTotalPedido INT NOT NULL,
     cuilProveedor VARCHAR(20) NOT NULL,
     FOREIGN KEY (cuilProveedor) REFERENCES Proveedor(cuil)
 );
 
 CREATE TABLE LineaPedido (
     idPedido INT,
-    numeroLinea INT,
-    cantidad INT NOT NULL,
+    nroLineaPedido INT,
+    cantidadPedido INT NOT NULL,
     idProducto INT NOT NULL,
-    PRIMARY KEY (idPedido, numeroLinea),
+    PRIMARY KEY (idPedido, nroLineaPedido),
     FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
