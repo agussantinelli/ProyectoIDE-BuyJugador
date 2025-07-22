@@ -4,27 +4,27 @@ namespace Dominio_Modelo
 {
     public class TipoProducto
     {
-        public int CodTipoProducto { get; private set; }
-        public string Nombre { get; private set; }
+        public int IdTipoProducto { get; private set; }
+        public string NombreTipoProducto { get; private set; }
 
-        public TipoProducto(int codTipoProducto, string nombre)
+        public TipoProducto(int idTipoProducto, string nombreTipoProducto)
         {
-            SetCodTipoProducto(codTipoProducto);
-            SetNombre(nombre);
+            SetIdTipoProducto(idTipoProducto);
+            SetNombreTipoProducto(nombreTipoProducto);
         }
 
-        public void SetCodTipoProducto(int codTipoProducto)
+        public void SetIdTipoProducto(int idTipoProducto)
         {
-            if (codTipoProducto <= 0)
-                throw new ArgumentException("El código del tipo de producto debe ser positivo.", nameof(codTipoProducto));
-            CodTipoProducto = codTipoProducto;
+            if (idTipoProducto <= 0)
+                throw new ArgumentException("El código del tipo de producto debe ser positivo.", nameof(idTipoProducto));
+            IdTipoProducto = idTipoProducto;
         }
 
-        public void SetNombre(string nombre)
+        public void SetNombreTipoProducto(string nombreTipoProducto)
         {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre del tipo de producto no puede ser nulo o vacío.", nameof(nombre));
-            Nombre = nombre;
+            if (string.IsNullOrWhiteSpace(nombreTipoProducto))
+                throw new ArgumentException("El nombre del tipo de producto no puede ser nulo o vacío.", nameof(nombreTipoProducto));
+            NombreTipoProducto = nombreTipoProducto;
         }
     }
 }

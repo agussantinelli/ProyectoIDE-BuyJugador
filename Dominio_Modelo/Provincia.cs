@@ -3,14 +3,12 @@ namespace Dominio_Modelo
     public class Provincia
     {
         public int CodProvincia { get; private set; }
-        public string Nombre { get; private set; }
-        public string Descripcion { get; private set; }
+        public string NombreProvincia { get; private set; }
 
-        public Provincia(int codProvincia, string nombre, string descripcion)
+        public Provincia(int codProvincia, string nombreProvincia)
         {
             SetCodProvincia(codProvincia);
-            SetNombre(nombre);
-            SetDescripcion(descripcion);
+            SetNombreProvincia(nombreProvincia);
         }
 
         public void SetCodProvincia(int codProvincia)
@@ -20,18 +18,12 @@ namespace Dominio_Modelo
             CodProvincia = codProvincia;
         }
 
-        public void SetNombre(string nombre)
+        public void SetNombreProvincia(string nombreProvincia)
         {
-            if (string.IsNullOrWhiteSpace(nombre))
-                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombre));
-            Nombre = nombre;
+            if (string.IsNullOrWhiteSpace(nombreProvincia))
+                throw new ArgumentException("El nombre no puede ser nulo o vacío.", nameof(nombreProvincia));
+            NombreProvincia = nombreProvincia;
         }
 
-        public void SetDescripcion(string descripcion)
-        {
-            if (string.IsNullOrWhiteSpace(descripcion))
-                throw new ArgumentException("La descripción no puede ser nula o vacía.", nameof(descripcion));
-            Descripcion = descripcion;
-        }
     }
 }

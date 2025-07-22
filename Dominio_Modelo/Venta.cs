@@ -4,54 +4,54 @@ namespace Dominio_Modelo
 {
     public class Venta
     {
-        public int NroVenta { get; private set; }
-        public DateTime Fecha { get; private set; }
-        public string Estado { get; private set; }
-        public decimal MontoTotal { get; private set; }
-        public int LegajoCliente { get; private set; }
+        public int IdVenta { get; private set; }
+        public DateTime FechaVenta { get; private set; }
+        public string EstadoVenta { get; private set; }
+        public decimal MontoTotalVenta { get; private set; }
+        public int DniVendedor { get; private set; }
 
-        public Venta(int nroVenta, DateTime fecha, string estado, decimal montoTotal, int legajoCliente)
+        public Venta(int idVenta, DateTime fechaVenta, string estadoVenta, decimal montoTotalVenta, int dniVendedor)
         {
-            SetNroVenta(nroVenta);
-            SetFecha(fecha);
-            SetEstado(estado);
-            SetMontoTotal(montoTotal);
-            SetLegajoCliente(legajoCliente);
+            SetIdVenta(idVenta);
+            SetFechaVenta(fechaVenta);
+            SetEstadoVenta(estadoVenta);
+            SetMontoTotalVenta(montoTotalVenta);
+            SetDniVendedor(dniVendedor);
         }
 
-        public void SetNroVenta(int nroVenta)
+        public void SetIdVenta(int idVenta)
         {
-            if (nroVenta <= 0)
-                throw new ArgumentException("El número de venta debe ser positivo.", nameof(nroVenta));
-            NroVenta = nroVenta;
+            if (idVenta <= 0)
+                throw new ArgumentException("El ID de venta debe ser positivo.", nameof(idVenta));
+            IdVenta = idVenta;
         }
 
-        public void SetFecha(DateTime fecha)
+        public void SetFechaVenta(DateTime fechaVenta)
         {
-            if (fecha == default)
-                throw new ArgumentException("La fecha no puede ser nula.", nameof(fecha));
-            Fecha = fecha;
+            if (fechaVenta == default)
+                throw new ArgumentException("La fecha de venta no puede ser vacía.", nameof(fechaVenta));
+            FechaVenta = fechaVenta;
         }
 
-        public void SetEstado(string estado)
+        public void SetEstadoVenta(string estadoVenta)
         {
-            if (string.IsNullOrWhiteSpace(estado))
-                throw new ArgumentException("El estado no puede ser nulo o vacío.", nameof(estado));
-            Estado = estado;
+            if (string.IsNullOrWhiteSpace(estadoVenta))
+                throw new ArgumentException("El estado de venta no puede ser nulo o vacío.", nameof(estadoVenta));
+            EstadoVenta = estadoVenta;
         }
 
-        public void SetMontoTotal(decimal montoTotal)
+        public void SetMontoTotalVenta(decimal montoTotalVenta)
         {
-            if (montoTotal < 0)
-                throw new ArgumentException("El monto total no puede ser negativo.", nameof(montoTotal));
-            MontoTotal = montoTotal;
+            if (montoTotalVenta < 0)
+                throw new ArgumentException("El monto total de la venta no puede ser negativo.", nameof(montoTotalVenta));
+            MontoTotalVenta = montoTotalVenta;
         }
 
-        public void SetLegajoCliente(int legajoCliente)
+        public void SetDniVendedor(int dniVendedor)
         {
-            if (legajoCliente <= 0)
-                throw new ArgumentException("El legajo del cliente debe ser positivo.", nameof(legajoCliente));
-            LegajoCliente = legajoCliente;
+            if (dniVendedor <= 0)
+                throw new ArgumentException("El DNI del vendedor debe ser positivo.", nameof(dniVendedor));
+            DniVendedor = dniVendedor;
         }
     }
 }
