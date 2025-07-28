@@ -1,4 +1,3 @@
--- Crear base de datos (omitimos IF NOT EXISTS)
 CREATE DATABASE buyjugador;
 GO
 
