@@ -1,10 +1,15 @@
-CREATE DATABASE IF NOT EXISTS buyjugador;
+-- Crear base de datos (omitimos IF NOT EXISTS)
+CREATE DATABASE buyjugador;
+GO
+
 USE buyjugador;
+GO
 
 CREATE TABLE Provincia (
     codigoProvincia INT PRIMARY KEY,
     nombreProvincia VARCHAR(100) NOT NULL
 );
+GO
 
 CREATE TABLE Localidad (
     codigoLocalidad INT PRIMARY KEY,
@@ -12,11 +17,13 @@ CREATE TABLE Localidad (
     codigoProvincia INT NOT NULL,
     FOREIGN KEY (codigoProvincia) REFERENCES Provincia(codigoProvincia)
 );
+GO
 
 CREATE TABLE TipoProducto (
     idTipoProducto INT PRIMARY KEY,
     nombreTipoProducto VARCHAR(100) NOT NULL
 );
+GO
 
 CREATE TABLE Producto (
     idProducto INT PRIMARY KEY,
@@ -26,6 +33,7 @@ CREATE TABLE Producto (
     idTipoProducto INT NOT NULL,
     FOREIGN KEY (idTipoProducto) REFERENCES TipoProducto(idTipoProducto)
 );
+GO
 
 CREATE TABLE Precio (
     idProducto INT,
@@ -34,6 +42,7 @@ CREATE TABLE Precio (
     PRIMARY KEY (idProducto, fechaDesde),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
+GO
 
 CREATE TABLE Proveedor (
     cuil VARCHAR(20) PRIMARY KEY,
@@ -43,6 +52,7 @@ CREATE TABLE Proveedor (
     codigoLocalidad INT,
     FOREIGN KEY (codigoLocalidad) REFERENCES Localidad(codigoLocalidad)
 );
+GO
 
 CREATE TABLE Persona (
     dni VARCHAR(20) PRIMARY KEY,
@@ -51,17 +61,20 @@ CREATE TABLE Persona (
     telefonoPersona VARCHAR(20),
     mailPersona VARCHAR(100)
 );
+GO
 
 CREATE TABLE Empleado (
     dni VARCHAR(20) PRIMARY KEY,
     fechaIngreso DATE NOT NULL,
     FOREIGN KEY (dni) REFERENCES Persona(dni)
 );
+GO
 
 CREATE TABLE Duenio (
     dniDuenio VARCHAR(20) PRIMARY KEY,
     FOREIGN KEY (dniDuenio) REFERENCES Persona(dni)
 );
+GO
 
 CREATE TABLE Venta (
     idVenta INT PRIMARY KEY,
@@ -71,6 +84,7 @@ CREATE TABLE Venta (
     dniVendedor VARCHAR(20) NOT NULL,
     FOREIGN KEY (dniVendedor) REFERENCES Persona(dni)
 );
+GO
 
 CREATE TABLE LineaVenta (
     idVenta INT,
@@ -81,6 +95,7 @@ CREATE TABLE LineaVenta (
     FOREIGN KEY (idVenta) REFERENCES Venta(idVenta),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
+GO
 
 CREATE TABLE Pedido (
     idPedido INT PRIMARY KEY,
@@ -90,6 +105,7 @@ CREATE TABLE Pedido (
     cuilProveedor VARCHAR(20) NOT NULL,
     FOREIGN KEY (cuilProveedor) REFERENCES Proveedor(cuil)
 );
+GO
 
 CREATE TABLE LineaPedido (
     idPedido INT,
@@ -100,3 +116,4 @@ CREATE TABLE LineaPedido (
     FOREIGN KEY (idPedido) REFERENCES Pedido(idPedido),
     FOREIGN KEY (idProducto) REFERENCES Producto(idProducto)
 );
+GO
