@@ -1,4 +1,4 @@
 # ProyectoIDE-BuyJugador
 Este trabajo práctico tratara sobre el inventariado de productos relacionados a componentes electronicos.
 
-Modelo de Dominio: https://drive.google.com/file/d/12u8hzPUfwinbiCQrjsPaXWcD6i9au6Cl/view?usp=sharing
+Modelo de Dominio: https://drive.google.com/drive/folders/1z1zvg535spSoWh4M8KYAg8vvq3pXs1fn?usp=sharing
