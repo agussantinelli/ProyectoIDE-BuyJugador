@@ -12,29 +12,27 @@ namespace WebAPI.Endpoints
     {
         public static void Map(WebApplication app)
         {
-            // Endpoint para obtener todos los tipos de producto
             app.MapGet("/tiposproducto", (TipoProductoService tipoProductoService) =>
             {
                 var tiposProducto = tipoProductoService.GetAll();
                 return Results.Ok(tiposProducto);
             })
             .WithName("GetAllTiposProducto")
-            .Produces<IReadOnlyList<TipoProducto>>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyList<DTOs.TipoProducto>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
-            // Endpoint para obtener un tipo de producto por su ID
             app.MapGet("/tiposproducto/{id}", (int id, TipoProductoService tipoProductoService) =>
             {
                 var tipoProducto = tipoProductoService.Get(id);
                 return tipoProducto is not null ? Results.Ok(tipoProducto) : Results.NotFound();
             })
             .WithName("GetTipoProductoById")
-            .Produces<TipoProducto>(StatusCodes.Status200OK)
+            .Produces<DTOs.TipoProducto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
             // Endpoint para agregar un nuevo tipo de producto
-            app.MapPost("/tiposproducto", (TipoProducto tipoProducto, TipoProductoService tipoProductoService) =>
+            app.MapPost("/tiposproducto", (DominioModelo.TipoProducto tipoProducto, TipoProductoService tipoProductoService) =>
             {
                 try
                 {
@@ -47,13 +45,12 @@ namespace WebAPI.Endpoints
                 }
             })
             .WithName("AddTipoProducto")
-            .Produces<TipoProducto>(StatusCodes.Status201Created)
+            .Produces<DominioModelo.TipoProducto>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status409Conflict)
             .WithOpenApi();
 
-            // Endpoint para actualizar un tipo de producto existente
-            app.MapPut("/tiposproducto", (TipoProducto tipoProducto, TipoProductoService tipoProductoService) =>
+            app.MapPut("/tiposproducto", (DominioModelo.TipoProducto tipoProducto, TipoProductoService tipoProductoService) =>
             {
                 try
                 {
@@ -71,7 +68,6 @@ namespace WebAPI.Endpoints
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
-            // Endpoint para eliminar un tipo de producto por su ID
             app.MapDelete("/tiposproducto/{id}", (int id, TipoProductoService tipoProductoService) =>
             {
                 bool deleted = tipoProductoService.Delete(id);
