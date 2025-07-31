@@ -17,8 +17,8 @@ namespace WebAPI.Endpoints
             app.MapGet("/provincias", (ProvinciaService provinciaService) =>
             {
                 var provinciasDominio = provinciaService.GetAll();
-                // Usando el constructor del DTO para crear la lista
-                var provinciasDto = provinciasDominio.Select(p => new DTOs.Provincia(p.CodigoProvincia, p.NombreProvincia)).ToList();
+                // Mapea la lista de DominioModelo.Provincia a una lista de DTOs.Provincia
+                var provinciasDto = provinciasDominio.Select(p => new DTOs.Provincia { CodigoProvincia = p.CodigoProvincia, NombreProvincia = p.NombreProvincia }).ToList();
                 return Results.Ok(provinciasDto);
             })
             .WithName("GetAllProvincias")
@@ -33,8 +33,7 @@ namespace WebAPI.Endpoints
                 {
                     return Results.NotFound();
                 }
-                // Usando el constructor del DTO para crear la instancia
-                var provinciaDto = new DTOs.Provincia(provinciaDominio.CodigoProvincia, provinciaDominio.NombreProvincia);
+                var provinciaDto = new DTOs.Provincia { CodigoProvincia = provinciaDominio.CodigoProvincia, NombreProvincia = provinciaDominio.NombreProvincia };
                 return Results.Ok(provinciaDto);
             })
             .WithName("GetProvinciaByCodigo")
