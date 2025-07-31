@@ -1,6 +1,6 @@
 using System;
 
-namespace Dominio_Modelo
+namespace DominioModelo
 {
     public class LineaVenta
     {

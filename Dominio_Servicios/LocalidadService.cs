@@ -1,9 +1,9 @@
-﻿using Dominio_Modelo;
+﻿using DominioModelo;
 using Data;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Dominio_Servicios
+namespace DominioServicios
 {
     public class LocalidadService
     {

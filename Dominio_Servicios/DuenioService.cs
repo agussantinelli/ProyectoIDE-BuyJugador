@@ -1,7 +1,7 @@
-﻿using Dominio_Modelo;
+﻿using DominioModelo;
 using Data;
 
-namespace Dominio_Servicios
+namespace DominioServicios
 {
     public class DuenioService
     {

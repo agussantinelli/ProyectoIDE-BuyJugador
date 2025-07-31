@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace Dominio_Modelo
+namespace DominioModelo
 {
     public abstract class Persona
     {

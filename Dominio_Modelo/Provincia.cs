@@ -1,4 +1,4 @@
-namespace Dominio_Modelo
+namespace DominioModelo
 {
     public class Provincia
     {
