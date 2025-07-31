@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using System;
+using System.Linq;
 
 namespace WebAPI.Endpoints
 {
@@ -12,31 +13,43 @@ namespace WebAPI.Endpoints
     {
         public static void Map(WebApplication app)
         {
+            // Endpoint para obtener todas las provincias
             app.MapGet("/provincias", (ProvinciaService provinciaService) =>
             {
-                var provincias = provinciaService.GetAll();
-                return Results.Ok(provincias);
+                var provinciasDominio = provinciaService.GetAll();
+                // Usando el constructor del DTO para crear la lista
+                var provinciasDto = provinciasDominio.Select(p => new DTOs.Provincia(p.CodigoProvincia, p.NombreProvincia)).ToList();
+                return Results.Ok(provinciasDto);
             })
             .WithName("GetAllProvincias")
             .Produces<IReadOnlyList<DTOs.Provincia>>(StatusCodes.Status200OK)
             .WithOpenApi();
 
+            // Endpoint para obtener una provincia por su código
             app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
             {
-                var provincia = provinciaService.Get(codigoProvincia);
-                return provincia is not null ? Results.Ok(provincia) : Results.NotFound();
+                var provinciaDominio = provinciaService.Get(codigoProvincia);
+                if (provinciaDominio is null)
+                {
+                    return Results.NotFound();
+                }
+                // Usando el constructor del DTO para crear la instancia
+                var provinciaDto = new DTOs.Provincia(provinciaDominio.CodigoProvincia, provinciaDominio.NombreProvincia);
+                return Results.Ok(provinciaDto);
             })
             .WithName("GetProvinciaByCodigo")
             .Produces<DTOs.Provincia>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status404NotFound)
             .WithOpenApi();
 
-            app.MapPost("/provincias", (DominioModelo.Provincia provincia, ProvinciaService provinciaService) =>
+            // Endpoint para agregar una nueva provincia
+            app.MapPost("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaService) =>
             {
                 try
                 {
+                    var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
                     bool added = provinciaService.Add(provincia);
-                    return added ? Results.Created($"/provincias/{provincia.CodigoProvincia}", provincia) : Results.Conflict(new { error = "Ya existe una provincia con ese nombre o código." });
+                    return added ? Results.Created($"/provincias/{provincia.CodigoProvincia}", dto) : Results.Conflict(new { error = "Ya existe una provincia con ese nombre o código." });
                 }
                 catch (ArgumentException ex)
                 {
@@ -44,15 +57,17 @@ namespace WebAPI.Endpoints
                 }
             })
             .WithName("AddProvincia")
-            .Produces<DominioModelo.Provincia>(StatusCodes.Status201Created)
+            .Produces<DTOs.Provincia>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status409Conflict)
             .WithOpenApi();
 
-            app.MapPut("/provincias", (DominioModelo.Provincia provincia, ProvinciaService provinciaService) =>
+            // Endpoint para actualizar una provincia existente
+            app.MapPut("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaService) =>
             {
                 try
                 {
+                    var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
                     bool updated = provinciaService.Update(provincia);
                     return updated ? Results.NoContent() : Results.NotFound();
                 }
@@ -67,6 +82,7 @@ namespace WebAPI.Endpoints
             .Produces(StatusCodes.Status400BadRequest)
             .WithOpenApi();
 
+            // Endpoint para eliminar una provincia por su código
             app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
             {
                 bool deleted = provinciaService.Delete(codigoProvincia);

@@ -1,5 +1,6 @@
 using DominioServicios;
 using WebAPI.Endpoints;
+using DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 

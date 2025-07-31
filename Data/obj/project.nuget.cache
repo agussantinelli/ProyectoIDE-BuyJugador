@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "BtuuUfdsrcw=",
+  "dgSpecHash": "DGBofH03Gb4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\Data\\Data.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Marto\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.7\\microsoft.aspnetcore.openapi.8.0.7.nupkg.sha512",
+    "C:\\Users\\Marto\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512"
+  ],
   "logs": []
 }

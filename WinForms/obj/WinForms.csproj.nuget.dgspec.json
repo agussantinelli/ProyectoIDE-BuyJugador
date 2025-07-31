@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\WinForms\\WinForms.csproj": {}
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WinForms\\WinForms.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\WinForms\\WinForms.csproj": {
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WinForms\\WinForms.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\WinForms\\WinForms.csproj",
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WinForms\\WinForms.csproj",
         "projectName": "WinForms",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\WinForms\\WinForms.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\Tp-BuyJugador\\WinForms\\obj\\",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WinForms\\WinForms.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WinForms\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,6 +26,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -68,7 +69,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
