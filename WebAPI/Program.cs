@@ -6,18 +6,15 @@ using Microsoft.AspNetCore.Builder;
 using System;
 using System.Linq;
 using DominioModelo;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add services for OpenAPI / Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpLogging(o => { });
 
-// Registrar los servicios de dominio como Singletons
-builder.Services.AddSingleton<ProvinciaService>();
-builder.Services.AddSingleton<TipoProductoService>();
 
 var app = builder.Build();
 
@@ -32,13 +29,12 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 #region Provincias
-// Sección dedicada a los endpoints de la entidad Provincia
-
-// Endpoint para obtener todas las provincias
-app.MapGet("/provincias", (ProvinciaService provinciaService) =>
+// CRUD operations for Provincia entity
+// GET all provincias
+app.MapGet("/provincias", () =>
 {
+    ProvinciaService provinciaService = new ProvinciaService();
     var provinciasDominio = provinciaService.GetAll();
-    // Mapea la lista de DominioModelo.Provincia a una lista de DTOs.Provincia
     var provinciasDto = provinciasDominio.Select(p => new DTOs.Provincia { CodigoProvincia = p.CodigoProvincia, NombreProvincia = p.NombreProvincia }).ToList();
     return Results.Ok(provinciasDto);
 })
@@ -46,9 +42,10 @@ app.MapGet("/provincias", (ProvinciaService provinciaService) =>
 .Produces<IReadOnlyList<DTOs.Provincia>>(StatusCodes.Status200OK)
 .WithOpenApi();
 
-// Endpoint para obtener una provincia por su código
-app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
+// GET a provincia by id
+app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia) =>
 {
+    ProvinciaService provinciaService = new ProvinciaService();
     var provinciaDominio = provinciaService.Get(codigoProvincia);
     if (provinciaDominio is null)
     {
@@ -62,12 +59,12 @@ app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaServi
 .Produces(StatusCodes.Status404NotFound)
 .WithOpenApi();
 
-// Endpoint para agregar una nueva provincia
-app.MapPost("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaService) =>
+// POST a new provincia
+app.MapPost("/provincias", (DTOs.Provincia dto) =>
 {
     try
     {
-        // Se crea la instancia de DominioModelo.Provincia usando el constructor con los datos del DTO
+        ProvinciaService provinciaService = new ProvinciaService();
         var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
         bool added = provinciaService.Add(provincia);
         return added ? Results.Created($"/provincias/{provincia.CodigoProvincia}", dto) : Results.Conflict(new { error = "Ya existe una provincia con ese nombre o código." });
@@ -83,12 +80,12 @@ app.MapPost("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaServic
 .Produces(StatusCodes.Status409Conflict)
 .WithOpenApi();
 
-// Endpoint para actualizar una provincia existente
-app.MapPut("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaService) =>
+// PUT to update an existing provincia
+app.MapPut("/provincias", (DTOs.Provincia dto) =>
 {
     try
     {
-        // Se crea la instancia de DominioModelo.Provincia usando el constructor con los datos del DTO
+        ProvinciaService provinciaService = new ProvinciaService();
         var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
         bool updated = provinciaService.Update(provincia);
         return updated ? Results.NoContent() : Results.NotFound();
@@ -104,9 +101,10 @@ app.MapPut("/provincias", (DTOs.Provincia dto, ProvinciaService provinciaService
 .Produces(StatusCodes.Status400BadRequest)
 .WithOpenApi();
 
-// Endpoint para eliminar una provincia por su código
-app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
+// DELETE a province
+app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia) =>
 {
+    ProvinciaService provinciaService = new ProvinciaService();
     bool deleted = provinciaService.Delete(codigoProvincia);
     return deleted ? Results.NoContent() : Results.NotFound();
 })
@@ -118,43 +116,42 @@ app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaSe
 #endregion
 
 #region TipoProducto
-// Sección dedicada a los endpoints de la entidad TipoProducto
-
-// Endpoint para obtener todos los tipos de producto
-app.MapGet("/tiposproducto", (TipoProductoService tipoProductoService) =>
+// CRUD operations for TipoProducto entity
+// GET all product types
+app.MapGet("/tiposproducto", () =>
 {
+    TipoProductoService tipoProductoService = new TipoProductoService();
     var tiposProductoDominio = tipoProductoService.GetAll();
-    // Usando el constructor del DTO para crear la lista
-    var tiposProducto = tiposProductoDominio.Select(tp => new DominioModelo.TipoProducto(tp.IdTipoProducto, tp.NombreTipoProducto)).ToList();
-    return Results.Ok(tiposProducto);
+    var tiposProductoDto = tiposProductoDominio.Select(tp => new DominioModelo.TipoProducto(tp.IdTipoProducto, tp.NombreTipoProducto)).ToList();
+    return Results.Ok(tiposProductoDto);
 })
 .WithName("GetAllTiposProducto")
 .Produces<IReadOnlyList<DTOs.TipoProducto>>(StatusCodes.Status200OK)
 .WithOpenApi();
 
-// Endpoint para obtener un tipo de producto por su ID
-app.MapGet("/tiposproducto/{id}", (int id, TipoProductoService tipoProductoService) =>
+// GET a product type by id
+app.MapGet("/tiposproducto/{id}", (int id) =>
 {
+    TipoProductoService tipoProductoService = new TipoProductoService();
     var tipoProductoDominio = tipoProductoService.Get(id);
     if (tipoProductoDominio is null)
     {
         return Results.NotFound();
     }
-    // Usando el constructor del DTO para crear la instancia
-    var tipoProducto = new DominioModelo.TipoProducto(tipoProductoDominio.IdTipoProducto, tipoProductoDominio.NombreTipoProducto);
-    return Results.Ok(tipoProducto);
+    var tipoProductoDto = new DominioModelo.TipoProducto(tipoProductoDominio.IdTipoProducto, tipoProductoDominio.NombreTipoProducto);
+    return Results.Ok(tipoProductoDto);
 })
 .WithName("GetTipoProductoById")
 .Produces<DTOs.TipoProducto>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status404NotFound)
 .WithOpenApi();
 
-// Endpoint para agregar un nuevo tipo de producto
-app.MapPost("/tiposproducto", (DTOs.TipoProducto dto, TipoProductoService tipoProductoService) =>
+// POST a new product type
+app.MapPost("/tiposproducto", (DTOs.TipoProducto dto) =>
 {
     try
     {
-        // Se crea la instancia de DominioModelo.TipoProducto usando el constructor con los datos del DTO
+        TipoProductoService tipoProductoService = new TipoProductoService();
         var tipoProducto = new DominioModelo.TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
         bool added = tipoProductoService.Add(tipoProducto);
         return added ? Results.Created($"/tiposproducto/{tipoProducto.IdTipoProducto}", dto) : Results.Conflict(new { error = "Ya existe un tipo de producto con ese nombre." });
@@ -170,12 +167,12 @@ app.MapPost("/tiposproducto", (DTOs.TipoProducto dto, TipoProductoService tipoPr
 .Produces(StatusCodes.Status409Conflict)
 .WithOpenApi();
 
-// Endpoint para actualizar un tipo de producto existente
-app.MapPut("/tiposproducto", (DTOs.TipoProducto dto, TipoProductoService tipoProductoService) =>
+// PUT to update an existing product type
+app.MapPut("/tiposproducto", (DTOs.TipoProducto dto) =>
 {
     try
     {
-        // Se crea la instancia de DominioModelo.TipoProducto usando el constructor con los datos del DTO
+        TipoProductoService tipoProductoService = new TipoProductoService();
         var tipoProducto = new DominioModelo.TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
         bool updated = tipoProductoService.Update(tipoProducto);
         return updated ? Results.NoContent() : Results.NotFound();
@@ -191,9 +188,10 @@ app.MapPut("/tiposproducto", (DTOs.TipoProducto dto, TipoProductoService tipoPro
 .Produces(StatusCodes.Status400BadRequest)
 .WithOpenApi();
 
-// Endpoint para eliminar un tipo de producto por su ID
-app.MapDelete("/tiposproducto/{id}", (int id, TipoProductoService tipoProductoService) =>
+// DELETE a product type
+app.MapDelete("/tiposproducto/{id}", (int id) =>
 {
+    TipoProductoService tipoProductoService = new TipoProductoService();
     bool deleted = tipoProductoService.Delete(id);
     return deleted ? Results.NoContent() : Results.NotFound();
 })
