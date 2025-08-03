@@ -117,7 +117,7 @@
             // 
             // btnEliminarProvincia
             // 
-            btnEliminarProvincia.Location = new Point(21, 310);
+            btnEliminarProvincia.Location = new Point(162, 316);
             btnEliminarProvincia.Name = "btnEliminarProvincia";
             btnEliminarProvincia.Size = new Size(120, 23);
             btnEliminarProvincia.TabIndex = 4;
@@ -127,7 +127,7 @@
             // 
             // btnActualizarProvincia
             // 
-            btnActualizarProvincia.Location = new Point(162, 310);
+            btnActualizarProvincia.Location = new Point(19, 316);
             btnActualizarProvincia.Name = "btnActualizarProvincia";
             btnActualizarProvincia.Size = new Size(120, 23);
             btnActualizarProvincia.TabIndex = 3;
@@ -210,7 +210,7 @@
             // 
             // btnEliminarTipoProducto
             // 
-            btnEliminarTipoProducto.Location = new Point(21, 310);
+            btnEliminarTipoProducto.Location = new Point(162, 316);
             btnEliminarTipoProducto.Name = "btnEliminarTipoProducto";
             btnEliminarTipoProducto.Size = new Size(120, 23);
             btnEliminarTipoProducto.TabIndex = 13;
@@ -220,7 +220,7 @@
             // 
             // btnActualizarTipoProducto
             // 
-            btnActualizarTipoProducto.Location = new Point(162, 267);
+            btnActualizarTipoProducto.Location = new Point(19, 316);
             btnActualizarTipoProducto.Name = "btnActualizarTipoProducto";
             btnActualizarTipoProducto.Size = new Size(120, 23);
             btnActualizarTipoProducto.TabIndex = 12;
@@ -230,7 +230,7 @@
             // 
             // btnAgregarTipoProducto
             // 
-            btnAgregarTipoProducto.Location = new Point(21, 267);
+            btnAgregarTipoProducto.Location = new Point(91, 266);
             btnAgregarTipoProducto.Name = "btnAgregarTipoProducto";
             btnAgregarTipoProducto.Size = new Size(120, 23);
             btnAgregarTipoProducto.TabIndex = 11;
