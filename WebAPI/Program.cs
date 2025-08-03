@@ -28,178 +28,102 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// Endpoints para Provincias
 #region Provincias
-// CRUD operations for Provincia entity
-// GET all provincias
-app.MapGet("/provincias", () =>
-{
-    ProvinciaService provinciaService = new ProvinciaService();
-    var provinciasDominio = provinciaService.GetAll();
-    var provinciasDto = provinciasDominio.Select(p => new DTOs.Provincia { CodigoProvincia = p.CodigoProvincia, NombreProvincia = p.NombreProvincia }).ToList();
-    return Results.Ok(provinciasDto);
-})
-.WithName("GetAllProvincias")
-.Produces<IReadOnlyList<DTOs.Provincia>>(StatusCodes.Status200OK)
-.WithOpenApi();
 
-// GET a provincia by id
-app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia) =>
-{
-    ProvinciaService provinciaService = new ProvinciaService();
-    var provinciaDominio = provinciaService.Get(codigoProvincia);
-    if (provinciaDominio is null)
-    {
-        return Results.NotFound();
-    }
-    var provinciaDto = new DTOs.Provincia { CodigoProvincia = provinciaDominio.CodigoProvincia, NombreProvincia = provinciaDominio.NombreProvincia };
-    return Results.Ok(provinciaDto);
-})
-.WithName("GetProvinciaByCodigo")
-.Produces<DTOs.Provincia>(StatusCodes.Status200OK)
-.Produces(StatusCodes.Status404NotFound)
-.WithOpenApi();
 
-// POST a new provincia
-app.MapPost("/provincias", (DTOs.Provincia dto) =>
+app.MapGet("/provincias", ([FromServices] DominioServicios.ProvinciaService service) =>
 {
-    try
-    {
-        ProvinciaService provinciaService = new ProvinciaService();
-        var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
-        bool added = provinciaService.Add(provincia);
-        return added ? Results.Created($"/provincias/{provincia.CodigoProvincia}", dto) : Results.Conflict(new { error = "Ya existe una provincia con ese nombre o código." });
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("AddProvincia")
-.Produces<DTOs.Provincia>(StatusCodes.Status201Created)
-.Produces(StatusCodes.Status400BadRequest)
-.Produces(StatusCodes.Status409Conflict)
-.WithOpenApi();
+    return Results.Ok(service.GetAll());
+});
 
-// PUT to update an existing provincia
-app.MapPut("/provincias", (DTOs.Provincia dto) =>
+app.MapPost("/provincias", ([FromServices] DominioServicios.ProvinciaService service, [FromBody] DTOs.Provincia provinciaDto) =>
 {
-    try
+    if (string.IsNullOrEmpty(provinciaDto.NombreProvincia))
     {
-        ProvinciaService provinciaService = new ProvinciaService();
-        var provincia = new DominioModelo.Provincia(dto.CodigoProvincia, dto.NombreProvincia);
-        bool updated = provinciaService.Update(provincia);
-        return updated ? Results.NoContent() : Results.NotFound();
+        return Results.BadRequest("El nombre de la provincia es obligatorio.");
     }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("UpdateProvincia")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.Produces(StatusCodes.Status400BadRequest)
-.WithOpenApi();
 
-// DELETE a province
-app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia) =>
+    var provincia = new DominioModelo.Provincia(provinciaDto.CodigoProvincia, provinciaDto.NombreProvincia);
+    if (service.Add(provincia))
+    {
+        return Results.Created($"/provincias/{provincia.CodigoProvincia}", provincia);
+    }
+    return Results.Conflict("Ya existe una provincia con este código.");
+});
+
+app.MapPut("/provincias/{codigo:int}", ([FromRoute] int codigo, [FromServices] DominioServicios.ProvinciaService service, [FromBody] DTOs.Provincia provinciaDto) =>
 {
-    ProvinciaService provinciaService = new ProvinciaService();
-    bool deleted = provinciaService.Delete(codigoProvincia);
-    return deleted ? Results.NoContent() : Results.NotFound();
-})
-.WithName("DeleteProvincia")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.WithOpenApi();
+    if (string.IsNullOrEmpty(provinciaDto.NombreProvincia))
+    {
+        return Results.BadRequest("El nombre de la provincia es obligatorio.");
+    }
+
+    var provinciaActualizada = new DominioModelo.Provincia(codigo, provinciaDto.NombreProvincia);
+
+    if (service.Update(codigo, provinciaActualizada))
+    {
+        return Results.Ok(provinciaActualizada);
+    }
+    return Results.NotFound($"No se encontró la provincia con el código '{codigo}'.");
+});
+
+
+app.MapDelete("/provincias/{codigo:int}", ([FromRoute] int codigo, [FromServices] DominioServicios.ProvinciaService service) =>
+{
+    if (service.Delete(codigo))
+    {
+        return Results.NoContent();
+    }
+    return Results.NotFound($"No se encontró la provincia con el código '{codigo}'.");
+});
 
 #endregion
 
+// Endpoints para Tipos de Producto
 #region TipoProducto
-// CRUD operations for TipoProducto entity
-// GET all product types
-app.MapGet("/tiposproducto", () =>
-{
-    TipoProductoService tipoProductoService = new TipoProductoService();
-    var tiposProductoDominio = tipoProductoService.GetAll();
-    var tiposProductoDto = tiposProductoDominio.Select(tp => new DominioModelo.TipoProducto(tp.IdTipoProducto, tp.NombreTipoProducto)).ToList();
-    return Results.Ok(tiposProductoDto);
-})
-.WithName("GetAllTiposProducto")
-.Produces<IReadOnlyList<DTOs.TipoProducto>>(StatusCodes.Status200OK)
-.WithOpenApi();
 
-// GET a product type by id
-app.MapGet("/tiposproducto/{id}", (int id) =>
+app.MapGet("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service) =>
 {
-    TipoProductoService tipoProductoService = new TipoProductoService();
-    var tipoProductoDominio = tipoProductoService.Get(id);
-    if (tipoProductoDominio is null)
-    {
-        return Results.NotFound();
-    }
-    var tipoProductoDto = new DominioModelo.TipoProducto(tipoProductoDominio.IdTipoProducto, tipoProductoDominio.NombreTipoProducto);
-    return Results.Ok(tipoProductoDto);
-})
-.WithName("GetTipoProductoById")
-.Produces<DTOs.TipoProducto>(StatusCodes.Status200OK)
-.Produces(StatusCodes.Status404NotFound)
-.WithOpenApi();
+    return Results.Ok(service.GetAll());
+});
 
-// POST a new product type
-app.MapPost("/tiposproducto", (DTOs.TipoProducto dto) =>
+app.MapPost("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProductoDto tipoProductoDto) =>
 {
-    try
+    if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
     {
-        TipoProductoService tipoProductoService = new TipoProductoService();
-        var tipoProducto = new DominioModelo.TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
-        bool added = tipoProductoService.Add(tipoProducto);
-        return added ? Results.Created($"/tiposproducto/{tipoProducto.IdTipoProducto}", dto) : Results.Conflict(new { error = "Ya existe un tipo de producto con ese nombre." });
+        return Results.BadRequest("El nombre del tipo de producto es obligatorio.");
     }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("AddTipoProducto")
-.Produces<DTOs.TipoProducto>(StatusCodes.Status201Created)
-.Produces(StatusCodes.Status400BadRequest)
-.Produces(StatusCodes.Status409Conflict)
-.WithOpenApi();
 
-// PUT to update an existing product type
-app.MapPut("/tiposproducto", (DTOs.TipoProducto dto) =>
+    var tipoProducto = new DominioModelo.TipoProducto(tipoProductoDto.IdTipoProducto, tipoProductoDto.NombreTipoProducto);
+    var nuevoTipo = service.Add(tipoProducto);
+    return Results.Created($"/tiposproducto/{nuevoTipo.IdTipoProducto}", nuevoTipo);
+});
+
+app.MapPut("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProductoDto tipoProductoDto) =>
 {
-    try
+    if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
     {
-        TipoProductoService tipoProductoService = new TipoProductoService();
-        var tipoProducto = new DominioModelo.TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
-        bool updated = tipoProductoService.Update(tipoProducto);
-        return updated ? Results.NoContent() : Results.NotFound();
+        return Results.BadRequest("El nombre del tipo de producto es obligatorio.");
     }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("UpdateTipoProducto")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.Produces(StatusCodes.Status400BadRequest)
-.WithOpenApi();
 
-// DELETE a product type
-app.MapDelete("/tiposproducto/{id}", (int id) =>
+    var tipoProductoActualizado = new DominioModelo.TipoProducto(id, tipoProductoDto.NombreTipoProducto);
+
+    if (service.Update(id, tipoProductoActualizado))
+    {
+        return Results.Ok(tipoProductoActualizado);
+    }
+    return Results.NotFound($"No se encontró el tipo de producto con el id '{id}'.");
+});
+
+app.MapDelete("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service) =>
 {
-    TipoProductoService tipoProductoService = new TipoProductoService();
-    bool deleted = tipoProductoService.Delete(id);
-    return deleted ? Results.NoContent() : Results.NotFound();
-})
-.WithName("DeleteTipoProducto")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.WithOpenApi();
-
+    if (service.Delete(id))
+    {
+        return Results.NoContent();
+    }
+    return Results.NotFound($"No se encontró el tipo de producto con el id '{id}'.");
+});
 #endregion
 
 app.Run();

@@ -1,57 +1,48 @@
-﻿using DominioModelo;
-using Data;
-using System.Collections.Generic;
-using System.Linq;
-
+﻿using Data;
+using DominioModelo;
 namespace DominioServicios
 {
+    using DominioModelo;
+    using Data;
+
     public class ProvinciaService
     {
+        public IEnumerable<Provincia> GetAll() => ProvinciaInMemory.Provincias;
+
+        public Provincia? GetByCodigo(int codigo) => ProvinciaInMemory.Provincias.FirstOrDefault(p => p.CodigoProvincia == codigo);
+
         public bool Add(Provincia provincia)
         {
-            if (ProvinciaInMemory.Provincias.Any(p => p.NombreProvincia.Equals(provincia.NombreProvincia, System.StringComparison.OrdinalIgnoreCase)))
+            if (GetByCodigo(provincia.CodigoProvincia) != null)
+            {
                 return false;
-
-            provincia.SetCodigoProvincia(GetNextCodigoProvincia());
+            }
             ProvinciaInMemory.Provincias.Add(provincia);
             return true;
         }
 
-        public bool Delete(int codigoProvincia)
+        public bool Update(int codigo, Provincia provinciaActualizada)
         {
-            var provinciaToDelete = ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == codigoProvincia);
-            if (provinciaToDelete != null)
+            var provinciaExistente = GetByCodigo(codigo);
+            if (provinciaExistente == null)
             {
-                ProvinciaInMemory.Provincias.Remove(provinciaToDelete);
-                return true;
+                return false;
             }
-            return false;
+            ProvinciaInMemory.Provincias.Remove(provinciaExistente);
+
+            ProvinciaInMemory.Provincias.Add(provinciaActualizada);
+            return true;
         }
 
-        public Provincia? Get(int codigoProvincia)
+        public bool Delete(int codigo)
         {
-            return ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == codigoProvincia);
-        }
-
-        public IReadOnlyList<Provincia> GetAll()
-        {
-            return ProvinciaInMemory.Provincias.AsReadOnly();
-        }
-
-        public bool Update(Provincia provincia)
-        {
-            var provinciaToUpdate = ProvinciaInMemory.Provincias.FirstOrDefault(x => x.CodigoProvincia == provincia.CodigoProvincia);
-            if (provinciaToUpdate != null)
+            var provincia = GetByCodigo(codigo);
+            if (provincia == null)
             {
-                provinciaToUpdate.SetNombreProvincia(provincia.NombreProvincia);
-                return true;
+                return false;
             }
-            return false;
-        }
-
-        private static int GetNextCodigoProvincia()
-        {
-            return ProvinciaInMemory.Provincias.Any() ? ProvinciaInMemory.Provincias.Max(x => x.CodigoProvincia) + 1 : 1;
+            ProvinciaInMemory.Provincias.Remove(provincia);
+            return true;
         }
     }
 }
