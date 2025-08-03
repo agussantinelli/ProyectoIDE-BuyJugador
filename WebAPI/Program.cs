@@ -1,130 +1,205 @@
-using DominioServicios;
-using DTOs;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Builder;
-using System;
-using System.Linq;
+using Domain.Services;
 using DominioModelo;
-using Microsoft.AspNetCore.Mvc;
+using DominioServicio;
+using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Collections.Generic;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services for OpenAPI / Swagger
+// Configuración de servicios
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddHttpLogging(o => { });
-
+builder.Services.AddSingleton<ProvinciaService>();
+builder.Services.AddSingleton<TipoProductoService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseHttpLogging();
 }
 
 app.UseHttpsRedirection();
 
-
-// Endpoints para Provincias
+// --- Endpoints para Provincias ---
 #region Provincias
-
-
-app.MapGet("/provincias", ([FromServices] DominioServicios.ProvinciaService service) =>
+app.MapGet("/provincias", (ProvinciaService provinciaService) =>
 {
-    return Results.Ok(service.GetAll());
-});
+    var provincias = provinciaService.GetAll();
+    var dtos = provincias.Select(p => new ProvinciaDto
+    {
+        CodigoProvincia = p.CodigoProvincia,
+        NombreProvincia = p.NombreProvincia
+    }).ToList();
+    return Results.Ok(dtos);
+})
+.WithName("GetAllProvincias")
+.Produces<List<ProvinciaDto>>(StatusCodes.Status200OK);
 
-app.MapPost("/provincias", ([FromServices] DominioServicios.ProvinciaService service, [FromBody] DTOs.Provincia provinciaDto) =>
+app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
 {
-    if (string.IsNullOrEmpty(provinciaDto.NombreProvincia))
+    var provincia = provinciaService.Get(codigoProvincia);
+    if (provincia == null)
     {
-        return Results.BadRequest("El nombre de la provincia es obligatorio.");
+        return Results.NotFound("Provincia no encontrada.");
     }
-
-    var provincia = new DominioModelo.Provincia(provinciaDto.CodigoProvincia, provinciaDto.NombreProvincia);
-    if (service.Add(provincia))
+    var dto = new ProvinciaDto
     {
-        return Results.Created($"/provincias/{provincia.CodigoProvincia}", provincia);
-    }
-    return Results.Conflict("Ya existe una provincia con este código.");
-});
+        CodigoProvincia = provincia.CodigoProvincia,
+        NombreProvincia = provincia.NombreProvincia
+    };
+    return Results.Ok(dto);
+})
+.WithName("GetProvinciaByCodigo")
+.Produces<ProvinciaDto>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
 
-app.MapPut("/provincias/{codigo:int}", ([FromRoute] int codigo, [FromServices] DominioServicios.ProvinciaService service, [FromBody] DTOs.Provincia provinciaDto) =>
+app.MapPost("/provincias", (ProvinciaDto dto, ProvinciaService provinciaService) =>
 {
-    if (string.IsNullOrEmpty(provinciaDto.NombreProvincia))
+    try
     {
-        return Results.BadRequest("El nombre de la provincia es obligatorio.");
+        var nuevaProvincia = new Provincia(dto.CodigoProvincia, dto.NombreProvincia);
+        provinciaService.Add(nuevaProvincia);
+        dto.CodigoProvincia = nuevaProvincia.CodigoProvincia; // Actualizar el DTO con el nuevo ID generado
+        return Results.Created($"/provincias/{dto.CodigoProvincia}", dto);
     }
-
-    var provinciaActualizada = new DominioModelo.Provincia(codigo, provinciaDto.NombreProvincia);
-
-    if (service.Update(codigo, provinciaActualizada))
+    catch (ArgumentException ex)
     {
-        return Results.Ok(provinciaActualizada);
+        return Results.BadRequest(new { error = ex.Message });
     }
-    return Results.NotFound($"No se encontró la provincia con el código '{codigo}'.");
-});
+})
+.WithName("AddProvincia")
+.Produces<ProvinciaDto>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
 
-
-app.MapDelete("/provincias/{codigo:int}", ([FromRoute] int codigo, [FromServices] DominioServicios.ProvinciaService service) =>
+app.MapPut("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaDto dto, ProvinciaService provinciaService) =>
 {
-    if (service.Delete(codigo))
+    try
     {
+        dto.CodigoProvincia = codigoProvincia;
+        var provinciaActualizada = new Provincia(dto.CodigoProvincia, dto.NombreProvincia);
+        var found = provinciaService.Update(provinciaActualizada);
+        if (!found)
+        {
+            return Results.NotFound("Provincia no encontrada.");
+        }
         return Results.NoContent();
     }
-    return Results.NotFound($"No se encontró la provincia con el código '{codigo}'.");
-});
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("UpdateProvincia")
+.Produces(StatusCodes.Status204NoContent)
+.Produces(StatusCodes.Status404NotFound)
+.Produces(StatusCodes.Status400BadRequest);
 
+app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
+{
+    var deleted = provinciaService.Delete(codigoProvincia);
+    if (!deleted)
+    {
+        return Results.NotFound("Provincia no encontrada.");
+    }
+    return Results.NoContent();
+})
+.WithName("DeleteProvincia")
+.Produces(StatusCodes.Status204NoContent)
+.Produces(StatusCodes.Status404NotFound);
 #endregion
 
-// Endpoints para Tipos de Producto
-#region TipoProducto
-
-app.MapGet("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service) =>
+// --- Endpoints para Tipos de Producto ---
+#region Tipos de Productos
+app.MapGet("/tiposproducto", (TipoProductoService tipoProductoService) =>
 {
-    return Results.Ok(service.GetAll());
-});
-
-app.MapPost("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProducto tipoProductoDto) =>
-{
-    if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
+    var tiposProducto = tipoProductoService.GetAll();
+    var dtos = tiposProducto.Select(tp => new TipoProductoDto
     {
-        return Results.BadRequest("El nombre del tipo de producto es obligatorio.");
+        IdTipoProducto = tp.IdTipoProducto,
+        NombreTipoProducto = tp.NombreTipoProducto
+    }).ToList();
+    return Results.Ok(dtos);
+})
+.WithName("GetAllTiposProducto")
+.Produces<List<TipoProductoDto>>(StatusCodes.Status200OK);
+
+app.MapGet("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoService tipoProductoService) =>
+{
+    var tipoProducto = tipoProductoService.Get(idTipoProducto);
+    if (tipoProducto == null)
+    {
+        return Results.NotFound("Tipo de producto no encontrado.");
     }
+    var dto = new TipoProductoDto
+    {
+        IdTipoProducto = tipoProducto.IdTipoProducto,
+        NombreTipoProducto = tipoProducto.NombreTipoProducto
+    };
+    return Results.Ok(dto);
+})
+.WithName("GetTipoProductoById")
+.Produces<TipoProductoDto>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status404NotFound);
 
-    var tipoProducto = new DominioModelo.TipoProducto(tipoProductoDto.IdTipoProducto, tipoProductoDto.NombreTipoProducto);
-    var nuevoTipo = service.Add(tipoProducto);
-    return Results.Created($"/tiposproducto/{nuevoTipo.IdTipoProducto}", nuevoTipo);
-});
-
-app.MapPut("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProducto tipoProductoDto) =>
+app.MapPost("/tiposproducto", (TipoProductoDto dto, TipoProductoService tipoProductoService) =>
 {
-    if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
+    try
     {
-        return Results.BadRequest("El nombre del tipo de producto es obligatorio.");
+        var nuevoTipoProducto = new TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
+        tipoProductoService.Add(nuevoTipoProducto);
+        dto.IdTipoProducto = nuevoTipoProducto.IdTipoProducto; // Actualizar el DTO con el nuevo ID generado
+        return Results.Created($"/tiposproducto/{dto.IdTipoProducto}", dto);
     }
-
-    var tipoProductoActualizado = new DominioModelo.TipoProducto(id, tipoProductoDto.NombreTipoProducto);
-
-    if (service.Update(id, tipoProductoActualizado))
+    catch (ArgumentException ex)
     {
-        return Results.Ok(tipoProductoActualizado);
+        return Results.BadRequest(new { error = ex.Message });
     }
-    return Results.NotFound($"No se encontró el tipo de producto con el id '{id}'.");
-});
+})
+.WithName("AddTipoProducto")
+.Produces<TipoProductoDto>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
 
-app.MapDelete("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service) =>
+app.MapPut("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoDto dto, TipoProductoService tipoProductoService) =>
 {
-    if (service.Delete(id))
+    try
     {
+        dto.IdTipoProducto = idTipoProducto;
+        var tipoProductoActualizado = new TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
+        var found = tipoProductoService.Update(tipoProductoActualizado);
+        if (!found)
+        {
+            return Results.NotFound("Tipo de producto no encontrado.");
+        }
         return Results.NoContent();
     }
-    return Results.NotFound($"No se encontró el tipo de producto con el id '{id}'.");
-});
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { error = ex.Message });
+    }
+})
+.WithName("UpdateTipoProducto")
+.Produces(StatusCodes.Status204NoContent)
+.Produces(StatusCodes.Status404NotFound)
+.Produces(StatusCodes.Status400BadRequest);
+
+app.MapDelete("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoService tipoProductoService) =>
+{
+    var deleted = tipoProductoService.Delete(idTipoProducto);
+    if (!deleted)
+    {
+        return Results.NotFound("Tipo de producto no encontrado.");
+    }
+    return Results.NoContent();
+})
+.WithName("DeleteTipoProducto")
+.Produces(StatusCodes.Status204NoContent)
+.Produces(StatusCodes.Status404NotFound);
 #endregion
 
 app.Run();

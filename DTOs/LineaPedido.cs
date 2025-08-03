@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    internal class LineaPedido
+    internal class LineaPedidoDto
     {
         public int IdPedido { get; private set; }
         public decimal NroLineaPedido { get; private set; }

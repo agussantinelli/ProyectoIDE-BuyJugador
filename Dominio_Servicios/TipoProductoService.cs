@@ -1,43 +1,54 @@
 ﻿using Data;
 using DominioModelo;
-namespace DominioServicios
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Domain.Services
 {
     public class TipoProductoService
     {
-        public IEnumerable<TipoProducto> GetAll() => TipoProductoInMemory.TiposProducto;
-
-        public TipoProducto? GetById(int id) => TipoProductoInMemory.TiposProducto.FirstOrDefault(t => t.IdTipoProducto == id);
-
-        public TipoProducto Add(TipoProducto tipoProducto)
+        public void Add(TipoProducto tipoProducto)
         {
-            var nuevoId = TipoProductoInMemory.NextTipoProductoId;
-
-            var nuevoTipo = new TipoProducto(nuevoId, tipoProducto.NombreTipoProducto);
-            TipoProductoInMemory.TiposProducto.Add(nuevoTipo);
-            return nuevoTipo;
-        }
-
-        public bool Update(int id, TipoProducto tipoProductoActualizado)
-        {
-            var tipoProductoExistente = GetById(id);
-            if (tipoProductoExistente == null)
-            {
-                return false;
-            }
-            TipoProductoInMemory.TiposProducto.Remove(tipoProductoExistente);
-            TipoProductoInMemory.TiposProducto.Add(tipoProductoActualizado);
-            return true;
+            tipoProducto.SetIdTipoProducto(GetNextId());
+            TipoProductoInMemory.TiposProducto.Add(tipoProducto);
         }
 
         public bool Delete(int id)
         {
-            var tipoProducto = GetById(id);
-            if (tipoProducto == null)
+            var tipoProductoToDelete = TipoProductoInMemory.TiposProducto.Find(t => t.IdTipoProducto == id);
+            if (tipoProductoToDelete != null)
             {
-                return false;
+                TipoProductoInMemory.TiposProducto.Remove(tipoProductoToDelete);
+                return true;
             }
-            TipoProductoInMemory.TiposProducto.Remove(tipoProducto);
-            return true;
+            return false;
+        }
+
+        public TipoProducto Get(int id)
+        {
+            return TipoProductoInMemory.TiposProducto.FirstOrDefault(t => t.IdTipoProducto == id);
+        }
+
+        public IEnumerable<TipoProducto> GetAll()
+        {
+            return TipoProductoInMemory.TiposProducto.ToList();
+        }
+
+        public bool Update(TipoProducto tipoProducto)
+        {
+            var tipoProductoToUpdate = TipoProductoInMemory.TiposProducto.Find(t => t.IdTipoProducto == tipoProducto.IdTipoProducto);
+            if (tipoProductoToUpdate != null)
+            {
+                tipoProductoToUpdate.SetNombreTipoProducto(tipoProducto.NombreTipoProducto);
+                return true;
+            }
+            return false;
+        }
+
+        private static int GetNextId()
+        {
+            return TipoProductoInMemory.TiposProducto.Count > 0 ? TipoProductoInMemory.TiposProducto.Max(t => t.IdTipoProducto) + 1 : 1;
         }
     }
 }

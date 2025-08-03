@@ -117,6 +117,7 @@
             txtCodigoProvincia.Name = "txtCodigoProvincia";
             txtCodigoProvincia.Size = new Size(200, 23);
             txtCodigoProvincia.TabIndex = 5;
+            //txtCodigoProvincia.TextChanged += txtCodigoProvincia_TextChanged;
             // 
             // btnEliminarProvincia
             // 
@@ -165,7 +166,7 @@
             dgvProvincias.Name = "dgvProvincias";
             dgvProvincias.Size = new Size(486, 410);
             dgvProvincias.TabIndex = 0;
-            dgvProvincias.CellContentClick += dgvProvincias_CellContentClick;
+            //dgvProvincias.CellContentClick += dgvProvincias_CellContentClick;
             dgvProvincias.SelectionChanged += dgvProvincias_SelectionChanged;
             // 
             // tabPageTiposProducto

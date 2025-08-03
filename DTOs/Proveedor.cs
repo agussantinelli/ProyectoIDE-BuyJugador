@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class Proveedor
+    public class ProveedorDto
     {
         public string Cuil { get; private set; }
         public string RazonSocial { get; private set; }

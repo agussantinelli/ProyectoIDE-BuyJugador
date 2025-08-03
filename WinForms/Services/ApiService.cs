@@ -1,70 +1,95 @@
 ﻿using DTOs;
+using System;
+using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace WinForms.Services
 {
-    public class ApiService
+    public class ApiClient
     {
-        private readonly HttpClient _httpClient;
-        // El puerto debe coincidir con el de launchSettings.json
-        private readonly string _baseUri = "https://localhost:7145";
+        private static HttpClient client = new HttpClient();
 
-        public ApiService()
+        static ApiClient()
         {
-            _httpClient = new HttpClient();
+            // Configura la dirección base de la API.
+            client.BaseAddress = new Uri("https://localhost:7145/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        // --- CRUD para Provincias ---
-
-        public async Task<List<Provincia>> GetProvinciasAsync()
+        // Métodos para Provincias
+        public static async Task<List<ProvinciaDto>> GetProvinciasAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Provincia>>($"{_baseUri}/provincias");
+            HttpResponseMessage response = await client.GetAsync("provincias");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<ProvinciaDto>>();
         }
 
-        public async Task<bool> AddProvinciaAsync(Provincia provincia)
+        public static async Task<ProvinciaDto> GetProvinciaAsync(int codigo)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/provincias", provincia);
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.GetAsync($"provincias/{codigo}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ProvinciaDto>();
+            }
+            return null;
         }
 
-        public async Task<bool> UpdateProvinciaAsync(Provincia provincia)
+        public static async Task AddProvinciaAsync(ProvinciaDto provincia)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUri}/provincias", provincia);
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.PostAsJsonAsync("provincias", provincia);
+            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> DeleteProvinciaAsync(int codigoProvincia)
+        public static async Task UpdateProvinciaAsync(ProvinciaDto provincia)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUri}/provincias/{codigoProvincia}");
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.PutAsJsonAsync($"provincias/{provincia.CodigoProvincia}", provincia);
+            response.EnsureSuccessStatusCode();
         }
 
-        // --- CRUD para Tipos de Producto ---
-
-        public async Task<List<TipoProducto>> GetTiposProductoAsync()
+        public static async Task DeleteProvinciaAsync(int codigo)
         {
-            return await _httpClient.GetFromJsonAsync<List<TipoProducto>>($"{_baseUri}/tiposproducto");
+            HttpResponseMessage response = await client.DeleteAsync($"provincias/{codigo}");
+            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> AddTipoProductoAsync(TipoProducto tipoProducto)
+        // Métodos para Tipos de Producto
+        public static async Task<List<TipoProductoDto>> GetTiposProductoAsync()
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUri}/tiposproducto", tipoProducto);
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.GetAsync("tiposproducto");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<List<TipoProductoDto>>();
         }
 
-        public async Task<bool> UpdateTipoProductoAsync(TipoProducto tipoProducto)
+        public static async Task<TipoProductoDto> GetTipoProductoAsync(int id)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUri}/tiposproducto", tipoProducto);
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.GetAsync($"tiposproducto/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<TipoProductoDto>();
+            }
+            return null;
         }
 
-        public async Task<bool> DeleteTipoProductoAsync(int id)
+        public static async Task AddTipoProductoAsync(TipoProductoDto tipoProducto)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUri}/tiposproducto/{id}");
-            return response.IsSuccessStatusCode;
+            HttpResponseMessage response = await client.PostAsJsonAsync("tiposproducto", tipoProducto);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public static async Task UpdateTipoProductoAsync(TipoProductoDto tipoProducto)
+        {
+            HttpResponseMessage response = await client.PutAsJsonAsync($"tiposproducto/{tipoProducto.IdTipoProducto}", tipoProducto);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public static async Task DeleteTipoProductoAsync(int id)
+        {
+            HttpResponseMessage response = await client.DeleteAsync($"tiposproducto/{id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

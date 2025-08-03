@@ -1,48 +1,54 @@
 ﻿using Data;
 using DominioModelo;
-namespace DominioServicios
-{
-    using DominioModelo;
-    using Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
+namespace DominioServicio
+{
     public class ProvinciaService
     {
-        public IEnumerable<Provincia> GetAll() => ProvinciaInMemory.Provincias;
-
-        public Provincia? GetByCodigo(int codigo) => ProvinciaInMemory.Provincias.FirstOrDefault(p => p.CodigoProvincia == codigo);
-
-        public bool Add(Provincia provincia)
+        public void Add(Provincia provincia)
         {
-            if (GetByCodigo(provincia.CodigoProvincia) != null)
-            {
-                return false;
-            }
+            provincia.SetCodigoProvincia(GetNextCodigo());
             ProvinciaInMemory.Provincias.Add(provincia);
-            return true;
-        }
-
-        public bool Update(int codigo, Provincia provinciaActualizada)
-        {
-            var provinciaExistente = GetByCodigo(codigo);
-            if (provinciaExistente == null)
-            {
-                return false;
-            }
-            ProvinciaInMemory.Provincias.Remove(provinciaExistente);
-
-            ProvinciaInMemory.Provincias.Add(provinciaActualizada);
-            return true;
         }
 
         public bool Delete(int codigo)
         {
-            var provincia = GetByCodigo(codigo);
-            if (provincia == null)
+            var provinciaToDelete = ProvinciaInMemory.Provincias.Find(p => p.CodigoProvincia == codigo);
+            if (provinciaToDelete != null)
             {
-                return false;
+                ProvinciaInMemory.Provincias.Remove(provinciaToDelete);
+                return true;
             }
-            ProvinciaInMemory.Provincias.Remove(provincia);
-            return true;
+            return false;
+        }
+
+        public Provincia Get(int codigo)
+        {
+            return ProvinciaInMemory.Provincias.FirstOrDefault(p => p.CodigoProvincia == codigo);
+        }
+
+        public IEnumerable<Provincia> GetAll()
+        {
+            return ProvinciaInMemory.Provincias.ToList();
+        }
+
+        public bool Update(Provincia provincia)
+        {
+            var provinciaToUpdate = ProvinciaInMemory.Provincias.Find(p => p.CodigoProvincia == provincia.CodigoProvincia);
+            if (provinciaToUpdate != null)
+            {
+                provinciaToUpdate.SetNombreProvincia(provincia.NombreProvincia);
+                return true;
+            }
+            return false;
+        }
+
+        private static int GetNextCodigo()
+        {
+            return ProvinciaInMemory.Provincias.Count > 0 ? ProvinciaInMemory.Provincias.Max(p => p.CodigoProvincia) + 1 : 1;
         }
     }
 }

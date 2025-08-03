@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class LineaVenta
+    public class LineaVentaDto
     {
         public int IdVenta { get; private set; }
         public decimal NroLineaVenta { get; private set; }

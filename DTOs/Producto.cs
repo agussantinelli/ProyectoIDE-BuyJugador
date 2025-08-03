@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class Producto
+    public class ProductoDto
     {
         public int IdProducto { get; private set; }
         public string NombreProducto { get; private set; }

@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class Empleado : Persona
+    public class EmpleadoDto : PersonaDto
     {
         public DateTime FechaIngreso { get; private set; }
     }

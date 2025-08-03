@@ -17,7 +17,6 @@ namespace Data
                 new TipoProducto(3, "Parlantes")
             };
         }
-        public static int NextTipoProductoId => TiposProducto.Any() ? TiposProducto.Max(t => t.IdTipoProducto) + 1 : 1;
     }
 }
 

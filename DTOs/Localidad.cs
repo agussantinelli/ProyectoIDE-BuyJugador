@@ -1,7 +1,7 @@
 ﻿namespace DTOs
 {
     
-    public class Localidad
+    public class LocalidadDto
     {
         public int CodigoLocalidad { get; private set; }
         public string NombreLocalidad { get; private set; }

@@ -1,6 +1,6 @@
 ﻿namespace DTOs
 {
-    public class Pedido
+    public class PedidoDto
     {
         public int IdPedido { get; private set; }
         public DateTime FechaPedido { get; private set; }
