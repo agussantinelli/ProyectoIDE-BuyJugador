@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class Form1
+    partial class Inventario
     {
         /// <summary>
         ///  Required designer variable.
@@ -268,14 +268,14 @@
             dgvTiposProducto.TabIndex = 9;
             dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
             // 
-            // Form1
+            // Inventario
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(tabControl1);
-            Name = "Form1";
-            Text = "CRUD WinForms API";
+            Name = "Inventario";
+            Text = "Control de Existencias";
             Load += Form1_Load;
             tabControl1.ResumeLayout(false);
             tabPageProvincias.ResumeLayout(false);
@@ -312,5 +312,4 @@
         private System.Windows.Forms.Button btnCargarTiposProducto;
         private System.Windows.Forms.DataGridView dgvTiposProducto;
     }
-}
 }

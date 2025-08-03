@@ -8,11 +8,11 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class Form1 : Form
+    public partial class Inventario : Form
     {
         private readonly ApiService _apiService;
 
-        public Form1()
+        public Inventario()
         {
             InitializeComponent();
             _apiService = new ApiService();
@@ -24,7 +24,6 @@ namespace WinForms
             await CargarTiposProductoAsync();
         }
 
-        // --- Lógica para Provincias ---
 
         private async Task CargarProvinciasAsync()
         {
@@ -48,7 +47,8 @@ namespace WinForms
         {
             if (int.TryParse(txtCodigoProvincia.Text, out int codigo) && !string.IsNullOrWhiteSpace(txtNombreProvincia.Text))
             {
-                var nuevaProvincia = new Provincia { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
+
+                var nuevaProvincia = new DTOs.Provincia { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
                 bool exito = await _apiService.AddProvinciaAsync(nuevaProvincia);
 
                 if (exito)
@@ -73,7 +73,8 @@ namespace WinForms
             {
                 if (int.TryParse(txtCodigoProvincia.Text, out int codigo) && !string.IsNullOrWhiteSpace(txtNombreProvincia.Text))
                 {
-                    var provinciaActualizada = new Provincia { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
+                    // Se utiliza el DTO explícitamente
+                    var provinciaActualizada = new DTOs.Provincia { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
                     bool exito = await _apiService.UpdateProvinciaAsync(provinciaActualizada);
 
                     if (exito)
@@ -158,7 +159,7 @@ namespace WinForms
         {
             if (int.TryParse(txtIdTipoProducto.Text, out int id) && !string.IsNullOrWhiteSpace(txtNombreTipoProducto.Text))
             {
-                var nuevoTipoProducto = new TipoProducto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
+                var nuevoTipoProducto = new DTOs.TipoProducto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
                 bool exito = await _apiService.AddTipoProductoAsync(nuevoTipoProducto);
 
                 if (exito)
@@ -183,7 +184,8 @@ namespace WinForms
             {
                 if (int.TryParse(txtIdTipoProducto.Text, out int id) && !string.IsNullOrWhiteSpace(txtNombreTipoProducto.Text))
                 {
-                    var tipoProductoActualizado = new TipoProducto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
+
+                    var tipoProductoActualizado = new DTOs.TipoProducto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
                     bool exito = await _apiService.UpdateTipoProductoAsync(tipoProductoActualizado);
 
                     if (exito)

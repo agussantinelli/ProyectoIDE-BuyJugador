@@ -28,6 +28,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
 // Endpoints para Provincias
 #region Provincias
 
@@ -88,7 +89,7 @@ app.MapGet("/tiposproducto", ([FromServices] DominioServicios.TipoProductoServic
     return Results.Ok(service.GetAll());
 });
 
-app.MapPost("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProductoDto tipoProductoDto) =>
+app.MapPost("/tiposproducto", ([FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProducto tipoProductoDto) =>
 {
     if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
     {
@@ -100,7 +101,7 @@ app.MapPost("/tiposproducto", ([FromServices] DominioServicios.TipoProductoServi
     return Results.Created($"/tiposproducto/{nuevoTipo.IdTipoProducto}", nuevoTipo);
 });
 
-app.MapPut("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProductoDto tipoProductoDto) =>
+app.MapPut("/tiposproducto/{id:int}", ([FromRoute] int id, [FromServices] DominioServicios.TipoProductoService service, [FromBody] DTOs.TipoProducto tipoProductoDto) =>
 {
     if (string.IsNullOrEmpty(tipoProductoDto.NombreTipoProducto))
     {
