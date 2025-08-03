@@ -4,13 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Domain.Services
+namespace DominioServicio
 {
     public class TipoProductoService
     {
         public void Add(TipoProducto tipoProducto)
         {
-            tipoProducto.SetIdTipoProducto(GetNextId());
+            // Validar que el ID no esté duplicado
+            if (TipoProductoInMemory.TiposProducto.Any(t => t.IdTipoProducto == tipoProducto.IdTipoProducto))
+            {
+                throw new ArgumentException($"El tipo de producto con ID {tipoProducto.IdTipoProducto} ya existe.");
+            }
+
             TipoProductoInMemory.TiposProducto.Add(tipoProducto);
         }
 
@@ -44,11 +49,6 @@ namespace Domain.Services
                 return true;
             }
             return false;
-        }
-
-        private static int GetNextId()
-        {
-            return TipoProductoInMemory.TiposProducto.Count > 0 ? TipoProductoInMemory.TiposProducto.Max(t => t.IdTipoProducto) + 1 : 1;
         }
     }
 }

@@ -17,6 +17,11 @@ namespace WinForms
 
         private async void Form1_Load(object sender, EventArgs e)
         {
+            btnActualizarProvincia.Enabled = false;
+            btnEliminarProvincia.Enabled = false;
+            btnActualizarTipoProducto.Enabled = false;
+            btnEliminarTipoProducto.Enabled = false;
+
             await CargarProvinciasAsync();
             await CargarTiposProductoAsync();
         }
@@ -125,6 +130,19 @@ namespace WinForms
                 var provincia = filaSeleccionada.DataBoundItem as ProvinciaDto;
                 txtCodigoProvincia.Text = provincia.CodigoProvincia.ToString();
                 txtNombreProvincia.Text = provincia.NombreProvincia;
+                btnActualizarProvincia.Enabled = true;
+                btnEliminarProvincia.Enabled = true;
+                btnAgregarProvincia.Enabled = false;
+                txtCodigoProvincia.ReadOnly = true;
+            }
+            else
+            {
+                txtCodigoProvincia.Text = string.Empty;
+                txtNombreProvincia.Text = string.Empty;
+                btnActualizarProvincia.Enabled = false;
+                btnEliminarProvincia.Enabled = false;
+                btnAgregarProvincia.Enabled = true;
+                txtCodigoProvincia.ReadOnly = false;
             }
         }
 
@@ -232,7 +250,27 @@ namespace WinForms
                 var tipoProducto = filaSeleccionada.DataBoundItem as TipoProductoDto;
                 txtIdTipoProducto.Text = tipoProducto.IdTipoProducto.ToString();
                 txtNombreTipoProducto.Text = tipoProducto.NombreTipoProducto;
+                btnActualizarTipoProducto.Enabled = true;
+                btnEliminarTipoProducto.Enabled = true;
+                btnAgregarTipoProducto.Enabled = false;
+                txtIdTipoProducto.ReadOnly = true;
             }
+            else
+            {
+                txtIdTipoProducto.Text = string.Empty;
+                txtNombreTipoProducto.Text = string.Empty;
+                btnActualizarTipoProducto.Enabled = false;
+                btnEliminarTipoProducto.Enabled = false;
+                btnAgregarTipoProducto.Enabled = true;
+                txtIdTipoProducto.ReadOnly = false;
+            }
+        }
+
+        private void dgvProvincias_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+        }
+        private void dgvTiposProducto_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
         }
     }
 }

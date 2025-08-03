@@ -1,4 +1,3 @@
-using Domain.Services;
 using DominioModelo;
 using DominioServicio;
 using DTOs;
@@ -65,7 +64,6 @@ app.MapPost("/provincias", (ProvinciaDto dto, ProvinciaService provinciaService)
     {
         var nuevaProvincia = new Provincia(dto.CodigoProvincia, dto.NombreProvincia);
         provinciaService.Add(nuevaProvincia);
-        dto.CodigoProvincia = nuevaProvincia.CodigoProvincia; // Actualizar el DTO con el nuevo ID generado
         return Results.Created($"/provincias/{dto.CodigoProvincia}", dto);
     }
     catch (ArgumentException ex)
@@ -153,7 +151,6 @@ app.MapPost("/tiposproducto", (TipoProductoDto dto, TipoProductoService tipoProd
     {
         var nuevoTipoProducto = new TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
         tipoProductoService.Add(nuevoTipoProducto);
-        dto.IdTipoProducto = nuevoTipoProducto.IdTipoProducto; // Actualizar el DTO con el nuevo ID generado
         return Results.Created($"/tiposproducto/{dto.IdTipoProducto}", dto);
     }
     catch (ArgumentException ex)

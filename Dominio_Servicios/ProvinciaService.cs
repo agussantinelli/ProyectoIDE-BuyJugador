@@ -10,7 +10,11 @@ namespace DominioServicio
     {
         public void Add(Provincia provincia)
         {
-            provincia.SetCodigoProvincia(GetNextCodigo());
+            if (ProvinciaInMemory.Provincias.Any(p => p.CodigoProvincia == provincia.CodigoProvincia))
+            {
+                throw new ArgumentException($"La provincia con código {provincia.CodigoProvincia} ya existe.");
+            }
+
             ProvinciaInMemory.Provincias.Add(provincia);
         }
 
@@ -44,11 +48,6 @@ namespace DominioServicio
                 return true;
             }
             return false;
-        }
-
-        private static int GetNextCodigo()
-        {
-            return ProvinciaInMemory.Provincias.Count > 0 ? ProvinciaInMemory.Provincias.Max(p => p.CodigoProvincia) + 1 : 1;
         }
     }
 }

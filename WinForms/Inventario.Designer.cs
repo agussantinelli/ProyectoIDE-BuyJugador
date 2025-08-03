@@ -37,7 +37,6 @@
             btnEliminarProvincia = new Button();
             btnActualizarProvincia = new Button();
             btnAgregarProvincia = new Button();
-            btnCargarProvincias = new Button();
             dgvProvincias = new DataGridView();
             tabPageTiposProducto = new TabPage();
             label3 = new Label();
@@ -47,7 +46,6 @@
             btnEliminarTipoProducto = new Button();
             btnActualizarTipoProducto = new Button();
             btnAgregarTipoProducto = new Button();
-            btnCargarTiposProducto = new Button();
             dgvTiposProducto = new DataGridView();
             tabControl1.SuspendLayout();
             tabPageProvincias.SuspendLayout();
@@ -64,7 +62,7 @@
             tabControl1.Location = new Point(0, 0);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(800, 450);
+            tabControl1.Size = new Size(950, 600);
             tabControl1.TabIndex = 0;
             // 
             // tabPageProvincias
@@ -76,12 +74,11 @@
             tabPageProvincias.Controls.Add(btnEliminarProvincia);
             tabPageProvincias.Controls.Add(btnActualizarProvincia);
             tabPageProvincias.Controls.Add(btnAgregarProvincia);
-            tabPageProvincias.Controls.Add(btnCargarProvincias);
             tabPageProvincias.Controls.Add(dgvProvincias);
             tabPageProvincias.Location = new Point(4, 24);
             tabPageProvincias.Name = "tabPageProvincias";
             tabPageProvincias.Padding = new Padding(3);
-            tabPageProvincias.Size = new Size(792, 422);
+            tabPageProvincias.Size = new Size(942, 572);
             tabPageProvincias.TabIndex = 0;
             tabPageProvincias.Text = "Provincias";
             tabPageProvincias.UseVisualStyleBackColor = true;
@@ -89,7 +86,7 @@
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(19, 219);
+            label2.Location = new Point(19, 209);
             label2.Name = "label2";
             label2.Size = new Size(51, 15);
             label2.TabIndex = 8;
@@ -98,7 +95,7 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(19, 182);
+            label1.Location = new Point(19, 172);
             label1.Name = "label1";
             label1.Size = new Size(46, 15);
             label1.TabIndex = 7;
@@ -106,22 +103,21 @@
             // 
             // txtNombreProvincia
             // 
-            txtNombreProvincia.Location = new Point(82, 216);
+            txtNombreProvincia.Location = new Point(82, 206);
             txtNombreProvincia.Name = "txtNombreProvincia";
             txtNombreProvincia.Size = new Size(200, 23);
             txtNombreProvincia.TabIndex = 6;
             // 
             // txtCodigoProvincia
             // 
-            txtCodigoProvincia.Location = new Point(82, 179);
+            txtCodigoProvincia.Location = new Point(82, 169);
             txtCodigoProvincia.Name = "txtCodigoProvincia";
             txtCodigoProvincia.Size = new Size(200, 23);
             txtCodigoProvincia.TabIndex = 5;
-            //txtCodigoProvincia.TextChanged += txtCodigoProvincia_TextChanged;
             // 
             // btnEliminarProvincia
             // 
-            btnEliminarProvincia.Location = new Point(21, 350);
+            btnEliminarProvincia.Location = new Point(21, 310);
             btnEliminarProvincia.Name = "btnEliminarProvincia";
             btnEliminarProvincia.Size = new Size(120, 23);
             btnEliminarProvincia.TabIndex = 4;
@@ -131,7 +127,7 @@
             // 
             // btnActualizarProvincia
             // 
-            btnActualizarProvincia.Location = new Point(162, 307);
+            btnActualizarProvincia.Location = new Point(162, 310);
             btnActualizarProvincia.Name = "btnActualizarProvincia";
             btnActualizarProvincia.Size = new Size(120, 23);
             btnActualizarProvincia.TabIndex = 3;
@@ -141,7 +137,7 @@
             // 
             // btnAgregarProvincia
             // 
-            btnAgregarProvincia.Location = new Point(21, 307);
+            btnAgregarProvincia.Location = new Point(91, 266);
             btnAgregarProvincia.Name = "btnAgregarProvincia";
             btnAgregarProvincia.Size = new Size(120, 23);
             btnAgregarProvincia.TabIndex = 2;
@@ -149,24 +145,17 @@
             btnAgregarProvincia.UseVisualStyleBackColor = true;
             btnAgregarProvincia.Click += btnAgregarProvincia_Click;
             // 
-            // btnCargarProvincias
-            // 
-            btnCargarProvincias.Location = new Point(21, 264);
-            btnCargarProvincias.Name = "btnCargarProvincias";
-            btnCargarProvincias.Size = new Size(261, 23);
-            btnCargarProvincias.TabIndex = 1;
-            btnCargarProvincias.Text = "Cargar Provincias";
-            btnCargarProvincias.UseVisualStyleBackColor = true;
-            btnCargarProvincias.Click += btnCargarProvincias_Click;
-            // 
             // dgvProvincias
             // 
+            dgvProvincias.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dgvProvincias.BackgroundColor = SystemColors.ActiveCaption;
+            dgvProvincias.CellBorderStyle = DataGridViewCellBorderStyle.SingleVertical;
             dgvProvincias.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvProvincias.Location = new Point(300, 6);
             dgvProvincias.Name = "dgvProvincias";
-            dgvProvincias.Size = new Size(486, 410);
+            dgvProvincias.Size = new Size(630, 560);
             dgvProvincias.TabIndex = 0;
-            //dgvProvincias.CellContentClick += dgvProvincias_CellContentClick;
+            dgvProvincias.CellContentClick += dgvProvincias_CellContentClick;
             dgvProvincias.SelectionChanged += dgvProvincias_SelectionChanged;
             // 
             // tabPageTiposProducto
@@ -178,12 +167,11 @@
             tabPageTiposProducto.Controls.Add(btnEliminarTipoProducto);
             tabPageTiposProducto.Controls.Add(btnActualizarTipoProducto);
             tabPageTiposProducto.Controls.Add(btnAgregarTipoProducto);
-            tabPageTiposProducto.Controls.Add(btnCargarTiposProducto);
             tabPageTiposProducto.Controls.Add(dgvTiposProducto);
             tabPageTiposProducto.Location = new Point(4, 24);
             tabPageTiposProducto.Name = "tabPageTiposProducto";
             tabPageTiposProducto.Padding = new Padding(3);
-            tabPageTiposProducto.Size = new Size(792, 422);
+            tabPageTiposProducto.Size = new Size(942, 572);
             tabPageTiposProducto.TabIndex = 1;
             tabPageTiposProducto.Text = "Tipos de Producto";
             tabPageTiposProducto.UseVisualStyleBackColor = true;
@@ -191,7 +179,7 @@
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(19, 219);
+            label3.Location = new Point(19, 209);
             label3.Name = "label3";
             label3.Size = new Size(51, 15);
             label3.TabIndex = 17;
@@ -200,7 +188,7 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(19, 182);
+            label4.Location = new Point(19, 172);
             label4.Name = "label4";
             label4.Size = new Size(18, 15);
             label4.TabIndex = 16;
@@ -208,21 +196,21 @@
             // 
             // txtNombreTipoProducto
             // 
-            txtNombreTipoProducto.Location = new Point(82, 216);
+            txtNombreTipoProducto.Location = new Point(82, 206);
             txtNombreTipoProducto.Name = "txtNombreTipoProducto";
             txtNombreTipoProducto.Size = new Size(200, 23);
             txtNombreTipoProducto.TabIndex = 15;
             // 
             // txtIdTipoProducto
             // 
-            txtIdTipoProducto.Location = new Point(82, 179);
+            txtIdTipoProducto.Location = new Point(82, 169);
             txtIdTipoProducto.Name = "txtIdTipoProducto";
             txtIdTipoProducto.Size = new Size(200, 23);
             txtIdTipoProducto.TabIndex = 14;
             // 
             // btnEliminarTipoProducto
             // 
-            btnEliminarTipoProducto.Location = new Point(21, 350);
+            btnEliminarTipoProducto.Location = new Point(21, 310);
             btnEliminarTipoProducto.Name = "btnEliminarTipoProducto";
             btnEliminarTipoProducto.Size = new Size(120, 23);
             btnEliminarTipoProducto.TabIndex = 13;
@@ -232,7 +220,7 @@
             // 
             // btnActualizarTipoProducto
             // 
-            btnActualizarTipoProducto.Location = new Point(162, 307);
+            btnActualizarTipoProducto.Location = new Point(162, 267);
             btnActualizarTipoProducto.Name = "btnActualizarTipoProducto";
             btnActualizarTipoProducto.Size = new Size(120, 23);
             btnActualizarTipoProducto.TabIndex = 12;
@@ -242,7 +230,7 @@
             // 
             // btnAgregarTipoProducto
             // 
-            btnAgregarTipoProducto.Location = new Point(21, 307);
+            btnAgregarTipoProducto.Location = new Point(21, 267);
             btnAgregarTipoProducto.Name = "btnAgregarTipoProducto";
             btnAgregarTipoProducto.Size = new Size(120, 23);
             btnAgregarTipoProducto.TabIndex = 11;
@@ -250,30 +238,24 @@
             btnAgregarTipoProducto.UseVisualStyleBackColor = true;
             btnAgregarTipoProducto.Click += btnAgregarTipoProducto_Click;
             // 
-            // btnCargarTiposProducto
-            // 
-            btnCargarTiposProducto.Location = new Point(21, 264);
-            btnCargarTiposProducto.Name = "btnCargarTiposProducto";
-            btnCargarTiposProducto.Size = new Size(261, 23);
-            btnCargarTiposProducto.TabIndex = 10;
-            btnCargarTiposProducto.Text = "Cargar Tipos de Producto";
-            btnCargarTiposProducto.UseVisualStyleBackColor = true;
-            btnCargarTiposProducto.Click += btnCargarTiposProducto_Click;
-            // 
             // dgvTiposProducto
             // 
+            dgvTiposProducto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dgvTiposProducto.BackgroundColor = SystemColors.ActiveCaption;
             dgvTiposProducto.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvTiposProducto.GridColor = SystemColors.ActiveCaptionText;
             dgvTiposProducto.Location = new Point(300, 6);
             dgvTiposProducto.Name = "dgvTiposProducto";
-            dgvTiposProducto.Size = new Size(486, 410);
+            dgvTiposProducto.Size = new Size(630, 560);
             dgvTiposProducto.TabIndex = 9;
+            dgvTiposProducto.CellContentClick += dgvTiposProducto_CellContentClick;
             dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
             // 
             // Inventario
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(950, 600);
             Controls.Add(tabControl1);
             Name = "Inventario";
             Text = "Control de Existencias";
@@ -302,7 +284,7 @@
         private System.Windows.Forms.Button btnEliminarProvincia;
         private System.Windows.Forms.Button btnActualizarProvincia;
         private System.Windows.Forms.Button btnAgregarProvincia;
-        private System.Windows.Forms.Button btnCargarProvincias;
+        // private System.Windows.Forms.Button btnCargarProvincias; // Botón eliminado
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtNombreTipoProducto;
@@ -310,7 +292,7 @@
         private System.Windows.Forms.Button btnEliminarTipoProducto;
         private System.Windows.Forms.Button btnActualizarTipoProducto;
         private System.Windows.Forms.Button btnAgregarTipoProducto;
-        private System.Windows.Forms.Button btnCargarTiposProducto;
+        // private System.Windows.Forms.Button btnCargarTiposProducto; // Botón eliminado
         private System.Windows.Forms.DataGridView dgvTiposProducto;
     }
 }
