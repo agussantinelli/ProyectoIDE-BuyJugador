@@ -242,6 +242,8 @@
             // 
             dgvTiposProducto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvTiposProducto.BackgroundColor = SystemColors.ActiveCaption;
+            dgvTiposProducto.CellBorderStyle = DataGridViewCellBorderStyle.SingleVertical;
+
             dgvTiposProducto.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvTiposProducto.GridColor = SystemColors.ActiveCaptionText;
             dgvTiposProducto.Location = new Point(300, 6);

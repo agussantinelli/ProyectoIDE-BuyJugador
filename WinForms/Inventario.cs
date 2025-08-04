@@ -22,10 +22,63 @@ namespace WinForms
             btnActualizarTipoProducto.Enabled = false;
             btnEliminarTipoProducto.Enabled = false;
 
+            ConfigurarColumnasProvincias();
+            ConfigurarColumnasTiposProducto();
+
             await CargarProvinciasAsync();
             await CargarTiposProductoAsync();
         }
+        private void ConfigurarColumnasProvincias()
+        {
+            dgvProvincias.AutoGenerateColumns = false;
+            dgvProvincias.Columns.Clear();
 
+            // Columna Código
+            dgvProvincias.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "CodigoProvincia",
+                HeaderText = "Código",
+                Name = "colCodigo",
+                Width = 120,
+                ReadOnly = true
+            });
+
+            // Columna Nombre
+            dgvProvincias.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "NombreProvincia",
+                HeaderText = "Nombre Provincia",
+                Name = "colNombre",
+                Width = 190,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+        }
+
+        private void ConfigurarColumnasTiposProducto()
+        {
+            dgvTiposProducto.AutoGenerateColumns = false;
+            dgvTiposProducto.Columns.Clear();
+
+            // Columna ID
+            dgvTiposProducto.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "IdTipoProducto",
+                HeaderText = "ID",
+                Name = "colId",
+                Width = 120,
+                ReadOnly = true
+            });
+
+            // Columna Nombre
+            dgvTiposProducto.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "NombreTipoProducto",
+                HeaderText = "Tipo de Producto",
+                Name = "colNombre",
+                Width = 190,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+        }
         private async Task CargarProvinciasAsync()
         {
             try
