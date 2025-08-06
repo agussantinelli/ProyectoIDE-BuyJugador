@@ -111,6 +111,20 @@
           "Microsoft.AspNetCore.App"
         ]
       },
+      "ApiServices/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "DTOs": "1.0.0",
+          "WebAPI": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/ApiServices.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/ApiServices.dll": {}
+        }
+      },
       "Data/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
@@ -347,6 +361,11 @@
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
     },
+    "ApiServices/1.0.0": {
+      "type": "project",
+      "path": "../ApiServices/ApiServices.csproj",
+      "msbuildProject": "../ApiServices/ApiServices.csproj"
+    },
     "Data/1.0.0": {
       "type": "project",
       "path": "../Data/Data.csproj",
@@ -375,10 +394,8 @@
   },
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
+      "ApiServices >= 1.0.0",
       "DTOs >= 1.0.0",
-      "Data >= 1.0.0",
-      "DominioModelo >= 1.0.0",
-      "DominioServicios >= 1.0.0",
       "Swashbuckle.AspNetCore >= 9.0.3",
       "WebAPI >= 1.0.0"
     ]
@@ -415,14 +432,8 @@
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
           "projectReferences": {
-            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
-              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj"
-            },
-            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
-              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
-            },
-            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj": {
-              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj"
+            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\ApiServices\\ApiServices.csproj": {
+              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\ApiServices\\ApiServices.csproj"
             },
             "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
               "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"

@@ -13,9 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Data\Data.csproj" />
-    <ProjectReference Include="..\Dominio_Modelo\DominioModelo.csproj" />
-    <ProjectReference Include="..\Dominio_Servicios\DominioServicios.csproj" />
+    <ProjectReference Include="..\ApiServices\ApiServices.csproj" />
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
     <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
   </ItemGroup>
