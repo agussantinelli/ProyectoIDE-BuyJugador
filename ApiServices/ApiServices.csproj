@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DTOs\DTOs.csproj" />
-    <ProjectReference Include="..\WebAPI\WebAPI.csproj" />
   </ItemGroup>
 
 </Project>

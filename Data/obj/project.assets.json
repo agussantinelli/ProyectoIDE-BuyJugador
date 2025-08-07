@@ -2,129 +2,48 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Microsoft.AspNetCore.OpenApi/8.0.7": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.OpenApi": "1.4.3"
-        },
-        "compile": {
-          "lib/net8.0/Microsoft.AspNetCore.OpenApi.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.AspNetCore.OpenApi.dll": {
-            "related": ".xml"
-          }
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
-      },
-      "Microsoft.OpenApi/1.4.3": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
-            "related": ".pdb;.xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Microsoft.OpenApi.dll": {
-            "related": ".pdb;.xml"
-          }
-        }
-      },
       "DominioModelo/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
-        "dependencies": {
-          "DTOs": "1.0.0",
-          "Microsoft.AspNetCore.OpenApi": "8.0.7"
-        },
         "compile": {
           "bin/placeholder/DominioModelo.dll": {}
         },
         "runtime": {
           "bin/placeholder/DominioModelo.dll": {}
-        }
-      },
-      "DTOs/1.0.0": {
-        "type": "project",
-        "framework": ".NETCoreApp,Version=v8.0",
-        "compile": {
-          "bin/placeholder/DTOs.dll": {}
-        },
-        "runtime": {
-          "bin/placeholder/DTOs.dll": {}
         }
       }
     }
   },
   "libraries": {
-    "Microsoft.AspNetCore.OpenApi/8.0.7": {
-      "sha512": "9SBDNvlwA88r5oD7yUbTmwr9ylkmZWdPQgohBWCdz6cESDAo6JgCD5vEOZS/nq2WIL5SCn3/RamAStcdiRzd4g==",
-      "type": "package",
-      "path": "microsoft.aspnetcore.openapi/8.0.7",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net8.0/Microsoft.AspNetCore.OpenApi.dll",
-        "lib/net8.0/Microsoft.AspNetCore.OpenApi.xml",
-        "microsoft.aspnetcore.openapi.8.0.7.nupkg.sha512",
-        "microsoft.aspnetcore.openapi.nuspec"
-      ]
-    },
-    "Microsoft.OpenApi/1.4.3": {
-      "sha512": "rURwggB+QZYcSVbDr7HSdhw/FELvMlriW10OeOzjPT7pstefMo7IThhtNtDudxbXhW+lj0NfX72Ka5EDsG8x6w==",
-      "type": "package",
-      "path": "microsoft.openapi/1.4.3",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/netstandard2.0/Microsoft.OpenApi.dll",
-        "lib/netstandard2.0/Microsoft.OpenApi.pdb",
-        "lib/netstandard2.0/Microsoft.OpenApi.xml",
-        "microsoft.openapi.1.4.3.nupkg.sha512",
-        "microsoft.openapi.nuspec"
-      ]
-    },
     "DominioModelo/1.0.0": {
       "type": "project",
       "path": "../Dominio_Modelo/DominioModelo.csproj",
       "msbuildProject": "../Dominio_Modelo/DominioModelo.csproj"
-    },
-    "DTOs/1.0.0": {
-      "type": "project",
-      "path": "../DTOs/DTOs.csproj",
-      "msbuildProject": "../DTOs/DTOs.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "DTOs >= 1.0.0",
       "DominioModelo >= 1.0.0"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Agus\\.nuget\\packages\\": {},
+    "C:\\Users\\Marto\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
+      "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
       "projectName": "Data",
-      "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
-      "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\obj\\",
+      "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
+      "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -133,17 +52,15 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
-              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
-            },
-            "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-              "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
+            "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
+              "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
             }
           }
         }
@@ -179,7 +96,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

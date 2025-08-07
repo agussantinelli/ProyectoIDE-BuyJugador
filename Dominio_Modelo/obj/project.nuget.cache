@@ -1,11 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XYincMUmSsk=",
+  "dgSpecHash": "OUCMmgeFhj0=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\Agus\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.7\\microsoft.aspnetcore.openapi.8.0.7.nupkg.sha512",
-    "C:\\Users\\Agus\\.nuget\\packages\\microsoft.openapi\\1.4.3\\microsoft.openapi.1.4.3.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

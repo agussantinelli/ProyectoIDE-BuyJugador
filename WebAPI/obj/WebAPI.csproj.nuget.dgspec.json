@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj": {}
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
         "projectName": "Data",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\obj\\",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,17 +26,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
-              },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
               }
             }
           }
@@ -72,24 +70,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
         "projectName": "DominioModelo",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\obj\\",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -98,156 +96,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
-            "projectReferences": {
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
-      },
-      "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "dependencies": {
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[8.0.7, )"
-            }
-          },
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj",
-        "projectName": "DominioServicios",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {}
-        },
-        "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
-            "projectReferences": {
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj"
-              },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
-              },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
-              }
-            }
-          }
-        },
-        "warningProperties": {
-          "warnAsError": [
-            "NU1605"
-          ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.300"
-      },
-      "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
-          "imports": [
-            "net461",
-            "net462",
-            "net47",
-            "net471",
-            "net472",
-            "net48",
-            "net481"
-          ],
-          "assetTargetFallback": true,
-          "warn": true,
-          "frameworkReferences": {
-            "Microsoft.NETCore.App": {
-              "privateAssets": "all"
-            }
-          },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
-        }
-      }
-    },
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj",
-        "projectName": "DTOs",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\obj\\",
-        "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
-        "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
-        ],
-        "originalTargetFrameworks": [
-          "net8.0"
-        ],
-        "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -287,24 +136,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj": {
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj",
-        "projectName": "WebAPI",
-        "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj",
-        "packagesPath": "C:\\Users\\Agus\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\WebAPI\\obj\\",
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj",
+        "projectName": "DominioServicios",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Agus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -313,23 +162,163 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Data\\Data.csproj"
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj"
               },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj",
+        "projectName": "DTOs",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj",
+        "projectName": "WebAPI",
+        "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WebAPI\\WebAPI.csproj",
+        "packagesPath": "C:\\Users\\Marto\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\WebAPI\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Marto\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Data\\Data.csproj"
               },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj"
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Modelo\\DominioModelo.csproj"
               },
-              "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
-                "projectPath": "C:\\Users\\Agus\\Documents\\IDE\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\Dominio_Servicios\\DominioServicios.csproj"
+              },
+              "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj": {
+                "projectPath": "C:\\Users\\Marto\\source\\repos\\agussantinelli\\ProyectoIDE-BuyJugador\\DTOs\\DTOs.csproj"
               }
             }
           }
@@ -374,7 +363,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
