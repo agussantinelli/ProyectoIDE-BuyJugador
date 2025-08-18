@@ -1,202 +1,47 @@
-using DominioModelo;
-using DominioServicio;
-using DTOs;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Collections.Generic;
-using System.Linq;
+using Data; // Asegúrate de tener esta referencia
+using DominioServicios;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de servicios
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<ProvinciaService>();
-builder.Services.AddSingleton<TipoProductoService>();
+// 1. Configurar la conexión a la base de datos
+var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
+builder.Services.AddDbContext<BuyJugadorContext>(options =>
+    options.UseSqlServer(connectionString));
 
+// Add services to the container.
+builder.Services.AddRazorPages();
+
+// 2. Registrar tus servicios para inyección de dependencias
+// Esto permite que tus clases de servicio se puedan usar en los endpoints.
+builder.Services.AddScoped<DuenioService>();
+builder.Services.AddScoped<EmpleadoService>();
+builder.Services.AddScoped<ProductoService>();
+builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<VentaService>();
+builder.Services.AddScoped<PrecioService>();
+builder.Services.AddScoped<LocalidadService>();
+builder.Services.AddScoped<DominioServicio.ProvinciaService>();
+    
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
-// --- Endpoints para Provincias ---
-#region Provincias
-app.MapGet("/provincias", (ProvinciaService provinciaService) =>
-{
-    var provincias = provinciaService.GetAll();
-    var dtos = provincias.Select(p => new ProvinciaDto
-    {
-        CodigoProvincia = p.CodigoProvincia,
-        NombreProvincia = p.NombreProvincia
-    }).ToList();
-    return Results.Ok(dtos);
-})
-.WithName("GetAllProvincias")
-.Produces<List<ProvinciaDto>>(StatusCodes.Status200OK);
+app.UseRouting();
 
-app.MapGet("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
-{
-    var provincia = provinciaService.Get(codigoProvincia);
-    if (provincia == null)
-    {
-        return Results.NotFound("Provincia no encontrada.");
-    }
-    var dto = new ProvinciaDto
-    {
-        CodigoProvincia = provincia.CodigoProvincia,
-        NombreProvincia = provincia.NombreProvincia
-    };
-    return Results.Ok(dto);
-})
-.WithName("GetProvinciaByCodigo")
-.Produces<ProvinciaDto>(StatusCodes.Status200OK)
-.Produces(StatusCodes.Status404NotFound);
+app.UseAuthorization();
 
-app.MapPost("/provincias", (ProvinciaDto dto, ProvinciaService provinciaService) =>
-{
-    try
-    {
-        var nuevaProvincia = new Provincia(dto.CodigoProvincia, dto.NombreProvincia);
-        provinciaService.Add(nuevaProvincia);
-        return Results.Created($"/provincias/{dto.CodigoProvincia}", dto);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("AddProvincia")
-.Produces<ProvinciaDto>(StatusCodes.Status201Created)
-.Produces(StatusCodes.Status400BadRequest);
+app.MapRazorPages();
 
-app.MapPut("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaDto dto, ProvinciaService provinciaService) =>
-{
-    try
-    {
-        dto.CodigoProvincia = codigoProvincia;
-        var provinciaActualizada = new Provincia(dto.CodigoProvincia, dto.NombreProvincia);
-        var found = provinciaService.Update(provinciaActualizada);
-        if (!found)
-        {
-            return Results.NotFound("Provincia no encontrada.");
-        }
-        return Results.NoContent();
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("UpdateProvincia")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.Produces(StatusCodes.Status400BadRequest);
-
-app.MapDelete("/provincias/{codigoProvincia}", (int codigoProvincia, ProvinciaService provinciaService) =>
-{
-    var deleted = provinciaService.Delete(codigoProvincia);
-    if (!deleted)
-    {
-        return Results.NotFound("Provincia no encontrada.");
-    }
-    return Results.NoContent();
-})
-.WithName("DeleteProvincia")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound);
-#endregion
-
-// --- Endpoints para Tipos de Producto ---
-#region Tipos de Productos
-app.MapGet("/tiposproducto", (TipoProductoService tipoProductoService) =>
-{
-    var tiposProducto = tipoProductoService.GetAll();
-    var dtos = tiposProducto.Select(tp => new TipoProductoDto
-    {
-        IdTipoProducto = tp.IdTipoProducto,
-        NombreTipoProducto = tp.NombreTipoProducto
-    }).ToList();
-    return Results.Ok(dtos);
-})
-.WithName("GetAllTiposProducto")
-.Produces<List<TipoProductoDto>>(StatusCodes.Status200OK);
-
-app.MapGet("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoService tipoProductoService) =>
-{
-    var tipoProducto = tipoProductoService.Get(idTipoProducto);
-    if (tipoProducto == null)
-    {
-        return Results.NotFound("Tipo de producto no encontrado.");
-    }
-    var dto = new TipoProductoDto
-    {
-        IdTipoProducto = tipoProducto.IdTipoProducto,
-        NombreTipoProducto = tipoProducto.NombreTipoProducto
-    };
-    return Results.Ok(dto);
-})
-.WithName("GetTipoProductoById")
-.Produces<TipoProductoDto>(StatusCodes.Status200OK)
-.Produces(StatusCodes.Status404NotFound);
-
-app.MapPost("/tiposproducto", (TipoProductoDto dto, TipoProductoService tipoProductoService) =>
-{
-    try
-    {
-        var nuevoTipoProducto = new TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
-        tipoProductoService.Add(nuevoTipoProducto);
-        return Results.Created($"/tiposproducto/{dto.IdTipoProducto}", dto);
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("AddTipoProducto")
-.Produces<TipoProductoDto>(StatusCodes.Status201Created)
-.Produces(StatusCodes.Status400BadRequest);
-
-app.MapPut("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoDto dto, TipoProductoService tipoProductoService) =>
-{
-    try
-    {
-        dto.IdTipoProducto = idTipoProducto;
-        var tipoProductoActualizado = new TipoProducto(dto.IdTipoProducto, dto.NombreTipoProducto);
-        var found = tipoProductoService.Update(tipoProductoActualizado);
-        if (!found)
-        {
-            return Results.NotFound("Tipo de producto no encontrado.");
-        }
-        return Results.NoContent();
-    }
-    catch (ArgumentException ex)
-    {
-        return Results.BadRequest(new { error = ex.Message });
-    }
-})
-.WithName("UpdateTipoProducto")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound)
-.Produces(StatusCodes.Status400BadRequest);
-
-app.MapDelete("/tiposproducto/{idTipoProducto}", (int idTipoProducto, TipoProductoService tipoProductoService) =>
-{
-    var deleted = tipoProductoService.Delete(idTipoProducto);
-    if (!deleted)
-    {
-        return Results.NotFound("Tipo de producto no encontrado.");
-    }
-    return Results.NoContent();
-})
-.WithName("DeleteTipoProducto")
-.Produces(StatusCodes.Status204NoContent)
-.Produces(StatusCodes.Status404NotFound);
-#endregion
+// 3. Aquí registraremos los endpoints de la API más adelante
+// app.MapProductoEndpoints(); 
 
 app.Run();
