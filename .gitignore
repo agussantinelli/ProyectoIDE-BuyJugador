@@ -1,5 +1,70 @@
-
+## Archivos binarios y temporales
 bin/
 obj/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
 
+## Archivos de usuario
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Archivos de dependencias
+packages/
+*.nupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Configuración de Visual Studio
 .vs/
+*.vscode/
+
+## Archivos generados
+*_i.c
+*_p.c
+*_h.h
+*.ilk
+*.meta
+*.obj
+*.iobj
+*.pch
+*.pdb
+*.ipdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+*_i.asm
+*_p.asm
+*.cache
+*.dll
+*.exe
+
+## Configuración de test
+TestResults/
+*.VisualState.xml
+*.TestResult.xml
+
+## Publicaciones
+publish/
+*.Publish.xml
+
+## Archivos de seguridad y secretos
+*.snk
+appsettings.Development.json
+secrets.json
+
+## Otros
+_ReSharper*/
+*.DotSettings.user
