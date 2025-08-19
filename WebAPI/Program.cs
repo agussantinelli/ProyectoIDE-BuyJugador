@@ -1,6 +1,7 @@
-using Data; // Asegúrate de tener esta referencia
+using Data;
 using DominioServicios;
 using Microsoft.EntityFrameworkCore;
+// using WebAPI.Endpoints; // Descomentaremos esto cuando creemos los endpoints
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,17 +13,20 @@ builder.Services.AddDbContext<BuyJugadorContext>(options =>
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-// 2. Registrar tus servicios para inyección de dependencias
-// Esto permite que tus clases de servicio se puedan usar en los endpoints.
+// 2. Registrar todos tus servicios para inyección de dependencias
 builder.Services.AddScoped<DuenioService>();
 builder.Services.AddScoped<EmpleadoService>();
+builder.Services.AddScoped<LineaPedidoService>();
+builder.Services.AddScoped<LineaVentaService>();
+builder.Services.AddScoped<LocalidadService>();
+builder.Services.AddScoped<PedidoService>();
+builder.Services.AddScoped<PrecioService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<ProvinciaService>();
+builder.Services.AddScoped<TipoProductoService>();
 builder.Services.AddScoped<VentaService>();
-builder.Services.AddScoped<PrecioService>();
-builder.Services.AddScoped<LocalidadService>();
-builder.Services.AddScoped<DominioServicio.ProvinciaService>();
-    
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -41,7 +45,7 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-// 3. Aquí registraremos los endpoints de la API más adelante
+// 3. Registrar los endpoints de la API (lo haremos más adelante)
 // app.MapProductoEndpoints(); 
 
 app.Run();

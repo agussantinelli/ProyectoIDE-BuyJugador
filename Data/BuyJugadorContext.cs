@@ -1,4 +1,7 @@
-﻿
+﻿// Data/BuyJugadorContext.cs
+// Se agrega la directiva 'using' que faltaba.
+
+using Dominio_Modelo; // <-- ESTA LÍNEA ES LA SOLUCIÓN
 using DominioModelo;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,9 +28,19 @@ namespace Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Aquí puedes agregar configuraciones adicionales de Fluent API si las necesitas.
-            // Por ejemplo, para configurar relaciones complejas, claves, etc.
-            // Por ahora, lo dejaremos simple y EF Core inferirá la mayoría de las relaciones.
+            modelBuilder.Entity<Producto>().HasKey(p => p.IdProducto);
+            modelBuilder.Entity<Venta>().HasKey(v => v.IdVenta);
+            modelBuilder.Entity<Duenio>().HasKey(d => d.IdDuenio);
+            modelBuilder.Entity<Empleado>().HasKey(e => e.IdEmpleado);
+            modelBuilder.Entity<LineaPedido>().HasKey(lp => lp.IdLineaPedido);
+            modelBuilder.Entity<LineaVenta>().HasKey(lv => lv.IdLineaVenta);
+            modelBuilder.Entity<Localidad>().HasKey(l => l.IdLocalidad);
+            modelBuilder.Entity<Pedido>().HasKey(p => p.IdPedido);
+            modelBuilder.Entity<Precio>().HasKey(p => p.IdPrecio);
+            modelBuilder.Entity<Proveedor>().HasKey(p => p.IdProveedor);
+            modelBuilder.Entity<Provincia>().HasKey(p => p.IdProvincia);
+            modelBuilder.Entity<TipoProducto>().HasKey(tp => tp.IdTipoProducto);
+
             base.OnModelCreating(modelBuilder);
         }
     }

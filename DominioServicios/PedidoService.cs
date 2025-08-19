@@ -1,6 +1,9 @@
 ﻿using Data;
-using DominioModelo;
+using Dominio_Modelo; // <-- ESTA LÍNEA ES LA SOLUCIÓN
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -16,7 +19,7 @@ namespace DominioServicios
         public async Task<List<Pedido>> GetAllAsync()
         {
             return await _context.Pedidos
-                                 .Include(p => p.LineasPedido) // Incluye las líneas de pedido relacionadas
+                                 .Include(p => p.LineasPedido)
                                  .ToListAsync();
         }
 

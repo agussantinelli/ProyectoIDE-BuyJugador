@@ -1,7 +1,11 @@
-﻿
+﻿// DominioServicios/ProductoService.cs
+// Código completo y corregido del servicio.
+
 using Data;
 using DominioModelo;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {

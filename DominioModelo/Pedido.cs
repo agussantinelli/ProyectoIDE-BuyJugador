@@ -1,64 +1,23 @@
-﻿using System;
+﻿using DominioModelo;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DominioModelo
+namespace Dominio_Modelo
 {
     public class Pedido
     {
-        public int IdPedido { get; private set; }
-        public DateTime FechaPedido { get; private set; }
-        public string EstadoPedido { get; private set; }
-        public decimal MontoTotalPedido { get; private set; }
-        public string CuilProveedor { get; private set; }
+        // Se agrega { set; } a las propiedades
+        public int IdPedido { get; set; }
+        public int IdProveedor { get; set; }
 
+        public List<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
 
-        public Pedido(int idPedido, DateTime fechaPedido, string estadoPedido, decimal montoTotalPedido, string cuilProveedor)
+        // Agregamos un constructor sin parámetros que EF Core necesita
+        public Pedido() { }
+
+        public Pedido(int idPedido, int idProveedor)
         {
-            SetIdPedido(idPedido);
-            SetFechaPedido(fechaPedido);
-            SetEstadoPedido(estadoPedido);
-            SetMontoTotalPedido(montoTotalPedido);
-            SetCuilProveedor(cuilProveedor);
-
-        }
-
-        public void SetIdPedido(int idPedido)
-        {
-            if (idPedido <= 0)
-                throw new ArgumentException("El IdPedido debe ser mayor a cero.", nameof(idPedido));
             IdPedido = idPedido;
+            IdProveedor = idProveedor;
         }
-
-        public void SetFechaPedido(DateTime fechaPedido)
-        {
-            if (fechaPedido == default)
-                throw new ArgumentException("La fecha de pedido no puede ser vacía.", nameof(fechaPedido));
-            FechaPedido = fechaPedido;
-        }
-
-        public void SetEstadoPedido(string estadoPedido)
-        {
-            if (string.IsNullOrWhiteSpace(estadoPedido))
-                throw new ArgumentException("El estado del pedido no puede ser nulo o vacío.", nameof(estadoPedido));
-            EstadoPedido = estadoPedido;
-        }
-
-        public void SetMontoTotalPedido(decimal montoTotalPedido)
-        {
-            if (montoTotalPedido < 0)
-                throw new ArgumentException("El monto total del pedido no puede ser negativo.", nameof(montoTotalPedido));
-            MontoTotalPedido = montoTotalPedido;
-        }
-
-        public void SetCuilProveedor(string cuil)
-        {
-            if (string.IsNullOrWhiteSpace(cuil))
-                throw new ArgumentException("El CUIT no puede ser nulo o vacío.", nameof(cuil));
-            CuilProveedor = cuil;
-        }
-
     }
 }

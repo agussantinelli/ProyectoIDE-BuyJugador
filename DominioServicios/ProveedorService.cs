@@ -1,6 +1,12 @@
-﻿using Data;
+﻿// DominioServicios/ProveedorService.cs
+// Código completo y corregido del servicio.
+
+using Data;
 using DominioModelo;
+using Dominio_Modelo;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -38,7 +44,8 @@ namespace DominioServicios
                 existing.Nombre = proveedor.Nombre;
                 existing.Cuit = proveedor.Cuit;
                 existing.Email = proveedor.Email;
-                // Actualiza las demás propiedades...
+                existing.Telefono = proveedor.Telefono;
+                existing.Direccion = proveedor.Direccion;
                 await _context.SaveChangesAsync();
             }
         }

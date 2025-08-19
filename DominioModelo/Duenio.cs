@@ -1,11 +1,12 @@
-namespace  DominioModelo
+namespace DominioModelo
 {
-	public class Duenio : Persona
-	{
-		public Duenio(int dni, string nombrePer, string mailPer, string contrasenia, string telefonoPer)
-            : base(dni,nombrePer,mailPer,contrasenia,telefonoPer)
+    public class Duenio : Persona
+    {
+        public int IdDuenio { get; set; }
 
+        public Duenio(int idDuenio, string nombre, int cuit, string email, int telefono, string direccion, int idLocalidad) : base(nombre, cuit, email, telefono, direccion, idLocalidad)
         {
-		}
-	}
+            IdDuenio = idDuenio;
+        }
+    }
 }

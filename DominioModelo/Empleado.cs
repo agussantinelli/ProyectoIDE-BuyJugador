@@ -1,22 +1,12 @@
-using System;
-
 namespace DominioModelo
 {
     public class Empleado : Persona
     {
-        public DateTime FechaIngreso { get; private set; }
+        public int IdEmpleado { get; set; }
 
-        public Empleado(int dni, string nombrePer, string mailPer, string contrasenia, string telefonoPer, DateTime fechaIngreso)
-            : base(dni, nombrePer, mailPer, contrasenia, telefonoPer)
+        public Empleado(int idEmpleado, string nombre, int cuit, string email, int telefono, string direccion, int idLocalidad) : base(nombre, cuit, email, telefono, direccion, idLocalidad)
         {
-            SetFechaIngreso(fechaIngreso);
-        }
-
-        public void SetFechaIngreso(DateTime fechaIngreso)
-        {
-            if (fechaIngreso > DateTime.Now)
-                throw new ArgumentException("La fecha de ingreso no puede ser futura.", nameof(fechaIngreso));
-            FechaIngreso = fechaIngreso;
+            IdEmpleado = idEmpleado;
         }
     }
 }
