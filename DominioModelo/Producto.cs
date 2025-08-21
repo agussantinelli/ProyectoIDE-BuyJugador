@@ -1,6 +1,3 @@
-// DominioModelo/Producto.cs
-// Se agrega { set; } a las propiedades para que se puedan modificar.
-
 namespace DominioModelo
 {
     public class Producto

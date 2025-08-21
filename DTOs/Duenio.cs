@@ -1,5 +1,4 @@
-﻿
-namespace DTOs
+﻿namespace DTOs
 {
     public class DuenioDto : PersonaDto
     {

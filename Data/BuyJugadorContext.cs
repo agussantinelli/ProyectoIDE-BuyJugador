@@ -1,8 +1,4 @@
-﻿// Data/BuyJugadorContext.cs
-// Se agrega la directiva 'using' que faltaba.
-
-using Dominio_Modelo; // <-- ESTA LÍNEA ES LA SOLUCIÓN
-using DominioModelo;
+﻿using DominioModelo;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data

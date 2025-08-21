@@ -1,7 +1,7 @@
 using Data;
 using DominioServicios;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Endpoints; // <-- Esta línea es la más importante para solucionar el error
+using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
