@@ -1,5 +1,5 @@
 using DTOs;
-using ApiServices;
+using ApiClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,7 +83,7 @@ namespace WinForms
         {
             try
             {
-                var provincias = await ApiClient.GetProvinciasAsync();
+                var provincias = await ProvinciaApiClient.GetProvinciasAsync();
                 dgvProvincias.DataSource = provincias;
             }
             catch (Exception ex)
@@ -104,7 +104,7 @@ namespace WinForms
                 var nuevaProvincia = new ProvinciaDto { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
                 try
                 {
-                    await ApiClient.AddProvinciaAsync(nuevaProvincia);
+                    await ProvinciaApiClient.AddProvinciaAsync(nuevaProvincia);
                     MessageBox.Show("Provincia agregada con éxito.");
                     await CargarProvinciasAsync();
                 }
@@ -128,7 +128,7 @@ namespace WinForms
                     var provinciaActualizada = new ProvinciaDto { CodigoProvincia = codigo, NombreProvincia = txtNombreProvincia.Text };
                     try
                     {
-                        await ApiClient.UpdateProvinciaAsync(provinciaActualizada);
+                        await ProvinciaApiClient.UpdateProvinciaAsync(provinciaActualizada);
                         MessageBox.Show("Provincia actualizada con éxito.");
                         await CargarProvinciasAsync();
                     }
@@ -159,7 +159,7 @@ namespace WinForms
                 {
                     try
                     {
-                        await ApiClient.DeleteProvinciaAsync(provincia.CodigoProvincia);
+                        await ProvinciaApiClient.DeleteProvinciaAsync(provincia.CodigoProvincia);
                         MessageBox.Show("Provincia eliminada con éxito.");
                         await CargarProvinciasAsync();
                     }
@@ -203,7 +203,7 @@ namespace WinForms
         {
             try
             {
-                var tiposProducto = await ApiClient.GetTiposProductoAsync();
+                var tiposProducto = await TipoProductoApiClient.GetTiposProductoAsync();
                 dgvTiposProducto.DataSource = tiposProducto;
             }
             catch (Exception ex)
@@ -224,7 +224,7 @@ namespace WinForms
                 var nuevoTipoProducto = new TipoProductoDto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
                 try
                 {
-                    await ApiClient.AddTipoProductoAsync(nuevoTipoProducto);
+                    await TipoProductoApiClient.AddTipoProductoAsync(nuevoTipoProducto);
                     MessageBox.Show("Tipo de producto agregado con éxito.");
                     await CargarTiposProductoAsync();
                 }
@@ -248,7 +248,7 @@ namespace WinForms
                     var tipoProductoActualizado = new TipoProductoDto { IdTipoProducto = id, NombreTipoProducto = txtNombreTipoProducto.Text };
                     try
                     {
-                        await ApiClient.UpdateTipoProductoAsync(tipoProductoActualizado);
+                        await TipoProductoApiClient.UpdateTipoProductoAsync(tipoProductoActualizado);
                         MessageBox.Show("Tipo de producto actualizado con éxito.");
                         await CargarTiposProductoAsync();
                     }
@@ -279,7 +279,7 @@ namespace WinForms
                 {
                     try
                     {
-                        await ApiClient.DeleteTipoProductoAsync(tipoProducto.IdTipoProducto);
+                        await TipoProductoApiClient.DeleteTipoProductoAsync(tipoProducto.IdTipoProducto);
                         MessageBox.Show("Tipo de producto eliminado con éxito.");
                         await CargarTiposProductoAsync();
                     }

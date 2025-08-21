@@ -1,7 +1,7 @@
 using Data;
 using DominioServicios;
 using Microsoft.EntityFrameworkCore;
-using WebAPI.Endpoints;
+using WebAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 

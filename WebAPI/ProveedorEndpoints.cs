@@ -1,8 +1,8 @@
-﻿ 
+﻿
 using DominioServicios;
 using DominioModelo;
 
-namespace WebAPI.Endpoints
+namespace WebAPI
 {
     public static class ProveedorEndpoints
     {
