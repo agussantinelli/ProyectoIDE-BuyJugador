@@ -6,7 +6,7 @@ namespace WinForms
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new Inventario());
+            Application.Run(new MainForm());
         }
     }
 }
