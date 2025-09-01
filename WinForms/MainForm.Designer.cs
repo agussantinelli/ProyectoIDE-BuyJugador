@@ -34,7 +34,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(292, 231);
+            ClientSize = new Size(615, 329);
             Margin = new Padding(4, 3, 4, 3);
             Name = "MainForm";
             Text = "Menú Principal";

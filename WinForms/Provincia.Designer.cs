@@ -34,7 +34,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(495, 324);
+            ClientSize = new Size(600, 357);
             Margin = new Padding(4, 3, 4, 3);
             Name = "ProvinciasForm";
             Text = "Gestión de Provincias";
