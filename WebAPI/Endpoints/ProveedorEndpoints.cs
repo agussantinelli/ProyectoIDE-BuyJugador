@@ -1,8 +1,7 @@
-﻿
+﻿using DTOs;
 using DominioServicios;
-using DominioModelo;
 
-namespace WebAPI
+namespace WebAPI.Endpoints
 {
     public static class ProveedorEndpoints
     {
@@ -17,19 +16,19 @@ namespace WebAPI
 
             group.MapGet("/{id}", async (int id, ProveedorService service) =>
             {
-                var proveedor = await service.GetByIdAsync(id);
-                return proveedor is not null ? Results.Ok(proveedor) : Results.NotFound();
+                var prov = await service.GetByIdAsync(id);
+                return prov is not null ? Results.Ok(prov) : Results.NotFound();
             });
 
-            group.MapPost("/", async (Proveedor proveedor, ProveedorService service) =>
+            group.MapPost("/", async (ProveedorDTO dto, ProveedorService service) =>
             {
-                var nuevo = await service.CreateAsync(proveedor);
-                return Results.Created($"/api/proveedores/{nuevo.Id}", nuevo);
+                var nuevo = await service.CreateAsync(dto);
+                return Results.Created($"/api/proveedores/{nuevo.IdProveedor}", nuevo);
             });
 
-            group.MapPut("/{id}", async (int id, Proveedor proveedor, ProveedorService service) =>
+            group.MapPut("/{id}", async (int id, ProveedorDTO dto, ProveedorService service) =>
             {
-                await service.UpdateAsync(id, proveedor);
+                await service.UpdateAsync(id, dto);
                 return Results.NoContent();
             });
 

@@ -1,7 +1,7 @@
 using Data;
 using DominioServicios;
 using Microsoft.EntityFrameworkCore;
-using WebAPI;
+using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,8 +21,7 @@ builder.Services.AddRazorPages();
 
 // 2. Registrar todos tus servicios para inyección de dependencias
 // Se han agregado los servicios que faltaban para completar la funcionalidad CRUD
-builder.Services.AddScoped<DuenioService>();
-builder.Services.AddScoped<EmpleadoService>();
+builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<LocalidadService>();
@@ -64,16 +63,15 @@ app.MapRazorPages();
 // Se han agregado las llamadas para los nuevos endpoints creados
 app.MapProductoEndpoints();
 app.MapProveedorEndpoints();
-app.MapDuenioEndpoints();
-app.MapEmpleadoEndpoints();
+app.MapPersonaEndpoints();
 app.MapLineaPedidoEndpoints();
 app.MapLineaVentaEndpoints();
 app.MapLocalidadEndpoints();
 app.MapPedidoEndpoints();
-//app.MapPrecioEndpoints();
-//app.MapProvinciaEndpoints();
-//app.MapTipoProductoEndpoints();
-//app.MapVentaEndpoints();
+app.MapPrecioEndpoints();
+app.MapProvinciaEndpoints();
+app.MapTipoProductoEndpoints();
+app.MapVentaEndpoints();
 
 #endregion
 

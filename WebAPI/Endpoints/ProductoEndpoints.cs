@@ -1,8 +1,7 @@
-﻿
-using DominioModelo;
+﻿using DTOs;
 using DominioServicios;
 
-namespace WebAPI
+namespace WebAPI.Endpoints
 {
     public static class ProductoEndpoints
     {
@@ -21,15 +20,15 @@ namespace WebAPI
                 return producto is not null ? Results.Ok(producto) : Results.NotFound();
             });
 
-            group.MapPost("/", async (Producto producto, ProductoService service) =>
+            group.MapPost("/", async (ProductoDTO dto, ProductoService service) =>
             {
-                var nuevo = await service.CreateAsync(producto);
-                return Results.Created($"/api/productos/{nuevo.Id}", nuevo);
+                var nuevo = await service.CreateAsync(dto);
+                return Results.Created($"/api/productos/{nuevo.IdProducto}", nuevo);
             });
 
-            group.MapPut("/{id}", async (int id, Producto producto, ProductoService service) =>
+            group.MapPut("/{id}", async (int id, ProductoDTO dto, ProductoService service) =>
             {
-                await service.UpdateAsync(id, producto);
+                await service.UpdateAsync(id, dto);
                 return Results.NoContent();
             });
 
