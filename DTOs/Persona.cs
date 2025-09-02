@@ -1,11 +1,49 @@
 ﻿namespace DTOs
 {
-    public abstract class PersonaDto
+    public class PersonaDTO
     {
-        public int Dni { get; private set; }
-        public string NombrePersona { get; private set; }
-        public string MailPersona { get; private set; }
-        public string Contrasenia { get; private set; }
-        public string TelefonoPersona { get; private set; }
+        public int IdPersona { get; set; }
+        public string? NombreCompleto { get; set; }
+        public int Dni { get; set; }
+        public string Email { get; set; }
+        public byte[] Password { get; set; }
+        public string Telefono { get; set; }
+        public string Direccion { get; set; }
+        public int? IdLocalidad { get; set; }
+        public DateOnly? FechaIngreso { get; set; }
+
+        public static PersonaDTO FromDominio(DominioModelo.Persona entidad)
+        {
+            if (entidad == null) return null;
+
+            return new PersonaDTO
+            {
+                IdPersona = entidad.IdPersona,
+                NombreCompleto = entidad.NombreCompleto,
+                Dni = entidad.Dni,
+                Email = entidad.Email,
+                Password = entidad.Password,
+                Telefono = entidad.Telefono,
+                Direccion = entidad.Direccion,
+                IdLocalidad = entidad.IdLocalidad,
+                FechaIngreso = entidad.FechaIngreso
+            };
+        }
+
+        public DominioModelo.Persona ToDominio()
+        {
+            return new DominioModelo.Persona
+            {
+                IdPersona = this.IdPersona,
+                NombreCompleto = this.NombreCompleto,
+                Dni = this.Dni,
+                Email = this.Email,
+                Password = this.Password,
+                Telefono = this.Telefono,
+                Direccion = this.Direccion,
+                IdLocalidad = this.IdLocalidad,
+                FechaIngreso = this.FechaIngreso
+            };
+        }
     }
 }
