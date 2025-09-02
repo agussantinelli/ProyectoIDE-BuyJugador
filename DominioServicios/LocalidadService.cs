@@ -1,5 +1,6 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace DominioServicios
@@ -13,14 +14,45 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<Localidad>> GetAllAsync()
+        public async Task<List<LocalidadDTO>> GetAllAsync()
         {
-            return await _context.Localidades.ToListAsync();
+            var entidades = await _context.Localidades.ToListAsync();
+            return entidades.Select(e => LocalidadDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<Localidad?> GetByIdAsync(int id)
+        public async Task<LocalidadDTO?> GetByIdAsync(int id)
         {
-            return await _context.Localidades.FindAsync(id);
+            var entidad = await _context.Localidades.FindAsync(id);
+            return LocalidadDTO.FromDominio(entidad);
+        }
+
+        public async Task<LocalidadDTO> CreateAsync(LocalidadDTO dto)
+        {
+            var entidad = dto.ToDominio();
+            _context.Localidades.Add(entidad);
+            await _context.SaveChangesAsync();
+            return LocalidadDTO.FromDominio(entidad);
+        }
+
+        public async Task UpdateAsync(int id, LocalidadDTO dto)
+        {
+            var entidad = await _context.Localidades.FindAsync(id);
+            if (entidad != null)
+            {
+                entidad.Nombre = dto.Nombre;
+                entidad.IdProvincia = dto.IdProvincia;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entidad = await _context.Localidades.FindAsync(id);
+            if (entidad != null)
+            {
+                _context.Localidades.Remove(entidad);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace DominioServicios
 {
@@ -14,43 +14,47 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<Proveedor>> GetAllAsync()
+        public async Task<List<ProveedorDTO>> GetAllAsync()
         {
-            return await _context.Proveedores.ToListAsync();
+            var entidades = await _context.Proveedores.ToListAsync();
+            return entidades.Select(e => ProveedorDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<Proveedor?> GetByIdAsync(int id)
+        public async Task<ProveedorDTO?> GetByIdAsync(int id)
         {
-            return await _context.Proveedores.FindAsync(id);
+            var entidad = await _context.Proveedores.FindAsync(id);
+            return ProveedorDTO.FromDominio(entidad);
         }
 
-        public async Task<Proveedor> CreateAsync(Proveedor proveedor)
+        public async Task<ProveedorDTO> CreateAsync(ProveedorDTO dto)
         {
-            _context.Proveedores.Add(proveedor);
+            var entidad = dto.ToDominio();
+            _context.Proveedores.Add(entidad);
             await _context.SaveChangesAsync();
-            return proveedor;
+            return ProveedorDTO.FromDominio(entidad);
         }
 
-        public async Task UpdateAsync(int id, Proveedor proveedor)
+        public async Task UpdateAsync(int id, ProveedorDTO dto)
         {
-            var existing = await _context.Proveedores.FindAsync(id);
-            if (existing != null)
+            var entidad = await _context.Proveedores.FindAsync(id);
+            if (entidad != null)
             {
-                existing.Nombre = proveedor.Nombre;
-                existing.Cuit = proveedor.Cuit;
-                existing.Email = proveedor.Email;
-                existing.Telefono = proveedor.Telefono;
-                existing.Direccion = proveedor.Direccion;
+                entidad.RazonSocial = dto.RazonSocial;
+                entidad.Cuit = dto.Cuit;
+                entidad.Email = dto.Email;
+                entidad.Telefono = dto.Telefono;
+                entidad.Direccion = dto.Direccion;
+                entidad.IdLocalidad = dto.IdLocalidad;
                 await _context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var toDelete = await _context.Proveedores.FindAsync(id);
-            if (toDelete != null)
+            var entidad = await _context.Proveedores.FindAsync(id);
+            if (entidad != null)
             {
-                _context.Proveedores.Remove(toDelete);
+                _context.Proveedores.Remove(entidad);
                 await _context.SaveChangesAsync();
             }
         }

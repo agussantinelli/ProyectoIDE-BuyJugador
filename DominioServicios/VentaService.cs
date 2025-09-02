@@ -1,7 +1,7 @@
 ﻿using Data;
-using Microsoft.EntityFrameworkCore;
 using DominioModelo;
-
+using DTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace DominioServicios
 {
@@ -14,25 +14,46 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<Venta>> GetAllAsync()
+        public async Task<List<VentaDTO>> GetAllAsync()
         {
-            return await _context.Ventas
-                                 .Include(v => v.LineasVenta)
-                                 .ToListAsync();
+            var entidades = await _context.Ventas.ToListAsync();
+            return entidades.Select(e => VentaDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<Venta?> GetByIdAsync(int id)
+        public async Task<VentaDTO?> GetByIdAsync(int id)
         {
-            return await _context.Ventas
-                                 .Include(v => v.LineasVenta)
-                                 .FirstOrDefaultAsync(v => v.Id == id);
+            var entidad = await _context.Ventas.FindAsync(id);
+            return VentaDTO.FromDominio(entidad);
         }
 
-        public async Task<Venta> CreateAsync(Venta venta)
+        public async Task<VentaDTO> CreateAsync(VentaDTO dto)
         {
-            _context.Ventas.Add(venta);
+            var entidad = dto.ToDominio();
+            _context.Ventas.Add(entidad);
             await _context.SaveChangesAsync();
-            return venta;
+            return VentaDTO.FromDominio(entidad);
+        }
+
+        public async Task UpdateAsync(int id, VentaDTO dto)
+        {
+            var entidad = await _context.Ventas.FindAsync(id);
+            if (entidad != null)
+            {
+                entidad.Fecha = dto.Fecha;
+                entidad.Estado = dto.Estado;
+                entidad.IdPersona = dto.IdPersona;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var entidad = await _context.Ventas.FindAsync(id);
+            if (entidad != null)
+            {
+                _context.Ventas.Remove(entidad);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

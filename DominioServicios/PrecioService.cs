@@ -1,5 +1,6 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace DominioServicios
@@ -13,21 +14,44 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<Precio>> GetAllAsync()
+        public async Task<List<PrecioDTO>> GetAllAsync()
         {
-            return await _context.Precios.ToListAsync();
+            var entidades = await _context.Precios.ToListAsync();
+            return entidades.Select(e => PrecioDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<Precio?> GetByIdAsync(int id)
+        public async Task<PrecioDTO?> GetByIdAsync(int idProducto, DateTime fechaDesde)
         {
-            return await _context.Precios.FindAsync(id);
+            var entidad = await _context.Precios.FindAsync(idProducto, fechaDesde);
+            return PrecioDTO.FromDominio(entidad);
         }
 
-        public async Task<Precio> CreateAsync(Precio precio)
+        public async Task<PrecioDTO> CreateAsync(PrecioDTO dto)
         {
-            _context.Precios.Add(precio);
+            var entidad = dto.ToDominio();
+            _context.Precios.Add(entidad);
             await _context.SaveChangesAsync();
-            return precio;
+            return PrecioDTO.FromDominio(entidad);
+        }
+
+        public async Task UpdateAsync(int idProducto, DateTime fechaDesde, PrecioDTO dto)
+        {
+            var entidad = await _context.Precios.FindAsync(idProducto, fechaDesde);
+            if (entidad != null)
+            {
+                entidad.Monto = dto.Monto;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int idProducto, DateTime fechaDesde)
+        {
+            var entidad = await _context.Precios.FindAsync(idProducto, fechaDesde);
+            if (entidad != null)
+            {
+                _context.Precios.Remove(entidad);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

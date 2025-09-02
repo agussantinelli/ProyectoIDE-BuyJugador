@@ -1,5 +1,6 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace DominioServicios
@@ -13,21 +14,45 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<LineaPedido>> GetAllAsync()
+        public async Task<List<LineaPedidoDTO>> GetAllAsync()
         {
-            return await _context.LineasPedido.ToListAsync();
+            var entidades = await _context.LineaPedidos.ToListAsync();
+            return entidades.Select(e => LineaPedidoDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<LineaPedido?> GetByIdAsync(int id)
+        public async Task<LineaPedidoDTO?> GetByIdAsync(int idPedido, int nroLineaPedido)
         {
-            return await _context.LineasPedido.FindAsync(id);
+            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
+            return LineaPedidoDTO.FromDominio(entidad);
         }
 
-        public async Task<LineaPedido> CreateAsync(LineaPedido lineaPedido)
+        public async Task<LineaPedidoDTO> CreateAsync(LineaPedidoDTO dto)
         {
-            _context.LineasPedido.Add(lineaPedido);
+            var entidad = dto.ToDominio();
+            _context.LineaPedidos.Add(entidad);
             await _context.SaveChangesAsync();
-            return lineaPedido;
+            return LineaPedidoDTO.FromDominio(entidad);
+        }
+
+        public async Task UpdateAsync(int idPedido, int nroLineaPedido, LineaPedidoDTO dto)
+        {
+            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
+            if (entidad != null)
+            {
+                entidad.Cantidad = dto.Cantidad;
+                entidad.IdProducto = dto.IdProducto;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int idPedido, int nroLineaPedido)
+        {
+            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
+            if (entidad != null)
+            {
+                _context.LineaPedidos.Remove(entidad);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

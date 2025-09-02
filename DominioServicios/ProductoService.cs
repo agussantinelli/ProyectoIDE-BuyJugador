@@ -1,5 +1,6 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace DominioServicios
@@ -13,42 +14,45 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<Producto>> GetAllAsync()
+        public async Task<List<ProductoDTO>> GetAllAsync()
         {
-            return await _context.Productos.ToListAsync();
+            var entidades = await _context.Productos.ToListAsync();
+            return entidades.Select(e => ProductoDTO.FromDominio(e)).ToList();
         }
 
-        public async Task<Producto?> GetByIdAsync(int id)
+        public async Task<ProductoDTO?> GetByIdAsync(int id)
         {
-            return await _context.Productos.FindAsync(id);
+            var entidad = await _context.Productos.FindAsync(id);
+            return ProductoDTO.FromDominio(entidad);
         }
 
-        public async Task<Producto> CreateAsync(Producto producto)
+        public async Task<ProductoDTO> CreateAsync(ProductoDTO dto)
         {
-            _context.Productos.Add(producto);
+            var entidad = dto.ToDominio();
+            _context.Productos.Add(entidad);
             await _context.SaveChangesAsync();
-            return producto;
+            return ProductoDTO.FromDominio(entidad);
         }
 
-        public async Task UpdateAsync(int id, Producto producto)
+        public async Task UpdateAsync(int id, ProductoDTO dto)
         {
-            var existingProducto = await _context.Productos.FindAsync(id);
-            if (existingProducto != null)
+            var entidad = await _context.Productos.FindAsync(id);
+            if (entidad != null)
             {
-                existingProducto.Nombre = producto.Nombre;
-                existingProducto.Descripcion = producto.Descripcion;
-                existingProducto.Stock = producto.Stock;
-                existingProducto.IdTipoProducto = producto.IdTipoProducto;
+                entidad.Nombre = dto.Nombre;
+                entidad.Descripcion = dto.Descripcion;
+                entidad.Stock = dto.Stock;
+                entidad.IdTipoProducto = dto.IdTipoProducto;
                 await _context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var productoToDelete = await _context.Productos.FindAsync(id);
-            if (productoToDelete != null)
+            var entidad = await _context.Productos.FindAsync(id);
+            if (entidad != null)
             {
-                _context.Productos.Remove(productoToDelete);
+                _context.Productos.Remove(entidad);
                 await _context.SaveChangesAsync();
             }
         }
