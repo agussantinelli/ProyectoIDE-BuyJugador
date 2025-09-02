@@ -98,12 +98,12 @@ namespace WinForms
                 {
                     var tipoActualizado = new TipoProducto
                     {
-                        Id = tipoSeleccionado.Id,
+                        IdTipoProducto = tipoSeleccionado.IdTipoProducto,
                         Descripcion = txtDescripcion.Text
                     };
                     try
                     {
-                        await _apiClient.UpdateAsync(tipoActualizado.Id, tipoActualizado);
+                        await _apiClient.UpdateAsync(tipoActualizado.IdTipoProducto, tipoActualizado);
                         await LoadDataAsync();
                         ClearInputs();
                     }
@@ -122,12 +122,16 @@ namespace WinForms
                 var tipoSeleccionado = dgvTiposProducto.SelectedRows[0].DataBoundItem as TipoProducto;
                 if (tipoSeleccionado != null)
                 {
-                    var confirmResult = MessageBox.Show($"¿Estás seguro de que quieres eliminar el tipo de producto '{tipoSeleccionado.Descripcion}'?", "Confirmar Eliminación", MessageBoxButtons.YesNo);
+                    var confirmResult = MessageBox.Show(
+                        $"¿Estás seguro de que quieres eliminar el tipo de producto '{tipoSeleccionado.Descripcion}'?",
+                        "Confirmar Eliminación",
+                        MessageBoxButtons.YesNo);
+
                     if (confirmResult == DialogResult.Yes)
                     {
                         try
                         {
-                            await _apiClient.DeleteAsync(tipoSeleccionado.Id);
+                            await _apiClient.DeleteAsync(tipoSeleccionado.IdTipoProducto);
                             await LoadDataAsync();
                             ClearInputs();
                         }
@@ -155,11 +159,6 @@ namespace WinForms
         private void ClearInputs()
         {
             txtDescripcion.Clear();
-        }
-
-        private void TiposProductoForm_Load_1(object sender, EventArgs e)
-        {
-
         }
     }
 }

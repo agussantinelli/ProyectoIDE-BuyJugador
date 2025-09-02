@@ -98,12 +98,12 @@ namespace WinForms
                 {
                     var provinciaActualizada = new Provincia
                     {
-                        Id = provinciaSeleccionada.Id,
+                        IdProvincia = provinciaSeleccionada.IdProvincia,
                         Nombre = txtNombre.Text
                     };
                     try
                     {
-                        await _apiClient.UpdateAsync(provinciaActualizada.Id, provinciaActualizada);
+                        await _apiClient.UpdateAsync(provinciaActualizada.IdProvincia, provinciaActualizada);
                         await LoadDataAsync();
                         ClearInputs();
                     }
@@ -122,12 +122,16 @@ namespace WinForms
                 var provinciaSeleccionada = dgvProvincias.SelectedRows[0].DataBoundItem as Provincia;
                 if (provinciaSeleccionada != null)
                 {
-                    var confirmResult = MessageBox.Show($"¿Estás seguro de que quieres eliminar la provincia '{provinciaSeleccionada.Nombre}'?", "Confirmar Eliminación", MessageBoxButtons.YesNo);
+                    var confirmResult = MessageBox.Show(
+                        $"¿Estás seguro de que quieres eliminar la provincia '{provinciaSeleccionada.Nombre}'?",
+                        "Confirmar Eliminación",
+                        MessageBoxButtons.YesNo);
+
                     if (confirmResult == DialogResult.Yes)
                     {
                         try
                         {
-                            await _apiClient.DeleteAsync(provinciaSeleccionada.Id);
+                            await _apiClient.DeleteAsync(provinciaSeleccionada.IdProvincia);
                             await LoadDataAsync();
                             ClearInputs();
                         }
@@ -155,11 +159,6 @@ namespace WinForms
         private void ClearInputs()
         {
             txtNombre.Clear();
-        }
-
-        private void ProvinciasForm_Load_1(object sender, EventArgs e)
-        {
-
         }
     }
 }

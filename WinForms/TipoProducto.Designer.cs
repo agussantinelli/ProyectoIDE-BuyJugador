@@ -38,7 +38,7 @@
             Margin = new Padding(4, 3, 4, 3);
             Name = "TiposProductoForm";
             Text = "Gestión de Tipos de Producto";
-            Load += TiposProductoForm_Load_1;
+            Load += TiposProductoForm_Load;
             ResumeLayout(false);
         }
 

@@ -38,7 +38,7 @@
             Margin = new Padding(4, 3, 4, 3);
             Name = "ProvinciasForm";
             Text = "Gestión de Provincias";
-            Load += ProvinciasForm_Load_1;
+            Load += ProvinciasForm_Load;
             ResumeLayout(false);
         }
 
