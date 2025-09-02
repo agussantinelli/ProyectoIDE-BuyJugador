@@ -1,28 +1,19 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class Pedido
 {
-    public class Pedido
-    {
-        [Column("IdPedido")]
-        public int Id { get; set; }
+    public int IdPedido { get; set; }
 
-        public int IdProveedor { get; set; }
+    public DateTime Fecha { get; set; }
 
-        // Propiedad de navegación a la colección de líneas de pedido
-        public List<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
+    public string Estado { get; set; } = null!;
 
-        // Propiedad de navegación para la relación con Proveedor
-        [ForeignKey("IdProveedor")]
-        public Proveedor? Proveedor { get; set; }
+    public int? IdProveedor { get; set; }
 
-        public Pedido() { }
+    public virtual Proveedor? IdProveedorNavigation { get; set; }
 
-        public Pedido(int id, int idProveedor)
-        {
-            Id = id;
-            IdProveedor = idProveedor;
-        }
-    }
+    public virtual ICollection<LineaPedido> LineaPedidos { get; set; } = new List<LineaPedido>();
 }

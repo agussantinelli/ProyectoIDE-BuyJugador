@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Data.Models;
+namespace Data;
 
 public partial class BuyJugadorContext : DbContext
 {
@@ -19,7 +20,7 @@ public partial class BuyJugadorContext : DbContext
 
     public virtual DbSet<LineaVenta> LineaVentas { get; set; }
 
-    public virtual DbSet<Localidade> Localidades { get; set; }
+    public virtual DbSet<Localidad> Localidades { get; set; }
 
     public virtual DbSet<Pedido> Pedidos { get; set; }
 
@@ -29,11 +30,11 @@ public partial class BuyJugadorContext : DbContext
 
     public virtual DbSet<Producto> Productos { get; set; }
 
-    public virtual DbSet<Proveedore> Proveedores { get; set; }
+    public virtual DbSet<Proveedor> Proveedores { get; set; }
 
     public virtual DbSet<Provincia> Provincias { get; set; }
 
-    public virtual DbSet<TiposProducto> TiposProductos { get; set; }
+    public virtual DbSet<TipoProducto> TiposProductos { get; set; }
 
     public virtual DbSet<Venta> Ventas { get; set; }
 
@@ -71,7 +72,7 @@ public partial class BuyJugadorContext : DbContext
                 .HasConstraintName("FK__LineaVent__IdVen__74AE54BC");
         });
 
-        modelBuilder.Entity<Localidade>(entity =>
+        modelBuilder.Entity<Localidad>(entity =>
         {
             entity.HasKey(e => e.IdLocalidad).HasName("PK__Localida__274326123C94DD46");
 
@@ -137,7 +138,7 @@ public partial class BuyJugadorContext : DbContext
                 .HasConstraintName("FK__Productos__IdTip__619B8048");
         });
 
-        modelBuilder.Entity<Proveedore>(entity =>
+        modelBuilder.Entity<Proveedor>(entity =>
         {
             entity.HasKey(e => e.IdProveedor).HasName("PK__Proveedo__E8B631AFDC9F8FEE");
 
@@ -159,7 +160,7 @@ public partial class BuyJugadorContext : DbContext
             entity.Property(e => e.Nombre).HasMaxLength(100);
         });
 
-        modelBuilder.Entity<TiposProducto>(entity =>
+        modelBuilder.Entity<TipoProducto>(entity =>
         {
             entity.HasKey(e => e.IdTipoProducto).HasName("PK__TiposPro__A974F920A67A2F15");
 

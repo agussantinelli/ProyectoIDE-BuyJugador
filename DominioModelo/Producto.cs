@@ -1,36 +1,25 @@
+ï»¿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class Producto
 {
-    public class Producto
-    {
-        [Column("IdProducto")]
-        public int Id { get; set; }
+    public int IdProducto { get; set; }
 
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public int Stock { get; set; }
-        public int IdTipoProducto { get; set; }
+    public string Nombre { get; set; } = null!;
 
-        // Se agregó una propiedad de navegación para la relación con TipoProducto.
-        [ForeignKey("IdTipoProducto")]
-        public TipoProducto? TipoProducto { get; set; }
+    public string Descripcion { get; set; } = null!;
 
-        // Colecciones para las relaciones uno-a-muchos
-        public ICollection<Precio> Precios { get; set; } = new List<Precio>();
-        public ICollection<LineaVenta> LineasVenta { get; set; } = new List<LineaVenta>();
-        public ICollection<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
+    public int Stock { get; set; }
 
-        public Producto() { }
+    public int? IdTipoProducto { get; set; }
 
-        public Producto(int id, string nombre, string descripcion, int stock, int idTipoProducto)
-        {
-            Id = id;
-            Nombre = nombre;
-            Descripcion = descripcion;
-            Stock = stock;
-            IdTipoProducto = idTipoProducto;
-        }
-    }
+    public virtual TipoProducto? IdTipoProductoNavigation { get; set; }
+
+    public virtual ICollection<LineaPedido> LineaPedidos { get; set; } = new List<LineaPedido>();
+
+    public virtual ICollection<LineaVenta> LineaVenta { get; set; } = new List<LineaVenta>();
+
+    public virtual ICollection<Precio> Precios { get; set; } = new List<Precio>();
 }

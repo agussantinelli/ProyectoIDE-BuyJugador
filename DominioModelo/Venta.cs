@@ -1,29 +1,19 @@
-using System.ComponentModel.DataAnnotations.Schema;
+ï»¿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class Venta
 {
-    [Table("Ventas")]
-    public class Venta
-    {
-        [Column("IdVenta")]
-        public int Id { get; set; }
+    public int IdVenta { get; set; }
 
-        public int IdEmpleado { get; set; }
+    public DateTime Fecha { get; set; }
 
-        // Colección para la relación uno-a-muchos con LineaVenta
-        public List<LineaVenta> LineasVenta { get; set; } = new List<LineaVenta>();
+    public string Estado { get; set; } = null!;
 
-        // Propiedad de navegación para la relación con Empleado
-        [ForeignKey("IdEmpleado")]
-        public Empleado? Empleado { get; set; }
+    public int? IdPersona { get; set; }
 
-        // Agregamos un constructor sin parámetros, fundamental para EF Core.
-        public Venta() { }
+    public virtual Persona? IdPersonaNavigation { get; set; }
 
-        public Venta(int id, int idEmpleado)
-        {
-            Id = id;
-            IdEmpleado = idEmpleado;
-        }
-    }
+    public virtual ICollection<LineaVenta> LineaVenta { get; set; } = new List<LineaVenta>();
 }

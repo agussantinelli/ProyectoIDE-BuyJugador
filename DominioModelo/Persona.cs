@@ -1,36 +1,29 @@
-using System.ComponentModel.DataAnnotations.Schema;
+ï»¿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class Persona
 {
-    // Usamos 'abstract' para que esta clase solo pueda ser usada por herencia.
-    public abstract class Persona
-    {
-        // Se agregaron las propiedades que faltaban en el modelo y que sí estaban en la base de datos.
-        public string Nombre { get; set; }
-        public string Cuit { get; set; } // El tipo se cambió a string para que coincida con la base de datos.
-        public string Email { get; set; }
-        public string Password { get; set; } // Se agregó la propiedad Password que estaba en el SQL.
-        public string Telefono { get; set; }
-        public string Direccion { get; set; }
-        public int IdLocalidad { get; set; }
+    public int IdPersona { get; set; }
 
-        // Se agregó una propiedad de navegación para la relación con Localidad.
-        [ForeignKey("IdLocalidad")]
-        public Localidad? Localidad { get; set; }
+    public string? NombreCompleto { get; set; }
 
-        // Agregamos un constructor sin parámetros, requerido por Entity Framework.
-        public Persona() { }
+    public int Dni { get; set; }
 
-        // Constructor para la inicialización
-        protected Persona(string nombre, string cuit, string email, string password, string telefono, string direccion, int idLocalidad)
-        {
-            Nombre = nombre;
-            Cuit = cuit;
-            Email = email;
-            Password = password;
-            Telefono = telefono;
-            Direccion = direccion;
-            IdLocalidad = idLocalidad;
-        }
-    }
+    public string Email { get; set; } = null!;
+
+    public byte[] Password { get; set; } = null!;
+
+    public string Telefono { get; set; } = null!;
+
+    public string Direccion { get; set; } = null!;
+
+    public int? IdLocalidad { get; set; }
+
+    public DateOnly? FechaIngreso { get; set; }
+
+    public virtual Localidad? IdLocalidadNavigation { get; set; }
+
+    public virtual ICollection<Venta> Venta { get; set; } = new List<Venta>();
 }

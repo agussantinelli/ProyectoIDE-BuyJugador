@@ -1,25 +1,13 @@
-using System.ComponentModel.DataAnnotations.Schema;
+ï»¿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class TipoProducto
 {
-    [Table("TiposProducto")]
-    public class TipoProducto
-    {
-        [Column("IdTipoProducto")]
-        public int Id { get; set; }
+    public int IdTipoProducto { get; set; }
 
-        public string Descripcion { get; set; }
+    public string Descripcion { get; set; } = null!;
 
-        // Colección para la relación uno-a-muchos con Producto
-        public ICollection<Producto> Productos { get; set; } = new List<Producto>();
-
-        // Agregamos un constructor sin parámetros, fundamental para EF Core.
-        public TipoProducto() { }
-
-        public TipoProducto(int id, string descripcion)
-        {
-            Id = id;
-            Descripcion = descripcion;
-        }
-    }
+    public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }

@@ -1,34 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class LineaPedido
 {
-    public class LineaPedido
-    {
-        // Propiedad de clave primaria
-        [Column("IdLineaPedido")]
-        public int Id { get; set; }
+    public int Cantidad { get; set; }
 
-        public int Cantidad { get; set; }
+    public int IdPedido { get; set; }
 
-        // Claves foráneas para las relaciones
-        public int IdPedido { get; set; }
-        public int IdProducto { get; set; }
+    public int? IdProducto { get; set; }
 
-        // Propiedades de navegación para la relación con otras entidades
-        [ForeignKey("IdPedido")]
-        public Pedido? Pedido { get; set; }
+    public int NroLineaPedido { get; set; }
 
-        [ForeignKey("IdProducto")]
-        public Producto? Producto { get; set; }
+    public virtual Pedido IdPedidoNavigation { get; set; } = null!;
 
-        public LineaPedido() { }
-
-        public LineaPedido(int id, int cantidad, int idPedido, int idProducto)
-        {
-            Id = id;
-            Cantidad = cantidad;
-            IdPedido = idPedido;
-            IdProducto = idProducto;
-        }
-    }
+    public virtual Producto? IdProductoNavigation { get; set; }
 }

@@ -1,28 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace DominioModelo
+namespace DominioModelo;
+
+public partial class Proveedor
 {
-    // La clase hereda de Persona para reutilizar propiedades comunes.
-    public class Proveedor : Persona
-    {
-        [Column("IdProveedor")]
-        public int Id { get; set; }
+    public int IdProveedor { get; set; }
 
-        // Se agregaron las propiedades que faltaban en el modelo y que sí estaban en el SQL.
-        public string RazonSocial { get; set; }
+    public string RazonSocial { get; set; } = null!;
 
-        // Colección para la relación uno-a-muchos con Pedido
-        public ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+    public string Cuit { get; set; } = null!;
 
-        // Agregamos un constructor sin parámetros, fundamental para EF Core.
-        public Proveedor() : base() { }
+    public string Email { get; set; } = null!;
 
-        public Proveedor(int id, string nombre, string cuit, string email, string password, string telefono, string direccion, int idLocalidad)
-            : base(nombre, cuit, email, password, telefono, direccion, idLocalidad)
-        {
-            Id = id;
-            // Se agregó la propiedad RazonSocial
-            RazonSocial = nombre;
-        }
-    }
+    public string Telefono { get; set; } = null!;
+
+    public string Direccion { get; set; } = null!;
+
+    public int? IdLocalidad { get; set; }
+
+    public virtual Localidad? IdLocalidadNavigation { get; set; }
+
+    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
 }
