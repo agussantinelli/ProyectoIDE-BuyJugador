@@ -1,41 +1,46 @@
-﻿using DTOs;
-using DominioServicios;
+﻿using DominioServicios;
+using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WebAPI.Endpoints
 {
     public static class TipoProductoEndpoints
     {
-        public static void MapTipoProductoEndpoints(this WebApplication app)
+        public static void MapTipoProductoEndpoints(this IEndpointRouteBuilder routes)
         {
-            var group = app.MapGroup("/api/tiposproducto");
-
-            group.MapGet("/", async (TipoProductoService service) =>
+            routes.MapGet("/api/tiposproducto", async (TipoProductoService tipoProductoService) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var tiposProducto = await tipoProductoService.GetAllAsync();
+                return Results.Ok(tiposProducto);
             });
 
-            group.MapGet("/{id}", async (int id, TipoProductoService service) =>
+            routes.MapGet("/api/tiposproducto/{id}", async (int id, TipoProductoService tipoProductoService) =>
             {
-                var tipo = await service.GetByIdAsync(id);
-                return tipo is not null ? Results.Ok(tipo) : Results.NotFound();
+                var tipoProducto = await tipoProductoService.GetByIdAsync(id);
+                return tipoProducto != null ? Results.Ok(tipoProducto) : Results.NotFound();
             });
 
-            group.MapPost("/", async (TipoProductoDTO dto, TipoProductoService service) =>
+            routes.MapPost("/api/tiposproducto", async (TipoProductoDTO tipoProductoDto, TipoProductoService tipoProductoService) =>
             {
-                var nuevo = await service.CreateAsync(dto);
-                return Results.Created($"/api/tiposproducto/{nuevo.IdTipoProducto}", nuevo);
+                var createdTipoProducto = await tipoProductoService.CreateAsync(tipoProductoDto);
+                return Results.Created($"/api/tiposproducto/{createdTipoProducto.IdTipoProducto}", createdTipoProducto);
             });
 
-            group.MapPut("/{id}", async (int id, TipoProductoDTO dto, TipoProductoService service) =>
+            routes.MapPut("/api/tiposproducto/{id}", async (int id, TipoProductoDTO tipoProductoDto, TipoProductoService tipoProductoService) =>
             {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
+                var updated = await tipoProductoService.UpdateAsync(id, tipoProductoDto);
+                return updated ? Results.Ok() : Results.NotFound();
             });
 
-            group.MapDelete("/{id}", async (int id, TipoProductoService service) =>
+            routes.MapDelete("/api/tiposproducto/{id}", async (int id, TipoProductoService tipoProductoService) =>
             {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
+                var deleted = await tipoProductoService.DeleteAsync(id);
+                return deleted ? Results.Ok() : Results.NotFound();
             });
         }
     }

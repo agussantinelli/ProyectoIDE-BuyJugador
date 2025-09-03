@@ -3,14 +3,14 @@
     partial class MainForm
     {
         /// <summary>
-        /// Variable del diseñador necesaria.
+        ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Limpiar los recursos que se estén utilizando.
+        ///  Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true si los recursos administrados deben eliminarse; false en caso contrario.</param>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,28 +20,54 @@
             base.Dispose(disposing);
         }
 
-        #region Código generado por el Diseñador de Windows Forms
+        #region Windows Form Designer generated code
 
         /// <summary>
-        /// Método necesario para admitir el Diseñador. No se puede modificar
-        /// el contenido de este método con el editor de código.
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            SuspendLayout();
+            this.btnProvincia = new System.Windows.Forms.Button();
+            this.btnTipoProducto = new System.Windows.Forms.Button();
+            this.SuspendLayout();
+            // 
+            // btnProvincia
+            // 
+            this.btnProvincia.Location = new System.Drawing.Point(118, 56);
+            this.btnProvincia.Name = "btnProvincia";
+            this.btnProvincia.Size = new System.Drawing.Size(200, 50);
+            this.btnProvincia.TabIndex = 0;
+            this.btnProvincia.Text = "Gestionar Provincias";
+            this.btnProvincia.UseVisualStyleBackColor = true;
+            this.btnProvincia.Click += new System.EventHandler(this.btnProvincia_Click);
+            // 
+            // btnTipoProducto
+            // 
+            this.btnTipoProducto.Location = new System.Drawing.Point(118, 128);
+            this.btnTipoProducto.Name = "btnTipoProducto";
+            this.btnTipoProducto.Size = new System.Drawing.Size(200, 50);
+            this.btnTipoProducto.TabIndex = 1;
+            this.btnTipoProducto.Text = "Gestionar Tipos de Producto";
+            this.btnTipoProducto.UseVisualStyleBackColor = true;
+            this.btnTipoProducto.Click += new System.EventHandler(this.btnTipoProducto_Click);
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(615, 329);
-            Margin = new Padding(4, 3, 4, 3);
-            Name = "MainForm";
-            Text = "Menú Principal";
-            Load += MainForm_Load;
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(434, 231);
+            this.Controls.Add(this.btnTipoProducto);
+            this.Controls.Add(this.btnProvincia);
+            this.Name = "MainForm";
+            this.Text = "Menú Principal";
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.Button btnProvincia;
+        private System.Windows.Forms.Button btnTipoProducto;
     }
 }

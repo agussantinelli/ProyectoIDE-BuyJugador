@@ -1,16 +1,16 @@
 ﻿namespace WinForms
 {
-    partial class TiposProductoForm
+    partial class TipoProducto
     {
         /// <summary>
-        /// Variable del diseñador necesaria.
+        /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
-        /// Limpiar los recursos que se estén utilizando.
+        /// Clean up any resources being used.
         /// </summary>
-        /// <param name="disposing">true si los recursos administrados deben eliminarse; false en caso contrario.</param>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,28 +20,44 @@
             base.Dispose(disposing);
         }
 
-        #region Código generado por el Diseñador de Windows Forms
+        #region Windows Form Designer generated code
 
         /// <summary>
-        /// Método necesario para admitir el Diseñador. No se puede modificar
-        /// el contenido de este método con el editor de código.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            SuspendLayout();
+            this.dgvTiposProducto = new System.Windows.Forms.DataGridView();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).BeginInit();
+            this.SuspendLayout();
             // 
-            // TiposProductoForm
+            // dgvTiposProducto
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(567, 349);
-            Margin = new Padding(4, 3, 4, 3);
-            Name = "TiposProductoForm";
-            Text = "Gestión de Tipos de Producto";
-            Load += TiposProductoForm_Load;
-            ResumeLayout(false);
+            this.dgvTiposProducto.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvTiposProducto.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvTiposProducto.Location = new System.Drawing.Point(0, 0);
+            this.dgvTiposProducto.Name = "dgvTiposProducto";
+            this.dgvTiposProducto.RowTemplate.Height = 25;
+            this.dgvTiposProducto.Size = new System.Drawing.Size(800, 450);
+            this.dgvTiposProducto.TabIndex = 0;
+            // 
+            // TipoProducto
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.dgvTiposProducto);
+            this.Name = "TipoProducto";
+            this.Text = "Tipos de Producto";
+            this.Load += new System.EventHandler(this.TipoProducto_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).EndInit();
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.DataGridView dgvTiposProducto;
     }
 }

@@ -1,41 +1,46 @@
-﻿using DTOs;
-using DominioServicios;
+﻿using DominioServicios;
+using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace WebAPI.Endpoints
 {
     public static class ProvinciaEndpoints
     {
-        public static void MapProvinciaEndpoints(this WebApplication app)
+        public static void MapProvinciaEndpoints(this IEndpointRouteBuilder routes)
         {
-            var group = app.MapGroup("/api/provincias");
-
-            group.MapGet("/", async (ProvinciaService service) =>
+            routes.MapGet("/api/provincias", async (ProvinciaService provinciaService) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var provincias = await provinciaService.GetAllAsync();
+                return Results.Ok(provincias);
             });
 
-            group.MapGet("/{id}", async (int id, ProvinciaService service) =>
+            routes.MapGet("/api/provincias/{id}", async (int id, ProvinciaService provinciaService) =>
             {
-                var prov = await service.GetByIdAsync(id);
-                return prov is not null ? Results.Ok(prov) : Results.NotFound();
+                var provincia = await provinciaService.GetByIdAsync(id);
+                return provincia != null ? Results.Ok(provincia) : Results.NotFound();
             });
 
-            group.MapPost("/", async (ProvinciaDTO dto, ProvinciaService service) =>
+            routes.MapPost("/api/provincias", async (ProvinciaDTO provinciaDto, ProvinciaService provinciaService) =>
             {
-                var nuevo = await service.CreateAsync(dto);
-                return Results.Created($"/api/provincias/{nuevo.IdProvincia}", nuevo);
+                var createdProvincia = await provinciaService.CreateAsync(provinciaDto);
+                return Results.Created($"/api/provincias/{createdProvincia.IdProvincia}", createdProvincia);
             });
 
-            group.MapPut("/{id}", async (int id, ProvinciaDTO dto, ProvinciaService service) =>
+            routes.MapPut("/api/provincias/{id}", async (int id, ProvinciaDTO provinciaDto, ProvinciaService provinciaService) =>
             {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
+                var updated = await provinciaService.UpdateAsync(id, provinciaDto);
+                return updated ? Results.Ok() : Results.NotFound();
             });
 
-            group.MapDelete("/{id}", async (int id, ProvinciaService service) =>
+            routes.MapDelete("/api/provincias/{id}", async (int id, ProvinciaService provinciaService) =>
             {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
+                var deleted = await provinciaService.DeleteAsync(id);
+                return deleted ? Results.Ok() : Results.NotFound();
             });
         }
     }

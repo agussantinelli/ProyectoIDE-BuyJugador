@@ -8,11 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 #region Builder Configuration
 
 // 1. Configurar la conexión a la base de datos
+// Lee la cadena de conexión desde appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Add services to the container.
+// ** AÑADIDO: Necesario para que la API pueda descubrir y usar los endpoints. **
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
+// Add services to the container. (Este ya lo tenías, lo muevo aquí por orden)
 builder.Services.AddRazorPages();
 
 #endregion
@@ -20,7 +26,7 @@ builder.Services.AddRazorPages();
 #region Services Registration
 
 // 2. Registrar todos tus servicios para inyección de dependencias
-// Se han agregado los servicios que faltaban para completar la funcionalidad CRUD
+// Esto está perfecto, no se necesita cambiar nada.
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
@@ -40,6 +46,14 @@ var app = builder.Build();
 #region Application Pipeline Configuration
 
 // Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    // ** AÑADIDO: Habilita la interfaz de Swagger solo en desarrollo **
+    // Esto te dará una página para probar tu API fácilmente.
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -60,7 +74,7 @@ app.MapRazorPages();
 #region API Endpoints Registration
 
 // 3. Registrar los endpoints de la API
-// Se han agregado las llamadas para los nuevos endpoints creados
+// Esto también está perfecto.
 app.MapProductoEndpoints();
 app.MapProveedorEndpoints();
 app.MapPersonaEndpoints();

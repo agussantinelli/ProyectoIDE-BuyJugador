@@ -1,11 +1,11 @@
-﻿using System.Net.Http;
+﻿using DTOs;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using DominioModelo;
 
 namespace ApiClient
 {
-    // Esta clase maneja toda la comunicación con los endpoints de tipos de producto de la API.
     public class TipoProductoApiClient
     {
         private readonly HttpClient _httpClient;
@@ -15,46 +15,34 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        // Obtiene una lista de todos los tipos de producto desde la API.
-        public async Task<List<TipoProducto>?> GetAllAsync()
+        public async Task<List<TipoProductoDTO>?> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync("api/tiposproducto");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<List<TipoProducto>>();
+            return await _httpClient.GetFromJsonAsync<List<TipoProductoDTO>>("/api/tiposproducto");
         }
 
-        // Obtiene un tipo de producto por su ID.
-        public async Task<TipoProducto?> GetByIdAsync(int id)
+        public async Task<TipoProductoDTO?> GetByIdAsync(int id)
         {
-            var response = await _httpClient.GetAsync($"api/tiposproducto/{id}");
-            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-            {
-                return null;
-            }
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TipoProducto>();
+            return await _httpClient.GetFromJsonAsync<TipoProductoDTO>($"/api/tiposproducto/{id}");
         }
 
-        // Crea un nuevo tipo de producto en la API.
-        public async Task<TipoProducto?> CreateAsync(TipoProducto tipoProducto)
+        public async Task<TipoProductoDTO?> CreateAsync(TipoProductoDTO tipoProducto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/tiposproducto", tipoProducto);
+            var response = await _httpClient.PostAsJsonAsync("/api/tiposproducto", tipoProducto);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<TipoProducto>();
+            return await response.Content.ReadFromJsonAsync<TipoProductoDTO>();
         }
 
-        // Actualiza un tipo de producto existente.
-        public async Task UpdateAsync(int id, TipoProducto tipoProducto)
+        public async Task UpdateAsync(int id, TipoProductoDTO tipoProducto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/tiposproducto/{id}", tipoProducto);
+            var response = await _httpClient.PutAsJsonAsync($"/api/tiposproducto/{id}", tipoProducto);
             response.EnsureSuccessStatusCode();
         }
 
-        // Elimina un tipo de producto por su ID.
         public async Task DeleteAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/tiposproducto/{id}");
+            var response = await _httpClient.DeleteAsync($"/api/tiposproducto/{id}");
             response.EnsureSuccessStatusCode();
         }
     }
 }
+

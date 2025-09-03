@@ -2,6 +2,9 @@
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -16,42 +19,43 @@ namespace DominioServicios
 
         public async Task<List<TipoProductoDTO>> GetAllAsync()
         {
-            var entidades = await _context.TiposProductos.ToListAsync();
-            return entidades.Select(e => TipoProductoDTO.FromDominio(e)).ToList();
+            return await _context.TiposProductos
+                .Select(tp => new TipoProductoDTO { IdTipoProducto = tp.IdTipoProducto, Descripcion = tp.Descripcion })
+                .ToListAsync();
         }
 
         public async Task<TipoProductoDTO?> GetByIdAsync(int id)
         {
-            var entidad = await _context.TiposProductos.FindAsync(id);
-            return TipoProductoDTO.FromDominio(entidad);
+            var tipoProducto = await _context.TiposProductos.FindAsync(id);
+            return tipoProducto != null ? new TipoProductoDTO { IdTipoProducto = tipoProducto.IdTipoProducto, Descripcion = tipoProducto.Descripcion } : null;
         }
 
-        public async Task<TipoProductoDTO> CreateAsync(TipoProductoDTO dto)
+        public async Task<TipoProductoDTO> CreateAsync(TipoProductoDTO tipoProductoDto)
         {
-            var entidad = dto.ToDominio();
-            _context.TiposProductos.Add(entidad);
+            var tipoProducto = new TipoProducto { Descripcion = tipoProductoDto.Descripcion };
+            _context.TiposProductos.Add(tipoProducto);
             await _context.SaveChangesAsync();
-            return TipoProductoDTO.FromDominio(entidad);
+            tipoProductoDto.IdTipoProducto = tipoProducto.IdTipoProducto;
+            return tipoProductoDto;
         }
 
-        public async Task UpdateAsync(int id, TipoProductoDTO dto)
+        public async Task<bool> UpdateAsync(int id, TipoProductoDTO tipoProductoDto)
         {
-            var entidad = await _context.TiposProductos.FindAsync(id);
-            if (entidad != null)
-            {
-                entidad.Descripcion = dto.Descripcion;
-                await _context.SaveChangesAsync();
-            }
+            var tipoProducto = await _context.TiposProductos.FindAsync(id);
+            if (tipoProducto == null) return false;
+            tipoProducto.Descripcion = tipoProductoDto.Descripcion;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var entidad = await _context.TiposProductos.FindAsync(id);
-            if (entidad != null)
-            {
-                _context.TiposProductos.Remove(entidad);
-                await _context.SaveChangesAsync();
-            }
+            var tipoProducto = await _context.TiposProductos.FindAsync(id);
+            if (tipoProducto == null) return false;
+            _context.TiposProductos.Remove(tipoProducto);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
+
