@@ -30,6 +30,12 @@ namespace WinForms
             var tipoProductoForm = new TipoProducto(_tipoProductoApiClient);
             tipoProductoForm.ShowDialog();
         }
+
+        private void btnMenuProductos_Click(object sender, EventArgs e)
+        {
+            ProductoForm formProductos = new ProductoForm();
+            formProductos.Show();
+        }
     }
 }
 

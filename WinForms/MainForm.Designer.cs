@@ -28,40 +28,52 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnProvincia = new System.Windows.Forms.Button();
-            this.btnTipoProducto = new System.Windows.Forms.Button();
-            this.SuspendLayout();
+            btnProvincia = new Button();
+            btnTipoProducto = new Button();
+            btnMenuProductos = new Button();
+            SuspendLayout();
             // 
             // btnProvincia
             // 
-            this.btnProvincia.Location = new System.Drawing.Point(118, 56);
-            this.btnProvincia.Name = "btnProvincia";
-            this.btnProvincia.Size = new System.Drawing.Size(200, 50);
-            this.btnProvincia.TabIndex = 0;
-            this.btnProvincia.Text = "Gestionar Provincias";
-            this.btnProvincia.UseVisualStyleBackColor = true;
-            this.btnProvincia.Click += new System.EventHandler(this.btnProvincia_Click);
+            btnProvincia.Location = new Point(118, 56);
+            btnProvincia.Name = "btnProvincia";
+            btnProvincia.Size = new Size(200, 50);
+            btnProvincia.TabIndex = 0;
+            btnProvincia.Text = "Gestionar Provincias";
+            btnProvincia.UseVisualStyleBackColor = true;
+            btnProvincia.Click += btnProvincia_Click;
             // 
             // btnTipoProducto
             // 
-            this.btnTipoProducto.Location = new System.Drawing.Point(118, 128);
-            this.btnTipoProducto.Name = "btnTipoProducto";
-            this.btnTipoProducto.Size = new System.Drawing.Size(200, 50);
-            this.btnTipoProducto.TabIndex = 1;
-            this.btnTipoProducto.Text = "Gestionar Tipos de Producto";
-            this.btnTipoProducto.UseVisualStyleBackColor = true;
-            this.btnTipoProducto.Click += new System.EventHandler(this.btnTipoProducto_Click);
+            btnTipoProducto.Location = new Point(118, 128);
+            btnTipoProducto.Name = "btnTipoProducto";
+            btnTipoProducto.Size = new Size(200, 50);
+            btnTipoProducto.TabIndex = 1;
+            btnTipoProducto.Text = "Gestionar Tipos de Producto";
+            btnTipoProducto.UseVisualStyleBackColor = true;
+            btnTipoProducto.Click += btnTipoProducto_Click;
+            // 
+            // btnMenuProductos
+            // 
+            btnMenuProductos.Location = new Point(118, 205);
+            btnMenuProductos.Name = "btnMenuProductos";
+            btnMenuProductos.Size = new Size(200, 50);
+            btnMenuProductos.TabIndex = 2;
+            btnMenuProductos.Text = "Gestionar Tipos de Producto";
+            btnMenuProductos.UseVisualStyleBackColor = true;
+            btnMenuProductos.Click += btnMenuProductos_Click;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(434, 231);
-            this.Controls.Add(this.btnTipoProducto);
-            this.Controls.Add(this.btnProvincia);
-            this.Name = "MainForm";
-            this.Text = "Menú Principal";
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(434, 292);
+            Controls.Add(btnMenuProductos);
+            Controls.Add(btnTipoProducto);
+            Controls.Add(btnProvincia);
+            Name = "MainForm";
+            Text = "Menú Principal";
+            ResumeLayout(false);
 
         }
 
@@ -69,5 +81,6 @@
 
         private System.Windows.Forms.Button btnProvincia;
         private System.Windows.Forms.Button btnTipoProducto;
+        private Button btnMenuProductos;
     }
 }
