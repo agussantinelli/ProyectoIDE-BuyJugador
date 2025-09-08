@@ -1,41 +1,35 @@
-﻿using ApiClient;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    // La palabra "partial" es fundamental para que el diseñador funcione.
     public partial class MainForm : Form
     {
-        private readonly ProvinciaApiClient _provinciaApiClient;
-        private readonly TipoProductoApiClient _tipoProductoApiClient;
+        private readonly IServiceProvider _serviceProvider;
 
-        // Este constructor recibe las herramientas para hablar con la API.
-        public MainForm(ProvinciaApiClient provinciaApiClient, TipoProductoApiClient tipoProductoApiClient)
+        public MainForm(IServiceProvider serviceProvider)
         {
-            InitializeComponent(); // Esto ya no dará error.
-            _provinciaApiClient = provinciaApiClient;
-            _tipoProductoApiClient = tipoProductoApiClient;
-        }
-
-        private void btnProvincia_Click(object sender, EventArgs e)
-        {
-            // Pasamos el cliente de la API al nuevo formulario.
-            var provinciaForm = new Provincia(_provinciaApiClient);
-            provinciaForm.ShowDialog();
-        }
-
-        private void btnTipoProducto_Click(object sender, EventArgs e)
-        {
-            var tipoProductoForm = new TipoProducto(_tipoProductoApiClient);
-            tipoProductoForm.ShowDialog();
+            InitializeComponent();
+            _serviceProvider = serviceProvider;
         }
 
         private void btnMenuProductos_Click(object sender, EventArgs e)
         {
-            ProductoForm formProductos = new ProductoForm();
-            formProductos.Show();
+            var form = _serviceProvider.GetRequiredService<ProductoForm>();
+            form.ShowDialog();
+        }
+
+        private void btnMenuProvincias_Click(object sender, EventArgs e)
+        {
+            var form = _serviceProvider.GetRequiredService<Provincia>();
+            form.ShowDialog();
+        }
+
+        private void btnMenuTiposProducto_Click(object sender, EventArgs e)
+        {
+            var form = _serviceProvider.GetRequiredService<TipoProducto>();
+            form.ShowDialog();
         }
     }
 }
-

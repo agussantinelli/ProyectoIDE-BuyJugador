@@ -41,7 +41,7 @@
             btnProvincia.TabIndex = 0;
             btnProvincia.Text = "Gestionar Provincias";
             btnProvincia.UseVisualStyleBackColor = true;
-            btnProvincia.Click += btnProvincia_Click;
+            btnProvincia.Click += btnMenuProvincias_Click;
             // 
             // btnTipoProducto
             // 
@@ -51,7 +51,7 @@
             btnTipoProducto.TabIndex = 1;
             btnTipoProducto.Text = "Gestionar Tipos de Producto";
             btnTipoProducto.UseVisualStyleBackColor = true;
-            btnTipoProducto.Click += btnTipoProducto_Click;
+            btnTipoProducto.Click += btnMenuTiposProducto_Click;
             // 
             // btnMenuProductos
             // 
@@ -59,7 +59,7 @@
             btnMenuProductos.Name = "btnMenuProductos";
             btnMenuProductos.Size = new Size(200, 50);
             btnMenuProductos.TabIndex = 2;
-            btnMenuProductos.Text = "Gestionar Tipos de Producto";
+            btnMenuProductos.Text = "Gestionar Productos";
             btnMenuProductos.UseVisualStyleBackColor = true;
             btnMenuProductos.Click += btnMenuProductos_Click;
             // 

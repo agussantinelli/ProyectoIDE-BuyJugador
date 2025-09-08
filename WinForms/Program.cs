@@ -1,8 +1,8 @@
-using ApiClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Windows.Forms;
+using ApiClient;
 
 namespace WinForms
 {
@@ -16,18 +16,29 @@ namespace WinForms
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
+                    string baseUrl = "https://localhost:7145";
+
+                    // Registramos HttpClients con DI
                     services.AddHttpClient<ProvinciaApiClient>(client =>
                     {
-                        // Asegúrate de que este puerto coincida con el de tu WebAPI
-                        client.BaseAddress = new Uri("https://localhost:7145");
-                    });
-                    services.AddHttpClient<TipoProductoApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri("https://localhost:7145");
+                        client.BaseAddress = new Uri(baseUrl);
                     });
 
-                    // Registramos el formulario principal
+                    services.AddHttpClient<TipoProductoApiClient>(client =>
+                    {
+                        client.BaseAddress = new Uri(baseUrl);
+                    });
+
+                    services.AddHttpClient<ProductoApiClient>(client =>
+                    {
+                        client.BaseAddress = new Uri(baseUrl);
+                    });
+
+                    // Registramos los formularios
                     services.AddTransient<MainForm>();
+                    services.AddTransient<ProductoForm>();
+                    services.AddTransient<Provincia>();
+                    services.AddTransient<TipoProducto>();
                 })
                 .Build();
 
@@ -40,4 +51,3 @@ namespace WinForms
         }
     }
 }
-

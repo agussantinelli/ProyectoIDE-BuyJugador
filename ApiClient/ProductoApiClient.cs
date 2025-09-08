@@ -1,6 +1,5 @@
 ﻿using DominioModelo;
-using DTOs; // Asegúrate de que DTOs.Producto exista
-using System;
+using DTOs;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -11,83 +10,39 @@ namespace ApiClient
     public class ProductoApiClient
     {
         private readonly HttpClient _httpClient;
-        // Reemplaza esta URL base por la URL real de tu WebAPI en ejecución
-        private readonly string _baseUrl = "https://localhost:7001/api/productos";
 
-        public ProductoApiClient(string apiBaseUrl = "https://localhost:7001")
+        public ProductoApiClient(HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
-            // Ajusta la URL base si es necesario, incluyendo el prefijo /api/productos
-            _baseUrl = $"{apiBaseUrl.TrimEnd('/')}/api/productos";
+            _httpClient = httpClient;
         }
 
-        public async Task<List<Producto>> GetProductosAsync()
+        public async Task<List<Producto>?> GetAllAsync()
         {
-            try
-            {
-                return await _httpClient.GetFromJsonAsync<List<Producto>>(_baseUrl);
-            }
-            catch (HttpRequestException ex)
-            {
-                // Manejo de errores (log, lanzar excepción personalizada, etc.)
-                Console.WriteLine($"Error al obtener productos: {ex.Message}");
-                return new List<Producto>();
-            }
+            return await _httpClient.GetFromJsonAsync<List<Producto>>("api/productos");
         }
 
-        public async Task<Producto> GetProductoByIdAsync(int id)
+        public async Task<Producto?> GetByIdAsync(int id)
         {
-            try
-            {
-                return await _httpClient.GetFromJsonAsync<Producto>($"{_baseUrl}/{id}");
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error al obtener producto por ID: {ex.Message}");
-                return null;
-            }
+            return await _httpClient.GetFromJsonAsync<Producto>($"api/productos/{id}");
         }
 
-        public async Task<bool> CreateProductoAsync(Producto producto)
+        public async Task<Producto?> CreateAsync(ProductoDTO producto)
         {
-            try
-            {
-                var response = await _httpClient.PostAsJsonAsync(_baseUrl, producto);
-                return response.IsSuccessStatusCode;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error al crear producto: {ex.Message}");
-                return false;
-            }
+            var response = await _httpClient.PostAsJsonAsync("api/productos", producto);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Producto>();
         }
 
-        public async Task<bool> UpdateProductoAsync(int id, Producto producto)
+        public async Task UpdateAsync(int id, ProductoDTO producto)
         {
-            try
-            {
-                var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/{id}", producto);
-                return response.IsSuccessStatusCode;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error al actualizar producto: {ex.Message}");
-                return false;
-            }
+            var response = await _httpClient.PutAsJsonAsync($"api/productos/{id}", producto);
+            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<bool> DeleteProductoAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            try
-            {
-                var response = await _httpClient.DeleteAsync($"{_baseUrl}/{id}");
-                return response.IsSuccessStatusCode;
-            }
-            catch (HttpRequestException ex)
-            {
-                Console.WriteLine($"Error al eliminar producto: {ex.Message}");
-                return false;
-            }
+            var response = await _httpClient.DeleteAsync($"api/productos/{id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

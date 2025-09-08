@@ -17,32 +17,31 @@ namespace ApiClient
 
         public async Task<List<TipoProductoDTO>?> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<TipoProductoDTO>>("/api/tiposproducto");
+            return await _httpClient.GetFromJsonAsync<List<TipoProductoDTO>>("api/tiposproducto");
         }
 
         public async Task<TipoProductoDTO?> GetByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<TipoProductoDTO>($"/api/tiposproducto/{id}");
+            return await _httpClient.GetFromJsonAsync<TipoProductoDTO>($"api/tiposproducto/{id}");
         }
 
         public async Task<TipoProductoDTO?> CreateAsync(TipoProductoDTO tipoProducto)
         {
-            var response = await _httpClient.PostAsJsonAsync("/api/tiposproducto", tipoProducto);
+            var response = await _httpClient.PostAsJsonAsync("api/tiposproducto", tipoProducto);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<TipoProductoDTO>();
         }
 
         public async Task UpdateAsync(int id, TipoProductoDTO tipoProducto)
         {
-            var response = await _httpClient.PutAsJsonAsync($"/api/tiposproducto/{id}", tipoProducto);
+            var response = await _httpClient.PutAsJsonAsync($"api/tiposproducto/{id}", tipoProducto);
             response.EnsureSuccessStatusCode();
         }
 
         public async Task DeleteAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"/api/tiposproducto/{id}");
+            var response = await _httpClient.DeleteAsync($"api/tiposproducto/{id}");
             response.EnsureSuccessStatusCode();
         }
     }
 }
-
