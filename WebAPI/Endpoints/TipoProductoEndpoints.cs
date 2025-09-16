@@ -1,11 +1,7 @@
 ﻿using DominioServicios;
 using DTOs;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Endpoints
 {
@@ -48,8 +44,11 @@ namespace WebAPI.Endpoints
                 {
                     return Results.Conflict(new { message = ex.Message });
                 }
+                catch (DbUpdateException)
+                {
+                    return Results.Conflict(new { message = "No se puede eliminar el tipo de producto porque tiene productos asociados." });
+                }
             });
-
         }
     }
 }

@@ -41,6 +41,10 @@ namespace ApiClient
         public async Task DeleteAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/tiposproducto/{id}");
+            if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                throw new InvalidOperationException("No se puede eliminar el tipo de producto porque tiene productos asociados.");
+            }
             response.EnsureSuccessStatusCode();
         }
     }

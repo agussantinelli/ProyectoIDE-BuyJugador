@@ -129,7 +129,8 @@ namespace Data
 
                 entity.HasOne(d => d.IdTipoProductoNavigation)
                       .WithMany(p => p.Productos)
-                      .HasForeignKey(d => d.IdTipoProducto);
+                      .HasForeignKey(d => d.IdTipoProducto)
+                      .OnDelete(DeleteBehavior.Restrict); 
             });
 
             modelBuilder.Entity<Proveedor>(entity =>

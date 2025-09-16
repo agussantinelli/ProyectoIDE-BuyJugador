@@ -11,6 +11,7 @@ namespace WinForms
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private int _selectedTipoProductoId = 0;
+        private bool _isClearingSelection = false;
 
         public TipoProducto(TipoProductoApiClient tipoProductoApiClient)
         {
@@ -36,12 +37,15 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void dgvTiposProducto_SelectionChanged(object sender, EventArgs e)
         {
+            if (_isClearingSelection) return;
+
             if (dgvTiposProducto.SelectedRows.Count > 0)
             {
                 var selectedRow = dgvTiposProducto.SelectedRows[0];
@@ -55,12 +59,7 @@ namespace WinForms
             }
         }
 
-        private void btnNuevo_Click(object sender, EventArgs e)
-        {
-            LimpiarFormulario();
-        }
-
-        private async void btnGuardar_Click(object sender, EventArgs e)
+        private async void btnNuevo_Click(object sender, EventArgs e)
         {
             try
             {
@@ -68,7 +67,8 @@ namespace WinForms
 
                 if (string.IsNullOrWhiteSpace(descripcion))
                 {
-                    MessageBox.Show("La descripción no puede estar vacía.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Debe ingresar una descripción para crear un nuevo tipo de producto.",
+                                    "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -77,24 +77,59 @@ namespace WinForms
                     Descripcion = descripcion
                 };
 
-                if (_selectedTipoProductoId == 0)
-                {
-                    await _tipoProductoApiClient.CreateAsync(dto);
-                    MessageBox.Show("Tipo de producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    dto.IdTipoProducto = _selectedTipoProductoId;
-                    await _tipoProductoApiClient.UpdateAsync(_selectedTipoProductoId, dto);
-                    MessageBox.Show("Tipo de producto actualizado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
+                var creado = await _tipoProductoApiClient.CreateAsync(dto);
+
+                MessageBox.Show($"Tipo de producto '{creado.Descripcion}' creado exitosamente.",
+                                "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 await CargarTiposProducto();
                 LimpiarFormulario();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar tipo de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al crear tipo de producto: {ex.Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnGuardar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_selectedTipoProductoId == 0)
+                {
+                    MessageBox.Show("Seleccione un tipo de producto para actualizar.",
+                                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var descripcion = txtDescripcion.Text.Trim();
+
+                if (string.IsNullOrWhiteSpace(descripcion))
+                {
+                    MessageBox.Show("La descripción no puede estar vacía.",
+                                    "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var dto = new TipoProductoDTO
+                {
+                    IdTipoProducto = _selectedTipoProductoId,
+                    Descripcion = descripcion
+                };
+
+                await _tipoProductoApiClient.UpdateAsync(_selectedTipoProductoId, dto);
+
+                MessageBox.Show("Tipo de producto actualizado exitosamente.",
+                                "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                await CargarTiposProducto();
+                LimpiarFormulario();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al actualizar tipo de producto: {ex.Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -104,7 +139,8 @@ namespace WinForms
             {
                 if (_selectedTipoProductoId == 0)
                 {
-                    MessageBox.Show("Seleccione un tipo de producto para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Seleccione un tipo de producto para eliminar.",
+                                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -118,34 +154,35 @@ namespace WinForms
                 if (confirmResult == DialogResult.Yes)
                 {
                     await _tipoProductoApiClient.DeleteAsync(_selectedTipoProductoId);
-                    MessageBox.Show("Tipo de producto eliminado exitosamente.", "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Tipo de producto eliminado exitosamente.",
+                                    "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     await CargarTiposProducto();
                     LimpiarFormulario();
                 }
             }
-            catch (HttpRequestException exH)
+            catch (InvalidOperationException ex)
             {
-                if (exH.Message.Contains("409"))
-                {
-                    MessageBox.Show("No se puede eliminar este tipo de producto porque tiene productos asociados.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                else
-                {
-                    MessageBox.Show($"Error al eliminar tipo de producto: {exH.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                MessageBox.Show(ex.Message, "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar tipo de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al eliminar tipo de producto: {ex.Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void LimpiarFormulario()
         {
+            _isClearingSelection = true;
+
             txtDescripcion.Clear();
             _selectedTipoProductoId = 0;
             dgvTiposProducto.ClearSelection();
+
+            _isClearingSelection = false;
+
+            txtDescripcion.Focus();
         }
     }
 }
