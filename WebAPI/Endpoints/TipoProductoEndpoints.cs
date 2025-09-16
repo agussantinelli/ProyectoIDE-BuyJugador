@@ -39,9 +39,17 @@ namespace WebAPI.Endpoints
 
             routes.MapDelete("/api/tiposproducto/{id}", async (int id, TipoProductoService tipoProductoService) =>
             {
-                var deleted = await tipoProductoService.DeleteAsync(id);
-                return deleted ? Results.Ok() : Results.NotFound();
+                try
+                {
+                    var deleted = await tipoProductoService.DeleteAsync(id);
+                    return deleted ? Results.Ok() : Results.NotFound();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    return Results.Conflict(new { message = ex.Message });
+                }
             });
+
         }
     }
 }

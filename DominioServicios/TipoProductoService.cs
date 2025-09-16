@@ -50,12 +50,21 @@ namespace DominioServicios
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var tipoProducto = await _context.TiposProductos.FindAsync(id);
-            if (tipoProducto == null) return false;
+            var tipoProducto = await _context.TiposProductos
+                .Include(tp => tp.Productos)
+                .FirstOrDefaultAsync(tp => tp.IdTipoProducto == id);
+
+            if (tipoProducto == null)
+                return false;
+
+            if (tipoProducto.Productos != null && tipoProducto.Productos.Any())
+                throw new InvalidOperationException("No se puede eliminar el tipo de producto porque tiene productos asociados.");
+
             _context.TiposProductos.Remove(tipoProducto);
             await _context.SaveChangesAsync();
             return true;
         }
+
     }
 }
 

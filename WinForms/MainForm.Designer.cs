@@ -39,7 +39,7 @@
             btnProvincia.Name = "btnProvincia";
             btnProvincia.Size = new Size(200, 50);
             btnProvincia.TabIndex = 0;
-            btnProvincia.Text = "Gestionar Provincias";
+            btnProvincia.Text = "Ver Provincias Disponibles";
             btnProvincia.UseVisualStyleBackColor = true;
             btnProvincia.Click += btnMenuProvincias_Click;
             // 

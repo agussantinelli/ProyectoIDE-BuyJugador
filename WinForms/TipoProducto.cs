@@ -1,6 +1,5 @@
 ﻿using ApiClient;
 using DTOs;
-using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,6 +10,7 @@ namespace WinForms
     public partial class TipoProducto : Form
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
+        private int _selectedTipoProductoId = 0;
 
         public TipoProducto(TipoProductoApiClient tipoProductoApiClient)
         {
@@ -21,6 +21,7 @@ namespace WinForms
         private async void TipoProducto_Load(object sender, EventArgs e)
         {
             await CargarTiposProducto();
+            LimpiarFormulario();
         }
 
         private async Task CargarTiposProducto()
@@ -30,98 +31,121 @@ namespace WinForms
                 List<TipoProductoDTO>? tiposProducto = await _tipoProductoApiClient.GetAllAsync();
                 if (tiposProducto != null)
                 {
-                    // Evita que el usuario agregue filas directamente en el DataGridView
-                    dgvTiposProducto.AllowUserToAddRows = false;
                     dgvTiposProducto.DataSource = tiposProducto;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}");
+                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private async void btnAgregar_Click(object sender, EventArgs e)
+        private void dgvTiposProducto_SelectionChanged(object sender, EventArgs e)
         {
-            // Solicita al usuario el nombre para el nuevo tipo de producto
-            string descripcion = Interaction.InputBox("Ingrese la descripción del nuevo tipo de producto:", "Agregar Tipo de Producto", "");
-            if (!string.IsNullOrWhiteSpace(descripcion))
+            if (dgvTiposProducto.SelectedRows.Count > 0)
             {
-                try
+                var selectedRow = dgvTiposProducto.SelectedRows[0];
+                var tipoProducto = selectedRow.DataBoundItem as TipoProductoDTO;
+
+                if (tipoProducto != null)
                 {
-                    var nuevoTipo = new TipoProductoDTO { Descripcion = descripcion };
-                    var creado = await _tipoProductoApiClient.CreateAsync(nuevoTipo);
-                    if (creado != null)
-                    {
-                        MessageBox.Show("Tipo de producto agregado exitosamente.");
-                        await CargarTiposProducto(); // Recarga la lista
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Error al agregar el tipo de producto: {ex.Message}");
+                    txtDescripcion.Text = tipoProducto.Descripcion;
+                    _selectedTipoProductoId = tipoProducto.IdTipoProducto;
                 }
             }
         }
 
-        private async void btnEditar_Click(object sender, EventArgs e)
+        private void btnNuevo_Click(object sender, EventArgs e)
         {
-            // Verifica si hay una fila seleccionada
-            if (dgvTiposProducto.CurrentRow != null)
+            LimpiarFormulario();
+        }
+
+        private async void btnGuardar_Click(object sender, EventArgs e)
+        {
+            try
             {
-                var tipoSeleccionado = (TipoProductoDTO)dgvTiposProducto.CurrentRow.DataBoundItem;
+                var descripcion = txtDescripcion.Text.Trim();
 
-                // Pide la nueva descripción, mostrando la actual por defecto
-                string nuevaDescripcion = Interaction.InputBox("Ingrese la nueva descripción:", "Editar Tipo de Producto", tipoSeleccionado.Descripcion);
-
-                if (!string.IsNullOrWhiteSpace(nuevaDescripcion) && nuevaDescripcion != tipoSeleccionado.Descripcion)
+                if (string.IsNullOrWhiteSpace(descripcion))
                 {
-                    try
-                    {
-                        tipoSeleccionado.Descripcion = nuevaDescripcion;
-                        await _tipoProductoApiClient.UpdateAsync(tipoSeleccionado.IdTipoProducto, tipoSeleccionado);
-                        {
-                            MessageBox.Show("Tipo de producto actualizado exitosamente.");
-                            await CargarTiposProducto(); // Recarga la lista
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al editar el tipo de producto: {ex.Message}");
-                    }
+                    MessageBox.Show("La descripción no puede estar vacía.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
+                var dto = new TipoProductoDTO
+                {
+                    Descripcion = descripcion
+                };
+
+                if (_selectedTipoProductoId == 0)
+                {
+                    await _tipoProductoApiClient.CreateAsync(dto);
+                    MessageBox.Show("Tipo de producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    dto.IdTipoProducto = _selectedTipoProductoId;
+                    await _tipoProductoApiClient.UpdateAsync(_selectedTipoProductoId, dto);
+                    MessageBox.Show("Tipo de producto actualizado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
+                await CargarTiposProducto();
+                LimpiarFormulario();
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Por favor, seleccione un tipo de producto para editar.");
+                MessageBox.Show($"Error al guardar tipo de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
         {
-            if (dgvTiposProducto.CurrentRow != null)
+            try
             {
-                var tipoSeleccionado = (TipoProductoDTO)dgvTiposProducto.CurrentRow.DataBoundItem;
-                var confirmacion = MessageBox.Show($"¿Está seguro de que desea eliminar '{tipoSeleccionado.Descripcion}'?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                if (confirmacion == DialogResult.Yes)
+                if (_selectedTipoProductoId == 0)
                 {
-                    try
-                    {
-                        await _tipoProductoApiClient.DeleteAsync(tipoSeleccionado.IdTipoProducto);
-                        MessageBox.Show("Tipo de producto eliminado exitosamente.");
-                        await CargarTiposProducto(); // Recarga la lista
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Error al eliminar el tipo de producto: {ex.Message}");
-                    }
+                    MessageBox.Show("Seleccione un tipo de producto para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var confirmResult = MessageBox.Show(
+                    "¿Estás seguro que deseas eliminar este tipo de producto?",
+                    "Confirmar Eliminación",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning
+                );
+
+                if (confirmResult == DialogResult.Yes)
+                {
+                    await _tipoProductoApiClient.DeleteAsync(_selectedTipoProductoId);
+                    MessageBox.Show("Tipo de producto eliminado exitosamente.", "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                    await CargarTiposProducto();
+                    LimpiarFormulario();
                 }
             }
-            else
+            catch (HttpRequestException exH)
             {
-                MessageBox.Show("Por favor, seleccione un tipo de producto para eliminar.");
+                if (exH.Message.Contains("409"))
+                {
+                    MessageBox.Show("No se puede eliminar este tipo de producto porque tiene productos asociados.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                else
+                {
+                    MessageBox.Show($"Error al eliminar tipo de producto: {exH.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar tipo de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LimpiarFormulario()
+        {
+            txtDescripcion.Clear();
+            _selectedTipoProductoId = 0;
+            dgvTiposProducto.ClearSelection();
         }
     }
 }
