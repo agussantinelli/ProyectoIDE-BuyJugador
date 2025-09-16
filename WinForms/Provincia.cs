@@ -24,11 +24,24 @@ namespace WinForms
                 if (provincias != null)
                 {
                     dgvProvincias.DataSource = provincias;
+
+                    if (dgvProvincias.Columns.Contains("IdProvincia"))
+                    {
+                        dgvProvincias.Columns["IdProvincia"].HeaderText = "Código";
+                        dgvProvincias.Columns["IdProvincia"].Width = 80;
+                    }
+
+                    if (dgvProvincias.Columns.Contains("Nombre"))
+                    {
+                        dgvProvincias.Columns["Nombre"].HeaderText = "Provincia";
+                        dgvProvincias.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar provincias: {ex.Message}");
+                MessageBox.Show($"Error al cargar provincias: {ex.Message}",
+                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

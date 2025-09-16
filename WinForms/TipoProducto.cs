@@ -33,6 +33,18 @@ namespace WinForms
                 if (tiposProducto != null)
                 {
                     dgvTiposProducto.DataSource = tiposProducto;
+
+                    if (dgvTiposProducto.Columns.Contains("IdTipoProducto"))
+                    {
+                        dgvTiposProducto.Columns["IdTipoProducto"].HeaderText = "Código";
+                        dgvTiposProducto.Columns["IdTipoProducto"].Width = 80;
+                    }
+
+                    if (dgvTiposProducto.Columns.Contains("Descripcion"))
+                    {
+                        dgvTiposProducto.Columns["Descripcion"].HeaderText = "Descripción";
+                        dgvTiposProducto.Columns["Descripcion"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    }
                 }
             }
             catch (Exception ex)
