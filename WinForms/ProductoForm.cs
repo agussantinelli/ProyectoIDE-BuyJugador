@@ -1,6 +1,5 @@
 ﻿using ApiClient;
 using DTOs;
-using DominioModelo;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -12,8 +11,9 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly TipoProductoApiClient _tipoProductoApiClient;
-        private int _selectedProductoId = 0;
+        private int? _selectedProductoId = null;
 
+        // El formulario ahora recibe los 'clients' a través de su constructor.
         public ProductoForm(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
         {
             InitializeComponent();
@@ -31,15 +31,13 @@ namespace WinForms
         {
             try
             {
-                List<Producto>? listaProductos = await _productoApiClient.GetAllAsync();
-                if (listaProductos != null)
-                {
-                    dgvProductos.DataSource = listaProductos;
-                }
+                List<ProductoDTO>? listaProductos = await _productoApiClient.GetAllAsync();
+                dgvProductos.DataSource = listaProductos;
+                LimpiarFormulario();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar productos: {ex.Message}");
+                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -51,27 +49,94 @@ namespace WinForms
                 if (tiposProducto != null)
                 {
                     cmbTipoProducto.DataSource = tiposProducto;
-                    cmbTipoProducto.DisplayMember = "Descripcion";
-                    cmbTipoProducto.ValueMember = "IdTipoProducto";
-
+                    cmbTipoProducto.DisplayMember = "Descripcion"; // La propiedad de texto a mostrar
+                    cmbTipoProducto.ValueMember = "IdTipoProducto"; // El valor subyacente
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}");
+                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnNuevo_Click(object sender, EventArgs e) { 
-        
+        private void btnNuevo_Click(object sender, EventArgs e)
+        {
+            LimpiarFormulario();
         }
 
-        private void btnGuardar_Click(object sender, EventArgs e) {
-        
+        private async void btnGuardar_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtNombre.Text))
+            {
+                MessageBox.Show("El nombre del producto es obligatorio.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var productoDto = new ProductoDTO
+            {
+                Nombre = txtNombre.Text,
+                Descripcion = txtDescripcion.Text,
+                Stock = (int)numStock.Value,
+                IdTipoProducto = (int?)cmbTipoProducto.SelectedValue
+            };
+
+            try
+            {
+                if (_selectedProductoId.HasValue)
+                {
+                    // Actualizar producto existente
+                    productoDto.IdProducto = _selectedProductoId.Value;
+                    bool success = await _productoApiClient.UpdateAsync(_selectedProductoId.Value, productoDto);
+                    if (success)
+                    {
+                        MessageBox.Show("Producto actualizado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                else
+                {
+                    // Crear nuevo producto
+                    var nuevoProducto = await _productoApiClient.CreateAsync(productoDto);
+                    if (nuevoProducto != null)
+                    {
+                        MessageBox.Show($"Producto '{nuevoProducto.Nombre}' creado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+
+                // Recargar la grilla para mostrar los cambios
+                await CargarGrillaProductos();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al guardar el producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
-        private void btnEliminar_Click(object sender, EventArgs e) {
-        
+        private async void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (!_selectedProductoId.HasValue)
+            {
+                MessageBox.Show("Por favor, seleccione un producto de la lista para eliminar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var confirmResult = MessageBox.Show("¿Está seguro de que desea eliminar este producto?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                try
+                {
+                    bool success = await _productoApiClient.DeleteAsync(_selectedProductoId.Value);
+                    if (success)
+                    {
+                        MessageBox.Show("Producto eliminado con éxito.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await CargarGrillaProductos();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error al eliminar el producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void dgvProductos_SelectionChanged(object sender, EventArgs e)
@@ -79,17 +144,27 @@ namespace WinForms
             if (dgvProductos.SelectedRows.Count > 0)
             {
                 var selectedRow = dgvProductos.SelectedRows[0];
-                var producto = selectedRow.DataBoundItem as Producto;
+                var producto = selectedRow.DataBoundItem as ProductoDTO;
 
                 if (producto != null)
                 {
+                    _selectedProductoId = producto.IdProducto;
                     txtNombre.Text = producto.Nombre;
                     txtDescripcion.Text = producto.Descripcion;
-                    cmbTipoProducto.SelectedValue = producto.IdTipoProducto;
+                    cmbTipoProducto.SelectedValue = producto.IdTipoProducto ?? -1; // Usar -1 o 0 si no hay valor
                     numStock.Value = producto.Stock;
                 }
             }
         }
 
+        private void LimpiarFormulario()
+        {
+            _selectedProductoId = null;
+            txtNombre.Clear();
+            txtDescripcion.Clear();
+            numStock.Value = 0;
+            cmbTipoProducto.SelectedIndex = -1; // Deseleccionar cualquier item
+            dgvProductos.ClearSelection();
+        }
     }
 }

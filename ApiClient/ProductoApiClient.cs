@@ -1,5 +1,4 @@
-﻿using DominioModelo;
-using DTOs;
+﻿using DTOs;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -16,33 +15,37 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<Producto>?> GetAllAsync()
+        // Corregido: Debe devolver una lista de ProductoDTO, no el modelo de dominio.
+        public async Task<List<ProductoDTO>?> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<Producto>>("api/productos");
+            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/productos");
         }
 
-        public async Task<Producto?> GetByIdAsync(int id)
+        public async Task<ProductoDTO?> GetByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Producto>($"api/productos/{id}");
+            return await _httpClient.GetFromJsonAsync<ProductoDTO>($"api/productos/{id}");
         }
 
-        public async Task<Producto?> CreateAsync(ProductoDTO producto)
+        public async Task<ProductoDTO?> CreateAsync(ProductoDTO producto)
         {
             var response = await _httpClient.PostAsJsonAsync("api/productos", producto);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Producto>();
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ProductoDTO>();
+            }
+            return null;
         }
 
-        public async Task UpdateAsync(int id, ProductoDTO producto)
+        public async Task<bool> UpdateAsync(int id, ProductoDTO producto)
         {
             var response = await _httpClient.PutAsJsonAsync($"api/productos/{id}", producto);
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/productos/{id}");
-            response.EnsureSuccessStatusCode();
+            return response.IsSuccessStatusCode;
         }
     }
 }
