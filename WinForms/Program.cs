@@ -36,7 +36,12 @@ namespace WinForms
 
                     // Registramos los formularios
                     services.AddTransient<MainForm>();
-                    services.AddTransient<Producto>();
+                    services.AddTransient<Producto>(sp =>
+                        new Producto(
+                            sp.GetRequiredService<ProductoApiClient>(),
+                            sp.GetRequiredService<TipoProductoApiClient>()
+                        )
+                    );
                     services.AddTransient<Provincia>();
                     services.AddTransient<TipoProducto>();
                 })

@@ -8,6 +8,8 @@
         public int Stock { get; set; }
         public int? IdTipoProducto { get; set; }
 
+        public string TipoProductoDescripcion { get; set; }
+
         public static ProductoDTO FromDominio(DominioModelo.Producto entidad)
         {
             if (entidad == null) return null;

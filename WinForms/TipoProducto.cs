@@ -84,10 +84,7 @@ namespace WinForms
                     return;
                 }
 
-                var dto = new TipoProductoDTO
-                {
-                    Descripcion = descripcion
-                };
+                var dto = new TipoProductoDTO { Descripcion = descripcion };
 
                 var creado = await _tipoProductoApiClient.CreateAsync(dto);
 
@@ -104,7 +101,7 @@ namespace WinForms
             }
         }
 
-        private async void btnGuardar_Click(object sender, EventArgs e)
+        private async void btnActualizar_Click(object sender, EventArgs e)
         {
             try
             {
