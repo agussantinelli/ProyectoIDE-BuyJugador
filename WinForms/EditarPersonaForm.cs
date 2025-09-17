@@ -7,13 +7,12 @@ namespace WinForms
 {
     public partial class EditarPersonaForm : Form
     {
-
         private readonly PersonaApiClient _personaApiClient;
         private readonly PersonaDTO _persona;
 
         public EditarPersonaForm(PersonaApiClient personaApiClient, PersonaDTO persona)
         {
-            InitializeComponent();  
+            InitializeComponent();
             _personaApiClient = personaApiClient;
             _persona = persona;
         }
@@ -27,18 +26,6 @@ namespace WinForms
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
             cmbLocalidad.SelectedValue = _persona.IdLocalidad;
-
-            if (_persona.FechaIngreso.HasValue)
-            {
-                cmbRol.SelectedItem = "Empleado";
-                dtpFechaIngreso.Value = _persona.FechaIngreso.Value.ToDateTime(TimeOnly.MinValue);
-                dtpFechaIngreso.Enabled = true;
-            }
-            else
-            {
-                cmbRol.SelectedItem = "Dueño";
-                dtpFechaIngreso.Enabled = false;
-            }
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
@@ -60,9 +47,6 @@ namespace WinForms
             _persona.Telefono = txtTelefono.Text.Trim();
             _persona.Direccion = txtDireccion.Text.Trim();
             _persona.IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad;
-            _persona.FechaIngreso = cmbRol.SelectedItem?.ToString() == "Empleado"
-                ? DateOnly.FromDateTime(dtpFechaIngreso.Value)
-                : null;
 
             await _personaApiClient.UpdateAsync(_persona.IdPersona, _persona);
 
@@ -72,11 +56,9 @@ namespace WinForms
             DialogResult = DialogResult.OK;
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e) => DialogResult = DialogResult.Cancel;
-
-        private void cmbRol_SelectedIndexChanged(object sender, EventArgs e)
+        private void btnCancelar_Click(object sender, EventArgs e)
         {
-            dtpFechaIngreso.Enabled = cmbRol.SelectedItem?.ToString() == "Empleado";
+            DialogResult = DialogResult.Cancel;
         }
     }
 }
