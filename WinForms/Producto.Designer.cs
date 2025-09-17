@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class ProductoForm
+    partial class Producto
     {
         private System.ComponentModel.IContainer components = null;
 

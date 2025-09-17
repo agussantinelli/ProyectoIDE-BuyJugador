@@ -37,7 +37,7 @@ namespace WinForms
                     if (dgvTiposProducto.Columns.Contains("IdTipoProducto"))
                     {
                         dgvTiposProducto.Columns["IdTipoProducto"].HeaderText = "Código";
-                        dgvTiposProducto.Columns["IdTipoProducto"].Width = 80;
+                        dgvTiposProducto.Columns["IdTipoProducto"].Width = 100;
                     }
 
                     if (dgvTiposProducto.Columns.Contains("Descripcion"))

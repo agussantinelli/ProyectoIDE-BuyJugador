@@ -7,14 +7,13 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class ProductoForm : Form
+    public partial class Producto : Form
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private int? _selectedProductoId = null;
 
-        // El formulario ahora recibe los 'clients' a través de su constructor.
-        public ProductoForm(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
+        public Producto(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;
@@ -49,8 +48,8 @@ namespace WinForms
                 if (tiposProducto != null)
                 {
                     cmbTipoProducto.DataSource = tiposProducto;
-                    cmbTipoProducto.DisplayMember = "Descripcion"; // La propiedad de texto a mostrar
-                    cmbTipoProducto.ValueMember = "IdTipoProducto"; // El valor subyacente
+                    cmbTipoProducto.DisplayMember = "Descripcion"; 
+                    cmbTipoProducto.ValueMember = "IdTipoProducto"; 
                 }
             }
             catch (Exception ex)
@@ -84,7 +83,6 @@ namespace WinForms
             {
                 if (_selectedProductoId.HasValue)
                 {
-                    // Actualizar producto existente
                     productoDto.IdProducto = _selectedProductoId.Value;
                     bool success = await _productoApiClient.UpdateAsync(_selectedProductoId.Value, productoDto);
                     if (success)
@@ -94,7 +92,6 @@ namespace WinForms
                 }
                 else
                 {
-                    // Crear nuevo producto
                     var nuevoProducto = await _productoApiClient.CreateAsync(productoDto);
                     if (nuevoProducto != null)
                     {
@@ -102,7 +99,6 @@ namespace WinForms
                     }
                 }
 
-                // Recargar la grilla para mostrar los cambios
                 await CargarGrillaProductos();
             }
             catch (Exception ex)
@@ -151,7 +147,7 @@ namespace WinForms
                     _selectedProductoId = producto.IdProducto;
                     txtNombre.Text = producto.Nombre;
                     txtDescripcion.Text = producto.Descripcion;
-                    cmbTipoProducto.SelectedValue = producto.IdTipoProducto ?? -1; // Usar -1 o 0 si no hay valor
+                    cmbTipoProducto.SelectedValue = producto.IdTipoProducto ?? -1; 
                     numStock.Value = producto.Stock;
                 }
             }
@@ -163,7 +159,7 @@ namespace WinForms
             txtNombre.Clear();
             txtDescripcion.Clear();
             numStock.Value = 0;
-            cmbTipoProducto.SelectedIndex = -1; // Deseleccionar cualquier item
+            cmbTipoProducto.SelectedIndex = -1; 
             dgvProductos.ClearSelection();
         }
     }

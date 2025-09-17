@@ -28,7 +28,7 @@ namespace WinForms
                     if (dgvProvincias.Columns.Contains("IdProvincia"))
                     {
                         dgvProvincias.Columns["IdProvincia"].HeaderText = "Código";
-                        dgvProvincias.Columns["IdProvincia"].Width = 80;
+                        dgvProvincias.Columns["IdProvincia"].Width = 100;
                     }
 
                     if (dgvProvincias.Columns.Contains("Nombre"))

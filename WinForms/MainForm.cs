@@ -16,7 +16,7 @@ namespace WinForms
 
         private void btnMenuProductos_Click(object sender, EventArgs e)
         {
-            var form = _serviceProvider.GetRequiredService<ProductoForm>();
+            var form = _serviceProvider.GetRequiredService<Producto>();
             form.ShowDialog();
         }
 
