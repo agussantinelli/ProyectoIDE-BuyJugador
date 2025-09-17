@@ -20,13 +20,13 @@
 
         private void InitializeComponent()
         {
-            this.txtBuscar = new TextBox();
-            this.dgvProductos = new DataGridView();
-            this.btnNuevo = new Button();
-            this.btnEditar = new Button();
-            this.btnEliminar = new Button();
-            this.btnVolver = new Button();
-            this.lblBuscar = new Label();
+            this.txtBuscar = new System.Windows.Forms.TextBox();
+            this.dgvProductos = new System.Windows.Forms.DataGridView();
+            this.btnNuevo = new System.Windows.Forms.Button();
+            this.btnEditar = new System.Windows.Forms.Button();
+            this.btnEliminar = new System.Windows.Forms.Button();
+            this.btnVolver = new System.Windows.Forms.Button();
+            this.lblBuscar = new System.Windows.Forms.Label();
 
             ((System.ComponentModel.ISupportInitialize)(this.dgvProductos)).BeginInit();
             this.SuspendLayout();
@@ -45,8 +45,9 @@
             this.dgvProductos.Location = new System.Drawing.Point(20, 70);
             this.dgvProductos.Size = new System.Drawing.Size(740, 280);
             this.dgvProductos.ReadOnly = true;
-            this.dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvProductos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvProductos.MultiSelect = false;
+            this.dgvProductos.SelectionChanged += new System.EventHandler(this.dgvProductos_SelectionChanged);
 
             // btnNuevo
             this.btnNuevo.Location = new System.Drawing.Point(20, 370);
@@ -72,7 +73,7 @@
             this.btnVolver.Size = new System.Drawing.Size(100, 30);
             this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
 
-            // Producto (Form)
+            // Producto Form
             this.ClientSize = new System.Drawing.Size(780, 420);
             this.Controls.Add(this.lblBuscar);
             this.Controls.Add(this.txtBuscar);

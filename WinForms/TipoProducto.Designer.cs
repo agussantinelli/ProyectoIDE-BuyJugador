@@ -3,116 +3,92 @@
     partial class TipoProducto
     {
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.TextBox txtBuscar;
+        private System.Windows.Forms.DataGridView dgvTiposProducto;
+        private System.Windows.Forms.Button btnNuevo;
+        private System.Windows.Forms.Button btnEditar;
+        private System.Windows.Forms.Button btnEliminar;
+        private System.Windows.Forms.Button btnVolver;
+        private System.Windows.Forms.Label lblBuscar;
 
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
-            dgvTiposProducto = new DataGridView();
-            txtDescripcion = new TextBox();
-            btnNuevo = new Button();
-            btnActualizar = new Button();
-            btnEliminar = new Button();
-            lblDescripcion = new Label();
-            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).BeginInit();
-            SuspendLayout();
-            // 
+            this.txtBuscar = new System.Windows.Forms.TextBox();
+            this.dgvTiposProducto = new System.Windows.Forms.DataGridView();
+            this.btnNuevo = new System.Windows.Forms.Button();
+            this.btnEditar = new System.Windows.Forms.Button();
+            this.btnEliminar = new System.Windows.Forms.Button();
+            this.btnVolver = new System.Windows.Forms.Button();
+            this.lblBuscar = new System.Windows.Forms.Label();
+
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).BeginInit();
+            this.SuspendLayout();
+
+            // lblBuscar
+            this.lblBuscar.Location = new System.Drawing.Point(20, 10);
+            this.lblBuscar.Text = "Buscar:";
+            this.lblBuscar.AutoSize = true;
+
+            // txtBuscar
+            this.txtBuscar.Location = new System.Drawing.Point(20, 35);
+            this.txtBuscar.Size = new System.Drawing.Size(400, 23);
+            this.txtBuscar.TextChanged += new System.EventHandler(this.txtBuscar_TextChanged);
+
             // dgvTiposProducto
-            // 
-            dgvTiposProducto.AllowUserToAddRows = false;
-            dgvTiposProducto.AllowUserToDeleteRows = false;
-            dgvTiposProducto.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dgvTiposProducto.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvTiposProducto.Location = new Point(14, 92);
-            dgvTiposProducto.MultiSelect = false;
-            dgvTiposProducto.Name = "dgvTiposProducto";
-            dgvTiposProducto.ReadOnly = true;
-            dgvTiposProducto.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvTiposProducto.Size = new Size(500, 300);
-            dgvTiposProducto.TabIndex = 0;
-            dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
-            // 
-            // txtDescripcion
-            // 
-            txtDescripcion.Location = new Point(133, 25);
-            txtDescripcion.Name = "txtDescripcion";
-            txtDescripcion.Size = new Size(222, 23);
-            txtDescripcion.TabIndex = 1;
-            // 
+            this.dgvTiposProducto.Location = new System.Drawing.Point(20, 70);
+            this.dgvTiposProducto.Size = new System.Drawing.Size(740, 280);
+            this.dgvTiposProducto.ReadOnly = true;
+            this.dgvTiposProducto.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvTiposProducto.MultiSelect = false;
+            this.dgvTiposProducto.SelectionChanged += new System.EventHandler(this.dgvTiposProducto_SelectionChanged);
+
             // btnNuevo
-            // 
-            btnNuevo.Location = new Point(380, 12);
-            btnNuevo.Name = "btnNuevo";
-            btnNuevo.Size = new Size(100, 30);
-            btnNuevo.TabIndex = 2;
-            btnNuevo.Text = "Nuevo";
-            btnNuevo.UseVisualStyleBackColor = true;
-            btnNuevo.Click += btnNuevo_Click;
-            // 
-            // btnActualizar
-            // 
-            btnActualizar.Location = new Point(380, 48);
-            btnActualizar.Name = "btnActualizar";
-            btnActualizar.Size = new Size(100, 30);
-            btnActualizar.TabIndex = 3;
-            btnActualizar.Text = "Actualizar";
-            btnActualizar.UseVisualStyleBackColor = true;
-            btnActualizar.Click += btnActualizar_Click;
-            // 
+            this.btnNuevo.Location = new System.Drawing.Point(20, 370);
+            this.btnNuevo.Text = "Nuevo";
+            this.btnNuevo.Size = new System.Drawing.Size(100, 30);
+            this.btnNuevo.Click += new System.EventHandler(this.btnNuevo_Click);
+
+            // btnEditar
+            this.btnEditar.Location = new System.Drawing.Point(140, 370);
+            this.btnEditar.Text = "Editar";
+            this.btnEditar.Size = new System.Drawing.Size(100, 30);
+            this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
+
             // btnEliminar
-            // 
-            btnEliminar.Location = new Point(380, 84);
-            btnEliminar.Name = "btnEliminar";
-            btnEliminar.Size = new Size(100, 30);
-            btnEliminar.TabIndex = 4;
-            btnEliminar.Text = "Eliminar";
-            btnEliminar.UseVisualStyleBackColor = true;
-            btnEliminar.Click += btnEliminar_Click;
-            // 
-            // lblDescripcion
-            // 
-            lblDescripcion.AutoSize = true;
-            lblDescripcion.Location = new Point(14, 28);
-            lblDescripcion.Name = "lblDescripcion";
-            lblDescripcion.Size = new Size(72, 15);
-            lblDescripcion.TabIndex = 5;
-            lblDescripcion.Text = "Descripción:";
-            // 
-            // TipoProducto
-            // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(540, 420);
-            Controls.Add(lblDescripcion);
-            Controls.Add(btnEliminar);
-            Controls.Add(btnActualizar);
-            Controls.Add(btnNuevo);
-            Controls.Add(txtDescripcion);
-            Controls.Add(dgvTiposProducto);
-            Name = "TipoProducto";
-            Text = "Gestión de Tipos de Producto";
-            Load += TipoProducto_Load;
-            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
+            this.btnEliminar.Location = new System.Drawing.Point(260, 370);
+            this.btnEliminar.Text = "Eliminar";
+            this.btnEliminar.Size = new System.Drawing.Size(100, 30);
+            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+
+            // btnVolver
+            this.btnVolver.Location = new System.Drawing.Point(380, 370);
+            this.btnVolver.Text = "Volver";
+            this.btnVolver.Size = new System.Drawing.Size(100, 30);
+            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+
+            // TipoProducto (Form)
+            this.ClientSize = new System.Drawing.Size(780, 420);
+            this.Controls.Add(this.lblBuscar);
+            this.Controls.Add(this.txtBuscar);
+            this.Controls.Add(this.dgvTiposProducto);
+            this.Controls.Add(this.btnNuevo);
+            this.Controls.Add(this.btnEditar);
+            this.Controls.Add(this.btnEliminar);
+            this.Controls.Add(this.btnVolver);
+            this.Name = "TipoProducto";
+            this.Text = "Gestión de Tipos de Producto";
+            this.Load += new System.EventHandler(this.TipoProductoForm_Load);
+
+            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
-
-        #endregion
-
-        private DataGridView dgvTiposProducto;
-        private TextBox txtDescripcion;
-        private Button btnNuevo;
-        private Button btnActualizar;
-        private Button btnEliminar;
-        private Label lblDescripcion;
     }
 }
