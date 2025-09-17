@@ -3,6 +3,7 @@ using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,8 +13,9 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly TipoProductoApiClient _tipoProductoApiClient;
-        private int _selectedProductoId = 0;
-        private bool _isClearingSelection = false;
+
+        private List<ProductoDTO> _productosCache = new();
+        private string _filtroActual = string.Empty;
 
         public Producto(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
         {
@@ -22,205 +24,206 @@ namespace WinForms
             _tipoProductoApiClient = tipoProductoApiClient;
         }
 
-        private async void Producto_Load(object sender, EventArgs e)
+        // LOAD
+        private async void ProductoForm_Load(object? sender, EventArgs e)
         {
             await CargarProductos();
-            await CargarComboTiposProducto();
-            LimpiarFormulario();
+            AplicarFiltro(); // por si hay texto en el buscador al abrir
         }
 
-        private async Task CargarComboTiposProducto()
-        {
-            try
-            {
-                var tiposProducto = await _tipoProductoApiClient.GetAllAsync();
-                if (tiposProducto != null)
-                {
-                    cmbTipoProducto.DataSource = tiposProducto;
-                    cmbTipoProducto.DisplayMember = "Descripcion";
-                    cmbTipoProducto.ValueMember = "IdTipoProducto";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar tipos de producto: {ex.Message}",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
+        // CARGA DATOS
         private async Task CargarProductos()
         {
             try
             {
-                var productos = await _productoApiClient.GetAllAsync();
-                var tiposProducto = await _tipoProductoApiClient.GetAllAsync();
+                var productos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
+                var tipos = await _tipoProductoApiClient.GetAllAsync() ?? new List<TipoProductoDTO>();
 
-                if (productos != null && tiposProducto != null)
-                {
-                    // Join manual para mostrar descripción del tipo
-                    foreach (var p in productos)
-                    {
-                        var tipo = tiposProducto.FirstOrDefault(t => t.IdTipoProducto == p.IdTipoProducto);
-                        p.TipoProductoDescripcion = tipo?.Descripcion ?? "";
-                    }
+                // join para mostrar descripción del tipo
+                var mapTipos = tipos.ToDictionary(t => t.IdTipoProducto, t => t.Descripcion);
+                foreach (var p in productos)
+                    p.TipoProductoDescripcion = mapTipos.TryGetValue((int)p.IdTipoProducto, out var d) ? d : string.Empty;
 
-                    dgvProductos.DataSource = productos;
+                _productosCache = productos.ToList();
 
-                    // Configuración de columnas
-                    if (dgvProductos.Columns.Contains("IdProducto"))
-                    {
-                        dgvProductos.Columns["IdProducto"].HeaderText = "Código";
-                        dgvProductos.Columns["IdProducto"].Width = 80;
-                    }
-
-                    if (dgvProductos.Columns.Contains("Nombre"))
-                    {
-                        dgvProductos.Columns["Nombre"].HeaderText = "Nombre";
-                        dgvProductos.Columns["Nombre"].Width = 150;
-                    }
-
-                    if (dgvProductos.Columns.Contains("Descripcion"))
-                    {
-                        dgvProductos.Columns["Descripcion"].HeaderText = "Descripción";
-                        dgvProductos.Columns["Descripcion"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                    }
-
-                    if (dgvProductos.Columns.Contains("Stock"))
-                    {
-                        dgvProductos.Columns["Stock"].HeaderText = "Stock";
-                        dgvProductos.Columns["Stock"].Width = 80;
-                    }
-
-                    if (dgvProductos.Columns.Contains("TipoProductoDescripcion"))
-                    {
-                        dgvProductos.Columns["TipoProductoDescripcion"].HeaderText = "Tipo de Producto";
-                        dgvProductos.Columns["TipoProductoDescripcion"].Width = 150;
-                    }
-
-                    // Ocultamos el ID del tipo de producto
-                    if (dgvProductos.Columns.Contains("IdTipoProducto"))
-                    {
-                        dgvProductos.Columns["IdTipoProducto"].Visible = false;
-                    }
-                }
+                // bind base (sin filtro); el filtro lo aplica AplicarFiltro()
+                dgvProductos.DataSource = _productosCache.ToList();
+                ConfigurarColumnas();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void dgvProductos_SelectionChanged(object sender, EventArgs e)
+        private void ConfigurarColumnas()
         {
-            if (_isClearingSelection) return;
-
-            if (dgvProductos.SelectedRows.Count > 0)
+            if (dgvProductos.Columns.Contains("IdProducto"))
             {
-                var selectedRow = dgvProductos.SelectedRows[0];
-                var producto = selectedRow.DataBoundItem as ProductoDTO;
-
-                if (producto != null)
-                {
-                    txtNombre.Text = producto.Nombre;
-                    txtDescripcion.Text = producto.Descripcion;
-                    numStock.Value = producto.Stock;
-                    cmbTipoProducto.SelectedValue = producto.IdTipoProducto;
-                    _selectedProductoId = producto.IdProducto;
-                }
+                dgvProductos.Columns["IdProducto"].HeaderText = "Código";
+                dgvProductos.Columns["IdProducto"].Width = 80;
             }
-        }
 
-        private void btnNuevo_Click(object sender, EventArgs e)
-        {
-            LimpiarFormulario();
-        }
-
-        private async void btnActualizar_Click(object sender, EventArgs e)
-        {
-            try
+            if (dgvProductos.Columns.Contains("Nombre"))
             {
-                if (_selectedProductoId == 0)
-                {
-                    MessageBox.Show("Seleccione un producto para actualizar.",
-                                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                dgvProductos.Columns["Nombre"].HeaderText = "Nombre";
+                dgvProductos.Columns["Nombre"].Width = 150;
+            }
 
-                var dto = new ProductoDTO
-                {
-                    IdProducto = _selectedProductoId,
-                    Nombre = txtNombre.Text.Trim(),
-                    Descripcion = txtDescripcion.Text.Trim(),
-                    Stock = (int)numStock.Value,
-                    IdTipoProducto = (int)cmbTipoProducto.SelectedValue
-                };
+            if (dgvProductos.Columns.Contains("Descripcion"))
+            {
+                dgvProductos.Columns["Descripcion"].HeaderText = "Descripción";
+                dgvProductos.Columns["Descripcion"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
 
-                await _productoApiClient.UpdateAsync(_selectedProductoId, dto);
+            if (dgvProductos.Columns.Contains("Stock"))
+            {
+                dgvProductos.Columns["Stock"].HeaderText = "Stock";
+                dgvProductos.Columns["Stock"].Width = 80;
+            }
 
-                MessageBox.Show("Producto actualizado exitosamente.",
-                                "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (dgvProductos.Columns.Contains("TipoProductoDescripcion"))
+            {
+                dgvProductos.Columns["TipoProductoDescripcion"].HeaderText = "Tipo de Producto";
+                dgvProductos.Columns["TipoProductoDescripcion"].Width = 150;
+            }
 
+            if (dgvProductos.Columns.Contains("IdTipoProducto"))
+                dgvProductos.Columns["IdTipoProducto"].Visible = false;
+        }
+
+        // BUSCADOR
+        private void txtBuscar_TextChanged(object? sender, EventArgs e)
+        {
+            _filtroActual = txtBuscar.Text?.Trim() ?? string.Empty;
+            AplicarFiltro();
+        }
+
+        private void AplicarFiltro()
+        {
+            var f = (_filtroActual ?? string.Empty).ToLowerInvariant();
+
+            if (string.IsNullOrWhiteSpace(f))
+            {
+                dgvProductos.DataSource = _productosCache.ToList();
+            }
+            else
+            {
+                dgvProductos.DataSource = _productosCache
+                    .Where(p =>
+                        (!string.IsNullOrEmpty(p.Nombre) && p.Nombre.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.Descripcion) && p.Descripcion.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.TipoProductoDescripcion) && p.TipoProductoDescripcion.ToLower().Contains(f))
+                    )
+                    .ToList();
+            }
+
+            ConfigurarColumnas();
+        }
+
+        private ProductoDTO? ObtenerProductoSeleccionado()
+        {
+            // Prioridad a SelectedRows; si no, CurrentRow
+            var row = dgvProductos.SelectedRows.Count > 0
+                ? dgvProductos.SelectedRows[0]
+                : dgvProductos.CurrentRow;
+
+            return row?.DataBoundItem as ProductoDTO;
+        }
+
+        // NUEVO
+        private async void btnNuevo_Click(object? sender, EventArgs e)
+        {
+            using var form = new CrearProductoForm(_productoApiClient, _tipoProductoApiClient);
+            if (form.ShowDialog(this) == DialogResult.OK)
+            {
                 await CargarProductos();
-                LimpiarFormulario();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al actualizar producto: {ex.Message}",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                AplicarFiltro();
             }
         }
 
-        private async void btnEliminar_Click(object sender, EventArgs e)
+        // EDITAR
+        private async void btnEditar_Click(object? sender, EventArgs e)
         {
+            var producto = ObtenerProductoSeleccionado();
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccione un producto para editar.", "Atención",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            using var form = new EditarProductoForm(_productoApiClient, _tipoProductoApiClient, producto);
+            if (form.ShowDialog(this) == DialogResult.OK)
+            {
+                await CargarProductos();
+                AplicarFiltro();
+            }
+        }
+
+        // ELIMINAR (corregido y robusto)
+        private async void btnEliminar_Click(object? sender, EventArgs e)
+        {
+            var producto = ObtenerProductoSeleccionado();
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccione un producto para eliminar.", "Advertencia",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (producto.IdProducto <= 0)
+            {
+                MessageBox.Show("El producto seleccionado no es válido.", "Advertencia",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"¿Está seguro que desea eliminar el producto \"{producto.Nombre}\" (Código {producto.IdProducto})?",
+                "Confirmar Eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
+
+            if (confirm != DialogResult.Yes)
+                return;
+
             try
             {
-                if (_selectedProductoId == 0)
-                {
-                    MessageBox.Show("Seleccione un producto para eliminar.",
-                                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                await _productoApiClient.DeleteAsync(producto.IdProducto);
 
-                var confirmResult = MessageBox.Show(
-                    "¿Estás seguro que deseas eliminar este producto?",
-                    "Confirmar Eliminación",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning
-                );
+                // Actualizamos cache local sin recargar todo para mejor UX
+                _productosCache.RemoveAll(p => p.IdProducto == producto.IdProducto);
 
-                if (confirmResult == DialogResult.Yes)
-                {
-                    await _productoApiClient.DeleteAsync(_selectedProductoId);
-                    MessageBox.Show("Producto eliminado exitosamente.",
-                                    "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Reaplicamos filtro y columnas
+                AplicarFiltro();
 
-                    await CargarProductos();
-                    LimpiarFormulario();
-                }
+                MessageBox.Show("Producto eliminado exitosamente.",
+                    "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (HttpRequestException httpEx)
+            {
+                MessageBox.Show($"No se pudo contactar al servidor: {httpEx.Message}",
+                    "Error de red", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (InvalidOperationException invEx)
+            {
+                // Por si el backend lanza esto cuando hay relaciones/constraints
+                MessageBox.Show(invEx.Message, "No se puede eliminar",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al eliminar producto: {ex.Message}",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void LimpiarFormulario()
+        // VOLVER
+        private void btnVolver_Click(object? sender, EventArgs e)
         {
-            _isClearingSelection = true;
-
-            txtNombre.Clear();
-            txtDescripcion.Clear();
-            numStock.Value = 0;
-            if (cmbTipoProducto.Items.Count > 0)
-                cmbTipoProducto.SelectedIndex = 0;
-
-            _selectedProductoId = 0;
-            dgvProductos.ClearSelection();
-
-            _isClearingSelection = false;
-
-            txtNombre.Focus();
+            Close(); // vuelve al formulario que lo abrió (MainForm)
         }
     }
 }

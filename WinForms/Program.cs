@@ -44,6 +44,9 @@ namespace WinForms
                     );
                     services.AddTransient<Provincia>();
                     services.AddTransient<TipoProducto>();
+                    services.AddTransient<CrearProductoForm>();
+                    services.AddTransient<EditarProductoForm>();
+
                 })
                 .Build();
 
