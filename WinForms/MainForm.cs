@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ApiClient;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows.Forms;
 
@@ -31,5 +32,11 @@ namespace WinForms
             var form = _serviceProvider.GetRequiredService<TipoProducto>();
             form.ShowDialog();
         }
+        private void btnMenuPersonas_Click(object sender, EventArgs e)
+        {
+            var form = _serviceProvider.GetRequiredService<Persona>();
+            form.ShowDialog();
+        }
+
     }
 }

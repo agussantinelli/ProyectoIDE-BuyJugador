@@ -46,8 +46,12 @@ namespace WinForms
                     services.AddTransient<TipoProducto>();
                     services.AddTransient<CrearProductoForm>();
                     services.AddTransient<CrearTipoProductoForm>();
+                    services.AddTransient<CrearPersonaForm>();
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<EditarTipoProductoForm>();
+                    services.AddTransient<CrearTipoProductoForm>();
+                    services.AddTransient<PersonaApiClient>();
+                    services.AddTransient<Persona>();
 
 
                 })

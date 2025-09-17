@@ -11,7 +11,9 @@
         public string Direccion { get; set; }
         public int? IdLocalidad { get; set; }
         public DateOnly? FechaIngreso { get; set; }
-
+        public string? LocalidadNombre { get; set; }
+        public string? ProvinciaNombre { get; set; }
+        public string Rol => !FechaIngreso.HasValue ? "Dueño" : "Empleado";
         public static PersonaDTO FromDominio(DominioModelo.Persona entidad)
         {
             if (entidad == null) return null;
