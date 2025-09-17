@@ -19,13 +19,20 @@ namespace WinForms
         {
             cmbRol.Items.Add("Dueño");
             cmbRol.Items.Add("Empleado");
-            cmbRol.SelectedIndex = 0; // default Dueño
-            dtpFechaIngreso.Enabled = false;
+            cmbRol.SelectedIndex = 1; //default empleado
+            dtpFechaIngreso.Enabled = true;
         }
 
         private void cmbRol_SelectedIndexChanged(object sender, EventArgs e)
         {
-            dtpFechaIngreso.Enabled = cmbRol.SelectedItem?.ToString() == "Empleado";
+            if (cmbRol.SelectedItem?.ToString() == "Dueño")
+            {
+                dtpFechaIngreso.Enabled = false;
+            }
+            else 
+            {
+                dtpFechaIngreso.Enabled = true;
+            }
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
