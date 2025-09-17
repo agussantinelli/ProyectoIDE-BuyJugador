@@ -24,6 +24,11 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
+                    services.AddHttpClient<PersonaApiClient>(client =>
+                    {
+                        client.BaseAddress = new Uri(baseUrl);
+                    });
+
                     services.AddHttpClient<TipoProductoApiClient>(client =>
                     {
                         client.BaseAddress = new Uri(baseUrl);
@@ -34,24 +39,25 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
-                    // Registramos los formularios
                     services.AddTransient<MainForm>();
+
+                    services.AddTransient<Provincia>();
+                    services.AddTransient<TipoProducto>();
+                    services.AddTransient<Persona>();
                     services.AddTransient<Producto>(sp =>
                         new Producto(
                             sp.GetRequiredService<ProductoApiClient>(),
                             sp.GetRequiredService<TipoProductoApiClient>()
                         )
                     );
-                    services.AddTransient<Provincia>();
-                    services.AddTransient<TipoProducto>();
+
                     services.AddTransient<CrearProductoForm>();
                     services.AddTransient<CrearTipoProductoForm>();
                     services.AddTransient<CrearPersonaForm>();
+
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<EditarTipoProductoForm>();
-                    services.AddTransient<CrearTipoProductoForm>();
-                    services.AddTransient<PersonaApiClient>();
-                    services.AddTransient<Persona>();
+                    services.AddTransient<EditarPersonaForm>();
 
 
                 })

@@ -46,13 +46,5 @@ namespace ApiClient
             var response = await _httpClient.DeleteAsync($"api/personas/{id}");
             return response.IsSuccessStatusCode;
         }
-
-        /// <summary>
-        /// Determina si una persona es dueño verificando que no tenga FechaIngreso.
-        /// </summary>
-        public bool EsDuenio(PersonaDTO persona)
-        {
-            return !persona.FechaIngreso.HasValue;
-        }
     }
 }

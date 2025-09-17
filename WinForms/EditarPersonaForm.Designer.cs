@@ -57,71 +57,80 @@
 
             // NombreCompleto
             lblNombreCompleto.Text = "Nombre Completo:";
-            lblNombreCompleto.Location = new System.Drawing.Point(30, 20);
-            txtNombreCompleto.Location = new System.Drawing.Point(30, 40);
-            txtNombreCompleto.Size = new System.Drawing.Size(240, 23);
+            lblNombreCompleto.Location = new Point(30, 20);
+            lblNombreCompleto.AutoSize = true;
+            txtNombreCompleto.Location = new Point(30, 45);
+            txtNombreCompleto.Size = new Size(240, 23);
 
             // DNI
             lblDni.Text = "DNI:";
-            lblDni.Location = new System.Drawing.Point(30, 70);
-            txtDni.Location = new System.Drawing.Point(30, 90);
-            txtDni.Size = new System.Drawing.Size(240, 23);
+            lblDni.Location = new Point(30, 85);
+            lblDni.AutoSize = true;
+            txtDni.Location = new Point(30, 110);
+            txtDni.Size = new Size(240, 23);
 
             // Email
             lblEmail.Text = "Email:";
-            lblEmail.Location = new System.Drawing.Point(30, 120);
-            txtEmail.Location = new System.Drawing.Point(30, 140);
-            txtEmail.Size = new System.Drawing.Size(240, 23);
+            lblEmail.Location = new Point(30, 150);
+            lblEmail.AutoSize = true;
+            txtEmail.Location = new Point(30, 175);
+            txtEmail.Size = new Size(240, 23);
 
             // Password
             lblPassword.Text = "Password:";
-            lblPassword.Location = new System.Drawing.Point(30, 170);
-            txtPassword.Location = new System.Drawing.Point(30, 190);
-            txtPassword.Size = new System.Drawing.Size(240, 23);
+            lblPassword.Location = new Point(30, 215);
+            lblPassword.AutoSize = true;
+            txtPassword.Location = new Point(30, 240);
+            txtPassword.Size = new Size(240, 23);
             txtPassword.PasswordChar = '*';
 
             // Teléfono
             lblTelefono.Text = "Teléfono:";
-            lblTelefono.Location = new System.Drawing.Point(30, 220);
-            txtTelefono.Location = new System.Drawing.Point(30, 240);
-            txtTelefono.Size = new System.Drawing.Size(240, 23);
+            lblTelefono.Location = new Point(30, 280);
+            lblTelefono.AutoSize = true;
+            txtTelefono.Location = new Point(30, 305);
+            txtTelefono.Size = new Size(240, 23);
 
             // Dirección
             lblDireccion.Text = "Dirección:";
-            lblDireccion.Location = new System.Drawing.Point(30, 270);
-            txtDireccion.Location = new System.Drawing.Point(30, 290);
-            txtDireccion.Size = new System.Drawing.Size(240, 23);
+            lblDireccion.Location = new Point(30, 345);
+            lblDireccion.AutoSize = true;
+            txtDireccion.Location = new Point(30, 370);
+            txtDireccion.Size = new Size(240, 23);
 
             // Localidad
             lblLocalidad.Text = "Localidad:";
-            lblLocalidad.Location = new System.Drawing.Point(30, 320);
-            cmbLocalidad.Location = new System.Drawing.Point(30, 340);
-            cmbLocalidad.Size = new System.Drawing.Size(240, 23);
+            lblLocalidad.Location = new Point(30, 410);
+            lblLocalidad.AutoSize = true;
+            cmbLocalidad.Location = new Point(30, 435);
+            cmbLocalidad.Size = new Size(240, 23);
 
             // Rol
             lblRol.Text = "Rol:";
-            lblRol.Location = new System.Drawing.Point(30, 370);
-            cmbRol.Location = new System.Drawing.Point(30, 390);
-            cmbRol.Size = new System.Drawing.Size(240, 23);
+            lblRol.Location = new Point(30, 475);
+            lblRol.AutoSize = true;
+            cmbRol.Location = new Point(30, 500);
+            cmbRol.Size = new Size(240, 23);
             cmbRol.SelectedIndexChanged += cmbRol_SelectedIndexChanged;
 
             // Fecha Ingreso
             lblFechaIngreso.Text = "Fecha Ingreso:";
-            lblFechaIngreso.Location = new System.Drawing.Point(30, 420);
-            dtpFechaIngreso.Location = new System.Drawing.Point(30, 440);
-            dtpFechaIngreso.Size = new System.Drawing.Size(240, 23);
+            lblFechaIngreso.Location = new Point(30, 540);
+            lblFechaIngreso.AutoSize = true;
+            dtpFechaIngreso.Location = new Point(30, 565);
+            dtpFechaIngreso.Size = new Size(240, 23);
 
             // Botones
             btnGuardar.Text = "Guardar";
-            btnGuardar.Location = new System.Drawing.Point(30, 480);
+            btnGuardar.Location = new Point(30, 610);
             btnGuardar.Click += btnGuardar_Click;
 
             btnCancelar.Text = "Cancelar";
-            btnCancelar.Location = new System.Drawing.Point(150, 480);
+            btnCancelar.Location = new Point(150, 610);
             btnCancelar.Click += btnCancelar_Click;
 
             // Form
-            ClientSize = new System.Drawing.Size(320, 540);
+            ClientSize = new Size(320, 670);
             Controls.AddRange(new Control[] {
                 lblNombreCompleto, txtNombreCompleto,
                 lblDni, txtDni,
