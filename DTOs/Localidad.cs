@@ -1,4 +1,6 @@
-﻿namespace DTOs
+﻿using DominioModelo;
+
+namespace DTOs
 {
     public class LocalidadDTO
     {
@@ -6,10 +8,8 @@
         public string Nombre { get; set; }
         public int? IdProvincia { get; set; }
 
-        public static LocalidadDTO FromDominio(DominioModelo.Localidad entidad)
+        public static LocalidadDTO FromDominio(Localidad entidad)
         {
-            if (entidad == null) return null;
-
             return new LocalidadDTO
             {
                 IdLocalidad = entidad.IdLocalidad,
@@ -18,9 +18,9 @@
             };
         }
 
-        public DominioModelo.Localidad ToDominio()
+        public Localidad ToDominio()
         {
-            return new DominioModelo.Localidad
+            return new Localidad
             {
                 IdLocalidad = this.IdLocalidad,
                 Nombre = this.Nombre,

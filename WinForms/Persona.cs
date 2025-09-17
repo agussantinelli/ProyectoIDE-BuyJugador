@@ -49,10 +49,13 @@ namespace WinForms
         private void ConfigurarColumnas()
         {
             if (dgvPersonas.Columns.Contains("IdPersona"))
-                dgvPersonas.Columns["IdPersona"].HeaderText = "Código";
+                dgvPersonas.Columns["IdPersona"].Visible = false;
 
             if (dgvPersonas.Columns.Contains("NombreCompleto"))
+            {
                 dgvPersonas.Columns["NombreCompleto"].HeaderText = "Nombre Completo";
+                dgvPersonas.Columns["NombreCompleto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
 
             if (dgvPersonas.Columns.Contains("Dni"))
                 dgvPersonas.Columns["Dni"].HeaderText = "DNI";
@@ -61,13 +64,19 @@ namespace WinForms
                 dgvPersonas.Columns["Email"].HeaderText = "Email";
 
             if (dgvPersonas.Columns.Contains("Password"))
-                dgvPersonas.Columns["Password"].Visible = false; // 🔒 ocultar
+                dgvPersonas.Columns["Password"].Visible = false; 
 
             if (dgvPersonas.Columns.Contains("Telefono"))
                 dgvPersonas.Columns["Telefono"].HeaderText = "Teléfono";
 
             if (dgvPersonas.Columns.Contains("Direccion"))
                 dgvPersonas.Columns["Direccion"].HeaderText = "Dirección";
+
+            if (dgvPersonas.Columns.Contains("IdLocalidad"))
+                dgvPersonas.Columns["IdLocalidad"].Visible = false;
+
+            if (dgvPersonas.Columns.Contains("FechaIngreso"))
+                dgvPersonas.Columns["FechaIngreso"].Visible = false;
 
             if (dgvPersonas.Columns.Contains("LocalidadNombre"))
                 dgvPersonas.Columns["LocalidadNombre"].HeaderText = "Localidad";
@@ -88,24 +97,34 @@ namespace WinForms
         private void AplicarFiltro()
         {
             var f = _filtroActual.ToLowerInvariant();
-            dgvPersonas.DataSource = string.IsNullOrWhiteSpace(f)
-                ? _personasCache.ToList()
-                : _personasCache.Where(p =>
-                    (!string.IsNullOrEmpty(p.NombreCompleto) && p.NombreCompleto.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.Email) && p.Email.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.Telefono) && p.Telefono.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.Direccion) && p.Direccion.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.LocalidadNombre) && p.LocalidadNombre.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.ProvinciaNombre) && p.ProvinciaNombre.ToLower().Contains(f)) ||
-                    (!string.IsNullOrEmpty(p.Rol) && p.Rol.ToLower().Contains(f))
-                ).ToList();
+            if (string.IsNullOrWhiteSpace(f))
+            {
+                dgvPersonas.DataSource = _personasCache.ToList();
+            }
+            else
+            {
+                dgvPersonas.DataSource = _personasCache
+                    .Where(p =>
+                        (!string.IsNullOrEmpty(p.NombreCompleto) && p.NombreCompleto.ToLower().Contains(f)) ||
+                        p.Dni.ToString().Contains(f) ||
+                        (!string.IsNullOrEmpty(p.Email) && p.Email.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.Telefono) && p.Telefono.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.Direccion) && p.Direccion.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.LocalidadNombre) && p.LocalidadNombre.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.ProvinciaNombre) && p.ProvinciaNombre.ToLower().Contains(f)) ||
+                        (!string.IsNullOrEmpty(p.Rol) && p.Rol.ToLower().Contains(f))
+                    ).ToList();
+            }
 
             ConfigurarColumnas();
         }
 
         private PersonaDTO? ObtenerSeleccionado()
         {
-            var row = dgvPersonas.SelectedRows.Count > 0 ? dgvPersonas.SelectedRows[0] : dgvPersonas.CurrentRow;
+            var row = dgvPersonas.SelectedRows.Count > 0
+                ? dgvPersonas.SelectedRows[0]
+                : dgvPersonas.CurrentRow;
+
             return row?.DataBoundItem as PersonaDTO;
         }
 

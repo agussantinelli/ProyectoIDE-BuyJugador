@@ -1,5 +1,4 @@
 ﻿using Data;
-using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,14 +15,20 @@ namespace DominioServicios
 
         public async Task<List<LocalidadDTO>> GetAllAsync()
         {
-            var entidades = await _context.Localidades.ToListAsync();
-            return entidades.Select(e => LocalidadDTO.FromDominio(e)).ToList();
+            var entidades = await _context.Localidades
+                .Include(l => l.IdProvinciaNavigation)
+                .ToListAsync();
+
+            return entidades.Select(LocalidadDTO.FromDominio).ToList();
         }
 
         public async Task<LocalidadDTO?> GetByIdAsync(int id)
         {
-            var entidad = await _context.Localidades.FindAsync(id);
-            return LocalidadDTO.FromDominio(entidad);
+            var entidad = await _context.Localidades
+                .Include(l => l.IdProvinciaNavigation)
+                .FirstOrDefaultAsync(l => l.IdLocalidad == id);
+
+            return entidad == null ? null : LocalidadDTO.FromDominio(entidad);
         }
 
         public async Task<LocalidadDTO> CreateAsync(LocalidadDTO dto)

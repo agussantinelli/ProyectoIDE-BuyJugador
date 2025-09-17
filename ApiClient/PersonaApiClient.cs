@@ -15,9 +15,10 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<PersonaDTO>?> GetAllAsync()
+        public async Task<List<PersonaDTO>> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas");
+            return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas")
+                   ?? new List<PersonaDTO>();
         }
 
         public async Task<PersonaDTO?> GetByIdAsync(int id)

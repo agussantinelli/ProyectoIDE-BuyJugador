@@ -16,9 +16,14 @@ namespace DominioServicios
 
         public async Task<List<PersonaDTO>> GetAllAsync()
         {
-            var entidades = await _context.Personas.ToListAsync();
-            return entidades.Select(p => PersonaDTO.FromDominio(p)).ToList();
+            var entidades = await _context.Personas
+                .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                .ToListAsync();
+
+            return entidades.Select(PersonaDTO.FromDominio).ToList();
         }
+
 
         public async Task<PersonaDTO?> GetByIdAsync(int id)
         {
