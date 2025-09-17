@@ -27,75 +27,50 @@
             btnEliminar = new Button();
             btnVolver = new Button();
             lblBuscar = new Label();
+
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
-            // 
+
+            // lblBuscar
+            lblBuscar.Location = new Point(20, 10);
+            lblBuscar.Text = "Buscar:";
+            lblBuscar.AutoSize = true;
+
             // txtBuscar
-            // 
             txtBuscar.Location = new Point(20, 35);
-            txtBuscar.Name = "txtBuscar";
             txtBuscar.Size = new Size(400, 23);
-            txtBuscar.TabIndex = 1;
             txtBuscar.TextChanged += txtBuscar_TextChanged;
-            // 
+
             // dgvProductos
-            // 
             dgvProductos.Location = new Point(20, 70);
-            dgvProductos.MultiSelect = false;
-            dgvProductos.Name = "dgvProductos";
+            dgvProductos.Size = new Size(740, 280);
             dgvProductos.ReadOnly = true;
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProductos.Size = new Size(740, 280);
-            dgvProductos.TabIndex = 2;
+            dgvProductos.MultiSelect = false;
             dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
-            // 
-            // btnNuevo
-            // 
-            btnNuevo.Location = new Point(141, 370);
-            btnNuevo.Name = "btnNuevo";
-            btnNuevo.Size = new Size(100, 30);
-            btnNuevo.TabIndex = 3;
-            btnNuevo.Text = "Nuevo";
-            btnNuevo.Click += btnNuevo_Click;
-            // 
-            // btnEditar
-            // 
-            btnEditar.Location = new Point(263, 370);
-            btnEditar.Name = "btnEditar";
-            btnEditar.Size = new Size(100, 30);
-            btnEditar.TabIndex = 4;
-            btnEditar.Text = "Editar";
-            btnEditar.Click += btnEditar_Click;
-            // 
-            // btnEliminar
-            // 
-            btnEliminar.Location = new Point(387, 370);
-            btnEliminar.Name = "btnEliminar";
-            btnEliminar.Size = new Size(100, 30);
-            btnEliminar.TabIndex = 5;
-            btnEliminar.Text = "Eliminar";
-            btnEliminar.Click += btnEliminar_Click;
-            // 
-            // btnVolver
-            // 
+
+            // Botones
             btnVolver.Location = new Point(20, 370);
-            btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(100, 30);
-            btnVolver.TabIndex = 6;
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
-            // 
-            // lblBuscar
-            // 
-            lblBuscar.AutoSize = true;
-            lblBuscar.Location = new Point(20, 10);
-            lblBuscar.Name = "lblBuscar";
-            lblBuscar.Size = new Size(45, 15);
-            lblBuscar.TabIndex = 0;
-            lblBuscar.Text = "Buscar:";
-            // 
+
+            btnNuevo.Location = new Point(140, 370);
+            btnNuevo.Size = new Size(100, 30);
+            btnNuevo.Text = "Nuevo";
+            btnNuevo.Click += btnNuevo_Click;
+
+            btnEditar.Location = new Point(260, 370);
+            btnEditar.Size = new Size(100, 30);
+            btnEditar.Text = "Editar";
+            btnEditar.Click += btnEditar_Click;
+
+            btnEliminar.Location = new Point(380, 370);
+            btnEliminar.Size = new Size(100, 30);
+            btnEliminar.Text = "Eliminar";
+            btnEliminar.Click += btnEliminar_Click;
+
             // Producto
-            // 
             ClientSize = new Size(780, 420);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
@@ -107,6 +82,7 @@
             Name = "Producto";
             Text = "Gestión de Productos";
             Load += ProductoForm_Load;
+
             ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             ResumeLayout(false);
             PerformLayout();
