@@ -32,46 +32,46 @@
             SuspendLayout();
 
             // lblBuscar
-            lblBuscar.Location = new Point(20, 10);
+            lblBuscar.Location = new Point(20, 15);
             lblBuscar.Text = "Buscar:";
             lblBuscar.AutoSize = true;
 
             // txtBuscar
-            txtBuscar.Location = new Point(20, 35);
-            txtBuscar.Size = new Size(400, 23);
+            txtBuscar.Location = new Point(80, 12);
+            txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
             // dgvProductos
-            dgvProductos.Location = new Point(20, 70);
-            dgvProductos.Size = new Size(740, 280);
+            dgvProductos.Location = new Point(20, 50);
+            dgvProductos.Size = new Size(1040, 400);
             dgvProductos.ReadOnly = true;
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProductos.MultiSelect = false;
             dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
 
             // Botones
-            btnVolver.Location = new Point(20, 370);
+            btnVolver.Location = new Point(20, 470);
             btnVolver.Size = new Size(100, 30);
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
 
-            btnNuevo.Location = new Point(140, 370);
+            btnNuevo.Location = new Point(140, 470);
             btnNuevo.Size = new Size(100, 30);
             btnNuevo.Text = "Nuevo";
             btnNuevo.Click += btnNuevo_Click;
 
-            btnEditar.Location = new Point(260, 370);
+            btnEditar.Location = new Point(260, 470);
             btnEditar.Size = new Size(100, 30);
             btnEditar.Text = "Editar";
             btnEditar.Click += btnEditar_Click;
 
-            btnEliminar.Location = new Point(380, 370);
+            btnEliminar.Location = new Point(380, 470);
             btnEliminar.Size = new Size(100, 30);
             btnEliminar.Text = "Eliminar";
             btnEliminar.Click += btnEliminar_Click;
 
             // Producto
-            ClientSize = new Size(780, 420);
+            ClientSize = new Size(1100, 520);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvProductos);

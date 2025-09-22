@@ -2,15 +2,8 @@
 {
     partial class MainForm
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             btnMenuProductos = new Button();
@@ -33,52 +22,64 @@
             btnTipoProducto = new Button();
             btnProvincia = new Button();
             SuspendLayout();
+
+            // Botón base config
+            Size botonSize = new Size(280, 60);
+            int leftMargin = 110;
+            int topStart = 40;
+            int verticalSpacing = 80;
+
             // 
             // btnMenuProductos
             // 
-            btnMenuProductos.Location = new Point(118, 30);
+            btnMenuProductos.Location = new Point(leftMargin, topStart);
             btnMenuProductos.Name = "btnMenuProductos";
-            btnMenuProductos.Size = new Size(200, 50);
+            btnMenuProductos.Size = botonSize;
             btnMenuProductos.TabIndex = 0;
             btnMenuProductos.Text = "Gestionar Productos";
             btnMenuProductos.UseVisualStyleBackColor = true;
             btnMenuProductos.Click += btnMenuProductos_Click;
+
             // 
             // btnMenuPersonas
             // 
-            btnMenuPersonas.Location = new Point(118, 95);
+            btnMenuPersonas.Location = new Point(leftMargin, topStart + verticalSpacing);
             btnMenuPersonas.Name = "btnMenuPersonas";
-            btnMenuPersonas.Size = new Size(200, 50);
+            btnMenuPersonas.Size = botonSize;
             btnMenuPersonas.TabIndex = 1;
             btnMenuPersonas.Text = "Gestionar Personas";
             btnMenuPersonas.UseVisualStyleBackColor = true;
             btnMenuPersonas.Click += btnMenuPersonas_Click;
+
             // 
             // btnTipoProducto
             // 
-            btnTipoProducto.Location = new Point(118, 160);
+            btnTipoProducto.Location = new Point(leftMargin, topStart + 2 * verticalSpacing);
             btnTipoProducto.Name = "btnTipoProducto";
-            btnTipoProducto.Size = new Size(200, 50);
+            btnTipoProducto.Size = botonSize;
             btnTipoProducto.TabIndex = 2;
             btnTipoProducto.Text = "Gestionar Tipos de Producto";
             btnTipoProducto.UseVisualStyleBackColor = true;
             btnTipoProducto.Click += btnMenuTiposProducto_Click;
+
             // 
             // btnProvincia
             // 
-            btnProvincia.Location = new Point(118, 225);
+            btnProvincia.Location = new Point(leftMargin, topStart + 3 * verticalSpacing);
             btnProvincia.Name = "btnProvincia";
-            btnProvincia.Size = new Size(200, 50);
+            btnProvincia.Size = botonSize;
             btnProvincia.TabIndex = 3;
             btnProvincia.Text = "Ver Provincias";
             btnProvincia.UseVisualStyleBackColor = true;
             btnProvincia.Click += btnMenuProvincias_Click;
+
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(434, 311);
+            ClientSize = new Size(500, 430);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(btnProvincia);
             Controls.Add(btnTipoProducto);
             Controls.Add(btnMenuPersonas);
@@ -86,7 +87,6 @@
             Name = "MainForm";
             Text = "Menú Principal";
             ResumeLayout(false);
-
         }
 
         #endregion

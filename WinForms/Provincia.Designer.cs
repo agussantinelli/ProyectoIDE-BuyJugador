@@ -32,10 +32,10 @@
             dgvProvincias.ReadOnly = true;
             dgvProvincias.RowTemplate.Height = 25;
             dgvProvincias.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProvincias.Size = new Size(740, 320);
+            dgvProvincias.Size = new Size(1040, 400); 
 
             // btnVolver
-            btnVolver.Location = new Point(20, 370);
+            btnVolver.Location = new Point(20, 470);
             btnVolver.Size = new Size(100, 30);
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
@@ -43,7 +43,7 @@
             // Provincia
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(780, 420);
+            ClientSize = new Size(1100, 520); 
             Controls.Add(btnVolver);
             Controls.Add(dgvProvincias);
             Name = "Provincia";

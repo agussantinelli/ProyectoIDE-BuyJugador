@@ -56,7 +56,7 @@ namespace WinForms
                 var col = dgvPersonas.Columns["NombreCompleto"];
                 col.HeaderText = "Nombre Completo";
                 col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // dinámico
-                col.MinimumWidth = 180;
+                col.MinimumWidth = 150;
             }
 
             if (dgvPersonas.Columns.Contains("Dni"))
@@ -68,7 +68,7 @@ namespace WinForms
             if (dgvPersonas.Columns.Contains("Email"))
             {
                 dgvPersonas.Columns["Email"].HeaderText = "Email";
-                dgvPersonas.Columns["Email"].Width = 160;
+                dgvPersonas.Columns["Email"].Width = 190;
             }
 
             if (dgvPersonas.Columns.Contains("Password"))
