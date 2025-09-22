@@ -163,6 +163,7 @@ INSERT INTO dbo.Precios (IdProducto, Monto, FechaDesde) VALUES
 ((SELECT IdProducto FROM dbo.Productos WHERE Nombre = 'Monitor Samsung'), 1200.75, '2024-05-20'),
 ((SELECT IdProducto FROM dbo.Productos WHERE Nombre = 'Parlante Huge HBL'), 950.00, '2024-02-10');
 
+--CUIDADO--
 INSERT INTO dbo.Personas (NombreCompleto, DNI, Email, Password, Telefono, Direccion, IdLocalidad, FechaIngreso) VALUES
 ('Martin Ratti', 25123456, 'marto666@empresa.com', HASHBYTES('SHA2_512', 'pass123'), '3415550101', 'Calle Ficticia 1', (SELECT IdLocalidad FROM dbo.Localidades WHERE Nombre = 'Rosario'), NULL),
 ('Joaquin Peralta', 30789123, 'rojopasion@empresa.com', HASHBYTES('SHA2_512', 'pass456'), '115550202', 'Avenida Imaginaria 2', (SELECT IdLocalidad FROM dbo.Localidades WHERE Nombre = 'La Plata'), NULL),

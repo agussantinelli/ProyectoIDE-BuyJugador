@@ -30,7 +30,7 @@ namespace WinForms
             txtNombreCompleto.Text = _persona.NombreCompleto;
             txtDni.Text = _persona.Dni.ToString();
             txtEmail.Text = _persona.Email;
-            txtPassword.Text = System.Text.Encoding.UTF8.GetString(_persona.Password);
+            txtPassword.Text = _persona.Password;
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
 
@@ -73,7 +73,7 @@ namespace WinForms
             _persona.NombreCompleto = txtNombreCompleto.Text.Trim();
             _persona.Dni = int.Parse(txtDni.Text.Trim());
             _persona.Email = txtEmail.Text.Trim();
-            _persona.Password = System.Text.Encoding.UTF8.GetBytes(txtPassword.Text.Trim());
+            _persona.Password = txtPassword.Text.Trim();
             _persona.Telefono = txtTelefono.Text.Trim();
             _persona.Direccion = txtDireccion.Text.Trim();
             _persona.IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad;
