@@ -53,24 +53,38 @@ namespace WinForms
 
             if (dgvPersonas.Columns.Contains("NombreCompleto"))
             {
-                dgvPersonas.Columns["NombreCompleto"].HeaderText = "Nombre Completo";
-                dgvPersonas.Columns["NombreCompleto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                var col = dgvPersonas.Columns["NombreCompleto"];
+                col.HeaderText = "Nombre Completo";
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // dinámico
+                col.MinimumWidth = 180;
             }
 
             if (dgvPersonas.Columns.Contains("Dni"))
+            {
                 dgvPersonas.Columns["Dni"].HeaderText = "DNI";
+                dgvPersonas.Columns["Dni"].Width = 100;
+            }
 
             if (dgvPersonas.Columns.Contains("Email"))
+            {
                 dgvPersonas.Columns["Email"].HeaderText = "Email";
+                dgvPersonas.Columns["Email"].Width = 160;
+            }
 
             if (dgvPersonas.Columns.Contains("Password"))
-                dgvPersonas.Columns["Password"].Visible = false; 
+                dgvPersonas.Columns["Password"].Visible = false;
 
             if (dgvPersonas.Columns.Contains("Telefono"))
+            {
                 dgvPersonas.Columns["Telefono"].HeaderText = "Teléfono";
+                dgvPersonas.Columns["Telefono"].Width = 110;
+            }
 
             if (dgvPersonas.Columns.Contains("Direccion"))
+            {
                 dgvPersonas.Columns["Direccion"].HeaderText = "Dirección";
+                dgvPersonas.Columns["Direccion"].Width = 140;
+            }
 
             if (dgvPersonas.Columns.Contains("IdLocalidad"))
                 dgvPersonas.Columns["IdLocalidad"].Visible = false;
@@ -79,13 +93,22 @@ namespace WinForms
                 dgvPersonas.Columns["FechaIngreso"].Visible = false;
 
             if (dgvPersonas.Columns.Contains("LocalidadNombre"))
+            {
                 dgvPersonas.Columns["LocalidadNombre"].HeaderText = "Localidad";
+                dgvPersonas.Columns["LocalidadNombre"].Width = 110;
+            }
 
             if (dgvPersonas.Columns.Contains("ProvinciaNombre"))
+            {
                 dgvPersonas.Columns["ProvinciaNombre"].HeaderText = "Provincia";
+                dgvPersonas.Columns["ProvinciaNombre"].Width = 100;
+            }
 
             if (dgvPersonas.Columns.Contains("Rol"))
+            {
                 dgvPersonas.Columns["Rol"].HeaderText = "Rol";
+                dgvPersonas.Columns["Rol"].Width = 80;
+            }
         }
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)

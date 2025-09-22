@@ -34,47 +34,42 @@ namespace WinForms
             ((System.ComponentModel.ISupportInitialize)dgvPersonas).BeginInit();
             SuspendLayout();
 
-            // lblBuscar
             lblBuscar.Location = new Point(20, 10);
             lblBuscar.Text = "Buscar:";
             lblBuscar.AutoSize = true;
 
-            // txtBuscar
             txtBuscar.Location = new Point(20, 35);
-            txtBuscar.Size = new Size(400, 23);
+            txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // dgvPersonas
             dgvPersonas.Location = new Point(20, 70);
-            dgvPersonas.Size = new Size(740, 280);
+            dgvPersonas.Size = new Size(1040, 400);
             dgvPersonas.ReadOnly = true;
             dgvPersonas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPersonas.MultiSelect = false;
             dgvPersonas.SelectionChanged += dgvPersonas_SelectionChanged;
 
-            // Botones
-            btnVolver.Location = new Point(20, 370);
+            btnVolver.Location = new Point(20, 500);
             btnVolver.Size = new Size(100, 30);
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
 
-            btnNuevo.Location = new Point(140, 370);
+            btnNuevo.Location = new Point(140, 500);
             btnNuevo.Size = new Size(100, 30);
             btnNuevo.Text = "Nuevo";
             btnNuevo.Click += btnNuevo_Click;
 
-            btnEditar.Location = new Point(260, 370);
+            btnEditar.Location = new Point(260, 500);
             btnEditar.Size = new Size(100, 30);
             btnEditar.Text = "Editar";
             btnEditar.Click += btnEditar_Click;
 
-            btnEliminar.Location = new Point(380, 370);
+            btnEliminar.Location = new Point(380, 500);
             btnEliminar.Size = new Size(100, 30);
             btnEliminar.Text = "Eliminar";
             btnEliminar.Click += btnEliminar_Click;
 
-            // PersonaForm
-            ClientSize = new Size(780, 420);
+            ClientSize = new Size(1100, 560);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvPersonas);
@@ -90,5 +85,6 @@ namespace WinForms
             ResumeLayout(false);
             PerformLayout();
         }
+
     }
 }
