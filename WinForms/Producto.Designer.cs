@@ -72,6 +72,7 @@
 
             // Producto
             ClientSize = new Size(1100, 520);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvProductos);
