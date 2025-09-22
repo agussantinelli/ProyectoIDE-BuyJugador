@@ -30,8 +30,8 @@
                 Direccion = entidad.Direccion,
                 IdLocalidad = entidad.IdLocalidad,
                 FechaIngreso = entidad.FechaIngreso,
-                LocalidadNombre = entidad.Localidad?.Nombre,
-                ProvinciaNombre = entidad.Localidad?.IdProvinciaNavigation?.Nombre 
+                LocalidadNombre = entidad.IdLocalidadNavigation?.Nombre,
+                ProvinciaNombre = entidad.IdLocalidadNavigation?.IdProvinciaNavigation?.Nombre
             };
         }
 
