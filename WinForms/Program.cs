@@ -24,6 +24,11 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
+                    services.AddHttpClient<LocalidadApiClient>(client =>
+                    {
+                        client.BaseAddress = new Uri(baseUrl);
+                    });
+
                     services.AddHttpClient<PersonaApiClient>(client =>
                     {
                         client.BaseAddress = new Uri(baseUrl);
@@ -39,8 +44,8 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
+                    // Formularios principales
                     services.AddTransient<MainForm>();
-
                     services.AddTransient<Provincia>();
                     services.AddTransient<TipoProducto>();
                     services.AddTransient<Persona>();
@@ -51,15 +56,15 @@ namespace WinForms
                         )
                     );
 
+                    // Formularios de creación
                     services.AddTransient<CrearProductoForm>();
                     services.AddTransient<CrearTipoProductoForm>();
                     services.AddTransient<CrearPersonaForm>();
 
+                    // Formularios de edición
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<EditarTipoProductoForm>();
                     services.AddTransient<EditarPersonaForm>();
-
-
                 })
                 .Build();
 

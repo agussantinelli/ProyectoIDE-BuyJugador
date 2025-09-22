@@ -9,6 +9,8 @@
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtTelefono;
         private System.Windows.Forms.TextBox txtDireccion;
+        private System.Windows.Forms.ComboBox cmbProvincia;
+        private System.Windows.Forms.Label lblProvincia;
         private System.Windows.Forms.ComboBox cmbLocalidad;
         private System.Windows.Forms.ComboBox cmbRol;
         private System.Windows.Forms.DateTimePicker dtpFechaIngreso;
@@ -24,6 +26,7 @@
         private System.Windows.Forms.Label lblRol;
         private System.Windows.Forms.Label lblFechaIngreso;
 
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null)) components.Dispose();
@@ -38,6 +41,8 @@
             txtPassword = new TextBox();
             txtTelefono = new TextBox();
             txtDireccion = new TextBox();
+            cmbProvincia = new ComboBox();
+            lblProvincia = new Label();
             cmbLocalidad = new ComboBox();
             cmbRol = new ComboBox();
             dtpFechaIngreso = new DateTimePicker();
@@ -98,39 +103,47 @@
             txtDireccion.Location = new Point(30, 370);
             txtDireccion.Size = new Size(240, 23);
 
+            // Provincia
+            lblProvincia.Text = "Provincia:";
+            lblProvincia.Location = new Point(30, 410);
+            lblProvincia.AutoSize = true;
+            cmbProvincia.Location = new Point(30, 435);
+            cmbProvincia.Size = new Size(240, 23);
+            cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
+
             // Localidad
             lblLocalidad.Text = "Localidad:";
-            lblLocalidad.Location = new Point(30, 410);
+            lblLocalidad.Location = new Point(30, 475);
             lblLocalidad.AutoSize = true;
-            cmbLocalidad.Location = new Point(30, 435);
+            cmbLocalidad.Location = new Point(30, 500);
             cmbLocalidad.Size = new Size(240, 23);
 
             // Rol
             lblRol.Text = "Rol:";
-            lblRol.Location = new Point(30, 475);
+            lblRol.Location = new Point(30, 540);
             lblRol.AutoSize = true;
-            cmbRol.Location = new Point(30, 500);
+            cmbRol.Location = new Point(30, 565);
             cmbRol.Size = new Size(240, 23);
             cmbRol.SelectedIndexChanged += cmbRol_SelectedIndexChanged;
 
             // Fecha Ingreso
             lblFechaIngreso.Text = "Fecha Ingreso:";
-            lblFechaIngreso.Location = new Point(30, 540);
+            lblFechaIngreso.Location = new Point(30, 605);
             lblFechaIngreso.AutoSize = true;
-            dtpFechaIngreso.Location = new Point(30, 565);
+            dtpFechaIngreso.Location = new Point(30, 630);
             dtpFechaIngreso.Size = new Size(240, 23);
 
             // Botones
             btnGuardar.Text = "Guardar";
-            btnGuardar.Location = new Point(30, 610);
+            btnGuardar.Location = new Point(30, 670);
             btnGuardar.Click += btnGuardar_Click;
 
             btnCancelar.Text = "Cancelar";
-            btnCancelar.Location = new Point(150, 610);
+            btnCancelar.Location = new Point(150, 670);
             btnCancelar.Click += btnCancelar_Click;
 
             // Form
-            ClientSize = new Size(320, 670);
+            ClientSize = new Size(320, 730);
             Controls.AddRange(new Control[] {
                 lblNombreCompleto, txtNombreCompleto,
                 lblDni, txtDni,
@@ -138,6 +151,7 @@
                 lblPassword, txtPassword,
                 lblTelefono, txtTelefono,
                 lblDireccion, txtDireccion,
+                lblProvincia, cmbProvincia,
                 lblLocalidad, cmbLocalidad,
                 lblRol, cmbRol,
                 lblFechaIngreso, dtpFechaIngreso,
