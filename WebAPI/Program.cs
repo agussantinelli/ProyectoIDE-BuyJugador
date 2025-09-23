@@ -19,6 +19,8 @@ builder.Services.AddRazorPages();
 
 #endregion
 
+
+
 #region Services Registration
 
 builder.Services.AddScoped<PersonaService>();
@@ -36,6 +38,7 @@ builder.Services.AddScoped<VentaService>();
 #endregion
 
 var app = builder.Build();
+
 
 #region Application Pipeline Configuration
 
@@ -61,6 +64,12 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 #endregion
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<BuyJugadorContext>();
+    DbSeeder.Seed(context);
+}
 
 #region API Endpoints Registration
 
