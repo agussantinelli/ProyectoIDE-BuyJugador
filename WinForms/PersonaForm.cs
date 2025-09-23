@@ -99,6 +99,13 @@ namespace WinForms
             if (dgvPersonas.Columns.Contains("FechaIngreso"))
                 dgvPersonas.Columns["FechaIngreso"].Visible = false;
 
+            if (dgvPersonas.Columns.Contains("FechaIngresoFormateada"))
+            {
+                dgvPersonas.Columns["FechaIngresoFormateada"].HeaderText = "Fecha Ingreso";
+                dgvPersonas.Columns["FechaIngresoFormateada"].Width = 110;
+            }
+
+
             if (dgvPersonas.Columns.Contains("LocalidadNombre"))
             {
                 dgvPersonas.Columns["LocalidadNombre"].HeaderText = "Localidad";

@@ -45,7 +45,7 @@ namespace WinForms
 
             // dgvPersonas
             dgvPersonas.Location = new Point(20, 50);
-            dgvPersonas.Size = new Size(1040, 400);
+            dgvPersonas.Size = new Size(1240, 400);
             dgvPersonas.ReadOnly = true;
             dgvPersonas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvPersonas.MultiSelect = false;
@@ -73,8 +73,8 @@ namespace WinForms
             btnEliminar.Click += btnEliminar_Click;
 
             // Form
-            ClientSize = new Size(1100, 520);
-            StartPosition = FormStartPosition.CenterScreen; 
+            ClientSize = new Size(1300, 520);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvPersonas);

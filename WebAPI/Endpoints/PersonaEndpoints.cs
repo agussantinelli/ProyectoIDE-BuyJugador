@@ -11,7 +11,6 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
-            // --- ENDPOINT CORREGIDO ---
             // Obtiene todas las personas incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas", async (BuyJugadorContext db) =>
             {
@@ -23,7 +22,6 @@ namespace WebAPI.Endpoints
                 return Results.Ok(personas);
             });
 
-            // --- ENDPOINT CORREGIDO ---
             // Obtiene una persona por su ID, incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {

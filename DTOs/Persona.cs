@@ -14,6 +14,8 @@
         public string? LocalidadNombre { get; set; }
         public string? ProvinciaNombre { get; set; }
         public string Rol => !FechaIngreso.HasValue ? "Dueño" : "Empleado";
+        public string FechaIngresoFormateada => FechaIngreso.HasValue ? FechaIngreso.Value.ToString("dd/MM/yy") : "-";
+
 
         public static PersonaDTO FromDominio(DominioModelo.Persona entidad)
         {
