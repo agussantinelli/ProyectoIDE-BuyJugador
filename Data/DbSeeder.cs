@@ -1,4 +1,5 @@
-﻿using Data;
+﻿
+using Data;
 using Microsoft.EntityFrameworkCore;
 using DominioModelo;
 using System;
@@ -10,14 +11,15 @@ public static class DbSeeder
     {
         //Comentar este comando si se ejecuta por primera vez
         //Luego, descomentarlo para el uso habitual
-        context.Database.Migrate();
+        //context.Database.Migrate();
+
+        //Esta andando mal el database migrate, por ahora cada ejecucion se borra y se crea de vuelta la BDD.
         
         
-        /*
         //Descomentar solo para la 1ra ejecucion. Crea la Base de Datos
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-        */
+        
 
 
         // 1. Provincias

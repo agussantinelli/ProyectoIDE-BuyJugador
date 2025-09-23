@@ -1,21 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using DominioModelo;
-using Microsoft.EntityFrameworkCore;
 
 namespace Data
 {
     public partial class BuyJugadorContext : DbContext
     {
-        public BuyJugadorContext()
-        {
-        }
-
         public BuyJugadorContext(DbContextOptions<BuyJugadorContext> options)
             : base(options)
         {
         }
 
+        public BuyJugadorContext()
+        {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder
+                    .UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BuyJugador;Trusted_Connection=True;TrustServerCertificate=True;")
+                    .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+            }
+        }
+
+        // DbSets
         public virtual DbSet<LineaPedido> LineaPedidos { get; set; }
         public virtual DbSet<LineaVenta> LineaVentas { get; set; }
         public virtual DbSet<Localidad> Localidades { get; set; }
@@ -28,16 +38,9 @@ namespace Data
         public virtual DbSet<TipoProducto> TiposProductos { get; set; }
         public virtual DbSet<Venta> Ventas { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BuyJugador;Trusted_Connection=True;TrustServerCertificate=True;");
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<LineaPedido>(entity =>
             {
                 entity.HasKey(e => new { e.IdPedido, e.NroLineaPedido });
@@ -130,7 +133,7 @@ namespace Data
                 entity.HasOne(d => d.IdTipoProductoNavigation)
                       .WithMany(p => p.Productos)
                       .HasForeignKey(d => d.IdTipoProducto)
-                      .OnDelete(DeleteBehavior.Restrict); 
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Proveedor>(entity =>

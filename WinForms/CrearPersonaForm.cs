@@ -32,9 +32,14 @@ namespace WinForms
 
             // cargar provincias
             var provincias = await _provinciaApiClient.GetAllAsync();
+
+            // Insertar ítem vacío al inicio
+            provincias.Insert(0, new ProvinciaDTO { IdProvincia = 0, Nombre = "-- Seleccionar provincia --" });
+
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
             cmbProvincia.ValueMember = "IdProvincia";
+            cmbProvincia.SelectedIndex = 0; // Selecciona el ítem vacío
         }
 
         private void cmbRol_SelectedIndexChanged(object sender, EventArgs e)
