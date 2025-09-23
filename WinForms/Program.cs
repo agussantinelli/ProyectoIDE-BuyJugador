@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ApiClient;
 using System;
 using System.Windows.Forms;
-using ApiClient;
 
 namespace WinForms
 {
@@ -16,88 +16,37 @@ namespace WinForms
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    string baseUrl = "https://localhost:7145";
+                    string apiBaseAddress = "http://localhost:7145"; 
 
-                    // Registramos HttpClients con DI
-                    services.AddHttpClient<ProvinciaApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri(baseUrl);
-                    });
+                    // Registra los clientes de API con HttpClientFactory.
+                    // Esto crea los ApiClients y les inyecta automáticamente un HttpClient configurado.
+                    services.AddHttpClient<PersonaApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
+                    services.AddHttpClient<ProvinciaApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
+                    services.AddHttpClient<LocalidadApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
+                    services.AddHttpClient<TipoProductoApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
+                    services.AddHttpClient<ProductoApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
 
-                    services.AddHttpClient<LocalidadApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri(baseUrl);
-                    });
-
-                    services.AddHttpClient<PersonaApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri(baseUrl);
-                    });
-
-                    services.AddHttpClient<TipoProductoApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri(baseUrl);
-                    });
-
-                    services.AddHttpClient<ProductoApiClient>(client =>
-                    {
-                        client.BaseAddress = new Uri(baseUrl);
-                    });
-
-                    // --- REGISTRO DE NUEVOS FORMULARIOS ---
-                    services.AddTransient<MainForm>(); // Form de Dueño
-                    services.AddTransient<EmpleadoForm>(); // Form de Empleado
-                    services.AddTransient<LoginForm>(); // Form de Login
-                    services.AddTransient<ProvinciaForm>();
-                    services.AddTransient<TipoProductoForm>();
+                    // Registra los formularios para que puedan ser inyectados
+                    services.AddTransient<LoginForm>();
+                    services.AddTransient<MainForm>();
+                    services.AddTransient<EmpleadoForm>();
                     services.AddTransient<PersonaForm>();
-                    services.AddTransient<ProductoForm>(sp =>
-                        new ProductoForm(
-                            sp.GetRequiredService<ProductoApiClient>(),
-                            sp.GetRequiredService<TipoProductoApiClient>()
-                        )
-                    );
-
-                    // Formularios de creación
-                    services.AddTransient<CrearProductoForm>();
-                    services.AddTransient<CrearTipoProductoForm>();
-                    services.AddTransient<CrearPersonaForm>();
-
-                    // Formularios de edición
-                    services.AddTransient<EditarProductoForm>();
-                    services.AddTransient<EditarTipoProductoForm>();
-                    services.AddTransient<EditarPersonaForm>();
-
-
+                    services.AddTransient<ProductoForm>();
+                    services.AddTransient<TipoProductoForm>();
                 })
                 .Build();
 
             using (var serviceScope = host.Services.CreateScope())
             {
                 var services = serviceScope.ServiceProvider;
-
-                // Abre el formulario de Login primero
                 var loginForm = services.GetRequiredService<LoginForm>();
-                var result = loginForm.ShowDialog();
 
-                // Si el login fue exitoso, decide qué formulario mostrar
-                if (result == DialogResult.OK)
+                if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    if (loginForm.RolUsuario == "Dueño")
-                    {
-                        var mainForm = services.GetRequiredService<MainForm>();
-                        Application.Run(mainForm);
-                    }
-                    else // Por defecto, si no es Dueño, es Empleado
-                    {
-                        var empleadoForm = services.GetRequiredService<EmpleadoForm>();
-                        Application.Run(empleadoForm);
-                    }
-                }
-                else
-                {
-                    // Si el usuario cierra el login, la aplicación termina
-                    Application.Exit();
+                    var mainForm = services.GetRequiredService<MainForm>();
+                    // Le pasamos el rol al MainForm después de crearlo
+                    mainForm.EstablecerRol(loginForm.RolUsuario);
+                    Application.Run(mainForm);
                 }
             }
         }
