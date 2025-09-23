@@ -3,38 +3,45 @@
     partial class MainForm
     {
         private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Button btnMenuProductos;
+        private System.Windows.Forms.Button btnMenuPersonas;
+        private System.Windows.Forms.Button btnTipoProducto;
+        private System.Windows.Forms.Button btnProvincia;
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
-            btnMenuProductos = new Button();
-            btnMenuPersonas = new Button();
-            btnTipoProducto = new Button();
-            btnProvincia = new Button();
+            btnMenuProductos = new System.Windows.Forms.Button();
+            btnMenuPersonas = new System.Windows.Forms.Button();
+            btnTipoProducto = new System.Windows.Forms.Button();
+            btnProvincia = new System.Windows.Forms.Button();
+            lblTitle = new System.Windows.Forms.Label();
             SuspendLayout();
 
-            // Botón base config
-            Size botonSize = new Size(280, 60);
-            int leftMargin = 110;
-            int topStart = 40;
-            int verticalSpacing = 80;
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Segoe UI", 16F, FontStyle.Bold, GraphicsUnit.Point);
+            lblTitle.Location = new Point(0, 20); 
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(230, 30);
+            lblTitle.TabIndex = 4;
+            lblTitle.Text = "Panel del Administrador";
 
             // 
             // btnMenuProductos
             // 
-            btnMenuProductos.Location = new Point(leftMargin, topStart);
+            btnMenuProductos.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            btnMenuProductos.Location = new Point(110, 70);
             btnMenuProductos.Name = "btnMenuProductos";
-            btnMenuProductos.Size = botonSize;
+            btnMenuProductos.Size = new Size(280, 50);
             btnMenuProductos.TabIndex = 0;
             btnMenuProductos.Text = "Gestionar Productos";
             btnMenuProductos.UseVisualStyleBackColor = true;
@@ -43,9 +50,10 @@
             // 
             // btnMenuPersonas
             // 
-            btnMenuPersonas.Location = new Point(leftMargin, topStart + verticalSpacing);
+            btnMenuPersonas.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            btnMenuPersonas.Location = new Point(110, 130);
             btnMenuPersonas.Name = "btnMenuPersonas";
-            btnMenuPersonas.Size = botonSize;
+            btnMenuPersonas.Size = new Size(280, 50);
             btnMenuPersonas.TabIndex = 1;
             btnMenuPersonas.Text = "Gestionar Personas";
             btnMenuPersonas.UseVisualStyleBackColor = true;
@@ -54,9 +62,10 @@
             // 
             // btnTipoProducto
             // 
-            btnTipoProducto.Location = new Point(leftMargin, topStart + 2 * verticalSpacing);
+            btnTipoProducto.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            btnTipoProducto.Location = new Point(110, 190);
             btnTipoProducto.Name = "btnTipoProducto";
-            btnTipoProducto.Size = botonSize;
+            btnTipoProducto.Size = new Size(280, 50);
             btnTipoProducto.TabIndex = 2;
             btnTipoProducto.Text = "Gestionar Tipos de Producto";
             btnTipoProducto.UseVisualStyleBackColor = true;
@@ -65,9 +74,10 @@
             // 
             // btnProvincia
             // 
-            btnProvincia.Location = new Point(leftMargin, topStart + 3 * verticalSpacing);
+            btnProvincia.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            btnProvincia.Location = new Point(110, 250);
             btnProvincia.Name = "btnProvincia";
-            btnProvincia.Size = botonSize;
+            btnProvincia.Size = new Size(280, 50);
             btnProvincia.TabIndex = 3;
             btnProvincia.Text = "Ver Provincias";
             btnProvincia.UseVisualStyleBackColor = true;
@@ -78,22 +88,17 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(500, 430);
-            StartPosition = FormStartPosition.CenterScreen;
-            Controls.Add(btnProvincia);
-            Controls.Add(btnTipoProducto);
-            Controls.Add(btnMenuPersonas);
+            ClientSize = new Size(500, 340);
+            Controls.Add(lblTitle);
             Controls.Add(btnMenuProductos);
+            Controls.Add(btnMenuPersonas);
+            Controls.Add(btnTipoProducto);
+            Controls.Add(btnProvincia);
             Name = "MainForm";
-            Text = "Menú Principal";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Panel del Administrador";
             ResumeLayout(false);
+            PerformLayout();
         }
-
-        #endregion
-
-        private Button btnMenuProductos;
-        private Button btnMenuPersonas;
-        private Button btnTipoProducto;
-        private Button btnProvincia;
     }
 }

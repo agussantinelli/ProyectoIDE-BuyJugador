@@ -12,7 +12,13 @@ namespace WinForms
         public MainForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+            CenterTitle();
             _serviceProvider = serviceProvider;
+        }
+
+        private void CenterTitle()
+        {
+            lblTitle.Left = (this.ClientSize.Width - lblTitle.Width) / 2;
         }
 
         private void btnMenuProductos_Click(object sender, EventArgs e)
