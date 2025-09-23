@@ -16,13 +16,13 @@ namespace WinForms
 
         private void btnMenuProductos_Click(object sender, EventArgs e)
         {
-            var form = _serviceProvider.GetRequiredService<Producto>();
+            var form = _serviceProvider.GetRequiredService<ProductoForm>();
             form.ShowDialog();
         }
 
         private void btnMenuPersonas_Click(object sender, EventArgs e)
         {
-            var form = _serviceProvider.GetRequiredService<Persona>();
+            var form = _serviceProvider.GetRequiredService<PersonaForm>();
             form.ShowDialog();
         }
     }

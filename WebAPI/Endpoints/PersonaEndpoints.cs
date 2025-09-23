@@ -3,6 +3,7 @@ using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using BCrypt.Net;
 
 namespace WebAPI.Endpoints
 {

@@ -7,12 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-<<<<<<< HEAD
-    <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
-=======
-    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
->>>>>>> 33fd96e74a3519b0bfc220b2bb8b33cdf07f037e
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
+      <PackageReference Include="BCrypt.Net-Next" Version="4.0.3">
+	    <Aliases>BCryptNext</Aliases>
+	  </PackageReference>
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

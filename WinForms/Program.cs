@@ -44,27 +44,15 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
-<<<<<<< HEAD
                     // --- REGISTRO DE NUEVOS FORMULARIOS ---
                     services.AddTransient<MainForm>(); // Form de Dueño
                     services.AddTransient<EmpleadoForm>(); // Form de Empleado
                     services.AddTransient<LoginForm>(); // Form de Login
-
-
-                    services.AddTransient<Provincia>();
-                    services.AddTransient<TipoProducto>();
-                    services.AddTransient<Persona>();
-                    services.AddTransient<Producto>(sp =>
-                        new Producto(
-=======
-                    // Formularios principales
-                    services.AddTransient<MainForm>();
                     services.AddTransient<ProvinciaForm>();
                     services.AddTransient<TipoProductoForm>();
                     services.AddTransient<PersonaForm>();
                     services.AddTransient<ProductoForm>(sp =>
                         new ProductoForm(
->>>>>>> 33fd96e74a3519b0bfc220b2bb8b33cdf07f037e
                             sp.GetRequiredService<ProductoApiClient>(),
                             sp.GetRequiredService<TipoProductoApiClient>()
                         )
@@ -79,10 +67,8 @@ namespace WinForms
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<EditarTipoProductoForm>();
                     services.AddTransient<EditarPersonaForm>();
-<<<<<<< HEAD
 
-=======
->>>>>>> 33fd96e74a3519b0bfc220b2bb8b33cdf07f037e
+
                 })
                 .Build();
 
