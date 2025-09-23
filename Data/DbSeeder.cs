@@ -354,7 +354,6 @@ public static class DbSeeder
                     Telefono = "34115559101",
                     Direccion = "Falsa 123",
                     IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
-                    FechaIngreso = new DateOnly(2020, 1, 15)
                 },
                 new Persona
                 {
@@ -365,7 +364,6 @@ public static class DbSeeder
                     Telefono = "3411111111",
                     Direccion = "Verdadera 456",
                     IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
-                    FechaIngreso = new DateOnly(2021, 3, 20)
                 },
 
                 // Empleados

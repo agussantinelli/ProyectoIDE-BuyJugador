@@ -21,8 +21,6 @@ public partial class Persona
 
     public int? IdLocalidad { get; set; }
 
-    //public Localidad? Localidad { get; set; } //revisar
-
     public DateOnly? FechaIngreso { get; set; }
 
     public virtual Localidad? IdLocalidadNavigation { get; set; }
