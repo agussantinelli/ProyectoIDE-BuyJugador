@@ -1,12 +1,10 @@
-﻿using System.Windows.Forms;
-
-namespace WinForms
+﻿namespace WinForms
 {
-    partial class Persona
+    partial class TipoProductoForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtBuscar;
-        private System.Windows.Forms.DataGridView dgvPersonas;
+        private System.Windows.Forms.DataGridView dgvTiposProducto;
         private System.Windows.Forms.Button btnNuevo;
         private System.Windows.Forms.Button btnEditar;
         private System.Windows.Forms.Button btnEliminar;
@@ -23,33 +21,33 @@ namespace WinForms
         private void InitializeComponent()
         {
             txtBuscar = new TextBox();
-            dgvPersonas = new DataGridView();
+            dgvTiposProducto = new DataGridView();
             btnNuevo = new Button();
             btnEditar = new Button();
             btnEliminar = new Button();
             btnVolver = new Button();
             lblBuscar = new Label();
 
-            ((System.ComponentModel.ISupportInitialize)dgvPersonas).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).BeginInit();
             SuspendLayout();
 
             // lblBuscar
-            lblBuscar.Location = new Point(20, 15);
+            lblBuscar.Location = new Point(20, 10);
             lblBuscar.Text = "Buscar:";
             lblBuscar.AutoSize = true;
 
             // txtBuscar
-            txtBuscar.Location = new Point(80, 12);
+            txtBuscar.Location = new Point(80, 7);
             txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // dgvPersonas
-            dgvPersonas.Location = new Point(20, 50);
-            dgvPersonas.Size = new Size(1040, 400);
-            dgvPersonas.ReadOnly = true;
-            dgvPersonas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvPersonas.MultiSelect = false;
-            dgvPersonas.SelectionChanged += dgvPersonas_SelectionChanged;
+            // dgvTiposProducto
+            dgvTiposProducto.Location = new Point(20, 40);
+            dgvTiposProducto.Size = new Size(1040, 400);
+            dgvTiposProducto.ReadOnly = true;
+            dgvTiposProducto.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTiposProducto.MultiSelect = false;
+            dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
 
             // Botones
             btnVolver.Location = new Point(20, 470);
@@ -72,21 +70,21 @@ namespace WinForms
             btnEliminar.Text = "Eliminar";
             btnEliminar.Click += btnEliminar_Click;
 
-            // Form
+            // TipoProducto
             ClientSize = new Size(1100, 520);
-            StartPosition = FormStartPosition.CenterScreen; 
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
-            Controls.Add(dgvPersonas);
+            Controls.Add(dgvTiposProducto);
             Controls.Add(btnNuevo);
             Controls.Add(btnEditar);
             Controls.Add(btnEliminar);
             Controls.Add(btnVolver);
-            Name = "Persona";
-            Text = "Gestión de Personas";
-            Load += PersonaForm_Load;
+            Name = "TipoProducto";
+            Text = "Gestión de Tipos de Producto";
+            Load += TipoProductoForm_Load;
 
-            ((System.ComponentModel.ISupportInitialize)dgvPersonas).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

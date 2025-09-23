@@ -1,10 +1,10 @@
 ﻿namespace WinForms
 {
-    partial class TipoProducto
+    partial class ProductoForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtBuscar;
-        private System.Windows.Forms.DataGridView dgvTiposProducto;
+        private System.Windows.Forms.DataGridView dgvProductos;
         private System.Windows.Forms.Button btnNuevo;
         private System.Windows.Forms.Button btnEditar;
         private System.Windows.Forms.Button btnEliminar;
@@ -21,33 +21,33 @@
         private void InitializeComponent()
         {
             txtBuscar = new TextBox();
-            dgvTiposProducto = new DataGridView();
+            dgvProductos = new DataGridView();
             btnNuevo = new Button();
             btnEditar = new Button();
             btnEliminar = new Button();
             btnVolver = new Button();
             lblBuscar = new Label();
 
-            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
 
             // lblBuscar
-            lblBuscar.Location = new Point(20, 10);
+            lblBuscar.Location = new Point(20, 15);
             lblBuscar.Text = "Buscar:";
             lblBuscar.AutoSize = true;
 
             // txtBuscar
-            txtBuscar.Location = new Point(80, 7);
+            txtBuscar.Location = new Point(80, 12);
             txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // dgvTiposProducto
-            dgvTiposProducto.Location = new Point(20, 40);
-            dgvTiposProducto.Size = new Size(1040, 400);
-            dgvTiposProducto.ReadOnly = true;
-            dgvTiposProducto.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvTiposProducto.MultiSelect = false;
-            dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
+            // dgvProductos
+            dgvProductos.Location = new Point(20, 50);
+            dgvProductos.Size = new Size(1040, 400);
+            dgvProductos.ReadOnly = true;
+            dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvProductos.MultiSelect = false;
+            dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
 
             // Botones
             btnVolver.Location = new Point(20, 470);
@@ -70,21 +70,21 @@
             btnEliminar.Text = "Eliminar";
             btnEliminar.Click += btnEliminar_Click;
 
-            // TipoProducto
+            // Producto
             ClientSize = new Size(1100, 520);
             StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
-            Controls.Add(dgvTiposProducto);
+            Controls.Add(dgvProductos);
             Controls.Add(btnNuevo);
             Controls.Add(btnEditar);
             Controls.Add(btnEliminar);
             Controls.Add(btnVolver);
-            Name = "TipoProducto";
-            Text = "Gestión de Tipos de Producto";
-            Load += TipoProductoForm_Load;
+            Name = "Producto";
+            Text = "Gestión de Productos";
+            Load += ProductoForm_Load;
 
-            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

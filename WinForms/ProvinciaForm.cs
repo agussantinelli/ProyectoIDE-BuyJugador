@@ -6,11 +6,11 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class Provincia : Form
+    public partial class ProvinciaForm : Form
     {
         private readonly ProvinciaApiClient _provinciaApiClient;
 
-        public Provincia(ProvinciaApiClient provinciaApiClient)
+        public ProvinciaForm(ProvinciaApiClient provinciaApiClient)
         {
             InitializeComponent();
             _provinciaApiClient = provinciaApiClient;

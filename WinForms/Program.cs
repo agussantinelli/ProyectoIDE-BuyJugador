@@ -46,11 +46,11 @@ namespace WinForms
 
                     // Formularios principales
                     services.AddTransient<MainForm>();
-                    services.AddTransient<Provincia>();
-                    services.AddTransient<TipoProducto>();
-                    services.AddTransient<Persona>();
-                    services.AddTransient<Producto>(sp =>
-                        new Producto(
+                    services.AddTransient<ProvinciaForm>();
+                    services.AddTransient<TipoProductoForm>();
+                    services.AddTransient<PersonaForm>();
+                    services.AddTransient<ProductoForm>(sp =>
+                        new ProductoForm(
                             sp.GetRequiredService<ProductoApiClient>(),
                             sp.GetRequiredService<TipoProductoApiClient>()
                         )

@@ -9,14 +9,14 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class Producto : Form
+    public partial class ProductoForm : Form
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private List<ProductoDTO> _productosCache = new();
         private string _filtroActual = string.Empty;
 
-        public Producto(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
+        public ProductoForm(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;

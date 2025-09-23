@@ -1,10 +1,12 @@
-﻿namespace WinForms
+﻿using System.Windows.Forms;
+
+namespace WinForms
 {
-    partial class Producto
+    partial class PersonaForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtBuscar;
-        private System.Windows.Forms.DataGridView dgvProductos;
+        private System.Windows.Forms.DataGridView dgvPersonas;
         private System.Windows.Forms.Button btnNuevo;
         private System.Windows.Forms.Button btnEditar;
         private System.Windows.Forms.Button btnEliminar;
@@ -21,14 +23,14 @@
         private void InitializeComponent()
         {
             txtBuscar = new TextBox();
-            dgvProductos = new DataGridView();
+            dgvPersonas = new DataGridView();
             btnNuevo = new Button();
             btnEditar = new Button();
             btnEliminar = new Button();
             btnVolver = new Button();
             lblBuscar = new Label();
 
-            ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvPersonas).BeginInit();
             SuspendLayout();
 
             // lblBuscar
@@ -41,13 +43,13 @@
             txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // dgvProductos
-            dgvProductos.Location = new Point(20, 50);
-            dgvProductos.Size = new Size(1040, 400);
-            dgvProductos.ReadOnly = true;
-            dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProductos.MultiSelect = false;
-            dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
+            // dgvPersonas
+            dgvPersonas.Location = new Point(20, 50);
+            dgvPersonas.Size = new Size(1040, 400);
+            dgvPersonas.ReadOnly = true;
+            dgvPersonas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvPersonas.MultiSelect = false;
+            dgvPersonas.SelectionChanged += dgvPersonas_SelectionChanged;
 
             // Botones
             btnVolver.Location = new Point(20, 470);
@@ -70,21 +72,21 @@
             btnEliminar.Text = "Eliminar";
             btnEliminar.Click += btnEliminar_Click;
 
-            // Producto
+            // Form
             ClientSize = new Size(1100, 520);
-            StartPosition = FormStartPosition.CenterScreen;
+            StartPosition = FormStartPosition.CenterScreen; 
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
-            Controls.Add(dgvProductos);
+            Controls.Add(dgvPersonas);
             Controls.Add(btnNuevo);
             Controls.Add(btnEditar);
             Controls.Add(btnEliminar);
             Controls.Add(btnVolver);
-            Name = "Producto";
-            Text = "Gestión de Productos";
-            Load += ProductoForm_Load;
+            Name = "Persona";
+            Text = "Gestión de Personas";
+            Load += PersonaForm_Load;
 
-            ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvPersonas).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

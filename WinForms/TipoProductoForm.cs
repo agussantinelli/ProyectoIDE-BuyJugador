@@ -9,13 +9,13 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class TipoProducto : Form
+    public partial class TipoProductoForm : Form
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
 
-        public TipoProducto(TipoProductoApiClient tipoProductoApiClient)
+        public TipoProductoForm(TipoProductoApiClient tipoProductoApiClient)
         {
             InitializeComponent();
             _tipoProductoApiClient = tipoProductoApiClient;

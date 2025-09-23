@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class Provincia
+    partial class ProvinciaForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.DataGridView dgvProvincias;

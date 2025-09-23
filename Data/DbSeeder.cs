@@ -336,30 +336,29 @@ public static class DbSeeder
         {
             var locs = context.Localidades.ToList();
             context.Personas.AddRange(
-            // Administradores
-            new Persona
-            {
-                NombreCompleto = "Martin Ratti",
-                Dni = 12345678,
-                Email = "marto@empresa.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin"),
-                Telefono = "34115559101",
-                Direccion = "Falsa 123",
-                IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
-                FechaIngreso = new DateOnly(2020, 1, 15)
-            },
-
-            new Persona
-            {
-                NombreCompleto = "Frank Fabra",
-                Dni = 41111111,
-                Email = "fabra@email.com",
-                Password = BCrypt.Net.BCrypt.HashPassword("admin"),
-                Telefono = "3411111111",
-                Direccion = "Verdadera 456",
-                IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
-                FechaIngreso = new DateOnly(2021, 3, 20)
-            },
+                // Administradores
+                new Persona
+                {
+                    NombreCompleto = "Martin Ratti",
+                    Dni = 12345678,
+                    Email = "marto@empresa.com",
+                    Password = "$2a$11$685W/fQbRiFtx1K8lSS8AuuYOj07/ygRo8Fr08y/qXD5r4tVrWyjm",
+                    Telefono = "34115559101",
+                    Direccion = "Falsa 123",
+                    IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
+                    FechaIngreso = new DateOnly(2020, 1, 15)
+                },
+                new Persona
+                {
+                    NombreCompleto = "Frank Fabra",
+                    Dni = 41111111,
+                    Email = "fabra@email.com",
+                    Password = "$2a$11$ibah0XV1qx.0TMSQ6hh.wOHxDdeYMm1E7raaeg3MzDIiPyhbKQOgK",
+                    Telefono = "3411111111",
+                    Direccion = "Verdadera 456",
+                    IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
+                    FechaIngreso = new DateOnly(2021, 3, 20)
+                },
 
                 // Empleados
                 new Persona
@@ -367,7 +366,7 @@ public static class DbSeeder
                     NombreCompleto = "Joaquin Peralta",
                     Dni = 30789123,
                     Email = "joaquin@empresa.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("joaquin"),
+                    Password = "$2a$11$BbVT9kjYoeQWiAq3jCYdje2O9nVkX4Gq76ja.cMrwfzvrngzowUpm",
                     Telefono = "115550202",
                     Direccion = "Avenida Imaginaria 2",
                     IdLocalidad = locs.First(l => l.Nombre == "La Plata").IdLocalidad,
@@ -378,7 +377,7 @@ public static class DbSeeder
                     NombreCompleto = "Ayrton Costa",
                     Dni = 42333444,
                     Email = "ayrton@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("ayrton"),
+                    Password = "$2a$11$h/0tUM5e3qLbrT6m2b8WyOEGeZXaATBpyD/L/pQoacWMVJvnTpGXe",
                     Telefono = "3415552222",
                     Direccion = "Calle Demo 4",
                     IdLocalidad = locs.First(l => l.Nombre == "Córdoba Capital").IdLocalidad,
@@ -389,7 +388,7 @@ public static class DbSeeder
                     NombreCompleto = "Luka Doncic",
                     Dni = 42553400,
                     Email = "luka@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("luka"),
+                    Password = "$2a$11$MsG.VnnowVSZCMqgrOSkj.EMqh2i/PfJ643xRLk76jA4Yvo9G7fgS",
                     Telefono = "3415882922",
                     Direccion = "Calle Prueba 5",
                     IdLocalidad = locs.First(l => l.Nombre == "Mendoza").IdLocalidad,
@@ -400,20 +399,18 @@ public static class DbSeeder
                     NombreCompleto = "Stephen Curry",
                     Dni = 32393404,
                     Email = "curry@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("stephen"),
+                    Password = "$2a$11$ChfD2UiugA.ZuH1X/w2kLOlcIvwbeq4TpSy6gM1P0VhldnFQDsLVe",
                     Telefono = "3415559202",
                     Direccion = "Calle Test 6",
                     IdLocalidad = locs.First(l => l.Nombre == "Bariloche").IdLocalidad,
                     FechaIngreso = new DateOnly(2021, 11, 5)
                 },
-
-                // Usuarios adicionales
                 new Persona
                 {
                     NombreCompleto = "Maria Gonzalez",
                     Dni = 35456789,
                     Email = "maria.g@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("maria"),
+                    Password = "$2a$11$aDmAJVe1pHTTRiAzAf6m7ek/rsSDM8RZ7aJJPaNjTcvogX0EHCRSm",
                     Telefono = "3416667777",
                     Direccion = "Av. Central 789",
                     IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
@@ -424,7 +421,7 @@ public static class DbSeeder
                     NombreCompleto = "Carlos Lopez",
                     Dni = 28765432,
                     Email = "carlos.l@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("carlos"),
+                    Password = "$2a$11$uWvxb3fI1P/ElZkImtW4FeYkhitKgX/nEWT6QCfzHdVrtlLBFYF.q",
                     Telefono = "3417778888",
                     Direccion = "Calle Secundaria 321",
                     IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
@@ -435,7 +432,7 @@ public static class DbSeeder
                     NombreCompleto = "Ana Martinez",
                     Dni = 39876543,
                     Email = "ana.m@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("ana"),
+                    Password = "$2a$11$xLNEyeWBTFpnrkyhFizEAOiszUnX5RyKyuxRNslL9KdBXn4HOAWIC",
                     Telefono = "3418889999",
                     Direccion = "Pasaje Privado 654",
                     IdLocalidad = locs.First(l => l.Nombre == "Córdoba Capital").IdLocalidad,
@@ -446,7 +443,7 @@ public static class DbSeeder
                     NombreCompleto = "Pedro Rodriguez",
                     Dni = 40987654,
                     Email = "pedro.r@email.com",
-                    Password = BCrypt.Net.BCrypt.HashPassword("pedro"),
+                    Password = "$2a$11$VqfW6nNbrTw3U6uiICnTwuw0KQ17RjJHoY97FQaInrTJr8nh3pJJe",
                     Telefono = "3419990000",
                     Direccion = "Boulevard Principal 987",
                     IdLocalidad = locs.First(l => l.Nombre == "Mendoza").IdLocalidad,
@@ -455,6 +452,7 @@ public static class DbSeeder
             );
             context.SaveChanges();
         }
+
 
         if (!context.Ventas.Any())
         {

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class Persona : Form
+    public partial class PersonaForm : Form
     {
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
@@ -17,7 +17,7 @@ namespace WinForms
         private List<PersonaDTO> _personasCache = new();
         private string _filtroActual = string.Empty;
 
-        public Persona(
+        public PersonaForm(
             PersonaApiClient personaApiClient,
             ProvinciaApiClient provinciaApiClient,
             LocalidadApiClient localidadApiClient)
