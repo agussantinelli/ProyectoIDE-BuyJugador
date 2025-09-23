@@ -49,7 +49,7 @@ namespace WinForms
                 NombreCompleto = txtNombreCompleto.Text.Trim(),
                 Dni = int.Parse(txtDni.Text.Trim()),
                 Email = txtEmail.Text.Trim(),
-                Password = System.Text.Encoding.UTF8.GetBytes(txtPassword.Text.Trim()),
+                Password = txtPassword.Text.Trim(),
                 Telefono = txtTelefono.Text.Trim(),
                 Direccion = txtDireccion.Text.Trim(),
                 IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad,

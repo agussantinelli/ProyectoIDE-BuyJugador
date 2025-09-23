@@ -47,5 +47,17 @@ namespace ApiClient
             var response = await _httpClient.DeleteAsync($"api/personas/{id}");
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<object> LoginAsync(object loginRequest)
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/personas/login", loginRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<object>();
+            }
+
+            return null;
+        }
     }
 }

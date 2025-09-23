@@ -39,7 +39,11 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
-                    services.AddTransient<MainForm>();
+                    // --- REGISTRO DE NUEVOS FORMULARIOS ---
+                    services.AddTransient<MainForm>(); // Form de Dueño
+                    services.AddTransient<EmpleadoForm>(); // Form de Empleado
+                    services.AddTransient<LoginForm>(); // Form de Login
+
 
                     services.AddTransient<Provincia>();
                     services.AddTransient<TipoProducto>();
@@ -59,15 +63,36 @@ namespace WinForms
                     services.AddTransient<EditarTipoProductoForm>();
                     services.AddTransient<EditarPersonaForm>();
 
-
                 })
                 .Build();
 
             using (var serviceScope = host.Services.CreateScope())
             {
                 var services = serviceScope.ServiceProvider;
-                var mainForm = services.GetRequiredService<MainForm>();
-                Application.Run(mainForm);
+
+                // Abre el formulario de Login primero
+                var loginForm = services.GetRequiredService<LoginForm>();
+                var result = loginForm.ShowDialog();
+
+                // Si el login fue exitoso, decide qué formulario mostrar
+                if (result == DialogResult.OK)
+                {
+                    if (loginForm.RolUsuario == "Dueño")
+                    {
+                        var mainForm = services.GetRequiredService<MainForm>();
+                        Application.Run(mainForm);
+                    }
+                    else // Por defecto, si no es Dueño, es Empleado
+                    {
+                        var empleadoForm = services.GetRequiredService<EmpleadoForm>();
+                        Application.Run(empleadoForm);
+                    }
+                }
+                else
+                {
+                    // Si el usuario cierra el login, la aplicación termina
+                    Application.Exit();
+                }
             }
         }
     }

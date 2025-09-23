@@ -99,7 +99,7 @@ namespace Data
                 entity.Property(e => e.Dni).HasColumnName("DNI");
                 entity.Property(e => e.Email).HasMaxLength(100);
                 entity.Property(e => e.NombreCompleto).HasMaxLength(200);
-                entity.Property(e => e.Password).HasMaxLength(64);
+                entity.Property(e => e.Password).HasMaxLength(100);
                 entity.Property(e => e.Telefono).HasMaxLength(50);
 
                 entity.HasOne(d => d.IdLocalidadNavigation)
