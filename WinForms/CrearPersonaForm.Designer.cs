@@ -13,7 +13,6 @@
         private System.Windows.Forms.Label lblProvincia;
         private System.Windows.Forms.ComboBox cmbLocalidad;
         private System.Windows.Forms.ComboBox cmbRol;
-        private System.Windows.Forms.DateTimePicker dtpFechaIngreso;
         private System.Windows.Forms.Button btnGuardar;
         private System.Windows.Forms.Button btnCancelar;
         private System.Windows.Forms.Label lblNombreCompleto;
@@ -24,8 +23,6 @@
         private System.Windows.Forms.Label lblDireccion;
         private System.Windows.Forms.Label lblLocalidad;
         private System.Windows.Forms.Label lblRol;
-        private System.Windows.Forms.Label lblFechaIngreso;
-
 
         protected override void Dispose(bool disposing)
         {
@@ -45,7 +42,6 @@
             lblProvincia = new Label();
             cmbLocalidad = new ComboBox();
             cmbRol = new ComboBox();
-            dtpFechaIngreso = new DateTimePicker();
             btnGuardar = new Button();
             btnCancelar = new Button();
             lblNombreCompleto = new Label();
@@ -56,11 +52,10 @@
             lblDireccion = new Label();
             lblLocalidad = new Label();
             lblRol = new Label();
-            lblFechaIngreso = new Label();
 
             SuspendLayout();
 
-            // NombreCompleto
+            // Nombre Completo
             lblNombreCompleto.Text = "Nombre Completo:";
             lblNombreCompleto.Location = new Point(30, 20);
             lblNombreCompleto.AutoSize = true;
@@ -124,26 +119,21 @@
             lblRol.AutoSize = true;
             cmbRol.Location = new Point(30, 565);
             cmbRol.Size = new Size(240, 23);
-            cmbRol.SelectedIndexChanged += cmbRol_SelectedIndexChanged;
 
-            // Fecha Ingreso
-            lblFechaIngreso.Text = "Fecha Ingreso:";
-            lblFechaIngreso.Location = new Point(30, 605);
-            lblFechaIngreso.AutoSize = true;
-            dtpFechaIngreso.Location = new Point(30, 630);
-            dtpFechaIngreso.Size = new Size(240, 23);
-
-            // Botones
+            // Botón Guardar
             btnGuardar.Text = "Guardar";
-            btnGuardar.Location = new Point(30, 670);
+            btnGuardar.Location = new Point(30, 610);
+            btnGuardar.Size = new Size(100, 30);
             btnGuardar.Click += btnGuardar_Click;
 
+            // Botón Cancelar
             btnCancelar.Text = "Cancelar";
-            btnCancelar.Location = new Point(150, 670);
+            btnCancelar.Location = new Point(170, 610);
+            btnCancelar.Size = new Size(100, 30);
             btnCancelar.Click += btnCancelar_Click;
 
-            // Form
-            ClientSize = new Size(320, 730);
+            // CrearPersonaForm
+            ClientSize = new Size(320, 670);
             Controls.AddRange(new Control[] {
                 lblNombreCompleto, txtNombreCompleto,
                 lblDni, txtDni,
@@ -154,7 +144,6 @@
                 lblProvincia, cmbProvincia,
                 lblLocalidad, cmbLocalidad,
                 lblRol, cmbRol,
-                lblFechaIngreso, dtpFechaIngreso,
                 btnGuardar, btnCancelar
             });
             Text = "Crear Persona";

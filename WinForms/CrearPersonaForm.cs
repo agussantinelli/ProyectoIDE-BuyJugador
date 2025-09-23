@@ -28,7 +28,6 @@ namespace WinForms
             cmbRol.Items.Add("Dueño");
             cmbRol.Items.Add("Empleado");
             cmbRol.SelectedIndex = 1; // default empleado
-            dtpFechaIngreso.Enabled = true;
 
             // cargar provincias
             var provincias = await _provinciaApiClient.GetAllAsync();
@@ -42,10 +41,6 @@ namespace WinForms
             cmbProvincia.SelectedIndex = 0; // Selecciona el ítem vacío
         }
 
-        private void cmbRol_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            dtpFechaIngreso.Enabled = cmbRol.SelectedItem?.ToString() != "Dueño";
-        }
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -81,8 +76,9 @@ namespace WinForms
                 Direccion = txtDireccion.Text.Trim(),
                 IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad,
                 FechaIngreso = cmbRol.SelectedItem?.ToString() == "Empleado"
-                    ? DateOnly.FromDateTime(dtpFechaIngreso.Value)
-                    : null
+                ? DateOnly.FromDateTime(DateTime.Today)
+                : null
+
             };
 
             await _personaApiClient.CreateAsync(persona);
