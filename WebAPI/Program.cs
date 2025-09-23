@@ -1,6 +1,7 @@
 using Data;
 using DominioServicios;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,16 +9,17 @@ var builder = WebApplication.CreateBuilder(args);
 #region Builder Configuration
 
 var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
+
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString)
+           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-
 builder.Services.AddRazorPages();
 
 #endregion
+
 
 #region Services Registration
 
@@ -36,6 +38,7 @@ builder.Services.AddScoped<VentaService>();
 #endregion
 
 var app = builder.Build();
+
 
 #region Application Pipeline Configuration
 
@@ -61,6 +64,16 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 #endregion
+
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<BuyJugadorContext>();
+    DbSeeder.Seed(context);
+}
+
 
 #region API Endpoints Registration
 

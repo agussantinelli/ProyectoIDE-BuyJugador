@@ -9,6 +9,8 @@
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtTelefono;
         private System.Windows.Forms.TextBox txtDireccion;
+        private System.Windows.Forms.ComboBox cmbProvincia;
+        private System.Windows.Forms.Label lblProvincia;
         private System.Windows.Forms.ComboBox cmbLocalidad;
         private System.Windows.Forms.Button btnGuardar;
         private System.Windows.Forms.Button btnCancelar;
@@ -34,6 +36,8 @@
             txtPassword = new TextBox();
             txtTelefono = new TextBox();
             txtDireccion = new TextBox();
+            cmbProvincia = new ComboBox();
+            lblProvincia = new Label();
             cmbLocalidad = new ComboBox();
             btnGuardar = new Button();
             btnCancelar = new Button();
@@ -90,24 +94,32 @@
             txtDireccion.Location = new Point(30, 370);
             txtDireccion.Size = new Size(240, 23);
 
+            // Provincia
+            lblProvincia.Text = "Provincia:";
+            lblProvincia.Location = new Point(30, 410);
+            lblProvincia.AutoSize = true;
+            cmbProvincia.Location = new Point(30, 435);
+            cmbProvincia.Size = new Size(240, 23);
+            cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
+
             // Localidad
             lblLocalidad.Text = "Localidad:";
-            lblLocalidad.Location = new Point(30, 410);
+            lblLocalidad.Location = new Point(30, 475);
             lblLocalidad.AutoSize = true;
-            cmbLocalidad.Location = new Point(30, 435);
+            cmbLocalidad.Location = new Point(30, 500);
             cmbLocalidad.Size = new Size(240, 23);
 
             // Botones
             btnGuardar.Text = "Guardar";
-            btnGuardar.Location = new Point(30, 480);
+            btnGuardar.Location = new Point(30, 545);
             btnGuardar.Click += btnGuardar_Click;
 
             btnCancelar.Text = "Cancelar";
-            btnCancelar.Location = new Point(150, 480);
+            btnCancelar.Location = new Point(150, 545);
             btnCancelar.Click += btnCancelar_Click;
 
             // Form
-            ClientSize = new Size(320, 540);
+            ClientSize = new Size(320, 600);
             Controls.AddRange(new Control[] {
                 lblNombreCompleto, txtNombreCompleto,
                 lblDni, txtDni,
@@ -115,6 +127,7 @@
                 lblPassword, txtPassword,
                 lblTelefono, txtTelefono,
                 lblDireccion, txtDireccion,
+                lblProvincia, cmbProvincia,
                 lblLocalidad, cmbLocalidad,
                 btnGuardar, btnCancelar
             });
@@ -127,3 +140,4 @@
         }
     }
 }
+

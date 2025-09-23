@@ -24,6 +24,11 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
+                    services.AddHttpClient<LocalidadApiClient>(client =>
+                    {
+                        client.BaseAddress = new Uri(baseUrl);
+                    });
+
                     services.AddHttpClient<PersonaApiClient>(client =>
                     {
                         client.BaseAddress = new Uri(baseUrl);
@@ -39,6 +44,7 @@ namespace WinForms
                         client.BaseAddress = new Uri(baseUrl);
                     });
 
+<<<<<<< HEAD
                     // --- REGISTRO DE NUEVOS FORMULARIOS ---
                     services.AddTransient<MainForm>(); // Form de Dueño
                     services.AddTransient<EmpleadoForm>(); // Form de Empleado
@@ -50,19 +56,33 @@ namespace WinForms
                     services.AddTransient<Persona>();
                     services.AddTransient<Producto>(sp =>
                         new Producto(
+=======
+                    // Formularios principales
+                    services.AddTransient<MainForm>();
+                    services.AddTransient<ProvinciaForm>();
+                    services.AddTransient<TipoProductoForm>();
+                    services.AddTransient<PersonaForm>();
+                    services.AddTransient<ProductoForm>(sp =>
+                        new ProductoForm(
+>>>>>>> 33fd96e74a3519b0bfc220b2bb8b33cdf07f037e
                             sp.GetRequiredService<ProductoApiClient>(),
                             sp.GetRequiredService<TipoProductoApiClient>()
                         )
                     );
 
+                    // Formularios de creación
                     services.AddTransient<CrearProductoForm>();
                     services.AddTransient<CrearTipoProductoForm>();
                     services.AddTransient<CrearPersonaForm>();
 
+                    // Formularios de edición
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<EditarTipoProductoForm>();
                     services.AddTransient<EditarPersonaForm>();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 33fd96e74a3519b0bfc220b2bb8b33cdf07f037e
                 })
                 .Build();
 

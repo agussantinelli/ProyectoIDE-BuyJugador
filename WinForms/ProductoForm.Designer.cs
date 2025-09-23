@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class Producto
+    partial class ProductoForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.TextBox txtBuscar;
@@ -72,6 +72,7 @@
 
             // Producto
             ClientSize = new Size(1100, 520);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvProductos);

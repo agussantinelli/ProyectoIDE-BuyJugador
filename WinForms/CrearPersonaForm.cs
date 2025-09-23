@@ -1,6 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -8,30 +9,56 @@ namespace WinForms
     public partial class CrearPersonaForm : Form
     {
         private readonly PersonaApiClient _personaApiClient;
+        private readonly ProvinciaApiClient _provinciaApiClient;
+        private readonly LocalidadApiClient _localidadApiClient;
 
-        public CrearPersonaForm(PersonaApiClient personaApiClient)
+        public CrearPersonaForm(
+            PersonaApiClient personaApiClient,
+            ProvinciaApiClient provinciaApiClient,
+            LocalidadApiClient localidadApiClient)
         {
             InitializeComponent();
             _personaApiClient = personaApiClient;
+            _provinciaApiClient = provinciaApiClient;
+            _localidadApiClient = localidadApiClient;
         }
 
-        private void CrearPersonaForm_Load(object sender, EventArgs e)
+        private async void CrearPersonaForm_Load(object sender, EventArgs e)
         {
             cmbRol.Items.Add("Dueño");
             cmbRol.Items.Add("Empleado");
-            cmbRol.SelectedIndex = 1; //default empleado
+            cmbRol.SelectedIndex = 1; // default empleado
             dtpFechaIngreso.Enabled = true;
+
+            // cargar provincias
+            var provincias = await _provinciaApiClient.GetAllAsync();
+
+            // Insertar ítem vacío al inicio
+            provincias.Insert(0, new ProvinciaDTO { IdProvincia = 0, Nombre = "-- Seleccionar provincia --" });
+
+            cmbProvincia.DataSource = provincias;
+            cmbProvincia.DisplayMember = "Nombre";
+            cmbProvincia.ValueMember = "IdProvincia";
+            cmbProvincia.SelectedIndex = 0; // Selecciona el ítem vacío
         }
 
         private void cmbRol_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbRol.SelectedItem?.ToString() == "Dueño")
+            dtpFechaIngreso.Enabled = cmbRol.SelectedItem?.ToString() != "Dueño";
+        }
+
+        private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbProvincia.SelectedValue is int idProvincia)
             {
-                dtpFechaIngreso.Enabled = false;
-            }
-            else 
-            {
-                dtpFechaIngreso.Enabled = true;
+                var localidades = await _localidadApiClient.GetAllAsync();
+                var filtradas = localidades?
+                    .Where(l => l.IdProvincia == idProvincia)
+                    .ToList();
+
+                cmbLocalidad.DataSource = filtradas;
+                cmbLocalidad.DisplayMember = "Nombre";
+                cmbLocalidad.ValueMember = "IdLocalidad";
             }
         }
 
@@ -66,6 +93,7 @@ namespace WinForms
             DialogResult = DialogResult.OK;
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e) => DialogResult = DialogResult.Cancel;
+        private void btnCancelar_Click(object sender, EventArgs e) =>
+            DialogResult = DialogResult.Cancel;
     }
 }

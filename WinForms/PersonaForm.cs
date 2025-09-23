@@ -9,16 +9,23 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class Persona : Form
+    public partial class PersonaForm : Form
     {
         private readonly PersonaApiClient _personaApiClient;
+        private readonly ProvinciaApiClient _provinciaApiClient;
+        private readonly LocalidadApiClient _localidadApiClient;
         private List<PersonaDTO> _personasCache = new();
         private string _filtroActual = string.Empty;
 
-        public Persona(PersonaApiClient personaApiClient)
+        public PersonaForm(
+            PersonaApiClient personaApiClient,
+            ProvinciaApiClient provinciaApiClient,
+            LocalidadApiClient localidadApiClient)
         {
             InitializeComponent();
             _personaApiClient = personaApiClient;
+            _provinciaApiClient = provinciaApiClient;
+            _localidadApiClient = localidadApiClient;
         }
 
         private async void PersonaForm_Load(object sender, EventArgs e)
@@ -55,7 +62,7 @@ namespace WinForms
             {
                 var col = dgvPersonas.Columns["NombreCompleto"];
                 col.HeaderText = "Nombre Completo";
-                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // dinámico
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                 col.MinimumWidth = 150;
             }
 
@@ -153,7 +160,7 @@ namespace WinForms
 
         private async void btnNuevo_Click(object sender, EventArgs e)
         {
-            using var form = new CrearPersonaForm(_personaApiClient);
+            using var form = new CrearPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
                 await CargarPersonas();
@@ -166,7 +173,7 @@ namespace WinForms
             var persona = ObtenerSeleccionado();
             if (persona == null) return;
 
-            using var form = new EditarPersonaForm(_personaApiClient, persona);
+            using var form = new EditarPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient, persona);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
                 await CargarPersonas();

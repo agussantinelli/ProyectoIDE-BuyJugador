@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class Provincia
+    partial class ProvinciaForm
     {
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.DataGridView dgvProvincias;
@@ -43,7 +43,8 @@
             // Provincia
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1100, 520); 
+            ClientSize = new Size(1100, 520);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(btnVolver);
             Controls.Add(dgvProvincias);
             Name = "Provincia";
