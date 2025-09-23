@@ -28,9 +28,7 @@ namespace WinForms
         private async void EditarPersonaForm_Load(object sender, EventArgs e)
         {
             txtNombreCompleto.Text = _persona.NombreCompleto;
-            txtDni.Text = _persona.Dni.ToString();
             txtEmail.Text = _persona.Email;
-            txtPassword.Text = _persona.Password;
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
 
@@ -61,7 +59,7 @@ namespace WinForms
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "⚠️ Estás a punto de modificar esta persona.\n\n" +
+                "⚠ Estás a punto de modificar esta persona.\n\n" +
                 "Este cambio impactará en todos los lugares donde se use este registro.\n\n" +
                 "¿Querés continuar?",
                 "Confirmar edición",
@@ -71,9 +69,7 @@ namespace WinForms
             if (confirm != DialogResult.Yes) return;
 
             _persona.NombreCompleto = txtNombreCompleto.Text.Trim();
-            _persona.Dni = int.Parse(txtDni.Text.Trim());
             _persona.Email = txtEmail.Text.Trim();
-            _persona.Password = txtPassword.Text.Trim();
             _persona.Telefono = txtTelefono.Text.Trim();
             _persona.Direccion = txtDireccion.Text.Trim();
             _persona.IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad;
