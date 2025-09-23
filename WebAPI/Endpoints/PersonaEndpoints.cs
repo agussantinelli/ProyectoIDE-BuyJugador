@@ -11,6 +11,7 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
+            // --- ENDPOINT CORREGIDO ---
             // Obtiene todas las personas incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas", async (BuyJugadorContext db) =>
             {
@@ -22,6 +23,7 @@ namespace WebAPI.Endpoints
                 return Results.Ok(personas);
             });
 
+            // --- ENDPOINT CORREGIDO ---
             // Obtiene una persona por su ID, incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {
@@ -43,6 +45,7 @@ namespace WebAPI.Endpoints
                     NombreCompleto = personaDto.NombreCompleto,
                     Dni = personaDto.Dni,
                     Email = personaDto.Email,
+                    // Directamente asignamos el string del hash
                     Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
                     Telefono = personaDto.Telefono,
                     Direccion = personaDto.Direccion,
@@ -63,13 +66,11 @@ namespace WebAPI.Endpoints
                 var persona = await db.Personas.FindAsync(id);
                 if (persona == null) return Results.NotFound();
 
-                persona.NombreCompleto = personaDto.NombreCompleto;
-                // ... (asignar otras propiedades) ...
-
-                if (!string.IsNullOrEmpty(personaDto.Password))
-                {
-                    persona.Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password);
-                }
+                // Asignamos todas las propiedades que se pueden editar
+                persona.Email = personaDto.Email;
+                persona.Telefono = personaDto.Telefono;
+                persona.Direccion = personaDto.Direccion;
+                persona.IdLocalidad = personaDto.IdLocalidad;
 
                 await db.SaveChangesAsync();
                 return Results.NoContent();
@@ -84,6 +85,7 @@ namespace WebAPI.Endpoints
                 await db.SaveChangesAsync();
                 return Results.NoContent();
             });
+
             app.MapPost("/api/personas/login", async (BuyJugadorContext db, LoginRequestDto loginRequest) =>
             {
                 var persona = await db.Personas
@@ -123,3 +125,4 @@ namespace WebAPI.Endpoints
         }
     }
 }
+
