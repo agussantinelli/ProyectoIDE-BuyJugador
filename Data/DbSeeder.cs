@@ -1,4 +1,3 @@
-
 using Data;
 using Microsoft.EntityFrameworkCore;
 using DominioModelo;
@@ -11,7 +10,7 @@ public static class DbSeeder
     {
         //Crea la BDD si no existe
         context.Database.EnsureCreated();
-        
+
         // 1. Provincias
         if (!context.Provincias.Any())
         {
@@ -46,211 +45,211 @@ public static class DbSeeder
         }
 
         // 2. Localidades 
-            if (!context.Localidades.Any())
-            {
-                var provincias = context.Provincias.ToList();
-                context.Localidades.AddRange(
-                    // Santa Fe (10 localidades)
-                    new Localidad { Nombre = "Rosario", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Santa Fe", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Venado Tuerto", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Rafaela", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Reconquista", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "San Lorenzo", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Sunchales", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Villa Gobernador Gálvez", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Esperanza", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
-                    new Localidad { Nombre = "Funes", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+        if (!context.Localidades.Any())
+        {
+            var provincias = context.Provincias.ToList();
+            context.Localidades.AddRange(
+                // Santa Fe (10 localidades)
+                new Localidad { Nombre = "Rosario", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Santa Fe", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Venado Tuerto", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Rafaela", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Reconquista", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "San Lorenzo", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Sunchales", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Villa Gobernador Gálvez", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Esperanza", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
+                new Localidad { Nombre = "Funes", IdProvincia = provincias.First(p => p.Nombre == "Santa Fe").IdProvincia },
 
-                    // Buenos Aires (15 localidades)
-                    new Localidad { Nombre = "La Plata", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Mar del Plata", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Bahía Blanca", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Quilmes", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Lanús", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Morón", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "San Isidro", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Tigre", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Merlo", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Moreno", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Luján", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Zárate", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Campana", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Pergamino", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Necochea", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                // Buenos Aires (15 localidades)
+                new Localidad { Nombre = "La Plata", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Mar del Plata", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Bahía Blanca", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Quilmes", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Lanús", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Morón", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "San Isidro", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Tigre", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Merlo", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Moreno", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Luján", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Zárate", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Campana", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Pergamino", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Necochea", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
 
-                    // Córdoba (10 localidades)
-                    new Localidad { Nombre = "Córdoba Capital", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Villa María", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Río Cuarto", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Alta Gracia", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Villa Carlos Paz", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Jesús María", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Cosquín", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "La Falda", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Río Tercero", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                    new Localidad { Nombre = "Bell Ville", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                // Córdoba (10 localidades)
+                new Localidad { Nombre = "Córdoba Capital", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Villa María", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Río Cuarto", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Alta Gracia", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Villa Carlos Paz", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Jesús María", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Cosquín", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "La Falda", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Río Tercero", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Bell Ville", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
 
-                    // Mendoza (8 localidades)
-                    new Localidad { Nombre = "Mendoza", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "San Rafael", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Godoy Cruz", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Guaymallén", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Las Heras", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Luján de Cuyo", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Maipú", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
-                    new Localidad { Nombre = "Tunuyán", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                // Mendoza (8 localidades)
+                new Localidad { Nombre = "Mendoza", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "San Rafael", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Godoy Cruz", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Guaymallén", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Las Heras", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Luján de Cuyo", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Maipú", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
+                new Localidad { Nombre = "Tunuyán", IdProvincia = provincias.First(p => p.Nombre == "Mendoza").IdProvincia },
 
-                    // Salta (7 localidades)
-                    new Localidad { Nombre = "Salta", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "San Ramón de la Nueva Orán", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "Tartagal", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "Metán", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "Cafayate", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "Rosario de la Frontera", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
-                    new Localidad { Nombre = "General Güemes", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                // Salta (7 localidades)
+                new Localidad { Nombre = "Salta", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "San Ramón de la Nueva Orán", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "Tartagal", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "Metán", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "Cafayate", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "Rosario de la Frontera", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
+                new Localidad { Nombre = "General Güemes", IdProvincia = provincias.First(p => p.Nombre == "Salta").IdProvincia },
 
-                    // Tucumán (6 localidades)
-                    new Localidad { Nombre = "San Miguel de Tucumán", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
-                    new Localidad { Nombre = "Yerba Buena", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
-                    new Localidad { Nombre = "Tafí Viejo", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
-                    new Localidad { Nombre = "Aguilares", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
-                    new Localidad { Nombre = "Concepción", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
-                    new Localidad { Nombre = "Monteros", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                // Tucumán (6 localidades)
+                new Localidad { Nombre = "San Miguel de Tucumán", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                new Localidad { Nombre = "Yerba Buena", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                new Localidad { Nombre = "Tafí Viejo", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                new Localidad { Nombre = "Aguilares", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                new Localidad { Nombre = "Concepción", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
+                new Localidad { Nombre = "Monteros", IdProvincia = provincias.First(p => p.Nombre == "Tucumán").IdProvincia },
 
-                    // Chaco (6 localidades)
-                    new Localidad { Nombre = "Resistencia", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
-                    new Localidad { Nombre = "Barranqueras", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
-                    new Localidad { Nombre = "Presidencia Roque Sáenz Peña", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
-                    new Localidad { Nombre = "Villa Ángela", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
-                    new Localidad { Nombre = "Charata", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
-                    new Localidad { Nombre = "General San Martín", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                // Chaco (6 localidades)
+                new Localidad { Nombre = "Resistencia", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                new Localidad { Nombre = "Barranqueras", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                new Localidad { Nombre = "Presidencia Roque Sáenz Peña", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                new Localidad { Nombre = "Villa Ángela", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                new Localidad { Nombre = "Charata", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
+                new Localidad { Nombre = "General San Martín", IdProvincia = provincias.First(p => p.Nombre == "Chaco").IdProvincia },
 
-                    // Río Negro (6 localidades)
-                    new Localidad { Nombre = "Bariloche", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
-                    new Localidad { Nombre = "Viedma", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
-                    new Localidad { Nombre = "General Roca", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
-                    new Localidad { Nombre = "Cipolletti", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
-                    new Localidad { Nombre = "El Bolsón", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
-                    new Localidad { Nombre = "Allen", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                // Río Negro (6 localidades)
+                new Localidad { Nombre = "Bariloche", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                new Localidad { Nombre = "Viedma", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                new Localidad { Nombre = "General Roca", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                new Localidad { Nombre = "Cipolletti", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                new Localidad { Nombre = "El Bolsón", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
+                new Localidad { Nombre = "Allen", IdProvincia = provincias.First(p => p.Nombre == "Río Negro").IdProvincia },
 
-                    // Ciudad Autónoma de Buenos Aires (7 localidades)
-                    new Localidad { Nombre = "Palermo", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Recoleta", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Belgrano", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Caballito", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Almagro", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Flores", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
-                    new Localidad { Nombre = "Boedo", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                // Ciudad Autónoma de Buenos Aires (7 localidades)
+                new Localidad { Nombre = "Palermo", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Recoleta", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Belgrano", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Caballito", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Almagro", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Flores", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
+                new Localidad { Nombre = "Boedo", IdProvincia = provincias.First(p => p.Nombre == "Ciudad Autónoma de Buenos Aires").IdProvincia },
 
-                    // Otras provincias (5 localidades cada una)
-                    // Catamarca
-                    new Localidad { Nombre = "San Fernando del Valle de Catamarca", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
-                    new Localidad { Nombre = "Valle Viejo", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
-                    new Localidad { Nombre = "Andalgalá", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
-                    new Localidad { Nombre = "Belén", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
-                    new Localidad { Nombre = "Tinogasta", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
+                // Otras provincias (5 localidades cada una)
+                // Catamarca
+                new Localidad { Nombre = "San Fernando del Valle de Catamarca", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
+                new Localidad { Nombre = "Valle Viejo", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
+                new Localidad { Nombre = "Andalgalá", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
+                new Localidad { Nombre = "Belén", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
+                new Localidad { Nombre = "Tinogasta", IdProvincia = provincias.First(p => p.Nombre == "Catamarca").IdProvincia },
 
-                    // Chubut
-                    new Localidad { Nombre = "Rawson", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
-                    new Localidad { Nombre = "Trelew", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
-                    new Localidad { Nombre = "Puerto Madryn", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
-                    new Localidad { Nombre = "Comodoro Rivadavia", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
-                    new Localidad { Nombre = "Esquel", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
+                // Chubut
+                new Localidad { Nombre = "Rawson", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
+                new Localidad { Nombre = "Trelew", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
+                new Localidad { Nombre = "Puerto Madryn", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
+                new Localidad { Nombre = "Comodoro Rivadavia", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
+                new Localidad { Nombre = "Esquel", IdProvincia = provincias.First(p => p.Nombre == "Chubut").IdProvincia },
 
-                    // Corrientes
-                    new Localidad { Nombre = "Corrientes", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
-                    new Localidad { Nombre = "Goya", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
-                    new Localidad { Nombre = "Mercedes", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
-                    new Localidad { Nombre = "Curuzú Cuatiá", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
-                    new Localidad { Nombre = "Paso de los Libres", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
+                // Corrientes
+                new Localidad { Nombre = "Corrientes", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
+                new Localidad { Nombre = "Goya", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
+                new Localidad { Nombre = "Mercedes", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
+                new Localidad { Nombre = "Curuzú Cuatiá", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
+                new Localidad { Nombre = "Paso de los Libres", IdProvincia = provincias.First(p => p.Nombre == "Corrientes").IdProvincia },
 
-                    // Entre Ríos
-                    new Localidad { Nombre = "Paraná", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
-                    new Localidad { Nombre = "Concordia", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
-                    new Localidad { Nombre = "Gualeguaychú", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
-                    new Localidad { Nombre = "Concepción del Uruguay", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
-                    new Localidad { Nombre = "Victoria", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
+                // Entre Ríos
+                new Localidad { Nombre = "Paraná", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
+                new Localidad { Nombre = "Concordia", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
+                new Localidad { Nombre = "Gualeguaychú", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
+                new Localidad { Nombre = "Concepción del Uruguay", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
+                new Localidad { Nombre = "Victoria", IdProvincia = provincias.First(p => p.Nombre == "Entre Ríos").IdProvincia },
 
-                    // Formosa
-                    new Localidad { Nombre = "Formosa", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
-                    new Localidad { Nombre = "Clorinda", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
-                    new Localidad { Nombre = "Pirané", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
-                    new Localidad { Nombre = "El Colorado", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
-                    new Localidad { Nombre = "Las Lomitas", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
+                // Formosa
+                new Localidad { Nombre = "Formosa", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
+                new Localidad { Nombre = "Clorinda", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
+                new Localidad { Nombre = "Pirané", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
+                new Localidad { Nombre = "El Colorado", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
+                new Localidad { Nombre = "Las Lomitas", IdProvincia = provincias.First(p => p.Nombre == "Formosa").IdProvincia },
 
-                    // Jujuy
-                    new Localidad { Nombre = "San Salvador de Jujuy", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
-                    new Localidad { Nombre = "Palpalá", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
-                    new Localidad { Nombre = "La Quiaca", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
-                    new Localidad { Nombre = "San Pedro de Jujuy", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
-                    new Localidad { Nombre = "Libertador General San Martín", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
+                // Jujuy
+                new Localidad { Nombre = "San Salvador de Jujuy", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
+                new Localidad { Nombre = "Palpalá", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
+                new Localidad { Nombre = "La Quiaca", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
+                new Localidad { Nombre = "San Pedro de Jujuy", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
+                new Localidad { Nombre = "Libertador General San Martín", IdProvincia = provincias.First(p => p.Nombre == "Jujuy").IdProvincia },
 
-                    // La Pampa
-                    new Localidad { Nombre = "Santa Rosa", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
-                    new Localidad { Nombre = "General Pico", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
-                    new Localidad { Nombre = "Toay", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
-                    new Localidad { Nombre = "Realicó", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
-                    new Localidad { Nombre = "Eduardo Castex", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
+                // La Pampa
+                new Localidad { Nombre = "Santa Rosa", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
+                new Localidad { Nombre = "General Pico", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
+                new Localidad { Nombre = "Toay", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
+                new Localidad { Nombre = "Realicó", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
+                new Localidad { Nombre = "Eduardo Castex", IdProvincia = provincias.First(p => p.Nombre == "La Pampa").IdProvincia },
 
-                    // La Rioja
-                    new Localidad { Nombre = "La Rioja", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
-                    new Localidad { Nombre = "Chilecito", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
-                    new Localidad { Nombre = "Aimogasta", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
-                    new Localidad { Nombre = "Chamical", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
-                    new Localidad { Nombre = "Chepes", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
+                // La Rioja
+                new Localidad { Nombre = "La Rioja", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
+                new Localidad { Nombre = "Chilecito", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
+                new Localidad { Nombre = "Aimogasta", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
+                new Localidad { Nombre = "Chamical", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
+                new Localidad { Nombre = "Chepes", IdProvincia = provincias.First(p => p.Nombre == "La Rioja").IdProvincia },
 
-                    // Misiones
-                    new Localidad { Nombre = "Posadas", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
-                    new Localidad { Nombre = "Oberá", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
-                    new Localidad { Nombre = "Eldorado", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
-                    new Localidad { Nombre = "Puerto Iguazú", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
-                    new Localidad { Nombre = "San Vicente", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
+                // Misiones
+                new Localidad { Nombre = "Posadas", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
+                new Localidad { Nombre = "Oberá", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
+                new Localidad { Nombre = "Eldorado", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
+                new Localidad { Nombre = "Puerto Iguazú", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
+                new Localidad { Nombre = "San Vicente", IdProvincia = provincias.First(p => p.Nombre == "Misiones").IdProvincia },
 
-                    // Neuquén
-                    new Localidad { Nombre = "Neuquén", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
-                    new Localidad { Nombre = "Cutral Có", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
-                    new Localidad { Nombre = "Plottier", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
-                    new Localidad { Nombre = "San Martín de los Andes", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
-                    new Localidad { Nombre = "Zapala", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
+                // Neuquén
+                new Localidad { Nombre = "Neuquén", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
+                new Localidad { Nombre = "Cutral Có", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
+                new Localidad { Nombre = "Plottier", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
+                new Localidad { Nombre = "San Martín de los Andes", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
+                new Localidad { Nombre = "Zapala", IdProvincia = provincias.First(p => p.Nombre == "Neuquén").IdProvincia },
 
-                    // San Juan
-                    new Localidad { Nombre = "San Juan", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
-                    new Localidad { Nombre = "Rawson", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
-                    new Localidad { Nombre = "Rivadavia", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
-                    new Localidad { Nombre = "Santa Lucía", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
-                    new Localidad { Nombre = "Pocito", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
+                // San Juan
+                new Localidad { Nombre = "San Juan", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
+                new Localidad { Nombre = "Rawson", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
+                new Localidad { Nombre = "Rivadavia", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
+                new Localidad { Nombre = "Santa Lucía", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
+                new Localidad { Nombre = "Pocito", IdProvincia = provincias.First(p => p.Nombre == "San Juan").IdProvincia },
 
-                    // San Luis
-                    new Localidad { Nombre = "San Luis", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
-                    new Localidad { Nombre = "Villa Mercedes", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
-                    new Localidad { Nombre = "Merlo", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
-                    new Localidad { Nombre = "Juana Koslay", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
-                    new Localidad { Nombre = "La Toma", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
+                // San Luis
+                new Localidad { Nombre = "San Luis", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
+                new Localidad { Nombre = "Villa Mercedes", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
+                new Localidad { Nombre = "Merlo", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
+                new Localidad { Nombre = "Juana Koslay", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
+                new Localidad { Nombre = "La Toma", IdProvincia = provincias.First(p => p.Nombre == "San Luis").IdProvincia },
 
-                    // Santa Cruz
-                    new Localidad { Nombre = "Río Gallegos", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
-                    new Localidad { Nombre = "Caleta Olivia", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
-                    new Localidad { Nombre = "Pico Truncado", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
-                    new Localidad { Nombre = "Puerto Deseado", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
-                    new Localidad { Nombre = "Las Heras", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
+                // Santa Cruz
+                new Localidad { Nombre = "Río Gallegos", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
+                new Localidad { Nombre = "Caleta Olivia", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
+                new Localidad { Nombre = "Pico Truncado", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
+                new Localidad { Nombre = "Puerto Deseado", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
+                new Localidad { Nombre = "Las Heras", IdProvincia = provincias.First(p => p.Nombre == "Santa Cruz").IdProvincia },
 
-                    // Santiago del Estero
-                    new Localidad { Nombre = "Santiago del Estero", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
-                    new Localidad { Nombre = "La Banda", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
-                    new Localidad { Nombre = "Frías", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
-                    new Localidad { Nombre = "Añatuya", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
-                    new Localidad { Nombre = "Termas de Río Hondo", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
+                // Santiago del Estero
+                new Localidad { Nombre = "Santiago del Estero", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
+                new Localidad { Nombre = "La Banda", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
+                new Localidad { Nombre = "Frías", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
+                new Localidad { Nombre = "Añatuya", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
+                new Localidad { Nombre = "Termas de Río Hondo", IdProvincia = provincias.First(p => p.Nombre == "Santiago del Estero").IdProvincia },
 
-                    // Tierra del Fuego
-                    new Localidad { Nombre = "Ushuaia", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
-                    new Localidad { Nombre = "Río Grande", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
-                    new Localidad { Nombre = "Tolhuin", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
-                    new Localidad { Nombre = "Puerto Almanza", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
-                    new Localidad { Nombre = "Estancia Harberton", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia }
-                );
-                context.SaveChanges();
-            }
+                // Tierra del Fuego
+                new Localidad { Nombre = "Ushuaia", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
+                new Localidad { Nombre = "Río Grande", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
+                new Localidad { Nombre = "Tolhuin", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
+                new Localidad { Nombre = "Puerto Almanza", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia },
+                new Localidad { Nombre = "Estancia Harberton", IdProvincia = provincias.First(p => p.Nombre == "Tierra del Fuego, Antártida e Islas del Atlántico Sur").IdProvincia }
+            );
+            context.SaveChanges();
+        }
 
         // 3. TiposProductos
         if (!context.TiposProductos.Any())
@@ -344,6 +343,7 @@ public static class DbSeeder
                     Telefono = "34115559101",
                     Direccion = "Falsa 123",
                     IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
+                    Estado = true
                 },
                 new Persona
                 {
@@ -354,19 +354,21 @@ public static class DbSeeder
                     Telefono = "3411111111",
                     Direccion = "Verdadera 456",
                     IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
+                    Estado = true
                 },
 
                 // Empleados
                 new Persona
                 {
                     NombreCompleto = "Joaquin Peralta",
-                    Dni = 30789123,
+                    Dni = 44444444,
                     Email = "joaquin@empresa.com",
                     Password = "$2a$11$BbVT9kjYoeQWiAq3jCYdje2O9nVkX4Gq76ja.cMrwfzvrngzowUpm",
                     Telefono = "115550202",
                     Direccion = "Avenida Imaginaria 2",
                     IdLocalidad = locs.First(l => l.Nombre == "La Plata").IdLocalidad,
-                    FechaIngreso = new DateOnly(2022, 5, 10)
+                    FechaIngreso = new DateOnly(2022, 5, 10),
+                    Estado = true
                 },
                 new Persona
                 {
@@ -377,7 +379,8 @@ public static class DbSeeder
                     Telefono = "3415552222",
                     Direccion = "Calle Demo 4",
                     IdLocalidad = locs.First(l => l.Nombre == "Córdoba Capital").IdLocalidad,
-                    FechaIngreso = new DateOnly(2023, 2, 15)
+                    FechaIngreso = new DateOnly(2023, 2, 15),
+                    Estado = false
                 },
                 new Persona
                 {
@@ -388,7 +391,8 @@ public static class DbSeeder
                     Telefono = "3415882922",
                     Direccion = "Calle Prueba 5",
                     IdLocalidad = locs.First(l => l.Nombre == "Mendoza").IdLocalidad,
-                    FechaIngreso = new DateOnly(2022, 8, 30)
+                    FechaIngreso = new DateOnly(2022, 8, 30),
+                    Estado = false
                 },
                 new Persona
                 {
@@ -399,18 +403,20 @@ public static class DbSeeder
                     Telefono = "3415559202",
                     Direccion = "Calle Test 6",
                     IdLocalidad = locs.First(l => l.Nombre == "Bariloche").IdLocalidad,
-                    FechaIngreso = new DateOnly(2021, 11, 5)
+                    FechaIngreso = new DateOnly(2021, 11, 5),
+                    Estado = true
                 },
                 new Persona
                 {
-                    NombreCompleto = "Maria Gonzalez",
-                    Dni = 35456789,
-                    Email = "maria.g@email.com",
-                    Password = "$2a$11$aDmAJVe1pHTTRiAzAf6m7ek/rsSDM8RZ7aJJPaNjTcvogX0EHCRSm",
+                    NombreCompleto = "Agustin Santinelli",
+                    Dni = 46294992,
+                    Email = "agustinsantinelli@gmail.com",
+                    Password = "$2b$10$nnKkCR9PLA1Bjbv2x3iTq.Gte4HlIeqahbev.0fkcXBQXzsETdtH.",
                     Telefono = "3416667777",
-                    Direccion = "Av. Central 789",
+                    Direccion = "Molina 2022",
                     IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad,
-                    FechaIngreso = new DateOnly(2023, 6, 1)
+                    FechaIngreso = new DateOnly(2025, 9, 23),
+                    Estado = true
                 },
                 new Persona
                 {
@@ -421,7 +427,8 @@ public static class DbSeeder
                     Telefono = "3417778888",
                     Direccion = "Calle Secundaria 321",
                     IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad,
-                    FechaIngreso = new DateOnly(2022, 12, 10)
+                    FechaIngreso = new DateOnly(2022, 12, 10),
+                    Estado = true
                 },
                 new Persona
                 {
@@ -432,7 +439,8 @@ public static class DbSeeder
                     Telefono = "3418889999",
                     Direccion = "Pasaje Privado 654",
                     IdLocalidad = locs.First(l => l.Nombre == "Córdoba Capital").IdLocalidad,
-                    FechaIngreso = new DateOnly(2023, 3, 25)
+                    FechaIngreso = new DateOnly(2023, 3, 25),
+                    Estado = true
                 },
                 new Persona
                 {
@@ -443,7 +451,8 @@ public static class DbSeeder
                     Telefono = "3419990000",
                     Direccion = "Boulevard Principal 987",
                     IdLocalidad = locs.First(l => l.Nombre == "Mendoza").IdLocalidad,
-                    FechaIngreso = new DateOnly(2022, 7, 15)
+                    FechaIngreso = new DateOnly(2022, 7, 15),
+                    Estado = true
                 }
             );
             context.SaveChanges();

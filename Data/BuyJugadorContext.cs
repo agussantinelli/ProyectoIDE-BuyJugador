@@ -104,6 +104,9 @@ namespace Data
                 entity.Property(e => e.NombreCompleto).HasMaxLength(200);
                 entity.Property(e => e.Password).HasMaxLength(100);
                 entity.Property(e => e.Telefono).HasMaxLength(50);
+                entity.Property(e => e.Estado).HasDefaultValue(true);
+                entity.HasQueryFilter(p => p.Estado);
+
 
                 entity.HasOne(d => d.IdLocalidadNavigation)
                       .WithMany(p => p.Personas)

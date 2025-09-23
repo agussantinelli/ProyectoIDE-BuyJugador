@@ -23,6 +23,8 @@ public partial class Persona
 
     public DateOnly? FechaIngreso { get; set; }
 
+    public bool Estado { get; set; } = true;
+
     public virtual Localidad? IdLocalidadNavigation { get; set; }
 
     public virtual ICollection<Venta> Venta { get; set; } = new List<Venta>();
