@@ -15,46 +15,44 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<PersonaDTO>> GetAllAsync()
+        public async Task<List<PersonaDTO>?> GetAllAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas")
-                   ?? new List<PersonaDTO>();
+            return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas");
+        }
+
+        public async Task<List<PersonaDTO>?> GetInactivosAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas/inactivos");
         }
 
         public async Task<PersonaDTO?> GetByIdAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<PersonaDTO>($"api/personas/{id}");
+            return await _httpClient.GetFromJsonAsync<PersonaDTO?>($"api/personas/{id}");
         }
 
-        public async Task<PersonaDTO?> CreateAsync(PersonaDTO persona)
+        public async Task<HttpResponseMessage> CreateAsync(PersonaDTO persona)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/personas", persona);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<PersonaDTO>();
-            }
-            return null;
+            return await _httpClient.PostAsJsonAsync("api/personas", persona);
         }
 
-        public async Task<bool> UpdateAsync(int id, PersonaDTO persona)
+        public async Task<HttpResponseMessage> UpdateAsync(int id, PersonaDTO persona)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/personas/{id}", persona);
-            return response.IsSuccessStatusCode;
+            return await _httpClient.PutAsJsonAsync($"api/personas/{id}", persona);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<HttpResponseMessage> DeleteAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"api/personas/{id}");
-            return response.IsSuccessStatusCode;
+            return await _httpClient.DeleteAsync($"api/personas/{id}");
         }
 
-        public async Task<object> LoginAsync(object loginRequest)
+        public async Task<PersonaDTO?> LoginAsync(int dni, string password)
         {
+            var loginRequest = new { Dni = dni, Password = password };
             var response = await _httpClient.PostAsJsonAsync("api/personas/login", loginRequest);
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<object>();
+                return await response.Content.ReadFromJsonAsync<PersonaDTO>();
             }
 
             return null;

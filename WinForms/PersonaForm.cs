@@ -3,7 +3,6 @@ using DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,7 +13,9 @@ namespace WinForms
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
-        private List<PersonaDTO> _personasCache = new();
+
+        private List<PersonaDTO> _activosCache = new();
+        private List<PersonaDTO> _inactivosCache = new();
         private string _filtroActual = string.Empty;
 
         public PersonaForm(
@@ -30,99 +31,82 @@ namespace WinForms
 
         private async void PersonaForm_Load(object sender, EventArgs e)
         {
-            btnEditar.Visible = false;
-            btnEliminar.Visible = false;
-            dgvPersonas.ClearSelection();
-            await CargarPersonas();
+            await CargarTodo();
+            ActualizarVisibilidadBotones();
+        }
+
+        private async Task CargarTodo()
+        {
+            await CargarActivos();
+            await CargarInactivos();
             AplicarFiltro();
         }
 
-        private async Task CargarPersonas()
+        private async Task CargarActivos()
         {
             try
             {
-                var personas = await _personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
-                _personasCache = personas.ToList();
-                dgvPersonas.DataSource = _personasCache.ToList();
-                ConfigurarColumnas();
+                _activosCache = await _personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
+                dgvActivos.DataSource = _activosCache.ToList();
+                ConfigurarColumnas(dgvActivos);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar personas: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar personal activo: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ConfigurarColumnas()
+        private async Task CargarInactivos()
         {
-            if (dgvPersonas.Columns.Contains("IdPersona"))
-                dgvPersonas.Columns["IdPersona"].Visible = false;
-
-            if (dgvPersonas.Columns.Contains("NombreCompleto"))
+            try
             {
-                var col = dgvPersonas.Columns["NombreCompleto"];
-                col.HeaderText = "Nombre Completo";
-                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                col.MinimumWidth = 150;
+                _inactivosCache = await _personaApiClient.GetInactivosAsync() ?? new List<PersonaDTO>();
+                dgvInactivos.DataSource = _inactivosCache.ToList();
+                ConfigurarColumnas(dgvInactivos);
             }
-
-            if (dgvPersonas.Columns.Contains("Dni"))
+            catch (Exception ex)
             {
-                dgvPersonas.Columns["Dni"].HeaderText = "DNI";
-                dgvPersonas.Columns["Dni"].Width = 100;
+                MessageBox.Show($"Error al cargar ex-personal: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
 
-            if (dgvPersonas.Columns.Contains("Email"))
-            {
-                dgvPersonas.Columns["Email"].HeaderText = "Email";
-                dgvPersonas.Columns["Email"].Width = 190;
-            }
+        private void ConfigurarColumnas(DataGridView dgv)
+        {
+            if (dgv.DataSource == null) return;
+            dgv.Columns["IdPersona"].Visible = false;
+            dgv.Columns["Password"].Visible = false;
+            dgv.Columns["IdLocalidad"].Visible = false;
+            dgv.Columns["FechaIngreso"].Visible = false;
+            dgv.Columns["Estado"].Visible = false;
+            dgv.Columns["EstadoDescripcion"].Visible = false;
 
-            if (dgvPersonas.Columns.Contains("Password"))
-                dgvPersonas.Columns["Password"].Visible = false;
+            dgv.Columns["NombreCompleto"].HeaderText = "Nombre Completo";
+            dgv.Columns["NombreCompleto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgv.Columns["NombreCompleto"].MinimumWidth = 150;
 
-            if (dgvPersonas.Columns.Contains("Telefono"))
-            {
-                dgvPersonas.Columns["Telefono"].HeaderText = "Teléfono";
-                dgvPersonas.Columns["Telefono"].Width = 110;
-            }
+            dgv.Columns["Dni"].HeaderText = "DNI";
+            dgv.Columns["Dni"].Width = 100;
 
-            if (dgvPersonas.Columns.Contains("Direccion"))
-            {
-                dgvPersonas.Columns["Direccion"].HeaderText = "Dirección";
-                dgvPersonas.Columns["Direccion"].Width = 140;
-            }
+            dgv.Columns["Email"].HeaderText = "Email";
+            dgv.Columns["Email"].Width = 190;
 
-            if (dgvPersonas.Columns.Contains("IdLocalidad"))
-                dgvPersonas.Columns["IdLocalidad"].Visible = false;
+            dgv.Columns["Telefono"].HeaderText = "Teléfono";
+            dgv.Columns["Telefono"].Width = 110;
 
-            if (dgvPersonas.Columns.Contains("FechaIngreso"))
-                dgvPersonas.Columns["FechaIngreso"].Visible = false;
+            dgv.Columns["Direccion"].HeaderText = "Dirección";
+            dgv.Columns["Direccion"].Width = 140;
 
-            if (dgvPersonas.Columns.Contains("FechaIngresoFormateada"))
-            {
-                dgvPersonas.Columns["FechaIngresoFormateada"].HeaderText = "Fecha Ingreso";
-                dgvPersonas.Columns["FechaIngresoFormateada"].Width = 110;
-            }
+            dgv.Columns["FechaIngresoFormateada"].HeaderText = "Fecha Ingreso";
+            dgv.Columns["FechaIngresoFormateada"].Width = 110;
 
+            dgv.Columns["LocalidadNombre"].HeaderText = "Localidad";
+            dgv.Columns["LocalidadNombre"].Width = 110;
 
-            if (dgvPersonas.Columns.Contains("LocalidadNombre"))
-            {
-                dgvPersonas.Columns["LocalidadNombre"].HeaderText = "Localidad";
-                dgvPersonas.Columns["LocalidadNombre"].Width = 110;
-            }
+            dgv.Columns["ProvinciaNombre"].HeaderText = "Provincia";
+            dgv.Columns["ProvinciaNombre"].Width = 100;
 
-            if (dgvPersonas.Columns.Contains("ProvinciaNombre"))
-            {
-                dgvPersonas.Columns["ProvinciaNombre"].HeaderText = "Provincia";
-                dgvPersonas.Columns["ProvinciaNombre"].Width = 100;
-            }
-
-            if (dgvPersonas.Columns.Contains("Rol"))
-            {
-                dgvPersonas.Columns["Rol"].HeaderText = "Rol";
-                dgvPersonas.Columns["Rol"].Width = 80;
-            }
+            dgv.Columns["Rol"].HeaderText = "Rol";
+            dgv.Columns["Rol"].Width = 80;
         }
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
@@ -134,35 +118,29 @@ namespace WinForms
         private void AplicarFiltro()
         {
             var f = _filtroActual.ToLowerInvariant();
-            if (string.IsNullOrWhiteSpace(f))
+            Func<PersonaDTO, bool> filtro = p =>
+                (p.NombreCompleto?.ToLower().Contains(f) ?? false) ||
+                p.Dni.ToString().Contains(f) ||
+                (p.Email?.ToLower().Contains(f) ?? false) ||
+                (p.Telefono?.ToLower().Contains(f) ?? false) ||
+                (p.Direccion?.ToLower().Contains(f) ?? false) ||
+                (p.LocalidadNombre?.ToLower().Contains(f) ?? false) ||
+                (p.ProvinciaNombre?.ToLower().Contains(f) ?? false) ||
+                (p.Rol?.ToLower().Contains(f) ?? false);
+
+            if (tabControlPersonas.SelectedTab == tabPageActivos)
             {
-                dgvPersonas.DataSource = _personasCache.ToList();
+                dgvActivos.DataSource = string.IsNullOrWhiteSpace(f) ? _activosCache.ToList() : _activosCache.Where(filtro).ToList();
             }
             else
             {
-                dgvPersonas.DataSource = _personasCache
-                    .Where(p =>
-                        (!string.IsNullOrEmpty(p.NombreCompleto) && p.NombreCompleto.ToLower().Contains(f)) ||
-                        p.Dni.ToString().Contains(f) ||
-                        (!string.IsNullOrEmpty(p.Email) && p.Email.ToLower().Contains(f)) ||
-                        (!string.IsNullOrEmpty(p.Telefono) && p.Telefono.ToLower().Contains(f)) ||
-                        (!string.IsNullOrEmpty(p.Direccion) && p.Direccion.ToLower().Contains(f)) ||
-                        (!string.IsNullOrEmpty(p.LocalidadNombre) && p.LocalidadNombre.ToLower().Contains(f)) ||
-                        (!string.IsNullOrEmpty(p.ProvinciaNombre) && p.ProvinciaNombre.ToLower().Contains(f)) ||
-                        (!string.IsNullOrEmpty(p.Rol) && p.Rol.ToLower().Contains(f))
-                    ).ToList();
+                dgvInactivos.DataSource = string.IsNullOrWhiteSpace(f) ? _inactivosCache.ToList() : _inactivosCache.Where(filtro).ToList();
             }
-
-            ConfigurarColumnas();
         }
 
-        private PersonaDTO? ObtenerSeleccionado()
+        private PersonaDTO? ObtenerSeleccionado(DataGridView dgv)
         {
-            var row = dgvPersonas.SelectedRows.Count > 0
-                ? dgvPersonas.SelectedRows[0]
-                : dgvPersonas.CurrentRow;
-
-            return row?.DataBoundItem as PersonaDTO;
+            return dgv.SelectedRows.Count > 0 ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO : null;
         }
 
         private async void btnNuevo_Click(object sender, EventArgs e)
@@ -170,63 +148,84 @@ namespace WinForms
             using var form = new CrearPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
-                await CargarPersonas();
-                AplicarFiltro();
+                await CargarActivos();
             }
         }
 
         private async void btnEditar_Click(object sender, EventArgs e)
         {
-            var persona = ObtenerSeleccionado();
+            var persona = ObtenerSeleccionado(dgvActivos);
             if (persona == null) return;
 
             using var form = new EditarPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient, persona);
             if (form.ShowDialog(this) == DialogResult.OK)
             {
-                await CargarPersonas();
-                AplicarFiltro();
+                await CargarActivos();
             }
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
         {
-            var persona = ObtenerSeleccionado();
+            var persona = ObtenerSeleccionado(dgvActivos);
             if (persona == null) return;
 
-            var confirm = MessageBox.Show(
-                $"¿Está seguro que desea eliminar a \"{persona.NombreCompleto}\"?",
-                "Confirmar Eliminación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
+            var confirm = MessageBox.Show($"¿Está seguro que desea dar de baja a \"{persona.NombreCompleto}\"?", "Confirmar Baja", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm != DialogResult.Yes) return;
 
             try
             {
                 await _personaApiClient.DeleteAsync(persona.IdPersona);
-                _personasCache.RemoveAll(p => p.IdPersona == persona.IdPersona);
-                AplicarFiltro();
-
-                MessageBox.Show("Persona eliminada exitosamente.",
-                    "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (HttpRequestException ex)
-            {
-                MessageBox.Show($"Error de red: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await CargarTodo();
+                MessageBox.Show("Persona dada de baja exitosamente.", "Baja Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al eliminar persona: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al dar de baja a la persona: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void btnReactivar_Click(object sender, EventArgs e)
+        {
+            var persona = ObtenerSeleccionado(dgvInactivos);
+            if (persona == null) return;
+
+            var confirm = MessageBox.Show($"¿Está seguro que desea reactivar a \"{persona.NombreCompleto}\"?", "Confirmar Reactivación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                persona.Estado = true;
+                await _personaApiClient.UpdateAsync(persona.IdPersona, persona);
+                await CargarTodo();
+                MessageBox.Show("Persona reactivada exitosamente.", "Reactivación Exitosa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al reactivar a la persona: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnVolver_Click(object sender, EventArgs e) => Close();
 
-        private void dgvPersonas_SelectionChanged(object sender, EventArgs e)
+        private void ActualizarVisibilidadBotones()
         {
-            bool seleccionado = dgvPersonas.SelectedRows.Count > 0;
-            btnEditar.Visible = seleccionado;
-            btnEliminar.Visible = seleccionado;
+            bool esTabActivos = tabControlPersonas.SelectedTab == tabPageActivos;
+
+            bool activoSeleccionado = ObtenerSeleccionado(dgvActivos) != null;
+            bool inactivoSeleccionado = ObtenerSeleccionado(dgvInactivos) != null;
+
+            btnEditar.Visible = esTabActivos && activoSeleccionado;
+            btnEliminar.Visible = esTabActivos && activoSeleccionado;
+            btnReactivar.Visible = !esTabActivos && inactivoSeleccionado;
+        }
+
+        private void dgvActivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
+        private void dgvInactivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
+        private void tabControlPersonas_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+            ActualizarVisibilidadBotones();
         }
     }
 }
+

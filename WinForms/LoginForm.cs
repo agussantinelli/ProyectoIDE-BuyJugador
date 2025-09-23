@@ -1,19 +1,19 @@
 ﻿using ApiClient;
 using System;
 using System.Windows.Forms;
-using System.Text.Json;
 
 namespace WinForms
 {
     public partial class LoginForm : Form
     {
         private readonly PersonaApiClient _personaApiClient;
-        public string RolUsuario { get; private set; }
+        public string? RolUsuario { get; private set; }
 
         public LoginForm(PersonaApiClient personaApiClient)
         {
             InitializeComponent();
             _personaApiClient = personaApiClient;
+            RolUsuario = null;
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
@@ -32,23 +32,18 @@ namespace WinForms
 
             try
             {
-                var loginRequest = new { Dni = dni, Password = txtPassword.Text };
-                var personaJson = await _personaApiClient.LoginAsync(loginRequest);
+                var personaLogueada = await _personaApiClient.LoginAsync(dni, txtPassword.Text);
 
-                if (personaJson != null)
+                if (personaLogueada != null)
                 {
-                    using (JsonDocument doc = JsonDocument.Parse(personaJson.ToString()))
-                    {
-                        JsonElement root = doc.RootElement;
-                        RolUsuario = root.GetProperty("rol").GetString();
-                    }
+                    RolUsuario = personaLogueada.Rol;
 
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
                 else
                 {
-                    MessageBox.Show("DNI o contraseña incorrectos.", "Error de Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("DNI o contraseña incorrectos, o el usuario está inactivo.", "Error de Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)

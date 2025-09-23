@@ -2,7 +2,6 @@
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using BCrypt.Net;
 
 namespace WebAPI.Endpoints
@@ -11,7 +10,7 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
-            // Obtiene todas las personas incluyendo su Localidad y Provincia.
+            // Devuelve solo personas ACTIVAS (gracias al filtro global en el Context)
             app.MapGet("/api/personas", async (BuyJugadorContext db) =>
             {
                 var personas = await db.Personas
@@ -22,10 +21,23 @@ namespace WebAPI.Endpoints
                 return Results.Ok(personas);
             });
 
-            // Obtiene una persona por su ID, incluyendo su Localidad y Provincia.
+            // Devuelve solo personas INACTIVAS, ignorando el filtro global
+            app.MapGet("/api/personas/inactivos", async (BuyJugadorContext db) =>
+            {
+                var personas = await db.Personas
+                    .IgnoreQueryFilters()
+                    .Where(p => !p.Estado)
+                    .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                    .Select(p => PersonaDTO.FromDominio(p))
+                    .ToListAsync();
+                return Results.Ok(personas);
+            });
+
             app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {
                 var persona = await db.Personas
+                    .IgnoreQueryFilters()
                     .Include(p => p.IdLocalidadNavigation)
                     .ThenInclude(l => l.IdProvinciaNavigation)
                     .FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -43,17 +55,16 @@ namespace WebAPI.Endpoints
                     NombreCompleto = personaDto.NombreCompleto,
                     Dni = personaDto.Dni,
                     Email = personaDto.Email,
-                    // Directamente asignamos el string del hash
                     Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
                     Telefono = personaDto.Telefono,
                     Direccion = personaDto.Direccion,
                     IdLocalidad = personaDto.IdLocalidad,
-                    FechaIngreso = personaDto.FechaIngreso
+                    FechaIngreso = personaDto.FechaIngreso,
+                    Estado = true
                 };
                 db.Personas.Add(persona);
                 await db.SaveChangesAsync();
 
-                // Devolvemos un DTO sin la contraseña por seguridad
                 personaDto.IdPersona = persona.IdPersona;
                 personaDto.Password = null;
                 return Results.Created($"/api/personas/{persona.IdPersona}", personaDto);
@@ -61,14 +72,20 @@ namespace WebAPI.Endpoints
 
             app.MapPut("/api/personas/{id}", async (BuyJugadorContext db, int id, PersonaDTO personaDto) =>
             {
-                var persona = await db.Personas.FindAsync(id);
+                var persona = await db.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
                 if (persona == null) return Results.NotFound();
 
-                // Asignamos todas las propiedades que se pueden editar
+                persona.NombreCompleto = personaDto.NombreCompleto;
                 persona.Email = personaDto.Email;
                 persona.Telefono = personaDto.Telefono;
                 persona.Direccion = personaDto.Direccion;
                 persona.IdLocalidad = personaDto.IdLocalidad;
+                persona.Estado = personaDto.Estado;
+
+                if (!string.IsNullOrEmpty(personaDto.Password))
+                {
+                    persona.Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password);
+                }
 
                 await db.SaveChangesAsync();
                 return Results.NoContent();
@@ -79,7 +96,7 @@ namespace WebAPI.Endpoints
                 var persona = await db.Personas.FindAsync(id);
                 if (persona == null) return Results.NotFound();
 
-                db.Personas.Remove(persona);
+                persona.Estado = false;
                 await db.SaveChangesAsync();
                 return Results.NoContent();
             });
@@ -88,7 +105,7 @@ namespace WebAPI.Endpoints
             {
                 var persona = await db.Personas
                                       .AsNoTracking()
-                                      .FirstOrDefaultAsync(p => p.Dni == loginRequest.Dni);
+                                      .FirstOrDefaultAsync(p => p.Dni == loginRequest.Dni && p.Estado);
 
                 if (persona == null)
                 {
@@ -102,20 +119,11 @@ namespace WebAPI.Endpoints
                     return Results.Unauthorized();
                 }
 
-                var personaDto = new PersonaDTO
-                {
-                    IdPersona = persona.IdPersona,
-                    NombreCompleto = persona.NombreCompleto,
-                    Email = persona.Email,
-                    FechaIngreso = persona.FechaIngreso
-                };
-
+                var personaDto = PersonaDTO.FromDominio(persona);
                 return Results.Ok(personaDto);
-
             }).AllowAnonymous();
         }
 
-        // DTO para el cuerpo de la solicitud de login
         public class LoginRequestDto
         {
             public int Dni { get; set; }
