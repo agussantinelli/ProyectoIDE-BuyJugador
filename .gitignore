@@ -68,3 +68,8 @@ secrets.json
 ## Otros
 _ReSharper*/
 *.DotSettings.user
+
+
+
+
+node_modules/
