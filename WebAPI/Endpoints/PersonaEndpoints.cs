@@ -11,37 +11,28 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
+            // Obtiene todas las personas incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas", async (BuyJugadorContext db) =>
             {
-                var personas = await db.Personas.Select(p => new PersonaDTO
-                {
-                    IdPersona = p.IdPersona,
-                    NombreCompleto = p.NombreCompleto,
-                    Dni = p.Dni,
-                    Email = p.Email,
-                    Telefono = p.Telefono,
-                    Direccion = p.Direccion,
-                    IdLocalidad = p.IdLocalidad,
-                    FechaIngreso = p.FechaIngreso
-                }).ToListAsync();
+                var personas = await db.Personas
+                    .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                    .Select(p => PersonaDTO.FromDominio(p))
+                    .ToListAsync();
                 return Results.Ok(personas);
             });
 
+            // Obtiene una persona por su ID, incluyendo su Localidad y Provincia.
             app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {
-                var persona = await db.Personas.FindAsync(id);
+                var persona = await db.Personas
+                    .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                    .FirstOrDefaultAsync(p => p.IdPersona == id);
+
                 if (persona == null) return Results.NotFound();
-                var personaDto = new PersonaDTO
-                {
-                    IdPersona = persona.IdPersona,
-                    NombreCompleto = persona.NombreCompleto,
-                    Dni = persona.Dni,
-                    Email = persona.Email,
-                    Telefono = persona.Telefono,
-                    Direccion = persona.Direccion,
-                    IdLocalidad = persona.IdLocalidad,
-                    FechaIngreso = persona.FechaIngreso
-                };
+
+                var personaDto = PersonaDTO.FromDominio(persona);
                 return Results.Ok(personaDto);
             });
 
@@ -52,7 +43,6 @@ namespace WebAPI.Endpoints
                     NombreCompleto = personaDto.NombreCompleto,
                     Dni = personaDto.Dni,
                     Email = personaDto.Email,
-                    // Directamente asignamos el string del hash
                     Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
                     Telefono = personaDto.Telefono,
                     Direccion = personaDto.Direccion,
@@ -78,7 +68,6 @@ namespace WebAPI.Endpoints
 
                 if (!string.IsNullOrEmpty(personaDto.Password))
                 {
-                    // Directamente asignamos el nuevo hash
                     persona.Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password);
                 }
 
@@ -95,7 +84,6 @@ namespace WebAPI.Endpoints
                 await db.SaveChangesAsync();
                 return Results.NoContent();
             });
-            // --- NUEVO ENDPOINT DE LOGIN ---
             app.MapPost("/api/personas/login", async (BuyJugadorContext db, LoginRequestDto loginRequest) =>
             {
                 var persona = await db.Personas
@@ -107,7 +95,6 @@ namespace WebAPI.Endpoints
                     return Results.Unauthorized();
                 }
 
-                // ¡Mucho más simple! Comparamos el string del formulario con el hash de la BD
                 bool passwordValida = BCrypt.Net.BCrypt.Verify(loginRequest.Password, persona.Password);
 
                 if (!passwordValida)
