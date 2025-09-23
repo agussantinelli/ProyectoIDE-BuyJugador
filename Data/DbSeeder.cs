@@ -1,4 +1,4 @@
-﻿
+
 using Data;
 using Microsoft.EntityFrameworkCore;
 using DominioModelo;
