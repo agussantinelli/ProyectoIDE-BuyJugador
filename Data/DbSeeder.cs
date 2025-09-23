@@ -8,10 +8,16 @@ public static class DbSeeder
 {
     public static void Seed(BuyJugadorContext context)
     {
-        //context.Database.Migrate();
+        //Comentar este comando si se ejecuta por primera vez
+        //Luego, descomentarlo para el uso habitual
+        context.Database.Migrate();
+        
+        
+        /*
+        //Descomentar solo para la 1ra ejecucion. Crea la Base de Datos
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
-
+        */
 
 
         // 1. Provincias
