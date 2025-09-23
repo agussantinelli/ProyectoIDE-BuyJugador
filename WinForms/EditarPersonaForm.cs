@@ -27,7 +27,6 @@ namespace WinForms
 
         private async void EditarPersonaForm_Load(object sender, EventArgs e)
         {
-            txtNombreCompleto.Text = _persona.NombreCompleto;
             txtEmail.Text = _persona.Email;
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
@@ -68,7 +67,6 @@ namespace WinForms
 
             if (confirm != DialogResult.Yes) return;
 
-            _persona.NombreCompleto = txtNombreCompleto.Text.Trim();
             _persona.Email = txtEmail.Text.Trim();
             _persona.Telefono = txtTelefono.Text.Trim();
             _persona.Direccion = txtDireccion.Text.Trim();
