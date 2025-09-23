@@ -9,19 +9,9 @@ public static class DbSeeder
 {
     public static void Seed(BuyJugadorContext context)
     {
-        //Comentar este comando si se ejecuta por primera vez
-        //Luego, descomentarlo para el uso habitual
-        //context.Database.Migrate();
-
-        //Esta andando mal el database migrate, por ahora cada ejecucion se borra y se crea de vuelta la BDD.
-        
-        
-        //Descomentar solo para la 1ra ejecucion. Crea la Base de Datos
-        context.Database.EnsureDeleted();
+        //Crea la BDD si no existe
         context.Database.EnsureCreated();
         
-
-
         // 1. Provincias
         if (!context.Provincias.Any())
         {
