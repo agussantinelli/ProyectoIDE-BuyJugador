@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ApiClient;
 using System;
+using System.Net.Http;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -16,17 +17,34 @@ namespace WinForms
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-                    string apiBaseAddress = "http://localhost:7145"; 
+                    var apiBaseAddress = new Uri("https://localhost:7145/");
 
-                    // Registra los clientes de API con HttpClientFactory.
-                    // Esto crea los ApiClients y les inyecta automáticamente un HttpClient configurado.
-                    services.AddHttpClient<PersonaApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
-                    services.AddHttpClient<ProvinciaApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
-                    services.AddHttpClient<LocalidadApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
-                    services.AddHttpClient<TipoProductoApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
-                    services.AddHttpClient<ProductoApiClient>(client => client.BaseAddress = new Uri(apiBaseAddress));
+                    // Handler: ignorar certificado SOLO en Desarrollo (para localhost)
+                    HttpMessageHandler CreateHandler()
+                    {
+                        if (context.HostingEnvironment.IsDevelopment())
+                        {
+                            return new HttpClientHandler
+                            {
+                                ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true
+                            };
+                        }
+                        return new HttpClientHandler();
+                    }
 
-                    // Registra los formularios para que puedan ser inyectados
+                    // HttpClientFactory para tus ApiClients
+                    services.AddHttpClient<PersonaApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProvinciaApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LocalidadApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<TipoProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+
+                    // Formularios
                     services.AddTransient<LoginForm>();
                     services.AddTransient<MainForm>();
                     services.AddTransient<EmpleadoForm>();
@@ -36,18 +54,15 @@ namespace WinForms
                 })
                 .Build();
 
-            using (var serviceScope = host.Services.CreateScope())
-            {
-                var services = serviceScope.ServiceProvider;
-                var loginForm = services.GetRequiredService<LoginForm>();
+            using var scope = host.Services.CreateScope();
+            var sp = scope.ServiceProvider;
 
-                if (loginForm.ShowDialog() == DialogResult.OK)
-                {
-                    var mainForm = services.GetRequiredService<MainForm>();
-                    // Le pasamos el rol al MainForm después de crearlo
-                    mainForm.EstablecerRol(loginForm.RolUsuario);
-                    Application.Run(mainForm);
-                }
+            var loginForm = sp.GetRequiredService<LoginForm>();
+            if (loginForm.ShowDialog() == DialogResult.OK)
+            {
+                var mainForm = sp.GetRequiredService<MainForm>();
+                mainForm.EstablecerRol(loginForm.RolUsuario);
+                Application.Run(mainForm);
             }
         }
     }
