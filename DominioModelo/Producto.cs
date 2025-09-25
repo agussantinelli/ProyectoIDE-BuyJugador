@@ -15,6 +15,9 @@ public partial class Producto
 
     public int? IdTipoProducto { get; set; }
 
+    public bool Activo { get; set; } = true;
+
+
     public virtual TipoProducto? IdTipoProductoNavigation { get; set; }
 
     public virtual ICollection<LineaPedido> LineaPedidos { get; set; } = new List<LineaPedido>();

@@ -126,6 +126,7 @@ namespace Data
                       .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
+
             modelBuilder.Entity<Producto>(entity =>
             {
                 entity.HasKey(e => e.IdProducto);
@@ -133,11 +134,18 @@ namespace Data
                 entity.Property(e => e.Descripcion).HasMaxLength(255);
                 entity.Property(e => e.Nombre).HasMaxLength(100);
 
+                entity.Property(e => e.Activo) 
+                      .HasDefaultValue(true);
+
                 entity.HasOne(d => d.IdTipoProductoNavigation)
                       .WithMany(p => p.Productos)
                       .HasForeignKey(d => d.IdTipoProducto)
                       .OnDelete(DeleteBehavior.Restrict);
             });
+
+            modelBuilder.Entity<Producto>()
+                .HasQueryFilter(p => p.Activo);
+
 
             modelBuilder.Entity<Proveedor>(entity =>
             {

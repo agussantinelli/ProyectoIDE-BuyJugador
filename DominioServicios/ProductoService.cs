@@ -52,9 +52,10 @@ namespace DominioServicios
             var entidad = await _context.Productos.FindAsync(id);
             if (entidad != null)
             {
-                _context.Productos.Remove(entidad);
+                entidad.Activo = false;
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }
