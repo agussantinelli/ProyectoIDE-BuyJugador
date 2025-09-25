@@ -154,7 +154,6 @@ namespace WinForms
                 dgvInactivos.DataSource = string.IsNullOrWhiteSpace(f) ? _inactivosCache.ToList() : _inactivosCache.Where(Coincide).ToList();
         }
 
-        // === Selección y acciones ===
         private PersonaDTO? ObtenerSeleccionado(DataGridView dgv)
             => dgv.SelectedRows.Count > 0 ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO : null;
 
@@ -213,11 +212,18 @@ namespace WinForms
 
             try
             {
-                persona.Estado = true;
-                await _personaApiClient.UpdateAsync(persona.IdPersona, persona);
-                await CargarTodo();
-                MessageBox.Show("Persona reactivada exitosamente.", "Reactivación Exitosa",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                var response = await _personaApiClient.ReactivarAsync(persona.IdPersona);
+                if (response.IsSuccessStatusCode)
+                {
+                    await CargarTodo();
+                    MessageBox.Show("Persona reactivada exitosamente.", "Reactivación Exitosa",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("No se pudo reactivar la persona.", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -225,6 +231,7 @@ namespace WinForms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void btnVolver_Click(object sender, EventArgs e) => Close();
 

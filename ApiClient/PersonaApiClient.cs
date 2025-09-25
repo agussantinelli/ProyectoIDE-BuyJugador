@@ -45,6 +45,12 @@ namespace ApiClient
             return await _httpClient.DeleteAsync($"api/personas/{id}");
         }
 
+        public async Task<HttpResponseMessage> ReactivarAsync(int id)
+        {
+            return await _httpClient.PutAsync($"api/personas/reactivar/{id}", null);
+        }
+
+
         public async Task<PersonaDTO?> LoginAsync(int dni, string password)
         {
             var loginRequest = new { Dni = dni, Password = password };
