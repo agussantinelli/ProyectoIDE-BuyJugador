@@ -19,7 +19,6 @@ namespace WinForms
                 {
                     var apiBaseAddress = new Uri("https://localhost:7145/");
 
-                    // Handler: ignorar certificado SOLO en Desarrollo (para localhost)
                     HttpMessageHandler CreateHandler()
                     {
                         if (context.HostingEnvironment.IsDevelopment())

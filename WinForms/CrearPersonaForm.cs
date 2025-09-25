@@ -38,24 +38,32 @@ namespace WinForms
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
             cmbProvincia.ValueMember = "IdProvincia";
-            cmbProvincia.SelectedIndex = 0; // Selecciona el ítem vacío
+            cmbProvincia.SelectedIndex = 0;
         }
 
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbProvincia.SelectedValue is int idProvincia)
+            if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
             {
                 var localidades = await _localidadApiClient.GetAllAsync();
                 var filtradas = localidades?
                     .Where(l => l.IdProvincia == idProvincia)
                     .ToList();
 
+                filtradas.Insert(0, new LocalidadDTO { IdLocalidad = 0, Nombre = "-- Seleccionar localidad --" });
+
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
+                cmbLocalidad.SelectedIndex = 0;
+            }
+            else
+            {
+                cmbLocalidad.DataSource = null;
             }
         }
+
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {

@@ -20,13 +20,24 @@ namespace WinForms
         private async void CrearProductoForm_Load(object sender, EventArgs e)
         {
             var tipos = await _tipoProductoApiClient.GetAllAsync();
+
+            tipos.Insert(0, new TipoProductoDTO { IdTipoProducto = 0, Descripcion = "-- Seleccione tipo de producto --" });
+
             cmbTipoProducto.DataSource = tipos;
             cmbTipoProducto.DisplayMember = "Descripcion";
             cmbTipoProducto.ValueMember = "IdTipoProducto";
+            cmbTipoProducto.SelectedIndex = 0;
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
+            if ((int)cmbTipoProducto.SelectedValue == 0)
+            {
+                MessageBox.Show("Debe seleccionar un tipo de producto.", "Atención",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var dto = new ProductoDTO
             {
                 Nombre = txtNombre.Text.Trim(),
@@ -40,6 +51,7 @@ namespace WinForms
             MessageBox.Show("Producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
         }
+
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
