@@ -31,22 +31,24 @@
 
             // txtDescripcion
             this.txtDescripcion.Location = new System.Drawing.Point(30, 45);
-            this.txtDescripcion.Size = new System.Drawing.Size(240, 23);
+            this.txtDescripcion.Size = new System.Drawing.Size(240, 80);
+            this.txtDescripcion.Multiline = true;
+            this.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 
             // btnGuardar
-            this.btnGuardar.Location = new System.Drawing.Point(30, 90);
+            this.btnGuardar.Location = new System.Drawing.Point(30, 140);
             this.btnGuardar.Size = new System.Drawing.Size(100, 30);
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
 
             // btnCancelar
-            this.btnCancelar.Location = new System.Drawing.Point(170, 90);
+            this.btnCancelar.Location = new System.Drawing.Point(170, 140);
             this.btnCancelar.Size = new System.Drawing.Size(100, 30);
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
 
             // EditarTipoProductoForm
-            this.ClientSize = new System.Drawing.Size(320, 150);
+            this.ClientSize = new System.Drawing.Size(320, 200);
             this.Controls.Add(this.lblDescripcion);
             this.Controls.Add(this.txtDescripcion);
             this.Controls.Add(this.btnGuardar);

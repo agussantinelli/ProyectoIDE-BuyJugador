@@ -53,38 +53,40 @@
 
             // txtDescripcion
             this.txtDescripcion.Location = new Point(30, 110);
-            this.txtDescripcion.Size = new Size(220, 23);
+            this.txtDescripcion.Size = new Size(220, 60);
+            this.txtDescripcion.Multiline = true;
+            this.txtDescripcion.ScrollBars = ScrollBars.Vertical;
 
             // lblStock
-            this.lblStock.Location = new Point(30, 150);
+            this.lblStock.Location = new Point(30, 180);
             this.lblStock.Text = "Stock:";
             this.lblStock.AutoSize = true;
 
             // numStock
-            this.numStock.Location = new Point(30, 175);
+            this.numStock.Location = new Point(30, 205);
             this.numStock.Maximum = 100000;
 
             // lblTipoProducto
-            this.lblTipoProducto.Location = new Point(30, 215);
+            this.lblTipoProducto.Location = new Point(30, 245);
             this.lblTipoProducto.Text = "Tipo de Producto:";
             this.lblTipoProducto.AutoSize = true;
 
             // cmbTipoProducto
-            this.cmbTipoProducto.Location = new Point(30, 240);
+            this.cmbTipoProducto.Location = new Point(30, 270);
             this.cmbTipoProducto.Size = new Size(220, 23);
 
             // btnGuardar
-            this.btnGuardar.Location = new Point(30, 280);
+            this.btnGuardar.Location = new Point(30, 310);
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.Click += new EventHandler(this.btnGuardar_Click);
 
             // btnCancelar
-            this.btnCancelar.Location = new Point(150, 280);
+            this.btnCancelar.Location = new Point(150, 310);
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new EventHandler(this.btnCancelar_Click);
 
             // Form
-            this.ClientSize = new Size(300, 340);
+            this.ClientSize = new Size(320, 380);
             this.Controls.AddRange(new Control[] {
                 lblNombre, txtNombre,
                 lblDescripcion, txtDescripcion,
