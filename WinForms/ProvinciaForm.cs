@@ -1,5 +1,6 @@
 ﻿using ApiClient;
 using DTOs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -10,11 +11,15 @@ namespace WinForms
     {
         private readonly ProvinciaApiClient _provinciaApiClient;
 
-        public ProvinciaForm(ProvinciaApiClient provinciaApiClient)
+        public ProvinciaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _provinciaApiClient = provinciaApiClient;
+            _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
+            this.StartPosition = FormStartPosition.CenterParent;
+
         }
+
+
 
         private async void Provincia_Load(object sender, EventArgs e)
         {
@@ -45,6 +50,6 @@ namespace WinForms
             }
         }
 
-        private void btnVolver_Click(object sender, EventArgs e) => Close();
+        private void btnVolver_Click(object sender, EventArgs e) => this.Close();
     }
 }

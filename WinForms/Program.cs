@@ -44,15 +44,17 @@ namespace WinForms
                     services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
                             .ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
-                    // Formularios
-                    services.AddTransient<LoginForm>();
+                    // Form principal
                     services.AddTransient<MainForm>();
                     services.AddTransient<EmpleadoForm>();
+                    services.AddTransient<LoginForm>();
+
+                    // Formularios hijos
                     services.AddTransient<PersonaForm>();
                     services.AddTransient<ProductoForm>();
                     services.AddTransient<ProvinciaForm>();
-
                     services.AddTransient<TipoProductoForm>();
+
                 })
                 .Build();
 
@@ -62,10 +64,18 @@ namespace WinForms
             var loginForm = sp.GetRequiredService<LoginForm>();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                var mainForm = sp.GetRequiredService<MainForm>();
-                mainForm.EstablecerRol(loginForm.RolUsuario);
-                Application.Run(mainForm);
+                if (loginForm.RolUsuario == "Dueño")
+                {
+                    var mainForm = sp.GetRequiredService<MainForm>();
+                    Application.Run(mainForm);
+                }
+                else if (loginForm.RolUsuario == "Empleado")
+                {
+                    var empleadoForm = sp.GetRequiredService<EmpleadoForm>();
+                    Application.Run(empleadoForm);
+                }
             }
+
         }
     }
 }

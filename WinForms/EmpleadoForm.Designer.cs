@@ -3,6 +3,12 @@
     partial class EmpleadoForm
     {
         private System.ComponentModel.IContainer components = null;
+        private Panel pnlMenu;
+        private Panel pnlContenido;
+        private Button btnProductos;
+        private Button btnProvincias;
+        private Button btnVolver;
+        private Label lblTitulo;
 
         protected override void Dispose(bool disposing)
         {
@@ -10,66 +16,87 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
         private void InitializeComponent()
         {
-            this.btnMenuProductos = new System.Windows.Forms.Button();
-            this.btnMenuPersonas = new System.Windows.Forms.Button();
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.SuspendLayout();
+            pnlMenu = new Panel();
+            btnProductos = new Button();
+            btnVolver = new Button();
+            lblTitulo = new Label();
+            btnProvincias = new Button();
+            pnlContenido = new Panel();
+            pnlMenu.SuspendLayout();
+            SuspendLayout();
             // 
-            // lblTitle
+            // pnlMenu
             // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTitle.Location = new System.Drawing.Point(0, 20); // Será centrado en el .cs
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(184, 30);
-            this.lblTitle.TabIndex = 2;
-            this.lblTitle.Text = "Panel Empleado";
+            pnlMenu.BackColor = Color.LightSteelBlue;
+            pnlMenu.Controls.Add(btnProductos);
+            pnlMenu.Controls.Add(btnVolver);
+            pnlMenu.Controls.Add(lblTitulo);
+            pnlMenu.Controls.Add(btnProvincias);
+            pnlMenu.Dock = DockStyle.Left;
+            pnlMenu.Location = new Point(0, 0);
+            pnlMenu.Name = "pnlMenu";
+            pnlMenu.Size = new Size(215, 600);
+            pnlMenu.TabIndex = 1;
             // 
-            // btnMenuProductos
+            // btnProductos
             // 
-            this.btnMenuProductos.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnMenuProductos.Location = new System.Drawing.Point(110, 70);
-            this.btnMenuProductos.Name = "btnMenuProductos";
-            this.btnMenuProductos.Size = new System.Drawing.Size(280, 50);
-            this.btnMenuProductos.TabIndex = 0;
-            this.btnMenuProductos.Text = "Gestionar Productos";
-            this.btnMenuProductos.UseVisualStyleBackColor = true;
-            this.btnMenuProductos.Click += new System.EventHandler(this.btnMenuProductos_Click);
+            btnProductos.Location = new Point(20, 80);
+            btnProductos.Name = "btnProductos";
+            btnProductos.Size = new Size(160, 40);
+            btnProductos.TabIndex = 0;
+            btnProductos.Text = "Productos";
+            btnProductos.Click += btnProductos_Click;
             // 
-            // btnMenuPersonas
+            // btnVolver
             // 
-            this.btnMenuPersonas.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.btnMenuPersonas.Location = new System.Drawing.Point(110, 130);
-            this.btnMenuPersonas.Name = "btnMenuPersonas";
-            this.btnMenuPersonas.Size = new System.Drawing.Size(280, 50);
-            this.btnMenuPersonas.TabIndex = 1;
-            this.btnMenuPersonas.Text = "Gestionar Personas";
-            this.btnMenuPersonas.UseVisualStyleBackColor = true;
-            this.btnMenuPersonas.Click += new System.EventHandler(this.btnMenuPersonas_Click);
+            btnVolver.Location = new Point(20, 200);
+            btnVolver.Name = "btnVolver";
+            btnVolver.Size = new Size(160, 40);
+            btnVolver.TabIndex = 1;
+            btnVolver.Text = "Volver";
+            btnVolver.Click += btnVolver_Click;
+            // 
+            // lblTitulo
+            // 
+            lblTitulo.AutoSize = true;
+            lblTitulo.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitulo.Location = new Point(20, 20);
+            lblTitulo.Name = "lblTitulo";
+            lblTitulo.Size = new Size(64, 25);
+            lblTitulo.TabIndex = 2;
+            lblTitulo.Text = "Menú Empleado";
+            // 
+            // btnProvincias
+            // 
+            btnProvincias.Location = new Point(20, 140);
+            btnProvincias.Name = "btnProvincias";
+            btnProvincias.Size = new Size(160, 40);
+            btnProvincias.TabIndex = 3;
+            btnProvincias.Text = "Provincias";
+            btnProvincias.Click += btnProvincias_Click;
+            // 
+            // pnlContenido
+            // 
+            pnlContenido.BackColor = Color.White;
+            pnlContenido.Dock = DockStyle.Fill;
+            pnlContenido.Location = new Point(200, 0);
+            pnlContenido.Name = "pnlContenido";
+            pnlContenido.Size = new Size(700, 600);
+            pnlContenido.TabIndex = 0;
             // 
             // EmpleadoForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(500, 220);
-            this.Controls.Add(this.lblTitle);
-            this.Controls.Add(this.btnMenuPersonas);
-            this.Controls.Add(this.btnMenuProductos);
-            this.Name = "EmpleadoForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Panel de Empleado";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            ClientSize = new Size(900, 600);
+            Controls.Add(pnlContenido);
+            Controls.Add(pnlMenu);
+            Name = "EmpleadoForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Panel del Empleado";
+            pnlMenu.ResumeLayout(false);
+            pnlMenu.PerformLayout();
+            ResumeLayout(false);
         }
-
-        #endregion
-
-        private System.Windows.Forms.Button btnMenuProductos;
-        private System.Windows.Forms.Button btnMenuPersonas;
-        private System.Windows.Forms.Label lblTitle;
     }
 }

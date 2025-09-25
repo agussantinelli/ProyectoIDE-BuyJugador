@@ -11,24 +11,28 @@ namespace WinForms
         public EmpleadoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            CenterTitle();
             _serviceProvider = serviceProvider;
         }
-        private void CenterTitle()
+
+        private void AbrirFormulario<T>() where T : Form
         {
-            lblTitle.Left = (this.ClientSize.Width - lblTitle.Width) / 2;
+            pnlContenido.Controls.Clear();
+            var form = _serviceProvider.GetRequiredService<T>();
+            form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Dock = DockStyle.Fill;
+            pnlContenido.Controls.Add(form);
+            form.Show();
         }
 
-        private void btnMenuProductos_Click(object sender, EventArgs e)
-        {
-            var form = _serviceProvider.GetRequiredService<ProductoForm>();
-            form.ShowDialog();
-        }
 
-        private void btnMenuPersonas_Click(object sender, EventArgs e)
-        {
-            var form = _serviceProvider.GetRequiredService<PersonaForm>();
-            form.ShowDialog();
-        }
+        private void btnProductos_Click(object sender, EventArgs e) => AbrirFormulario<ProductoForm>();
+
+        private void btnProvincias_Click(object sender, EventArgs e) => AbrirFormulario<ProvinciaForm>();
+
+
+        private void btnVolver_Click(object sender, EventArgs e) => Close();
+
+
     }
 }

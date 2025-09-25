@@ -1,5 +1,6 @@
 ﻿using ApiClient;
 using DTOs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,22 +18,21 @@ namespace WinForms
         private List<PersonaDTO> _inactivosCache = new();
         private string _filtroActual = string.Empty;
 
-        public PersonaForm(
-            PersonaApiClient personaApiClient,
-            ProvinciaApiClient provinciaApiClient,
-            LocalidadApiClient localidadApiClient)
+        public PersonaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _personaApiClient = personaApiClient;
-            _provinciaApiClient = provinciaApiClient;
-            _localidadApiClient = localidadApiClient;
 
-            // Configuración FIJA de los grids (sin autogenerado)
+            _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
+            _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
+            _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
+
             PrepararGrid(dgvActivos);
             PrepararGrid(dgvInactivos);
+
+            this.StartPosition = FormStartPosition.CenterParent;
+
         }
 
-        // === Grids sin autogenerado, columnas definidas manualmente ===
         private void PrepararGrid(DataGridView dgv)
         {
             dgv.AutoGenerateColumns = false;

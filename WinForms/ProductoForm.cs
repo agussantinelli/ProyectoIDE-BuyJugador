@@ -1,5 +1,6 @@
 ﻿using ApiClient;
 using DTOs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,11 +17,14 @@ namespace WinForms
         private List<ProductoDTO> _productosCache = new();
         private string _filtroActual = string.Empty;
 
-        public ProductoForm(ProductoApiClient productoApiClient, TipoProductoApiClient tipoProductoApiClient)
+        public ProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _productoApiClient = productoApiClient;
-            _tipoProductoApiClient = tipoProductoApiClient;
+            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
+            _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
+
+            this.StartPosition = FormStartPosition.CenterParent;
+
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
