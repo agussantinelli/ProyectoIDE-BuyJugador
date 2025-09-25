@@ -7,7 +7,7 @@
         private Panel pnlContenido;
         private Button btnProductos;
         private Button btnProvincias;
-        private Button btnVolver;
+        private Button btnSalir;
         private Label lblTitulo;
 
         protected override void Dispose(bool disposing)
@@ -20,7 +20,7 @@
         {
             pnlMenu = new Panel();
             btnProductos = new Button();
-            btnVolver = new Button();
+            btnSalir = new Button();
             lblTitulo = new Label();
             btnProvincias = new Button();
             pnlContenido = new Panel();
@@ -31,7 +31,7 @@
             // 
             pnlMenu.BackColor = Color.LightSteelBlue;
             pnlMenu.Controls.Add(btnProductos);
-            pnlMenu.Controls.Add(btnVolver);
+            pnlMenu.Controls.Add(btnSalir);
             pnlMenu.Controls.Add(lblTitulo);
             pnlMenu.Controls.Add(btnProvincias);
             pnlMenu.Dock = DockStyle.Left;
@@ -51,12 +51,12 @@
             // 
             // btnVolver
             // 
-            btnVolver.Location = new Point(20, 200);
-            btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(160, 40);
-            btnVolver.TabIndex = 1;
-            btnVolver.Text = "Volver";
-            btnVolver.Click += btnVolver_Click;
+            btnSalir.Location = new Point(20, 200);
+            btnSalir.Name = "btnSalir";
+            btnSalir.Size = new Size(160, 40);
+            btnSalir.TabIndex = 1;
+            btnSalir.Text = "Salir";
+            btnSalir.Click += btnSalir_Click;
             // 
             // lblTitulo
             // 

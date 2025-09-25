@@ -9,7 +9,7 @@
         private Button btnPersonas;
         private Button btnTipoProducto;
         private Button btnProvincias;
-        private Button btnVolver;
+        private Button btnSalir;
         private Label lblTitulo;
 
         protected override void Dispose(bool disposing)
@@ -21,7 +21,7 @@
         private void InitializeComponent()
         {
             panelLateral = new Panel();
-            btnVolver = new Button();
+            btnSalir = new Button();
             btnProvincias = new Button();
             btnTipoProducto = new Button();
             btnPersonas = new Button();
@@ -34,7 +34,7 @@
             // panelLateral
             // 
             panelLateral.BackColor = Color.LightSteelBlue;
-            panelLateral.Controls.Add(btnVolver);
+            panelLateral.Controls.Add(btnSalir);
             panelLateral.Controls.Add(btnProvincias);
             panelLateral.Controls.Add(btnTipoProducto);
             panelLateral.Controls.Add(btnPersonas);
@@ -46,14 +46,14 @@
             panelLateral.Size = new Size(215, 600);
             panelLateral.TabIndex = 0;
             // 
-            // btnVolver
+            // btnSalir
             // 
-            btnVolver.Location = new Point(20, 520);
-            btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(160, 40);
-            btnVolver.TabIndex = 0;
-            btnVolver.Text = "Volver";
-            btnVolver.Click += btnVolver_Click;
+            btnSalir.Location = new Point(20, 270);
+            btnSalir.Name = "btnSalir";
+            btnSalir.Size = new Size(160, 40);
+            btnSalir.TabIndex = 0;
+            btnSalir.Text = "Salir";
+            btnSalir.Click += btnSalir_Click;
             // 
             // btnProvincias
             // 

@@ -12,6 +12,9 @@ namespace WinForms
         {
             InitializeComponent();
             _serviceProvider = serviceProvider;
+
+            this.WindowState = FormWindowState.Maximized;
+
         }
 
         private void AbrirFormulario<T>() where T : Form
@@ -29,7 +32,7 @@ namespace WinForms
         private void btnPersonas_Click(object sender, EventArgs e) => AbrirFormulario<PersonaForm>();
         private void btnTipoProducto_Click(object sender, EventArgs e) => AbrirFormulario<TipoProductoForm>();
         private void btnProvincias_Click(object sender, EventArgs e) => AbrirFormulario<ProvinciaForm>();
-        private void btnVolver_Click(object sender, EventArgs e) => Close();
+        private void btnSalir_Click(object sender, EventArgs e) => Close();
 
 
     }
