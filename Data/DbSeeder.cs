@@ -370,7 +370,7 @@ public static class DbSeeder
                 new Localidad { Nombre = "General Guido", IdProvincia = provincias.First(p => p.Nombre == "Buenos Aires").IdProvincia },
                 new Localidad { Nombre = "James Craik", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
                 new Localidad { Nombre = "Oliva", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
-                new Localidad { Nombre = "Laboulaye", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
+                new Localidad { Nombre = "Salsipuedes", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
                 new Localidad { Nombre = "Morteros", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
                 new Localidad { Nombre = "San Francisco", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
                 new Localidad { Nombre = "Villa del Rosario", IdProvincia = provincias.First(p => p.Nombre == "Córdoba").IdProvincia },
