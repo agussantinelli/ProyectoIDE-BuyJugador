@@ -23,7 +23,7 @@ namespace WebAPI.Endpoints
             group.MapPost("/", async (PrecioDTO dto, PrecioService service) =>
             {
                 var nuevo = await service.CreateAsync(dto);
-                return Results.Created($"/api/precios/{nuevo.IdProducto}/{nuevo.FechaDesde:yyyy-MM-dd}", nuevo);
+                return Results.Created($"/api/precios/{nuevo.IdProducto}/{nuevo.FechaDesde:yyyy-MM-ddTHH:mm:ss}", nuevo);
             });
 
             group.MapPut("/{idProducto}/{fechaDesde}", async (int idProducto, DateTime fechaDesde, PrecioDTO dto, PrecioService service) =>

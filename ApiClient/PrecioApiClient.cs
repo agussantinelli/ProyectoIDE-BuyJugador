@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System;
 
 namespace ApiClient
 {
@@ -20,9 +21,10 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<List<PrecioDTO>>("api/precios");
         }
 
-        public async Task<PrecioDTO?> GetByIdAsync(int idProducto)
+        public async Task<PrecioDTO?> GetByIdAsync(int idProducto, DateTime fechaDesde)
         {
-            return await _httpClient.GetFromJsonAsync<PrecioDTO?>($"api/precios/{idProducto}");
+            string fechaParam = fechaDesde.ToString("yyyy-MM-ddTHH:mm:ss");
+            return await _httpClient.GetFromJsonAsync<PrecioDTO?>($"api/precios/{idProducto}/{fechaParam}");
         }
 
         public async Task<HttpResponseMessage> CreateAsync(PrecioDTO dto)
@@ -30,14 +32,16 @@ namespace ApiClient
             return await _httpClient.PostAsJsonAsync("api/precios", dto);
         }
 
-        public async Task<HttpResponseMessage> UpdateAsync(int idProducto, PrecioDTO dto)
+        public async Task<HttpResponseMessage> UpdateAsync(int idProducto, DateTime fechaDesde, PrecioDTO dto)
         {
-            return await _httpClient.PutAsJsonAsync($"api/precios/{idProducto}", dto);
+            string fechaParam = fechaDesde.ToString("yyyy-MM-ddTHH:mm:ss");
+            return await _httpClient.PutAsJsonAsync($"api/precios/{idProducto}/{fechaParam}", dto);
         }
 
-        public async Task<HttpResponseMessage> DeleteAsync(int idProducto)
+        public async Task<HttpResponseMessage> DeleteAsync(int idProducto, DateTime fechaDesde)
         {
-            return await _httpClient.DeleteAsync($"api/precios/{idProducto}");
+            string fechaParam = fechaDesde.ToString("yyyy-MM-ddTHH:mm:ss");
+            return await _httpClient.DeleteAsync($"api/precios/{idProducto}/{fechaParam}");
         }
     }
 }
