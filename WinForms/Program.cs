@@ -19,6 +19,7 @@ namespace WinForms
                 {
                     var apiBaseAddress = new Uri("https://localhost:7145/");
 
+                    // CORRECCIÓN: El tipo de retorno debe ser HttpMessageHandler.
                     HttpMessageHandler CreateHandler()
                     {
                         if (context.HostingEnvironment.IsDevelopment())
@@ -43,18 +44,13 @@ namespace WinForms
                     services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
                             .ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
-                    // Form principal
-                    services.AddTransient<MainForm>();
-                    services.AddTransient<EmpleadoForm>();
+                    // Formularios
                     services.AddTransient<LoginForm>();
-
-                    // Formularios hijos
                     services.AddTransient<PersonaForm>();
                     services.AddTransient<ProductoForm>();
                     services.AddTransient<ProvinciaForm>();
                     services.AddTransient<LocalidadForm>();
                     services.AddTransient<TipoProductoForm>();
-
                 })
                 .Build();
 
@@ -64,18 +60,12 @@ namespace WinForms
             var loginForm = sp.GetRequiredService<LoginForm>();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                if (loginForm.RolUsuario == "Dueño")
-                {
-                    var mainForm = sp.GetRequiredService<MainForm>();
-                    Application.Run(mainForm);
-                }
-                else if (loginForm.RolUsuario == "Empleado")
-                {
-                    var empleadoForm = sp.GetRequiredService<EmpleadoForm>();
-                    Application.Run(empleadoForm);
-                }
-            }
+                bool isAdmin = "Dueño".Equals(loginForm.RolUsuario, StringComparison.OrdinalIgnoreCase);
 
+                var mainForm = new MainForm(sp, isAdmin);
+                Application.Run(mainForm);
+            }
         }
     }
 }
+
