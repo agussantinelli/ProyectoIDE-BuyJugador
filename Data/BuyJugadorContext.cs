@@ -6,24 +6,14 @@ namespace Data
 {
     public partial class BuyJugadorContext : DbContext
     {
+        // Se mantiene únicamente el constructor que recibe las opciones,
+        // forzando a que la configuración venga desde el exterior (Program.cs).
         public BuyJugadorContext(DbContextOptions<BuyJugadorContext> options)
             : base(options)
         {
         }
 
-        public BuyJugadorContext()
-        {
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder
-                    .UseSqlServer("Server=localhost\\SQLEXPRESS;Database=BuyJugador;Trusted_Connection=True;TrustServerCertificate=True;")
-                    .ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
-            }
-        }
+        // Se elimina el constructor vacío y el método OnConfiguring para evitar conflictos.
 
         // DbSets
         public virtual DbSet<LineaPedido> LineaPedidos { get; set; }
@@ -46,13 +36,13 @@ namespace Data
                 entity.HasKey(e => new { e.IdPedido, e.NroLineaPedido });
 
                 entity.HasOne(d => d.IdPedidoNavigation)
-                      .WithMany(p => p.LineaPedidos)
-                      .HasForeignKey(d => d.IdPedido)
-                      .OnDelete(DeleteBehavior.ClientSetNull);
+                        .WithMany(p => p.LineaPedidos)
+                        .HasForeignKey(d => d.IdPedido)
+                        .OnDelete(DeleteBehavior.ClientSetNull);
 
                 entity.HasOne(d => d.IdProductoNavigation)
-                      .WithMany(p => p.LineaPedidos)
-                      .HasForeignKey(d => d.IdProducto);
+                        .WithMany(p => p.LineaPedidos)
+                        .HasForeignKey(d => d.IdProducto);
             });
 
             modelBuilder.Entity<LineaVenta>(entity =>
@@ -60,13 +50,13 @@ namespace Data
                 entity.HasKey(e => new { e.IdVenta, e.NroLineaVenta });
 
                 entity.HasOne(d => d.IdProductoNavigation)
-                      .WithMany(p => p.LineaVenta)
-                      .HasForeignKey(d => d.IdProducto);
+                        .WithMany(p => p.LineaVenta)
+                        .HasForeignKey(d => d.IdProducto);
 
                 entity.HasOne(d => d.IdVentaNavigation)
-                      .WithMany(p => p.LineaVenta)
-                      .HasForeignKey(d => d.IdVenta)
-                      .OnDelete(DeleteBehavior.ClientSetNull);
+                        .WithMany(p => p.LineaVenta)
+                        .HasForeignKey(d => d.IdVenta)
+                        .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<Localidad>(entity =>
@@ -76,8 +66,8 @@ namespace Data
                 entity.Property(e => e.Nombre).HasMaxLength(100);
 
                 entity.HasOne(d => d.IdProvinciaNavigation)
-                      .WithMany(p => p.Localidades)
-                      .HasForeignKey(d => d.IdProvincia);
+                        .WithMany(p => p.Localidades)
+                        .HasForeignKey(d => d.IdProvincia);
             });
 
             modelBuilder.Entity<Pedido>(entity =>
@@ -88,8 +78,8 @@ namespace Data
                 entity.Property(e => e.Fecha).HasColumnType("datetime");
 
                 entity.HasOne(d => d.IdProveedorNavigation)
-                      .WithMany(p => p.Pedidos)
-                      .HasForeignKey(d => d.IdProveedor);
+                        .WithMany(p => p.Pedidos)
+                        .HasForeignKey(d => d.IdProveedor);
             });
 
             modelBuilder.Entity<Persona>(entity =>
@@ -109,8 +99,8 @@ namespace Data
 
 
                 entity.HasOne(d => d.IdLocalidadNavigation)
-                      .WithMany(p => p.Personas)
-                      .HasForeignKey(d => d.IdLocalidad);
+                        .WithMany(p => p.Personas)
+                        .HasForeignKey(d => d.IdLocalidad);
             });
 
             modelBuilder.Entity<Precio>(entity =>
@@ -121,9 +111,11 @@ namespace Data
                 entity.Property(e => e.Monto).HasColumnType("decimal(18, 2)");
 
                 entity.HasOne(d => d.IdProductoNavigation)
-                      .WithMany(p => p.Precios)
-                      .HasForeignKey(d => d.IdProducto)
-                      .OnDelete(DeleteBehavior.ClientSetNull);
+                        .WithMany(p => p.Precios)
+                        .HasForeignKey(d => d.IdProducto)
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+
+                entity.HasQueryFilter(p => p.IdProductoNavigation.Activo);
             });
 
 
@@ -134,13 +126,13 @@ namespace Data
                 entity.Property(e => e.Descripcion).HasMaxLength(255);
                 entity.Property(e => e.Nombre).HasMaxLength(100);
 
-                entity.Property(e => e.Activo) 
-                      .HasDefaultValue(true);
+                entity.Property(e => e.Activo)
+                        .HasDefaultValue(true);
 
                 entity.HasOne(d => d.IdTipoProductoNavigation)
-                      .WithMany(p => p.Productos)
-                      .HasForeignKey(d => d.IdTipoProducto)
-                      .OnDelete(DeleteBehavior.Restrict);
+                        .WithMany(p => p.Productos)
+                        .HasForeignKey(d => d.IdTipoProducto)
+                        .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Producto>()
@@ -158,8 +150,8 @@ namespace Data
                 entity.Property(e => e.Telefono).HasMaxLength(50);
 
                 entity.HasOne(d => d.IdLocalidadNavigation)
-                      .WithMany(p => p.Proveedores)
-                      .HasForeignKey(d => d.IdLocalidad);
+                        .WithMany(p => p.Proveedores)
+                        .HasForeignKey(d => d.IdLocalidad);
             });
 
             modelBuilder.Entity<Provincia>(entity =>
@@ -186,8 +178,8 @@ namespace Data
                 entity.Property(e => e.Fecha).HasColumnType("datetime");
 
                 entity.HasOne(d => d.IdPersonaNavigation)
-                      .WithMany(p => p.Venta)
-                      .HasForeignKey(d => d.IdPersona);
+                        .WithMany(p => p.Venta)
+                        .HasForeignKey(d => d.IdPersona);
             });
 
             OnModelCreatingPartial(modelBuilder);
@@ -196,3 +188,4 @@ namespace Data
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
+

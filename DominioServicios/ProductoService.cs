@@ -1,7 +1,9 @@
 ﻿using Data;
 using DominioModelo;
-using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -14,48 +16,69 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<ProductoDTO>> GetAllAsync()
+        public async Task<List<Producto>> GetAllAsync()
         {
-            var entidades = await _context.Productos.ToListAsync();
-            return entidades.Select(e => ProductoDTO.FromDominio(e)).ToList();
+            // SOLUCIÓN: Se reemplaza el Include por un Select explícito para asegurar la carga de datos relacionados.
+            // Esto evita problemas con los filtros globales y la reconstrucción de objetos de EF.
+            return await _context.Productos
+                .Select(p => new Producto
+                {
+                    IdProducto = p.IdProducto,
+                    Nombre = p.Nombre,
+                    Descripcion = p.Descripcion,
+                    Stock = p.Stock,
+                    Activo = p.Activo,
+                    IdTipoProducto = p.IdTipoProducto,
+                    IdTipoProductoNavigation = new TipoProducto
+                    {
+                        IdTipoProducto = p.IdTipoProductoNavigation.IdTipoProducto,
+                        Descripcion = p.IdTipoProductoNavigation.Descripcion
+                    },
+                    Precios = p.Precios.Select(pr => new Precio
+                    {
+                        IdProducto = pr.IdProducto,
+                        FechaDesde = pr.FechaDesde,
+                        Monto = pr.Monto
+                    }).ToList()
+                })
+                .ToListAsync();
         }
 
-        public async Task<ProductoDTO?> GetByIdAsync(int id)
+
+        public async Task<Producto?> GetByIdAsync(int id)
         {
-            var entidad = await _context.Productos.FindAsync(id);
-            return ProductoDTO.FromDominio(entidad);
+            return await _context.Productos
+                .Include(p => p.IdTipoProductoNavigation)
+                .Include(p => p.Precios)
+                .FirstOrDefaultAsync(p => p.IdProducto == id);
         }
 
-        public async Task<ProductoDTO> CreateAsync(ProductoDTO dto)
+        public async Task<Producto> CreateAsync(Producto producto)
         {
-            var entidad = dto.ToDominio();
-            _context.Productos.Add(entidad);
+            _context.Productos.Add(producto);
             await _context.SaveChangesAsync();
-            return ProductoDTO.FromDominio(entidad);
+            return producto;
         }
 
-        public async Task UpdateAsync(int id, ProductoDTO dto)
+        public async Task UpdateAsync(Producto producto)
         {
-            var entidad = await _context.Productos.FindAsync(id);
-            if (entidad != null)
+            var existingProducto = await _context.Productos.FindAsync(producto.IdProducto);
+            if (existingProducto != null)
             {
-                entidad.Nombre = dto.Nombre;
-                entidad.Descripcion = dto.Descripcion;
-                entidad.Stock = dto.Stock;
-                entidad.IdTipoProducto = dto.IdTipoProducto;
+                _context.Entry(existingProducto).CurrentValues.SetValues(producto);
                 await _context.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var entidad = await _context.Productos.FindAsync(id);
-            if (entidad != null)
+            var producto = await _context.Productos.FindAsync(id);
+            if (producto != null)
             {
-                entidad.Activo = false;
+                producto.Activo = false;
                 await _context.SaveChangesAsync();
             }
         }
-
     }
 }
+

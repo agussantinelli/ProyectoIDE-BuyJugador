@@ -1,7 +1,14 @@
-﻿using System;
-using System.Windows.Forms;
+﻿using ApiClient;
 using DTOs;
-using ApiClient;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace WinForms
 {
@@ -19,48 +26,46 @@ namespace WinForms
 
         private async void CrearProductoForm_Load(object sender, EventArgs e)
         {
-            var tipos = await _tipoProductoApiClient.GetAllAsync();
-
-            tipos.Insert(0, new TipoProductoDTO { IdTipoProducto = 0, Descripcion = "-- Seleccione tipo de producto --" });
-
-            cmbTipoProducto.DataSource = tipos;
+            var tiposProducto = await _tipoProductoApiClient.GetAllAsync();
+            cmbTipoProducto.DataSource = tiposProducto;
+            // Corrección: Usar "Descripcion" para mostrar el nombre
             cmbTipoProducto.DisplayMember = "Descripcion";
             cmbTipoProducto.ValueMember = "IdTipoProducto";
-            cmbTipoProducto.SelectedIndex = 0;
         }
 
-        private async void btnGuardar_Click(object sender, EventArgs e)
+        private async void btnCrear_Click(object sender, EventArgs e)
         {
-            if ((int)cmbTipoProducto.SelectedValue == 0)
+            if (cmbTipoProducto.SelectedValue != null && numPrecio.Value > 0)
             {
-                MessageBox.Show("Debe seleccionar un tipo de producto.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                var productoDto = new ProductoDTO
+                {
+                    Nombre = txtNombre.Text,
+                    Descripcion = txtDescripcion.Text,
+                    Stock = (int)numStock.Value,
+                    IdTipoProducto = (int)cmbTipoProducto.SelectedValue,
+                    Precios = new List<PrecioDTO>()
+                };
+
+                var precioDto = new PrecioDTO
+                {
+                    Monto = numPrecio.Value,
+                    FechaDesde = DateTime.Now
+                };
+                productoDto.Precios.Add(precioDto);
+
+                await _productoApiClient.CreateAsync(productoDto);
+                this.Close();
             }
-
-            var dto = new ProductoDTO
+            else
             {
-                Nombre = txtNombre.Text.Trim(),
-                Descripcion = txtDescripcion.Text.Trim(),
-                Stock = (int)numStock.Value,
-                IdTipoProducto = (int)cmbTipoProducto.SelectedValue
-            };
-
-            await _productoApiClient.CreateAsync(dto);
-
-            MessageBox.Show("Producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            DialogResult = DialogResult.OK;
+                MessageBox.Show("Por favor, seleccione un tipo de producto y asegúrese de que el precio sea mayor a cero.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
-
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
-        }
-
-        private void lblTipoProducto_Click(object sender, EventArgs e)
-        {
-
+            this.Close();
         }
     }
 }
+

@@ -1,42 +1,63 @@
 ﻿using DTOs;
 using DominioServicios;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WebAPI.Endpoints
 {
     public static class ProductoEndpoints
     {
-        public static void MapProductoEndpoints(this WebApplication app)
+        // CORRECCIÓN: Se renombra el método a "MapProductoEndpoints" para consistencia.
+        public static WebApplication MapProductoEndpoints(this WebApplication app)
         {
-            var group = app.MapGroup("/api/productos");
-
-            group.MapGet("/", async (ProductoService service) =>
+            app.MapGet("/api/productos", async (ProductoService productoService) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var productos = await productoService.GetAllAsync();
+                var productosDto = productos.Select(p => ProductoDTO.FromDominio(p)).ToList();
+                return Results.Ok(productosDto);
             });
 
-            group.MapGet("/{id}", async (int id, ProductoService service) =>
+            app.MapGet("/api/productos/{id}", async (int id, ProductoService productoService) =>
             {
-                var producto = await service.GetByIdAsync(id);
-                return producto is not null ? Results.Ok(producto) : Results.NotFound();
+                var producto = await productoService.GetByIdAsync(id);
+                if (producto == null)
+                {
+                    return Results.NotFound();
+                }
+                var productoDto = ProductoDTO.FromDominio(producto);
+                return Results.Ok(productoDto);
             });
 
-            group.MapPost("/", async (ProductoDTO dto, ProductoService service) =>
+            app.MapPost("/api/productos", async (ProductoDTO productoDto, ProductoService productoService) =>
             {
-                var nuevo = await service.CreateAsync(dto);
-                return Results.Created($"/api/productos/{nuevo.IdProducto}", nuevo);
+                var producto = productoDto.ToDominio();
+                await productoService.CreateAsync(producto);
+                var nuevoProductoDto = ProductoDTO.FromDominio(producto);
+                return Results.Created($"/api/productos/{nuevoProductoDto.IdProducto}", nuevoProductoDto);
             });
 
-            group.MapPut("/{id}", async (int id, ProductoDTO dto, ProductoService service) =>
+            app.MapPut("/api/productos/{id}", async (int id, ProductoDTO productoDto, ProductoService productoService) =>
             {
-                await service.UpdateAsync(id, dto);
+                if (id != productoDto.IdProducto)
+                {
+                    return Results.BadRequest();
+                }
+
+                var producto = productoDto.ToDominio();
+                await productoService.UpdateAsync(producto);
                 return Results.NoContent();
             });
 
-            group.MapDelete("/{id}", async (int id, ProductoService service) =>
+            app.MapDelete("/api/productos/{id}", async (int id, ProductoService productoService) =>
             {
-                await service.DeleteAsync(id);
+                await productoService.DeleteAsync(id);
                 return Results.NoContent();
             });
+
+            return app;
         }
     }
 }
+

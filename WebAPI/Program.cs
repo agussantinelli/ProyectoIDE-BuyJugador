@@ -8,8 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Builder Configuration
 
+// 1. Se restaura la lectura de la cadena de conexión desde el archivo de configuración.
 var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
 
+// 2. Se configura el DbContext para que use la cadena de conexión leída.
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(connectionString)
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
@@ -65,15 +67,12 @@ app.MapRazorPages();
 
 #endregion
 
-
-
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<BuyJugadorContext>();
     DbSeeder.Seed(context);
 }
-
 
 #region API Endpoints Registration
 
@@ -92,3 +91,4 @@ app.MapVentaEndpoints();
 #endregion
 
 app.Run();
+

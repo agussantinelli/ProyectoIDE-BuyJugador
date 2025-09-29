@@ -19,7 +19,6 @@ namespace WinForms
                 {
                     var apiBaseAddress = new Uri("https://localhost:7145/");
 
-                    // CORRECCIÓN: El tipo de retorno debe ser HttpMessageHandler.
                     HttpMessageHandler CreateHandler()
                     {
                         if (context.HostingEnvironment.IsDevelopment())
@@ -51,6 +50,9 @@ namespace WinForms
                     services.AddTransient<ProvinciaForm>();
                     services.AddTransient<LocalidadForm>();
                     services.AddTransient<TipoProductoForm>();
+                    services.AddTransient<CrearProductoForm>();
+                    services.AddTransient<EditarProductoForm>();
+                    services.AddTransient<EmpleadoForm>();
                 })
                 .Build();
 
