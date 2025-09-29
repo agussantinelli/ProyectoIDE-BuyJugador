@@ -52,6 +52,7 @@ namespace WinForms
                     services.AddTransient<PersonaForm>();
                     services.AddTransient<ProductoForm>();
                     services.AddTransient<ProvinciaForm>();
+                    services.AddTransient<LocalidadForm>();
                     services.AddTransient<TipoProductoForm>();
 
                 })

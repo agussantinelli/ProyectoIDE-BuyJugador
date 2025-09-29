@@ -9,6 +9,7 @@
         private Button btnPersonas;
         private Button btnTipoProducto;
         private Button btnProvincias;
+        private Button btnLocalidades;
         private Button btnSalir;
         private Label lblTitulo;
 
@@ -23,6 +24,7 @@
             panelLateral = new Panel();
             btnSalir = new Button();
             btnProvincias = new Button();
+            btnLocalidades = new Button();
             btnTipoProducto = new Button();
             btnPersonas = new Button();
             btnProductos = new Button();
@@ -36,6 +38,7 @@
             panelLateral.BackColor = Color.LightSteelBlue;
             panelLateral.Controls.Add(btnSalir);
             panelLateral.Controls.Add(btnProvincias);
+            panelLateral.Controls.Add(btnLocalidades);
             panelLateral.Controls.Add(btnTipoProducto);
             panelLateral.Controls.Add(btnPersonas);
             panelLateral.Controls.Add(btnProductos);
@@ -64,9 +67,18 @@
             btnProvincias.Text = "Provincias";
             btnProvincias.Click += btnProvincias_Click;
             // 
+            // btnLocalidades
+            // 
+            btnLocalidades.Location = new Point(20, 170);
+            btnLocalidades.Name = "btnLocalidades";
+            btnLocalidades.Size = new Size(160, 40);
+            btnLocalidades.TabIndex = 1;
+            btnLocalidades.Text = "Localidades";
+            btnLocalidades.Click += btnLocalidades_Click;
+            // 
             // btnTipoProducto
             // 
-            btnTipoProducto.Location = new Point(20, 170);
+            btnTipoProducto.Location = new Point(20, 120);
             btnTipoProducto.Name = "btnTipoProducto";
             btnTipoProducto.Size = new Size(160, 40);
             btnTipoProducto.TabIndex = 2;
