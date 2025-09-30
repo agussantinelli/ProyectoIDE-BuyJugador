@@ -44,6 +44,16 @@ namespace WinForms
                             .ConfigurePrimaryHttpMessageHandler(CreateHandler);
                     services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress)
                             .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<VentaApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<PedidoApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LineaVentaApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LineaPedidoApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProveedorApiClient>(c => c.BaseAddress = apiBaseAddress)
+                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
                     // Formularios
                     services.AddTransient<LoginForm>();
