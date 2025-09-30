@@ -9,7 +9,7 @@ namespace WinForms
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly bool _isAdmin;
-        private Panel menuPanel; // Panel principal que contiene el menú
+        private Panel menuPanel; 
 
         public MainForm(IServiceProvider serviceProvider, bool isAdmin)
         {
@@ -36,7 +36,6 @@ namespace WinForms
 
         private void InitializeMainMenu()
         {
-            // Panel principal del menú, ahora más grande
             menuPanel = new Panel
             {
                 Size = new Size(800, 500),
@@ -44,7 +43,6 @@ namespace WinForms
                 Anchor = AnchorStyles.None
             };
 
-            // Título dinámico según el rol del usuario
             Label titleLabel = new Label
             {
                 Text = _isAdmin ? "Panel de Administrador" : "Panel de Empleados",
@@ -56,7 +54,6 @@ namespace WinForms
             };
             menuPanel.Controls.Add(titleLabel);
 
-            // Cuadrícula para organizar los botones
             TableLayoutPanel buttonGrid = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -71,10 +68,8 @@ namespace WinForms
             this.Controls.Add(menuPanel);
             menuPanel.BringToFront();
 
-            // Carga los botones y configura la cuadrícula según el rol
             if (_isAdmin)
             {
-                // Para admin, usamos una cuadrícula de 2x3
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
@@ -84,7 +79,6 @@ namespace WinForms
             }
             else
             {
-                // Para empleado, ajustamos la cuadrícula a 1x3 para botones más grandes
                 buttonGrid.ColumnCount = 1;
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
                 buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
@@ -176,18 +170,15 @@ namespace WinForms
                     case "btnTiposProducto":
                         AbrirFormulario(_serviceProvider.GetRequiredService<TipoProductoForm>());
                         break;
-                    case "btnProveedores":
-                        MessageBox.Show("El formulario de proveedores aún no ha sido implementado.", "En desarrollo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-
-                    // Botones antiguos de empleado que ya no se usan, se pueden quitar o dejar por si se reutilizan
                     case "btnConsultarStock":
                         AbrirFormulario(_serviceProvider.GetRequiredService<ProductoForm>());
                         break;
                     case "btnClientes":
                         AbrirFormulario(_serviceProvider.GetRequiredService<PersonaForm>());
                         break;
-
+                    case "btnProveedores":
+                        AbrirFormulario(_serviceProvider.GetRequiredService<ProveedorForm>());
+                        break;
                     default:
                         MessageBox.Show($"Funcionalidad para '{clickedButton.Text}' no definida.");
                         break;

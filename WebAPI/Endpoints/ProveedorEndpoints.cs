@@ -14,6 +14,11 @@ namespace WebAPI.Endpoints
                 return Results.Ok(await service.GetAllAsync());
             });
 
+            group.MapGet("/inactivos", async (ProveedorService service) =>
+            {
+                return Results.Ok(await service.GetInactivosAsync());
+            });
+
             group.MapGet("/{id}", async (int id, ProveedorService service) =>
             {
                 var prov = await service.GetByIdAsync(id);
@@ -32,11 +37,23 @@ namespace WebAPI.Endpoints
                 return Results.NoContent();
             });
 
-            group.MapDelete("/{id}", async (int id, ProveedorService service) =>
+            group.MapPost("/{id}/reactivar", async (int id, ProveedorService service) =>
             {
-                await service.DeleteAsync(id);
+                await service.ReactivarAsync(id);
                 return Results.NoContent();
             });
+
+            group.MapGet("/inactivos", async (ProveedorService service) =>
+            {
+                return Results.Ok(await service.GetInactivosAsync());
+            });
+
+            group.MapPost("/{id}/reactivar", async (int id, ProveedorService service) =>
+            {
+                await service.ReactivarAsync(id);
+                return Results.NoContent();
+            });
+
         }
     }
 }

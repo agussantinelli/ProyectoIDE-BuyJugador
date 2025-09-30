@@ -26,6 +26,7 @@ namespace DominioServicios
             return ProveedorDTO.FromDominio(entidad);
         }
 
+
         public async Task<ProveedorDTO> CreateAsync(ProveedorDTO dto)
         {
             var entidad = dto.ToDominio();
@@ -40,7 +41,6 @@ namespace DominioServicios
             if (entidad != null)
             {
                 entidad.RazonSocial = dto.RazonSocial;
-                entidad.Cuit = dto.Cuit;
                 entidad.Email = dto.Email;
                 entidad.Telefono = dto.Telefono;
                 entidad.Direccion = dto.Direccion;
@@ -49,14 +49,28 @@ namespace DominioServicios
             }
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
-            var entidad = await _context.Proveedores.FindAsync(id);
+            var entidades = await _context.Proveedores
+                .IgnoreQueryFilters()       
+                .Where(p => p.Activo == false)
+                .ToListAsync();
+
+            return entidades.Select(e => ProveedorDTO.FromDominio(e)).ToList();
+        }
+
+        public async Task ReactivarAsync(int id)
+        {
+            var entidad = await _context.Proveedores
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.IdProveedor == id);
+
             if (entidad != null)
             {
-                _context.Proveedores.Remove(entidad);
+                entidad.Activo = true;
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

@@ -9,6 +9,7 @@
         public string Telefono { get; set; }
         public string Direccion { get; set; }
         public int? IdLocalidad { get; set; }
+        public bool Activo { get; set; } = true;
 
         public static ProveedorDTO FromDominio(DominioModelo.Proveedor entidad)
         {
@@ -22,7 +23,8 @@
                 Email = entidad.Email,
                 Telefono = entidad.Telefono,
                 Direccion = entidad.Direccion,
-                IdLocalidad = entidad.IdLocalidad
+                IdLocalidad = entidad.IdLocalidad,
+                Activo = entidad.Activo   // mapeo del soft delete
             };
         }
 
@@ -36,10 +38,9 @@
                 Email = this.Email,
                 Telefono = this.Telefono,
                 Direccion = this.Direccion,
-                IdLocalidad = this.IdLocalidad
+                IdLocalidad = this.IdLocalidad,
+                Activo = this.Activo      // mapeo del soft delete
             };
         }
     }
 }
-
-

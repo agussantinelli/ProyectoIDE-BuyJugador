@@ -149,10 +149,14 @@ namespace Data
                 entity.Property(e => e.RazonSocial).HasMaxLength(200);
                 entity.Property(e => e.Telefono).HasMaxLength(50);
 
+                entity.Property(e => e.Activo).HasDefaultValue(true);
+
                 entity.HasOne(d => d.IdLocalidadNavigation)
-                        .WithMany(p => p.Proveedores)
-                        .HasForeignKey(d => d.IdLocalidad);
+                      .WithMany(p => p.Proveedores)
+                      .HasForeignKey(d => d.IdLocalidad);
             });
+
+            modelBuilder.Entity<Proveedor>().HasQueryFilter(p => p.Activo);
 
             modelBuilder.Entity<Provincia>(entity =>
             {

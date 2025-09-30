@@ -39,5 +39,15 @@ namespace ApiClient
         {
             return await _httpClient.DeleteAsync($"api/proveedores/{id}");
         }
+
+        public async Task<List<ProveedorDTO>?> GetInactivosAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<ProveedorDTO>>("api/proveedores/inactivos");
+        }
+
+        public async Task<HttpResponseMessage> ReactivarAsync(int id)
+        {
+            return await _httpClient.PostAsync($"api/proveedores/{id}/reactivar", null);
+        }
     }
 }

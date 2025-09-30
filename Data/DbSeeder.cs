@@ -499,7 +499,6 @@ public static class DbSeeder
             context.SaveChanges();
         }
 
-        // --- SECCIÓN DE PRODUCTOS Y PRECIOS CORREGIDA ---
         if (!context.Productos.Any())
         {
             var tipos = context.TiposProductos.ToList();
@@ -543,8 +542,6 @@ public static class DbSeeder
             context.SaveChanges();
         }
 
-        // El bloque de precios separado se elimina, ya que ahora se crean junto con los productos.
-
         // 7. Personas
         if (!context.Personas.IgnoreQueryFilters().Any())
         {
@@ -563,7 +560,6 @@ public static class DbSeeder
             );
             context.SaveChanges();
 
-            // Bucle de corrección para asegurar que todos los usuarios estén activos
             var todasLasPersonas = context.Personas.IgnoreQueryFilters().ToList();
             foreach (var persona in todasLasPersonas)
             {
