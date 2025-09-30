@@ -67,11 +67,21 @@ app.MapRazorPages();
 
 #endregion
 
+// CORRECCIÓN: La llamada al seeder ahora es asíncrona para esperar a la API de localidades.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<BuyJugadorContext>();
-    DbSeeder.Seed(context);
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        // Se llama a la nueva versión asíncrona del método
+        await DbSeeder.SeedAsync(context);
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while seeding the database.");
+    }
 }
 
 #region API Endpoints Registration
