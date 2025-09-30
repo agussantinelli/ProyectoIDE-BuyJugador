@@ -3,6 +3,7 @@ using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -14,8 +15,14 @@ namespace WinForms
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
 
+        // --- CAMBIO CLAVE: Usaremos BindingList para la vinculación de datos automática ---
+        private BindingList<ProveedorRow> _activosBindingList;
+        private BindingList<ProveedorRow> _inactivosBindingList;
+
+        // Mantenemos las listas caché para los datos originales de la API
         private List<ProveedorDTO> _activosCache = new();
         private List<ProveedorDTO> _inactivosCache = new();
+
         private List<ProvinciaDTO> _provincias = new();
         private List<LocalidadDTO> _localidades = new();
         private string _filtroActual = string.Empty;
@@ -27,6 +34,12 @@ namespace WinForms
             _proveedorApiClient = serviceProvider.GetRequiredService<ProveedorApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
+
+            // --- CAMBIO CLAVE: Inicializar BindingLists y vincularlos UNA SOLA VEZ a las grillas ---
+            _activosBindingList = new BindingList<ProveedorRow>();
+            _inactivosBindingList = new BindingList<ProveedorRow>();
+            dgvActivos.DataSource = _activosBindingList;
+            dgvInactivos.DataSource = _inactivosBindingList;
 
             PrepararGrid(dgvActivos);
             PrepararGrid(dgvInactivos);
@@ -41,6 +54,7 @@ namespace WinForms
             dgv.ReadOnly = true;
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
+            dgv.AllowUserToAddRows = false;
 
             AddTextCol(dgv, "RazonSocial", "Razón Social", fill: true, minWidth: 200);
             AddTextCol(dgv, "Cuit", "CUIT", width: 120);
@@ -86,33 +100,25 @@ namespace WinForms
         {
             _provincias = await _provinciaApiClient.GetAllAsync() ?? new();
             _localidades = await _localidadApiClient.GetAllAsync() ?? new();
-            await CargarActivos();
-            await CargarInactivos();
-            AplicarFiltro();
-        }
 
-        private async System.Threading.Tasks.Task CargarActivos()
-        {
+            // Cargar los datos más recientes en las listas caché
             _activosCache = await _proveedorApiClient.GetAllAsync() ?? new();
-            dgvActivos.DataSource = _activosCache
-                .Select(p => ProveedorRow.From(p, _localidades, _provincias)).ToList();
-        }
-
-        private async System.Threading.Tasks.Task CargarInactivos()
-        {
             _inactivosCache = await _proveedorApiClient.GetInactivosAsync() ?? new();
-            dgvInactivos.DataSource = _inactivosCache
-                .Select(p => ProveedorRow.From(p, _localidades, _provincias)).ToList();
-        }
 
-        private void txtBuscar_TextChanged(object sender, EventArgs e)
-        {
-            _filtroActual = txtBuscar.Text?.Trim() ?? string.Empty;
+            // Actualizar las grillas a través de los BindingLists
             AplicarFiltro();
         }
 
+        // --- CAMBIO CLAVE: Este método ahora manipula los BindingList, no el DataSource ---
         private void AplicarFiltro()
         {
+            // Desactivar notificaciones para mejorar el rendimiento durante la carga masiva
+            _activosBindingList.RaiseListChangedEvents = false;
+            _inactivosBindingList.RaiseListChangedEvents = false;
+
+            _activosBindingList.Clear();
+            _inactivosBindingList.Clear();
+
             var f = _filtroActual.ToLowerInvariant();
 
             bool Coincide(ProveedorRow p) =>
@@ -124,14 +130,29 @@ namespace WinForms
                 (p.LocalidadNombre?.ToLower().Contains(f) ?? false) ||
                 (p.ProvinciaNombre?.ToLower().Contains(f) ?? false);
 
-            if (tabControlProveedores.SelectedTab == tabPageActivos)
-                dgvActivos.DataSource = _activosCache
-                    .Select(p => ProveedorRow.From(p, _localidades, _provincias))
-                    .Where(Coincide).ToList();
-            else
-                dgvInactivos.DataSource = _inactivosCache
-                    .Select(p => ProveedorRow.From(p, _localidades, _provincias))
-                    .Where(Coincide).ToList();
+            _activosCache
+                .Select(p => ProveedorRow.From(p, _localidades, _provincias))
+                .Where(Coincide)
+                .ToList()
+                .ForEach(p => _activosBindingList.Add(p));
+
+            _inactivosCache
+                .Select(p => ProveedorRow.From(p, _localidades, _provincias))
+                .Where(Coincide)
+                .ToList()
+                .ForEach(p => _inactivosBindingList.Add(p));
+
+            // Reactivar notificaciones para que la UI se actualice
+            _activosBindingList.RaiseListChangedEvents = true;
+            _inactivosBindingList.RaiseListChangedEvents = true;
+            _activosBindingList.ResetBindings();
+            _inactivosBindingList.ResetBindings();
+        }
+
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            _filtroActual = txtBuscar.Text?.Trim() ?? string.Empty;
+            AplicarFiltro();
         }
 
         private ProveedorRow? ObtenerSeleccionado(DataGridView dgv)
@@ -141,7 +162,11 @@ namespace WinForms
         {
             using var form = new CrearProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient);
             if (form.ShowDialog(this) == DialogResult.OK)
-                await CargarActivos();
+            {
+                // Solo recargamos lo que cambió y aplicamos filtro
+                _activosCache = await _proveedorApiClient.GetAllAsync() ?? new();
+                AplicarFiltro();
+            }
         }
 
         private async void btnEditar_Click(object sender, EventArgs e)
@@ -154,7 +179,10 @@ namespace WinForms
 
             using var form = new EditarProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient, dto);
             if (form.ShowDialog(this) == DialogResult.OK)
-                await CargarActivos();
+            {
+                _activosCache = await _proveedorApiClient.GetAllAsync() ?? new();
+                AplicarFiltro();
+            }
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
@@ -169,7 +197,7 @@ namespace WinForms
             if (confirm != DialogResult.Yes) return;
 
             await _proveedorApiClient.DeleteAsync(sel.IdProveedor);
-            await CargarTodo();
+            await CargarTodo(); // Carga todo de nuevo
         }
 
         private async void btnReactivar_Click(object sender, EventArgs e)
@@ -184,7 +212,7 @@ namespace WinForms
             if (confirm != DialogResult.Yes) return;
 
             await _proveedorApiClient.ReactivarAsync(sel.IdProveedor);
-            await CargarTodo();
+            await CargarTodo(); // Carga todo de nuevo
         }
 
         private void btnCerrar_Click(object sender, EventArgs e) => Close();
@@ -194,7 +222,6 @@ namespace WinForms
 
         private void tabControlProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
-            AplicarFiltro();
             ActualizarVisibilidadBotones();
         }
 
@@ -206,7 +233,6 @@ namespace WinForms
             btnReactivar.Visible = !esActivos && ObtenerSeleccionado(dgvInactivos) != null;
         }
 
-        // --- Row wrapper ---
         private class ProveedorRow
         {
             public int IdProveedor { get; set; }
@@ -237,3 +263,4 @@ namespace WinForms
         }
     }
 }
+

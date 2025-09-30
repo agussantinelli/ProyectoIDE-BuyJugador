@@ -28,11 +28,14 @@ namespace WinForms
 
         private async void EditarProveedorForm_Load(object sender, EventArgs e)
         {
+            // Cargar datos del proveedor en los campos del formulario
             txtRazonSocial.Text = _proveedor.RazonSocial;
+            txtCuit.Text = _proveedor.Cuit; // CUIT se muestra pero no se edita
             txtEmail.Text = _proveedor.Email;
             txtTelefono.Text = _proveedor.Telefono;
             txtDireccion.Text = _proveedor.Direccion;
 
+            // Cargar y seleccionar provincia y localidad
             var provincias = await _provinciaApiClient.GetAllAsync() ?? new();
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
@@ -45,10 +48,14 @@ namespace WinForms
                 if (locActual != null)
                 {
                     cmbProvincia.SelectedValue = locActual.IdProvincia;
+
+                    // Cargar localidades correspondientes a la provincia
                     var filtradas = allLocs.Where(l => l.IdProvincia == locActual.IdProvincia).ToList();
                     cmbLocalidad.DataSource = filtradas;
                     cmbLocalidad.DisplayMember = "Nombre";
                     cmbLocalidad.ValueMember = "IdLocalidad";
+
+                    // Seleccionar la localidad actual
                     cmbLocalidad.SelectedValue = _proveedor.IdLocalidad;
                 }
             }
@@ -56,13 +63,17 @@ namespace WinForms
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbProvincia.SelectedValue is int idProvincia)
+            if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
             {
                 var localidades = await _localidadApiClient.GetAllAsync() ?? new();
                 var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
+            }
+            else
+            {
+                cmbLocalidad.DataSource = null;
             }
         }
 
@@ -76,6 +87,7 @@ namespace WinForms
 
             if (confirm != DialogResult.Yes) return;
 
+            // Actualizar el DTO con los nuevos datos
             _proveedor.RazonSocial = txtRazonSocial.Text.Trim();
             _proveedor.Email = txtEmail.Text.Trim();
             _proveedor.Telefono = txtTelefono.Text.Trim();
@@ -100,3 +112,4 @@ namespace WinForms
             => DialogResult = DialogResult.Cancel;
     }
 }
+

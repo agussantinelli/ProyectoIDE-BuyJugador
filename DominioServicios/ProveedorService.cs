@@ -2,6 +2,9 @@
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -16,61 +19,111 @@ namespace DominioServicios
 
         public async Task<List<ProveedorDTO>> GetAllAsync()
         {
-            var entidades = await _context.Proveedores.ToListAsync();
-            return entidades.Select(e => ProveedorDTO.FromDominio(e)).ToList();
-        }
-
-        public async Task<ProveedorDTO?> GetByIdAsync(int id)
-        {
-            var entidad = await _context.Proveedores.FindAsync(id);
-            return ProveedorDTO.FromDominio(entidad);
-        }
-
-
-        public async Task<ProveedorDTO> CreateAsync(ProveedorDTO dto)
-        {
-            var entidad = dto.ToDominio();
-            _context.Proveedores.Add(entidad);
-            await _context.SaveChangesAsync();
-            return ProveedorDTO.FromDominio(entidad);
-        }
-
-        public async Task UpdateAsync(int id, ProveedorDTO dto)
-        {
-            var entidad = await _context.Proveedores.FindAsync(id);
-            if (entidad != null)
-            {
-                entidad.RazonSocial = dto.RazonSocial;
-                entidad.Email = dto.Email;
-                entidad.Telefono = dto.Telefono;
-                entidad.Direccion = dto.Direccion;
-                entidad.IdLocalidad = dto.IdLocalidad;
-                await _context.SaveChangesAsync();
-            }
+            return await _context.Proveedores
+                .Where(p => p.Activo)
+                .Select(p => new ProveedorDTO
+                {
+                    IdProveedor = p.IdProveedor,
+                    RazonSocial = p.RazonSocial,
+                    Cuit = p.Cuit,
+                    Email = p.Email,
+                    Telefono = p.Telefono,
+                    Direccion = p.Direccion,
+                    IdLocalidad = p.IdLocalidad
+                }).ToListAsync();
         }
 
         public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
-            var entidades = await _context.Proveedores
-                .IgnoreQueryFilters()       
-                .Where(p => p.Activo == false)
-                .ToListAsync();
-
-            return entidades.Select(e => ProveedorDTO.FromDominio(e)).ToList();
+            // --- ESTA ES LA CORRECCIÓN CLAVE ---
+            // La condición original era "p.Activo && !p.Activo", lo cual es imposible.
+            // La condición correcta es simplemente "!p.Activo" (o sea, Activo = false).
+            return await _context.Proveedores
+                .Where(p => !p.Activo)
+                .Select(p => new ProveedorDTO
+                {
+                    IdProveedor = p.IdProveedor,
+                    RazonSocial = p.RazonSocial,
+                    Cuit = p.Cuit,
+                    Email = p.Email,
+                    Telefono = p.Telefono,
+                    Direccion = p.Direccion,
+                    IdLocalidad = p.IdLocalidad
+                }).ToListAsync();
         }
 
-        public async Task ReactivarAsync(int id)
+        public async Task<ProveedorDTO?> GetByIdAsync(int id)
         {
-            var entidad = await _context.Proveedores
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProveedor == id);
+            var p = await _context.Proveedores.FirstOrDefaultAsync(p => p.IdProveedor == id);
+            if (p == null) return null;
 
-            if (entidad != null)
+            return new ProveedorDTO
             {
-                entidad.Activo = true;
+                IdProveedor = p.IdProveedor,
+                RazonSocial = p.RazonSocial,
+                Cuit = p.Cuit,
+                Email = p.Email,
+                Telefono = p.Telefono,
+                Direccion = p.Direccion,
+                IdLocalidad = p.IdLocalidad
+            };
+        }
+
+        public async Task<ProveedorDTO> CreateAsync(ProveedorDTO dto)
+        {
+            var proveedor = new Proveedor
+            {
+                RazonSocial = dto.RazonSocial,
+                Cuit = dto.Cuit,
+                Email = dto.Email,
+                Telefono = dto.Telefono,
+                Direccion = dto.Direccion,
+                IdLocalidad = dto.IdLocalidad,
+                Activo = true
+            };
+
+            _context.Proveedores.Add(proveedor);
+            await _context.SaveChangesAsync();
+
+            dto.IdProveedor = proveedor.IdProveedor;
+            return dto;
+        }
+
+        public async Task UpdateAsync(int id, ProveedorDTO dto)
+        {
+            var proveedor = await _context.Proveedores.FindAsync(id);
+            if (proveedor != null)
+            {
+                proveedor.RazonSocial = dto.RazonSocial;
+                proveedor.Cuit = dto.Cuit;
+                proveedor.Email = dto.Email;
+                proveedor.Telefono = dto.Telefono;
+                proveedor.Direccion = dto.Direccion;
+                proveedor.IdLocalidad = dto.IdLocalidad;
+
                 await _context.SaveChangesAsync();
             }
         }
 
+        public async Task DeleteAsync(int id)
+        {
+            var proveedor = await _context.Proveedores.FindAsync(id);
+            if (proveedor != null)
+            {
+                proveedor.Activo = false;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task ReactivarAsync(int id)
+        {
+            var proveedor = await _context.Proveedores.FindAsync(id);
+            if (proveedor != null)
+            {
+                proveedor.Activo = true;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }
+
