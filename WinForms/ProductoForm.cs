@@ -14,6 +14,7 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
+
         private List<ProductoDTO> _productosCache = new();
         private string _filtroActual = string.Empty;
 
@@ -83,6 +84,9 @@ namespace WinForms
                 dgvProductos.Columns["PrecioActual"].DefaultCellStyle.Format = "C2";
                 dgvProductos.Columns["PrecioActual"].Width = 100;
             }
+
+            if (dgvProductos.Columns.Contains("Precios"))
+                dgvProductos.Columns["Precios"].Visible = false;
         }
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
@@ -129,11 +133,15 @@ namespace WinForms
         private async void btnEditar_Click(object sender, EventArgs e)
         {
             var producto = ObtenerSeleccionado();
-            if (producto == null) return;
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
             using var form = new EditarProductoForm(
                 producto.IdProducto,
-                _productoApiClient,
+                _serviceProvider.GetRequiredService<ProductoApiClient>(),
                 _serviceProvider.GetRequiredService<TipoProductoApiClient>()
             );
 
@@ -147,7 +155,11 @@ namespace WinForms
         private async void btnEliminar_Click(object sender, EventArgs e)
         {
             var producto = ObtenerSeleccionado();
-            if (producto == null) return;
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
 
             var confirm = MessageBox.Show(
                 $"¿Está seguro que desea eliminar el producto \"{producto.Nombre}\"?",
@@ -159,7 +171,14 @@ namespace WinForms
 
             try
             {
-                await _productoApiClient.DeleteAsync(producto.IdProducto);
+                var ok = await _serviceProvider.GetRequiredService<ProductoApiClient>()
+                                               .DeleteAsync(producto.IdProducto);
+                if (!ok)
+                {
+                    MessageBox.Show("No se pudo eliminar el producto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 _productosCache.RemoveAll(p => p.IdProducto == producto.IdProducto);
                 AplicarFiltro();
 
@@ -180,9 +199,66 @@ namespace WinForms
 
         private void dgvProductos_SelectionChanged(object sender, EventArgs e)
         {
-            bool seleccionado = dgvProductos.SelectedRows.Count > 0;
+            bool seleccionado = dgvProductos.SelectedRows.Count > 0 || dgvProductos.CurrentRow != null;
             btnEditar.Visible = seleccionado;
             btnEliminar.Visible = seleccionado;
+        }
+
+        private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            {
+                dgvProductos.ClearSelection();
+                dgvProductos.Rows[e.RowIndex].Selected = true;
+                dgvProductos.CurrentCell = dgvProductos.Rows[e.RowIndex].Cells[Math.Max(0, e.ColumnIndex)];
+            }
+        }
+
+        private void mnuVerHistorialPrecios_Click(object? sender, EventArgs e) => AbrirHistorialPrecios();
+        private void mnuEditarPrecio_Click(object? sender, EventArgs e) => _ = AbrirEditarPrecioAsync();
+
+        private void btnVerHistorialPrecios_Click(object? sender, EventArgs e) => AbrirHistorialPrecios();
+        private async void btnEditarPrecio_Click(object? sender, EventArgs e) => await AbrirEditarPrecioAsync();
+
+        private void AbrirHistorialPrecios()
+        {
+            var producto = ObtenerSeleccionado();
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var hist = new HistorialPreciosForm(
+                _serviceProvider.GetRequiredService<PrecioApiClient>(),
+                producto.IdProducto,
+                producto.Nombre
+            );
+
+            hist.ShowDialog(this);
+        }
+
+        private async Task AbrirEditarPrecioAsync()
+        {
+            var producto = ObtenerSeleccionado();
+            if (producto == null)
+            {
+                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var edit = new EditarPrecioForm(
+                _serviceProvider.GetRequiredService<PrecioApiClient>(),
+                producto.IdProducto,
+                producto.Nombre,
+                producto.PrecioActual
+            );
+
+            if (edit.ShowDialog(this) == DialogResult.OK)
+            {
+                await CargarProductos();
+                AplicarFiltro();
+            }
         }
     }
 }
