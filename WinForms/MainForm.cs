@@ -9,7 +9,7 @@ namespace WinForms
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly bool _isAdmin;
-        private Panel menuPanel; 
+        private Panel? menuPanel;
 
         public MainForm(IServiceProvider serviceProvider, bool isAdmin)
         {
@@ -17,12 +17,12 @@ namespace WinForms
             _serviceProvider = serviceProvider;
             _isAdmin = isAdmin;
 
-            // Establece el color de fondo del área MDI
+            // Establece el color de fondo del área MDI para que coincida con el menú
             foreach (Control control in this.Controls)
             {
-                if (control is MdiClient)
+                if (control is MdiClient client)
                 {
-                    control.BackColor = Color.FromArgb(49, 66, 82);
+                    client.BackColor = Color.FromArgb(49, 66, 82);
                     break;
                 }
             }
@@ -34,6 +34,9 @@ namespace WinForms
             CenterMenuPanel();
         }
 
+        /// <summary>
+        /// Crea y configura el panel del menú principal con sus botones.
+        /// </summary>
         private void InitializeMainMenu()
         {
             menuPanel = new Panel
@@ -58,18 +61,18 @@ namespace WinForms
             {
                 Dock = DockStyle.Fill,
                 Padding = new Padding(20),
-                ColumnCount = 2,
                 RowCount = 3
             };
-
             menuPanel.Controls.Add(buttonGrid);
             buttonGrid.BringToFront();
 
             this.Controls.Add(menuPanel);
             menuPanel.BringToFront();
 
+            // Configura la grilla de botones según el rol del usuario
             if (_isAdmin)
             {
+                buttonGrid.ColumnCount = 2;
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
@@ -88,7 +91,9 @@ namespace WinForms
             }
         }
 
-        // Centra el panel del menú en el formulario
+        /// <summary>
+        /// Centra el panel del menú en el formulario principal.
+        /// </summary>
         private void CenterMenuPanel()
         {
             if (menuPanel != null)
@@ -104,10 +109,9 @@ namespace WinForms
             CenterMenuPanel();
         }
 
-        // Crea y añade los botones para el rol de Administrador
         private void CreateAdminButtons(TableLayoutPanel grid)
         {
-            grid.Controls.Add(CreateMenuButton("btnNuevaVenta", "Nueva Venta"), 0, 0);
+            grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
             grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Nuevo Pedido"), 1, 0);
             grid.Controls.Add(CreateMenuButton("btnEmpleados", "Empleados"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnTiposProducto", "Tipos de Productos"), 1, 1);
@@ -115,16 +119,13 @@ namespace WinForms
             grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 2);
         }
 
-        // Crea y añade los botones para el rol de Empleado
         private void CreateEmpleadoButtons(TableLayoutPanel grid)
         {
-            // Botones actualizados para el rol de Empleado
-            grid.Controls.Add(CreateMenuButton("btnNuevaVenta", "Nueva Venta"), 0, 0);
+            grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
             grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Nuevo Pedido"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);
         }
 
-        // Método de ayuda para crear y dar estilo a cada botón del menú
         private Button CreateMenuButton(string name, string text)
         {
             Button btn = new Button
@@ -145,15 +146,13 @@ namespace WinForms
             return btn;
         }
 
-        // Maneja el evento de clic para todos los botones del menú
-        private void MenuButton_Click(object sender, EventArgs e)
+        private void MenuButton_Click(object? sender, EventArgs e)
         {
             if (sender is Button clickedButton)
             {
                 switch (clickedButton.Name)
                 {
-                    // Casos para Administrador y Empleado
-                    case "btnNuevaVenta":
+                    case "btnVentas":
                         AbrirFormulario(_serviceProvider.GetRequiredService<VentaForm>());
                         break;
                     case "btnNuevoPedido":
@@ -162,19 +161,11 @@ namespace WinForms
                     case "btnProductos":
                         AbrirFormulario(_serviceProvider.GetRequiredService<ProductoForm>());
                         break;
-
-                    // Casos solo para Administrador
                     case "btnEmpleados":
                         AbrirFormulario(_serviceProvider.GetRequiredService<PersonaForm>());
                         break;
                     case "btnTiposProducto":
                         AbrirFormulario(_serviceProvider.GetRequiredService<TipoProductoForm>());
-                        break;
-                    case "btnConsultarStock":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<ProductoForm>());
-                        break;
-                    case "btnClientes":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<PersonaForm>());
                         break;
                     case "btnProveedores":
                         AbrirFormulario(_serviceProvider.GetRequiredService<ProveedorForm>());
@@ -186,14 +177,20 @@ namespace WinForms
             }
         }
 
-        // Abre un formulario como hijo MDI y gestiona la visibilidad del menú
+        /// <summary>
+        /// Abre un formulario como hijo MDI, ocultando el menú principal.
+        /// </summary>
         private void AbrirFormulario(Form form)
         {
-            menuPanel.Visible = false;
+            if (menuPanel != null)
+            {
+                menuPanel.Visible = false;
+            }
 
             form.MdiParent = this;
             form.FormClosed += (s, args) => {
-                if (this.MdiChildren.Length <= 1)
+                // Si no quedan otros formularios hijos abiertos, vuelve a mostrar el menú.
+                if (this.MdiChildren.Length <= 1 && menuPanel != null)
                 {
                     menuPanel.Visible = true;
                 }

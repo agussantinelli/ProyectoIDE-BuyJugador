@@ -6,8 +6,6 @@
         public int IdVenta { get; set; }
         public int? IdProducto { get; set; }
         public int NroLineaVenta { get; set; }
-
-        // Propiedades para uso exclusivo en la UI (cliente)
         public string NombreProducto { get; set; } = "N/A";
         public decimal Subtotal { get; set; } = 0;
 
@@ -21,7 +19,9 @@
                 Cantidad = entidad.Cantidad,
                 IdVenta = entidad.IdVenta,
                 IdProducto = entidad.IdProducto,
-                NroLineaVenta = entidad.NroLineaVenta
+                NroLineaVenta = entidad.NroLineaVenta,
+                NombreProducto = entidad.IdProductoNavigation?.Nombre ?? "Producto no encontrado"
+                // El subtotal se calcula y asigna en el LineaVentaService
             };
         }
 

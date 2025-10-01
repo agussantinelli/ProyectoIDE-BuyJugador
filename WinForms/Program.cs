@@ -31,29 +31,21 @@ namespace WinForms
                         return new HttpClientHandler();
                     }
 
-                    // HttpClientFactory para tus ApiClients
-                    services.AddHttpClient<PersonaApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<ProvinciaApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<LocalidadApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<TipoProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<VentaApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<PedidoApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<LineaVentaApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<LineaPedidoApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                    services.AddHttpClient<ProveedorApiClient>(c => c.BaseAddress = apiBaseAddress)
-                            .ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    // Clientes de API
+                    services.AddHttpClient<PersonaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProvinciaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LocalidadApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<TipoProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<VentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<PedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LineaVentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<LineaPedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                    services.AddHttpClient<ProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+
+                    // Servicio de Sesión
+                    services.AddSingleton<UserSessionService>();
 
                     // Formularios
                     services.AddTransient<LoginForm>();
@@ -67,6 +59,8 @@ namespace WinForms
                     services.AddTransient<ProveedorForm>();
                     services.AddTransient<CrearProveedorForm>();
                     services.AddTransient<VentaForm>();
+                    services.AddTransient<CrearVentaForm>();
+                    services.AddTransient<DetalleVentaForm>();
                 })
                 .Build();
 
@@ -76,7 +70,10 @@ namespace WinForms
             var loginForm = sp.GetRequiredService<LoginForm>();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                bool isAdmin = "Dueño".Equals(loginForm.RolUsuario, StringComparison.OrdinalIgnoreCase);
+                // --- LÓGICA DE ROL CORREGIDA ---
+                // Se lee el rol desde el servicio de sesión después del login.
+                var session = sp.GetRequiredService<UserSessionService>();
+                bool isAdmin = "Dueño".Equals(session.CurrentUser?.Rol, StringComparison.OrdinalIgnoreCase);
 
                 var mainForm = new MainForm(sp, isAdmin);
                 Application.Run(mainForm);

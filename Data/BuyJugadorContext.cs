@@ -53,10 +53,6 @@ namespace Data
                         .WithMany(p => p.LineaVenta)
                         .HasForeignKey(d => d.IdProducto);
 
-                entity.HasOne(d => d.IdVentaNavigation)
-                        .WithMany(p => p.LineaVenta)
-                        .HasForeignKey(d => d.IdVenta)
-                        .OnDelete(DeleteBehavior.ClientSetNull);
             });
 
             modelBuilder.Entity<Localidad>(entity =>
@@ -152,8 +148,8 @@ namespace Data
                 entity.Property(e => e.Activo).HasDefaultValue(true);
 
                 entity.HasOne(d => d.IdLocalidadNavigation)
-                      .WithMany(p => p.Proveedores)
-                      .HasForeignKey(d => d.IdLocalidad);
+                    .WithMany(p => p.Proveedores)
+                    .HasForeignKey(d => d.IdLocalidad);
             });
 
             modelBuilder.Entity<Proveedor>().HasQueryFilter(p => p.Activo);
@@ -184,6 +180,11 @@ namespace Data
                 entity.HasOne(d => d.IdPersonaNavigation)
                         .WithMany(p => p.Venta)
                         .HasForeignKey(d => d.IdPersona);
+
+                entity.HasMany(d => d.LineaVenta)
+                      .WithOne(p => p.IdVentaNavigation)
+                      .HasForeignKey(p => p.IdVenta)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             OnModelCreatingPartial(modelBuilder);

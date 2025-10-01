@@ -1,5 +1,6 @@
 ﻿using DTOs;
 using DominioServicios;
+using System;
 
 namespace WebAPI.Endpoints
 {
@@ -20,10 +21,17 @@ namespace WebAPI.Endpoints
                 return venta is not null ? Results.Ok(venta) : Results.NotFound();
             });
 
-            group.MapPost("/", async (VentaDTO dto, VentaService service) =>
+            group.MapPost("/completa", async (CrearVentaCompletaDTO dto, VentaService service) =>
             {
-                var nueva = await service.CreateAsync(dto);
-                return Results.Created($"/api/ventas/{nueva.IdVenta}", nueva);
+                try
+                {
+                    var nuevaVenta = await service.CreateVentaCompletaAsync(dto);
+                    return Results.Created($"/api/ventas/{nuevaVenta.IdVenta}", nuevaVenta);
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
             });
 
             group.MapPut("/{id}", async (int id, VentaDTO dto, VentaService service) =>
@@ -40,3 +48,4 @@ namespace WebAPI.Endpoints
         }
     }
 }
+

@@ -1,11 +1,10 @@
 ﻿using ApiClient;
 using DTOs;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WinForms
 {
@@ -13,156 +12,146 @@ namespace WinForms
     {
         private readonly VentaApiClient _ventaApiClient;
         private readonly LineaVentaApiClient _lineaVentaApiClient;
-        private readonly PersonaApiClient _personaApiClient;
-        private readonly ProductoApiClient _productoApiClient;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly UserSessionService _userSessionService;
 
-        private List<VentaDTO> _ventasCache = new();
-        private Dictionary<int, string> _vendedoresLookup = new();
-        private Dictionary<int, ProductoDTO> _productosLookup = new();
-
-        public VentaForm(IServiceProvider serviceProvider)
+        public VentaForm(
+            VentaApiClient ventaApiClient,
+            LineaVentaApiClient lineaVentaApiClient,
+            IServiceProvider serviceProvider,
+            UserSessionService userSessionService)
         {
             InitializeComponent();
-            _ventaApiClient = serviceProvider.GetRequiredService<VentaApiClient>();
-            _lineaVentaApiClient = serviceProvider.GetRequiredService<LineaVentaApiClient>();
-            _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
-            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
-
-            PrepararGridVentas(dgvVentas);
-            PrepararGridLineasVenta(dgvLineasVenta);
-        }
-
-        private void PrepararGridVentas(DataGridView dgv)
-        {
-            dgv.AutoGenerateColumns = false;
-            dgv.Columns.Clear();
-            dgv.ReadOnly = true;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect = false;
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "IdVenta", HeaderText = "ID Venta", Name = "IdVenta" });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Fecha", HeaderText = "Fecha", Name = "Fecha", DefaultCellStyle = new DataGridViewCellStyle { Format = "g" } });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreVendedor", HeaderText = "Vendedor", Name = "NombreVendedor", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Estado", HeaderText = "Estado", Name = "Estado" });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Total", HeaderText = "Total", Name = "Total", DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } });
-        }
-
-        private void PrepararGridLineasVenta(DataGridView dgv)
-        {
-            dgv.AutoGenerateColumns = false;
-            dgv.Columns.Clear();
-            dgv.ReadOnly = true;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect = false;
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", Name = "NombreProducto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Name = "Cantidad" });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Name = "Subtotal", DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } });
+            _ventaApiClient = ventaApiClient;
+            _lineaVentaApiClient = lineaVentaApiClient;
+            _serviceProvider = serviceProvider;
+            _userSessionService = userSessionService;
         }
 
         private async void VentaForm_Load(object sender, EventArgs e)
         {
-            await CargarDatos();
+            await CargarVentas();
         }
 
-        private async Task CargarDatos()
+        private async Task CargarVentas()
         {
+            this.Cursor = Cursors.WaitCursor;
             try
             {
-                var personalTask = _personaApiClient.GetAllAsync();
-                var productosTask = _productoApiClient.GetAllAsync();
-                await Task.WhenAll(personalTask, productosTask);
-
-                var personal = personalTask.Result ?? new List<PersonaDTO>();
-                _vendedoresLookup = personal.ToDictionary(p => p.IdPersona, p => p.NombreCompleto ?? "");
-
-                var productos = productosTask.Result ?? new List<ProductoDTO>();
-                _productosLookup = productos.ToDictionary(p => p.IdProducto);
-
-                var ventas = await _ventaApiClient.GetAllAsync() ?? new List<VentaDTO>();
-
-                foreach (var venta in ventas)
+                var ventas = await _ventaApiClient.GetAllAsync();
+                if (ventas != null)
                 {
-                    venta.NombreVendedor = (venta.IdPersona.HasValue && _vendedoresLookup.TryGetValue(venta.IdPersona.Value, out var nombreVendedor))
-                        ? nombreVendedor
-                        : "Vendedor Desconocido";
-
-                    var lineas = await _lineaVentaApiClient.GetByVentaIdAsync(venta.IdVenta);
-                    decimal totalVenta = 0;
-                    if (lineas != null)
-                    {
-                        foreach (var linea in lineas)
-                        {
-                            if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
-                            {
-                                totalVenta += linea.Cantidad * producto.PrecioActual;
-                            }
-                        }
-                    }
-                    venta.Total = totalVenta;
+                    dataGridVentas.DataSource = ventas.OrderByDescending(v => v.Fecha).ToList();
+                    ConfigurarColumnas();
                 }
-
-                _ventasCache = ventas;
-                AplicarFiltro();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error de Conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
-        private void AplicarFiltro()
+        private void ConfigurarColumnas()
         {
-            var filtro = txtBuscar.Text.Trim().ToLower();
-            var datosFiltrados = _ventasCache
-                .Where(v => v.NombreVendedor.ToLower().Contains(filtro))
-                .OrderByDescending(v => v.Fecha)
-                .ToList();
-
-            dgvVentas.DataSource = datosFiltrados;
-            dgvVentas.ClearSelection();
-            dgvLineasVenta.DataSource = null;
-        }
-
-        private void txtBuscar_TextChanged(object sender, EventArgs e) => AplicarFiltro();
-
-        private VentaDTO ObtenerVentaSeleccionada()
-        {
-            return dgvVentas.SelectedRows.Count > 0 && dgvVentas.SelectedRows[0].DataBoundItem is VentaDTO venta ? venta : null;
-        }
-
-        private async void dgvVentas_SelectionChanged(object sender, EventArgs e)
-        {
-            var ventaSeleccionada = ObtenerVentaSeleccionada();
-            if (ventaSeleccionada == null)
+            if (dataGridVentas.Columns.Count > 0)
             {
-                dgvLineasVenta.DataSource = null;
+                dataGridVentas.Columns["IdVenta"].HeaderText = "N° Venta";
+                dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+                dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
+                dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
+                dataGridVentas.Columns["IdPersona"].Visible = false;
+            }
+        }
+
+        private async void btnNuevaVenta_Click(object sender, EventArgs e)
+        {
+            using var form = _serviceProvider.GetRequiredService<CrearVentaForm>();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                await CargarVentas();
+            }
+        }
+
+        private async void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
+            {
+                MessageBox.Show("Por favor, seleccione una venta para eliminar.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            try
+            var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar la venta N° {selectedVenta.IdVenta}? Esta acción no se puede deshacer y el stock de los productos será restaurado.",
+                                                 "Confirmar Eliminación",
+                                                 MessageBoxButtons.YesNo,
+                                                 MessageBoxIcon.Warning);
+
+            if (confirmResult == DialogResult.Yes)
             {
-                var lineas = await _lineaVentaApiClient.GetByVentaIdAsync(ventaSeleccionada.IdVenta);
-                if (lineas != null)
+                try
                 {
-                    foreach (var linea in lineas)
+                    var response = await _ventaApiClient.DeleteAsync(selectedVenta.IdVenta);
+                    if (response.IsSuccessStatusCode)
                     {
-                        if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
-                        {
-                            linea.NombreProducto = producto.Nombre;
-                            linea.Subtotal = linea.Cantidad * producto.PrecioActual;
-                        }
+                        MessageBox.Show("La venta ha sido eliminada exitosamente.", "Eliminación Completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await CargarVentas();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Error al eliminar la venta: {response.ReasonPhrase}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
-                dgvLineasVenta.DataSource = lineas;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar el detalle de la venta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                dgvLineasVenta.DataSource = null;
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        private void btnVolver_Click(object sender, EventArgs e) => this.Close();
+        private async void btnVerDetalle_Click(object sender, EventArgs e)
+        {
+            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
+            {
+                MessageBox.Show("Por favor, seleccione una venta para ver el detalle.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            this.Cursor = Cursors.WaitCursor;
+            try
+            {
+                var lineasDeLaVenta = await _lineaVentaApiClient.GetLineasByVentaIdAsync(selectedVenta.IdVenta);
+
+                if (lineasDeLaVenta == null)
+                {
+                    MessageBox.Show("No se pudieron cargar las líneas para esta venta.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                bool esAdmin = "Dueño".Equals(_userSessionService.CurrentUser?.Rol, StringComparison.OrdinalIgnoreCase);
+
+                using var detalleForm = _serviceProvider.GetRequiredService<DetalleVentaForm>();
+
+                detalleForm.Venta = selectedVenta;
+                detalleForm.Lineas = lineasDeLaVenta;
+                detalleForm.EsAdmin = esAdmin;
+
+                if (detalleForm.ShowDialog() == DialogResult.OK)
+                {
+                    await CargarVentas();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al mostrar el detalle: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
     }
 }
+

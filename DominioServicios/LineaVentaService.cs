@@ -2,6 +2,9 @@
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -14,10 +17,33 @@ namespace DominioServicios
             _context = context;
         }
 
+        public async Task<List<LineaVentaDTO>> GetLineasByVentaIdAsync(int idVenta)
+        {
+            var lineas = await _context.LineaVentas
+                .Where(l => l.IdVenta == idVenta)
+                .Include(l => l.IdProductoNavigation)
+                    .ThenInclude(p => p.Precios)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // La API calcula el subtotal y asigna el nombre del producto.
+            return lineas.Select(l => {
+                var lineaDto = LineaVentaDTO.FromDominio(l);
+                if (l.IdProductoNavigation != null)
+                {
+                    var precio = l.IdProductoNavigation.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
+                    lineaDto.Subtotal = l.Cantidad * precio;
+                }
+                return lineaDto;
+            }).ToList();
+        }
+
+
         public async Task<List<LineaVentaDTO>> GetAllAsync()
         {
-            var entidades = await _context.LineaVentas.ToListAsync();
-            return entidades.Select(e => LineaVentaDTO.FromDominio(e)).ToList();
+            return await _context.LineaVentas
+                .Select(l => LineaVentaDTO.FromDominio(l))
+                .ToListAsync();
         }
 
         public async Task<LineaVentaDTO?> GetByIdAsync(int idVenta, int nroLineaVenta)
@@ -36,23 +62,69 @@ namespace DominioServicios
 
         public async Task UpdateAsync(int idVenta, int nroLineaVenta, LineaVentaDTO dto)
         {
-            var entidad = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
-            if (entidad != null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                entidad.Cantidad = dto.Cantidad;
-                entidad.IdProducto = dto.IdProducto;
+                var lineaExistente = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
+                if (lineaExistente == null)
+                {
+                    throw new System.Exception("La línea de venta no existe.");
+                }
+
+                var producto = await _context.Productos.FindAsync(lineaExistente.IdProducto);
+                if (producto == null)
+                {
+                    throw new System.Exception("El producto asociado no existe.");
+                }
+
+                int diferenciaCantidad = dto.Cantidad - lineaExistente.Cantidad;
+
+                if (producto.Stock < diferenciaCantidad)
+                {
+                    throw new System.Exception("Stock insuficiente para actualizar la cantidad.");
+                }
+
+                producto.Stock -= diferenciaCantidad;
+                lineaExistente.Cantidad = dto.Cantidad;
+
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (System.Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
         }
 
+
         public async Task DeleteAsync(int idVenta, int nroLineaVenta)
         {
-            var entidad = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
-            if (entidad != null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _context.LineaVentas.Remove(entidad);
-                await _context.SaveChangesAsync();
+                var linea = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
+                if (linea != null)
+                {
+                    if (linea.IdProducto.HasValue)
+                    {
+                        var producto = await _context.Productos.FindAsync(linea.IdProducto.Value);
+                        if (producto != null)
+                        {
+                            producto.Stock += linea.Cantidad;
+                        }
+                    }
+                    _context.LineaVentas.Remove(linea);
+                    await _context.SaveChangesAsync();
+                }
+                await transaction.CommitAsync();
+            }
+            catch (System.Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
         }
     }
 }
+

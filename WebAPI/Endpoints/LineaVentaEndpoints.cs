@@ -7,6 +7,7 @@ namespace WebAPI.Endpoints
     {
         public static void MapLineaVentaEndpoints(this WebApplication app)
         {
+            // El nombre del grupo ya estaba correcto (en plural).
             var group = app.MapGroup("/api/lineaventas");
 
             group.MapGet("/", async (LineaVentaService service) =>
@@ -40,8 +41,8 @@ namespace WebAPI.Endpoints
 
             group.MapGet("/porventa/{idVenta}", async (int idVenta, LineaVentaService service) =>
             {
-                var todas = await service.GetAllAsync();
-                return Results.Ok(todas.Where(lv => lv.IdVenta == idVenta));
+                var lineas = await service.GetLineasByVentaIdAsync(idVenta);
+                return Results.Ok(lineas);
             });
 
         }

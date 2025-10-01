@@ -30,6 +30,14 @@ namespace ApiClient
             return await _httpClient.PostAsJsonAsync("api/ventas", dto);
         }
 
+        /// <summary>
+        /// Envía la venta completa (con sus líneas) al nuevo endpoint transaccional de la API.
+        /// </summary>
+        public async Task<HttpResponseMessage> CreateCompletaAsync(CrearVentaCompletaDTO dto)
+        {
+            return await _httpClient.PostAsJsonAsync("api/ventas/completa", dto);
+        }
+
         public async Task<HttpResponseMessage> UpdateAsync(int id, VentaDTO dto)
         {
             return await _httpClient.PutAsJsonAsync($"api/ventas/{id}", dto);
@@ -39,7 +47,5 @@ namespace ApiClient
         {
             return await _httpClient.DeleteAsync($"api/ventas/{id}");
         }
-
-
     }
 }

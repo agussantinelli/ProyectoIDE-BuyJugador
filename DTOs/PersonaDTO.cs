@@ -13,7 +13,10 @@
         public DateOnly? FechaIngreso { get; set; }
         public string? LocalidadNombre { get; set; }
         public string? ProvinciaNombre { get; set; }
+
+        // --- LÓGICA DE ROL ---
         public string Rol => !FechaIngreso.HasValue ? "Dueño" : "Empleado";
+
         public string FechaIngresoFormateada => FechaIngreso.HasValue ? FechaIngreso.Value.ToString("dd/MM/yy") : "-";
 
         public bool Estado { get; set; }
@@ -59,5 +62,4 @@
         }
     }
 }
-
 

@@ -1,163 +1,114 @@
-﻿using System.Windows.Forms;
-using System.Drawing;
-
-namespace WinForms
+﻿namespace WinForms
 {
     partial class VentaForm
     {
         private System.ComponentModel.IContainer components = null;
-        private TextBox txtBuscar;
-        private Button btnVolver;
-        private Label lblBuscar;
-        private Label lblVentas;
-        private Label lblDetalleVenta;
-        private DataGridView dgvVentas;
-        private DataGridView dgvLineasVenta;
-        private SplitContainer splitContainer1;
 
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
+            {
                 components.Dispose();
+            }
             base.Dispose(disposing);
         }
 
+        #region Windows Form Designer generated code
+
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            txtBuscar = new TextBox();
-            btnVolver = new Button();
-            lblBuscar = new Label();
-            lblVentas = new Label();
-            lblDetalleVenta = new Label();
-            dgvVentas = new DataGridView();
-            dgvLineasVenta = new DataGridView();
-            splitContainer1 = new SplitContainer();
-
-            ((System.ComponentModel.ISupportInitialize)(dgvVentas)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(dgvLineasVenta)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(splitContainer1)).BeginInit();
-            splitContainer1.Panel1.SuspendLayout();
-            splitContainer1.Panel2.SuspendLayout();
-            splitContainer1.SuspendLayout();
-            SuspendLayout();
-
+            this.dataGridVentas = new System.Windows.Forms.DataGridView();
+            this.panelBotones = new System.Windows.Forms.Panel();
+            this.btnNuevaVenta = new System.Windows.Forms.Button();
+            this.btnEliminar = new System.Windows.Forms.Button();
+            this.btnVerDetalle = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).BeginInit();
+            this.panelBotones.SuspendLayout();
+            this.SuspendLayout();
             // 
-            // lblBuscar
+            // dataGridVentas
             // 
-            lblBuscar.AutoSize = true;
-            lblBuscar.Location = new Point(12, 15);
-            lblBuscar.Name = "lblBuscar";
-            lblBuscar.Size = new System.Drawing.Size(112, 15);
-            lblBuscar.TabIndex = 0;
-            lblBuscar.Text = "Buscar por Vendedor:";
+            this.dataGridVentas.AllowUserToAddRows = false;
+            this.dataGridVentas.AllowUserToDeleteRows = false;
+            this.dataGridVentas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridVentas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridVentas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridVentas.Location = new System.Drawing.Point(12, 12);
+            this.dataGridVentas.MultiSelect = false;
+            this.dataGridVentas.Name = "dataGridVentas";
+            this.dataGridVentas.ReadOnly = true;
+            this.dataGridVentas.RowTemplate.Height = 25;
+            this.dataGridVentas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridVentas.Size = new System.Drawing.Size(760, 371);
+            this.dataGridVentas.TabIndex = 0;
             // 
-            // txtBuscar
+            // panelBotones
             // 
-            txtBuscar.Anchor = (AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right);
-            txtBuscar.Location = new Point(140, 12);
-            txtBuscar.Name = "txtBuscar";
-            txtBuscar.Size = new System.Drawing.Size(1048, 23);
-            txtBuscar.TabIndex = 1;
-            txtBuscar.TextChanged += new System.EventHandler(this.txtBuscar_TextChanged);
+            this.panelBotones.Controls.Add(this.btnNuevaVenta);
+            this.panelBotones.Controls.Add(this.btnEliminar);
+            this.panelBotones.Controls.Add(this.btnVerDetalle);
+            this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panelBotones.Location = new System.Drawing.Point(0, 399);
+            this.panelBotones.Name = "panelBotones";
+            this.panelBotones.Size = new System.Drawing.Size(784, 62);
+            this.panelBotones.TabIndex = 1;
             // 
-            // splitContainer1
+            // btnNuevaVenta
             // 
-            splitContainer1.Anchor = (AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right);
-            splitContainer1.Location = new Point(12, 41);
-            splitContainer1.Name = "splitContainer1";
-            splitContainer1.Orientation = Orientation.Horizontal;
+            this.btnNuevaVenta.Location = new System.Drawing.Point(12, 17);
+            this.btnNuevaVenta.Name = "btnNuevaVenta";
+            this.btnNuevaVenta.Size = new System.Drawing.Size(115, 30);
+            this.btnNuevaVenta.TabIndex = 1;
+            this.btnNuevaVenta.Text = "Nueva Venta";
+            this.btnNuevaVenta.UseVisualStyleBackColor = true;
+            this.btnNuevaVenta.Click += new System.EventHandler(this.btnNuevaVenta_Click);
             // 
-            // splitContainer1.Panel1
+            // btnEliminar
             // 
-            splitContainer1.Panel1.Controls.Add(lblVentas);
-            splitContainer1.Panel1.Controls.Add(dgvVentas);
+            this.btnEliminar.Location = new System.Drawing.Point(133, 17);
+            this.btnEliminar.Name = "btnEliminar";
+            this.btnEliminar.Size = new System.Drawing.Size(115, 30);
+            this.btnEliminar.TabIndex = 2;
+            this.btnEliminar.Text = "Eliminar Venta";
+            this.btnEliminar.UseVisualStyleBackColor = true;
+            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
             // 
-            // splitContainer1.Panel2
+            // btnVerDetalle
             // 
-            splitContainer1.Panel2.Controls.Add(lblDetalleVenta);
-            splitContainer1.Panel2.Controls.Add(dgvLineasVenta);
-            splitContainer1.Size = new System.Drawing.Size(1176, 437);
-            splitContainer1.SplitterDistance = 218;
-            splitContainer1.TabIndex = 2;
-            // 
-            // lblVentas
-            // 
-            lblVentas.AutoSize = true;
-            lblVentas.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
-            lblVentas.Location = new Point(0, 0);
-            lblVentas.Name = "lblVentas";
-            lblVentas.Size = new System.Drawing.Size(114, 17);
-            lblVentas.TabIndex = 0;
-            lblVentas.Text = "Listado de Ventas";
-            // 
-            // dgvVentas
-            // 
-            dgvVentas.AllowUserToAddRows = false;
-            dgvVentas.AllowUserToDeleteRows = false;
-            dgvVentas.Anchor = (AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right);
-            dgvVentas.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvVentas.Location = new Point(0, 20);
-            dgvVentas.Name = "dgvVentas";
-            dgvVentas.RowTemplate.Height = 25;
-            dgvVentas.Size = new System.Drawing.Size(1176, 195);
-            dgvVentas.TabIndex = 1;
-            dgvVentas.SelectionChanged += new System.EventHandler(this.dgvVentas_SelectionChanged);
-            // 
-            // lblDetalleVenta
-            // 
-            lblDetalleVenta.AutoSize = true;
-            lblDetalleVenta.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold, GraphicsUnit.Point, ((byte)(0)));
-            lblDetalleVenta.Location = new Point(0, 0);
-            lblDetalleVenta.Name = "lblDetalleVenta";
-            lblDetalleVenta.Size = new System.Drawing.Size(115, 17);
-            lblDetalleVenta.TabIndex = 0;
-            lblDetalleVenta.Text = "Detalle de la Venta";
-            // 
-            // dgvLineasVenta
-            // 
-            dgvLineasVenta.AllowUserToAddRows = false;
-            dgvLineasVenta.AllowUserToDeleteRows = false;
-            dgvLineasVenta.Anchor = (AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right);
-            dgvLineasVenta.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvLineasVenta.Location = new Point(0, 20);
-            dgvLineasVenta.Name = "dgvLineasVenta";
-            dgvLineasVenta.RowTemplate.Height = 25;
-            dgvLineasVenta.Size = new System.Drawing.Size(1176, 192);
-            dgvLineasVenta.TabIndex = 1;
-            // 
-            // btnVolver
-            // 
-            btnVolver.Anchor = (AnchorStyles.Bottom | AnchorStyles.Right);
-            btnVolver.Location = new Point(1088, 484);
-            btnVolver.Name = "btnVolver";
-            btnVolver.Size = new System.Drawing.Size(100, 30);
-            btnVolver.TabIndex = 3;
-            btnVolver.Text = "Volver";
-            btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            this.btnVerDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnVerDetalle.Location = new System.Drawing.Point(657, 17);
+            this.btnVerDetalle.Name = "btnVerDetalle";
+            this.btnVerDetalle.Size = new System.Drawing.Size(115, 30);
+            this.btnVerDetalle.TabIndex = 3;
+            this.btnVerDetalle.Text = "Ver Detalle";
+            this.btnVerDetalle.UseVisualStyleBackColor = true;
+            this.btnVerDetalle.Click += new System.EventHandler(this.btnVerDetalle_Click);
             // 
             // VentaForm
             // 
-            ClientSize = new Size(1200, 530);
-            Controls.Add(lblBuscar);
-            Controls.Add(txtBuscar);
-            Controls.Add(splitContainer1);
-            Controls.Add(btnVolver);
-            Name = "VentaForm";
-            Text = "Gestión de Ventas";
-            Load += new System.EventHandler(this.VentaForm_Load);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.panelBotones);
+            this.Controls.Add(this.dataGridVentas);
+            this.Name = "VentaForm";
+            this.Text = "Gestión de Ventas";
+            this.Load += new System.EventHandler(this.VentaForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).EndInit();
+            this.panelBotones.ResumeLayout(false);
+            this.ResumeLayout(false);
 
-            ((System.ComponentModel.ISupportInitialize)(dgvVentas)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(dgvLineasVenta)).EndInit();
-            splitContainer1.Panel1.ResumeLayout(false);
-            splitContainer1.Panel1.PerformLayout();
-            splitContainer1.Panel2.ResumeLayout(false);
-            splitContainer1.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(splitContainer1)).EndInit();
-            splitContainer1.ResumeLayout(false);
-            ResumeLayout(false);
-            PerformLayout();
         }
+
+        #endregion
+
+        private System.Windows.Forms.DataGridView dataGridVentas;
+        private System.Windows.Forms.Button btnNuevaVenta;
+        private System.Windows.Forms.Button btnVerDetalle;
+        private System.Windows.Forms.Panel panelBotones;
+        private System.Windows.Forms.Button btnEliminar;
     }
 }
 

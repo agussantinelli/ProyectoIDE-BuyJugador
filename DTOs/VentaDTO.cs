@@ -1,4 +1,6 @@
-﻿namespace DTOs
+﻿using System;
+
+namespace DTOs
 {
     public class VentaDTO
     {
@@ -6,10 +8,8 @@
         public DateTime Fecha { get; set; }
         public string Estado { get; set; }
         public int? IdPersona { get; set; }
-
-        // Propiedad para la UI, no viene de la API.
         public string NombreVendedor { get; set; } = string.Empty;
-        public decimal Total { get; set; } // Se calculará en el cliente
+        public decimal Total { get; set; }
 
         public static VentaDTO FromDominio(DominioModelo.Venta entidad)
         {
@@ -20,7 +20,9 @@
                 IdVenta = entidad.IdVenta,
                 Fecha = entidad.Fecha,
                 Estado = entidad.Estado,
-                IdPersona = entidad.IdPersona
+                IdPersona = entidad.IdPersona,
+                NombreVendedor = entidad.IdPersonaNavigation?.NombreCompleto ?? "N/A"
+                // El total se calcula y asigna en el VentaService
             };
         }
 
@@ -36,5 +38,4 @@
         }
     }
 }
-
 

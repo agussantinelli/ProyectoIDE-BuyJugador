@@ -44,22 +44,22 @@ public static class DbSeeder
                 new TipoProducto { Descripcion = "Gaming" },
                 new TipoProducto { Descripcion = "Smartphones" }
             );
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         if (!context.Proveedores.Any())
         {
             var localidades = context.Localidades.ToList();
             if (localidades.Any(l => l.Nombre == "Rosario") &&
-               localidades.Any(l => l.Nombre == "Córdoba") &&
-               localidades.Any(l => l.Nombre.Contains("Comuna 1")))
+                localidades.Any(l => l.Nombre == "Córdoba") &&
+                localidades.Any(l => l.Nombre.Contains("Comuna 1")))
             {
                 context.Proveedores.AddRange(
                     new Proveedor { RazonSocial = "Distrito Digital S.A.", Cuit = "30-12345678-9", Telefono = "3416667788", Email = "compras@distritodigital.com", Direccion = "Calle Falsa 123", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad },
                     new Proveedor { RazonSocial = "Logística Computacional S.R.L.", Cuit = "30-98765432-1", Telefono = "116665544", Email = "ventas@logisticacompsrl.com", Direccion = "Avenida Siempre Viva 742", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad },
                     new Proveedor { RazonSocial = "TecnoImport Argentina", Cuit = "30-55555555-5", Telefono = "114445566", Email = "ventas@tecnoimport.com", Direccion = "Av. Corrientes 1234", IdLocalidad = localidades.First(l => l.Nombre.Contains("Comuna 1")).IdLocalidad }
                 );
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
@@ -102,7 +102,7 @@ public static class DbSeeder
                 }
             };
             context.Productos.AddRange(productosConPrecios);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
         }
 
         if (!context.Personas.IgnoreQueryFilters().Any())
@@ -111,14 +111,14 @@ public static class DbSeeder
             if (locs.Any())
             {
                 context.Personas.AddRange(
-                    new Persona { NombreCompleto = "Martin Ratti", Dni = 12345678, Email = "marto@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("admin"), Telefono = "34115559101", Direccion = "Falsa 123", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, Estado = true },
-                    new Persona { NombreCompleto = "Frank Fabra", Dni = 41111111, Email = "fabra@email.com", Password = BCrypt.Net.BCrypt.HashPassword("boca123"), Telefono = "3411111111", Direccion = "Verdadera 456", IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad, Estado = true },
+                    new Persona { NombreCompleto = "Martin Ratti", Dni = 12345678, Email = "marto@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("admin"), Telefono = "34115559101", Direccion = "Falsa 123", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, Estado = true, FechaIngreso = null },
+                    new Persona { NombreCompleto = "Frank Fabra", Dni = 41111111, Email = "fabra@email.com", Password = BCrypt.Net.BCrypt.HashPassword("boca123"), Telefono = "3411111111", Direccion = "Verdadera 456", IdLocalidad = locs.First(l => l.Nombre == "Santa Fe").IdLocalidad, Estado = true, FechaIngreso = null },
                     new Persona { NombreCompleto = "Joaquin Peralta", Dni = 44444444, Email = "joaquin@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado1"), Telefono = "115550202", Direccion = "Avenida Imaginaria 2", IdLocalidad = locs.First(l => l.Nombre == "La Plata").IdLocalidad, FechaIngreso = new DateOnly(2022, 5, 10), Estado = true },
                     new Persona { NombreCompleto = "Ayrton Costa", Dni = 42333444, Email = "ayrton@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado2"), Telefono = "3415552222", Direccion = "Calle Demo 4", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2023, 2, 15), Estado = true },
                     new Persona { NombreCompleto = "Luka Doncic", Dni = 42553400, Email = "luka@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado3"), Telefono = "3415882922", Direccion = "Calle Prueba 5", IdLocalidad = locs.First(l => l.Nombre == "Mendoza").IdLocalidad, FechaIngreso = new DateOnly(2022, 8, 30), Estado = true },
                     new Persona { NombreCompleto = "Stephen Curry", Dni = 32393404, Email = "curry@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado4"), Telefono = "3415559202", Direccion = "Calle Test 6", IdLocalidad = locs.First(l => l.Nombre == "San Carlos de Bariloche").IdLocalidad, FechaIngreso = new DateOnly(2021, 11, 5), Estado = true }
                 );
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
@@ -133,7 +133,7 @@ public static class DbSeeder
                     new Venta { Fecha = DateTime.UtcNow.AddDays(-2), Estado = "Pendiente", IdPersona = personasActivas[4].IdPersona },
                     new Venta { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Entregada", IdPersona = personasActivas[5].IdPersona }
                 );
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 var ventasInsertadas = context.Ventas.ToList();
                 var productosDisponibles = context.Productos.ToList();
@@ -158,7 +158,7 @@ public static class DbSeeder
                 }
 
                 context.LineaVentas.AddRange(lineasParaVentas);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
@@ -178,7 +178,7 @@ public static class DbSeeder
                 };
 
                 context.Pedidos.AddRange(pedidos);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
 
                 var pedidosGuardados = context.Pedidos.ToList();
                 var lineas = new List<LineaPedido>();
@@ -201,7 +201,7 @@ public static class DbSeeder
                 }
 
                 context.LineaPedidos.AddRange(lineas);
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             }
         }
 
@@ -254,3 +254,4 @@ public static class DbSeeder
     private class ApiResponseMunicipios { public List<MunicipioAPI> Municipios { get; set; } }
     private class MunicipioAPI { public string Nombre { get; set; } }
 }
+
