@@ -7,6 +7,10 @@
         public string Estado { get; set; }
         public int? IdPersona { get; set; }
 
+        // Propiedad para la UI, no viene de la API.
+        public string NombreVendedor { get; set; } = string.Empty;
+        public decimal Total { get; set; } // Se calculará en el cliente
+
         public static VentaDTO FromDominio(DominioModelo.Venta entidad)
         {
             if (entidad == null) return null;

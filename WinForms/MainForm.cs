@@ -154,7 +154,7 @@ namespace WinForms
                 {
                     // Casos para Administrador y Empleado
                     case "btnNuevaVenta":
-                        MessageBox.Show("El formulario de ventas aún no ha sido implementado.", "En desarrollo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        AbrirFormulario(_serviceProvider.GetRequiredService<VentaForm>());
                         break;
                     case "btnNuevoPedido":
                         MessageBox.Show("El formulario de pedidos aún no ha sido implementado.", "En desarrollo", MessageBoxButtons.OK, MessageBoxIcon.Information);

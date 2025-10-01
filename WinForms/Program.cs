@@ -66,7 +66,7 @@ namespace WinForms
                     services.AddTransient<EditarProductoForm>();
                     services.AddTransient<ProveedorForm>();
                     services.AddTransient<CrearProveedorForm>();
-
+                    services.AddTransient<VentaForm>();
                 })
                 .Build();
 

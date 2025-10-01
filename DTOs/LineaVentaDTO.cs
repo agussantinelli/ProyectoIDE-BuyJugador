@@ -7,6 +7,11 @@
         public int? IdProducto { get; set; }
         public int NroLineaVenta { get; set; }
 
+        // Propiedades para uso exclusivo en la UI (cliente)
+        public string NombreProducto { get; set; } = "N/A";
+        public decimal Subtotal { get; set; } = 0;
+
+
         public static LineaVentaDTO FromDominio(DominioModelo.LineaVenta entidad)
         {
             if (entidad == null) return null;
