@@ -69,20 +69,16 @@ namespace WinForms
         {
             try
             {
-                // 1. Cargar datos de referencia en paralelo para eficiencia.
                 var personalTask = _personaApiClient.GetAllAsync();
                 var productosTask = _productoApiClient.GetAllAsync();
                 await Task.WhenAll(personalTask, productosTask);
 
-                // 2. Poblar los diccionarios de búsqueda (lookups).
-                var personal = await personalTask ?? new List<PersonaDTO>();
-                // CORRECCIÓN: Usar la propiedad correcta 'NombreCompleto' del DTO.
-                _vendedoresLookup = personal.ToDictionary(p => p.IdPersona, p => p.NombreCompleto);
+                var personal = personalTask.Result ?? new List<PersonaDTO>();
+                _vendedoresLookup = personal.ToDictionary(p => p.IdPersona, p => p.NombreCompleto ?? "");
 
-                var productos = await productosTask ?? new List<ProductoDTO>();
+                var productos = productosTask.Result ?? new List<ProductoDTO>();
                 _productosLookup = productos.ToDictionary(p => p.IdProducto);
 
-                // 3. Cargar ventas y enriquecerlas.
                 var ventas = await _ventaApiClient.GetAllAsync() ?? new List<VentaDTO>();
 
                 foreach (var venta in ventas)
@@ -91,14 +87,12 @@ namespace WinForms
                         ? nombreVendedor
                         : "Vendedor Desconocido";
 
-                    // CORRECCIÓN: Llamar al método que devuelve una LISTA de líneas (`GetByVentaIdAsync`).
-                    var lineas = await _lineaVentaApiClient.GetByIdAsync(venta.IdVenta);
+                    var lineas = await _lineaVentaApiClient.GetByVentaIdAsync(venta.IdVenta);
                     decimal totalVenta = 0;
                     if (lineas != null)
                     {
                         foreach (var linea in lineas)
                         {
-                            // CORRECCIÓN: Usar 'PrecioActual' que ya viene en el ProductoDTO.
                             if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
                             {
                                 totalVenta += linea.Cantidad * producto.PrecioActual;
@@ -148,16 +142,13 @@ namespace WinForms
 
             try
             {
-                // CORRECCIÓN: Llamar al método correcto (`GetByVentaIdAsync`) que devuelve una lista.
-                // Esto soluciona el error del 'foreach'.
-                var lineas = await _lineaVentaApiClient.GetByIdAsync(ventaSeleccionada.IdVenta);
+                var lineas = await _lineaVentaApiClient.GetByVentaIdAsync(ventaSeleccionada.IdVenta);
                 if (lineas != null)
                 {
                     foreach (var linea in lineas)
                     {
                         if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
                         {
-                            // CORRECCIÓN: Usar las propiedades correctas 'Nombre' y 'PrecioActual' del DTO.
                             linea.NombreProducto = producto.Nombre;
                             linea.Subtotal = linea.Cantidad * producto.PrecioActual;
                         }
@@ -175,4 +166,3 @@ namespace WinForms
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
     }
 }
-

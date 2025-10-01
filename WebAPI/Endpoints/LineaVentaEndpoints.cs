@@ -37,6 +37,13 @@ namespace WebAPI.Endpoints
                 await service.DeleteAsync(idVenta, nroLinea);
                 return Results.NoContent();
             });
+
+            group.MapGet("/porventa/{idVenta}", async (int idVenta, LineaVentaService service) =>
+            {
+                var todas = await service.GetAllAsync();
+                return Results.Ok(todas.Where(lv => lv.IdVenta == idVenta));
+            });
+
         }
     }
 }

@@ -39,5 +39,7 @@ namespace ApiClient
         {
             return await _httpClient.DeleteAsync($"api/ventas/{id}");
         }
+
+
     }
 }

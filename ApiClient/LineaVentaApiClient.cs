@@ -39,5 +39,11 @@ namespace ApiClient
         {
             return await _httpClient.DeleteAsync($"api/lineasventa/{nroLineaVenta}");
         }
+
+        public async Task<List<LineaVentaDTO>?> GetByVentaIdAsync(int idVenta)
+        {
+            return await _httpClient.GetFromJsonAsync<List<LineaVentaDTO>>($"api/lineaventas/porventa/{idVenta}");
+        }
+
     }
 }
