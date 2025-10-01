@@ -91,14 +91,14 @@ namespace WinForms
                         ? nombreVendedor
                         : "Vendedor Desconocido";
 
-                    // CORRECCIÓN: Llamar al método que devuelve una LISTA de líneas.
+                    // CORRECCIÓN: Llamar al método que devuelve una LISTA de líneas (`GetByVentaIdAsync`).
                     var lineas = await _lineaVentaApiClient.GetByIdAsync(venta.IdVenta);
                     decimal totalVenta = 0;
                     if (lineas != null)
                     {
                         foreach (var linea in lineas)
                         {
-                            // CORRECCIÓN: Usar 'PrecioActual' del ProductoDTO.
+                            // CORRECCIÓN: Usar 'PrecioActual' que ya viene en el ProductoDTO.
                             if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
                             {
                                 totalVenta += linea.Cantidad * producto.PrecioActual;
@@ -148,7 +148,8 @@ namespace WinForms
 
             try
             {
-                // CORRECCIÓN: Llamar al método que devuelve una LISTA de líneas.
+                // CORRECCIÓN: Llamar al método correcto (`GetByVentaIdAsync`) que devuelve una lista.
+                // Esto soluciona el error del 'foreach'.
                 var lineas = await _lineaVentaApiClient.GetByIdAsync(ventaSeleccionada.IdVenta);
                 if (lineas != null)
                 {
@@ -156,7 +157,7 @@ namespace WinForms
                     {
                         if (linea.IdProducto.HasValue && _productosLookup.TryGetValue(linea.IdProducto.Value, out var producto))
                         {
-                            // CORRECCIÓN: Usar las propiedades correctas 'Nombre' y 'PrecioActual'.
+                            // CORRECCIÓN: Usar las propiedades correctas 'Nombre' y 'PrecioActual' del DTO.
                             linea.NombreProducto = producto.Nombre;
                             linea.Subtotal = linea.Cantidad * producto.PrecioActual;
                         }
