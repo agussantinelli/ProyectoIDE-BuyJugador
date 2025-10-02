@@ -26,7 +26,6 @@ namespace DTOs
                 Descripcion = entidad.Descripcion,
                 Stock = entidad.Stock,
                 IdTipoProducto = entidad.IdTipoProducto,
-                // Corrección: Usa la propiedad de navegación correcta
                 TipoProductoDescripcion = entidad.IdTipoProductoNavigation?.Descripcion,
                 PrecioActual = entidad.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0,
                 Precios = entidad.Precios?.Select(PrecioDTO.FromDominio).ToList() ?? new List<PrecioDTO>()
@@ -42,22 +41,19 @@ namespace DTOs
                 Descripcion = this.Descripcion,
                 Stock = this.Stock,
                 IdTipoProducto = this.IdTipoProducto,
-                Activo = true // Asumimos que al crearlo/editarlo siempre está activo
+                Activo = true 
             };
 
             if (this.Precios != null)
             {
                 foreach (var precioDto in this.Precios)
                 {
-                    // Se añade una comprobación para evitar el error si un precio en la lista es nulo
                     if (precioDto != null)
                     {
-                        // Mapeo manual para mayor seguridad
                         productoDominio.Precios.Add(new DominioModelo.Precio
                         {
                             Monto = precioDto.Monto,
                             FechaDesde = precioDto.FechaDesde
-                            // EF Core se encargará del IdProducto al guardar la relación
                         });
                     }
                 }

@@ -6,17 +6,24 @@ namespace WinForms
     partial class ProductoForm
     {
         private System.ComponentModel.IContainer components = null;
+
+        private TabControl tabControl;
+        private TabPage tabActivos;
+        private TabPage tabInactivos;
+        private DataGridView dgvActivos;
+        private DataGridView dgvInactivos;
+
         private TextBox txtBuscar;
-        private DataGridView dgvProductos;
-        private Button btnNuevo;
-        private Button btnEditar;
-        private Button btnEliminar;
-        private Button btnVolver;
-        private Button btnVerHistorialPrecios; 
-        private Button btnEditarPrecio;       
         private Label lblBuscar;
 
-        // Menú contextual (opcional)
+        private Button btnNuevo;
+        private Button btnEditar;
+        private Button btnDarBaja;
+        private Button btnReactivar;
+        private Button btnVolver;
+        private Button btnVerHistorialPrecios;
+        private Button btnEditarPrecio;
+
         private ContextMenuStrip cmOpciones;
         private ToolStripMenuItem mnuVerHistorialPrecios;
         private ToolStripMenuItem mnuEditarPrecio;
@@ -31,26 +38,32 @@ namespace WinForms
         {
             components = new System.ComponentModel.Container();
 
+            tabControl = new TabControl();
+            tabActivos = new TabPage("Activos");
+            tabInactivos = new TabPage("Inactivos");
+            dgvActivos = new DataGridView();
+            dgvInactivos = new DataGridView();
+
             txtBuscar = new TextBox();
-            dgvProductos = new DataGridView();
+            lblBuscar = new Label();
+
             btnNuevo = new Button();
             btnEditar = new Button();
-            btnEliminar = new Button();
+            btnDarBaja = new Button();
+            btnReactivar = new Button();
             btnVolver = new Button();
-            btnVerHistorialPrecios = new Button(); 
-            btnEditarPrecio = new Button();      
-            lblBuscar = new Label();
+            btnVerHistorialPrecios = new Button();
+            btnEditarPrecio = new Button();
 
             cmOpciones = new ContextMenuStrip(components);
             mnuVerHistorialPrecios = new ToolStripMenuItem();
             mnuEditarPrecio = new ToolStripMenuItem();
 
-            ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
 
             // lblBuscar
-            lblBuscar.Location = new Point(20, 10);
             lblBuscar.Text = "Buscar:";
+            lblBuscar.Location = new Point(20, 10);
             lblBuscar.AutoSize = true;
 
             // txtBuscar
@@ -58,19 +71,36 @@ namespace WinForms
             txtBuscar.Size = new Size(600, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // dgvProductos
-            dgvProductos.Location = new Point(20, 40);
-            dgvProductos.Size = new Size(1040, 400);
-            dgvProductos.ReadOnly = true;
-            dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProductos.MultiSelect = false;
-            dgvProductos.AllowUserToAddRows = false;
-            dgvProductos.AllowUserToDeleteRows = false;
-            dgvProductos.AutoGenerateColumns = true;
-            dgvProductos.SelectionChanged += dgvProductos_SelectionChanged;
-            dgvProductos.CellMouseDown += dgvProductos_CellMouseDown;
+            // tabControl
+            tabControl.Location = new Point(20, 40);
+            tabControl.Size = new Size(1060, 380);
+            tabControl.TabPages.Add(tabActivos);
+            tabControl.TabPages.Add(tabInactivos);
+            tabControl.SelectedIndexChanged += tabControl_SelectedIndexChanged;
 
-            // ContextMenuStrip (opcional)
+            // dgvActivos
+            dgvActivos.Dock = DockStyle.Fill;
+            dgvActivos.ReadOnly = true;
+            dgvActivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvActivos.MultiSelect = false;
+            dgvActivos.AllowUserToAddRows = false;
+            dgvActivos.AllowUserToDeleteRows = false;
+            dgvActivos.SelectionChanged += dgvProductos_SelectionChanged;
+            dgvActivos.CellMouseDown += dgvProductos_CellMouseDown;
+            tabActivos.Controls.Add(dgvActivos);
+
+            // dgvInactivos
+            dgvInactivos.Dock = DockStyle.Fill;
+            dgvInactivos.ReadOnly = true;
+            dgvInactivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvInactivos.MultiSelect = false;
+            dgvInactivos.AllowUserToAddRows = false;
+            dgvInactivos.AllowUserToDeleteRows = false;
+            dgvInactivos.SelectionChanged += dgvProductos_SelectionChanged;
+            dgvInactivos.CellMouseDown += dgvProductos_CellMouseDown;
+            tabInactivos.Controls.Add(dgvInactivos);
+
+            // Context menu
             cmOpciones.Items.AddRange(new ToolStripItem[] {
                 mnuVerHistorialPrecios,
                 mnuEditarPrecio
@@ -78,60 +108,64 @@ namespace WinForms
             mnuVerHistorialPrecios.Text = "Ver historial de precios";
             mnuVerHistorialPrecios.Click += mnuVerHistorialPrecios_Click;
 
-            mnuEditarPrecio.Text = "Editar precio (fecha hoy)";
+            mnuEditarPrecio.Text = "Editar precio";
             mnuEditarPrecio.Click += mnuEditarPrecio_Click;
 
-            dgvProductos.ContextMenuStrip = cmOpciones;
+            dgvActivos.ContextMenuStrip = cmOpciones;
+            dgvInactivos.ContextMenuStrip = cmOpciones;
 
-            // Botones base
-            btnVolver.Location = new Point(20, 470);
-            btnVolver.Size = new Size(100, 30);
-            btnVolver.Text = "Volver";
-            btnVolver.Click += btnVolver_Click;
-
-            btnNuevo.Location = new Point(140, 470);
-            btnNuevo.Size = new Size(100, 30);
+            // Botones
             btnNuevo.Text = "Nuevo";
+            btnNuevo.Location = new Point(20, 430);
+            btnNuevo.Size = new Size(100, 30);
             btnNuevo.Click += btnNuevo_Click;
 
-            btnEditar.Location = new Point(260, 470);
-            btnEditar.Size = new Size(100, 30);
             btnEditar.Text = "Editar";
+            btnEditar.Location = new Point(130, 430);
+            btnEditar.Size = new Size(100, 30);
             btnEditar.Click += btnEditar_Click;
 
-            btnEliminar.Location = new Point(380, 470);
-            btnEliminar.Size = new Size(100, 30);
-            btnEliminar.Text = "Eliminar";
-            btnEliminar.Click += btnEliminar_Click;
+            btnDarBaja.Text = "Dar de baja";
+            btnDarBaja.Location = new Point(240, 430);
+            btnDarBaja.Size = new Size(100, 30);
+            btnDarBaja.Click += btnDarBaja_Click;
 
-            // NUEVOS botones a la derecha
-            btnVerHistorialPrecios.Location = new Point(500, 470);
-            btnVerHistorialPrecios.Size = new Size(150, 30);
-            btnVerHistorialPrecios.Text = "Ver historial precios";
+            btnReactivar.Text = "Reactivar";
+            btnReactivar.Location = new Point(350, 430);
+            btnReactivar.Size = new Size(100, 30);
+            btnReactivar.Click += btnReactivar_Click;
+
+            btnVerHistorialPrecios.Text = "Ver Historial Precios";
+            btnVerHistorialPrecios.Location = new Point(470, 430);
+            btnVerHistorialPrecios.Size = new Size(170, 30);
             btnVerHistorialPrecios.Click += btnVerHistorialPrecios_Click;
 
-            btnEditarPrecio.Location = new Point(660, 470);
-            btnEditarPrecio.Size = new Size(150, 30);
             btnEditarPrecio.Text = "Editar precio";
+            btnEditarPrecio.Location = new Point(650, 430);
+            btnEditarPrecio.Size = new Size(150, 30);
             btnEditarPrecio.Click += btnEditarPrecio_Click;
 
-            // ProductoForm
-            ClientSize = new Size(1100, 520);
-            StartPosition = FormStartPosition.CenterScreen;
+            btnVolver.Text = "Volver";
+            btnVolver.Location = new Point(810, 430);
+            btnVolver.Size = new Size(100, 30);
+            btnVolver.Click += btnVolver_Click;
+
+            // Form
+            ClientSize = new Size(1100, 480);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
-            Controls.Add(dgvProductos);
+            Controls.Add(tabControl);
             Controls.Add(btnNuevo);
             Controls.Add(btnEditar);
-            Controls.Add(btnEliminar);
+            Controls.Add(btnDarBaja);
+            Controls.Add(btnReactivar);
+            Controls.Add(btnVerHistorialPrecios);
+            Controls.Add(btnEditarPrecio);
             Controls.Add(btnVolver);
-            Controls.Add(btnVerHistorialPrecios); 
-            Controls.Add(btnEditarPrecio);        
             Name = "ProductoForm";
             Text = "Gestión de Productos";
             Load += ProductoForm_Load;
 
-            ((System.ComponentModel.ISupportInitialize)dgvProductos).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

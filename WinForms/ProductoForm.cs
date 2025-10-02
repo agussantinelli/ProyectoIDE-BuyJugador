@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,7 +14,9 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
 
-        private List<ProductoDTO> _productosCache = new();
+        private List<ProductoDTO> _productosActivos = new();
+        private List<ProductoDTO> _productosInactivos = new();
+
         private string _filtroActual = string.Empty;
 
         public ProductoForm(IServiceProvider serviceProvider)
@@ -23,55 +24,38 @@ namespace WinForms
             InitializeComponent();
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _serviceProvider = serviceProvider;
-            this.StartPosition = FormStartPosition.CenterParent;
 
-            // Aplicar estilos
-            StyleManager.ApplyDataGridViewStyle(dgvProductos);
+            StyleManager.ApplyDataGridViewStyle(dgvActivos);
+            StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
-            StyleManager.ApplyButtonStyle(btnEliminar);
-            StyleManager.ApplyButtonStyle(btnVolver);
+            StyleManager.ApplyButtonStyle(btnDarBaja);
+            StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVerHistorialPrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
+            StyleManager.ApplyButtonStyle(btnVolver);
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
         {
-            btnEditar.Visible = false;
-            btnEliminar.Visible = false;
-            dgvProductos.ClearSelection();
-            await CargarProductos();
+            await CargarTodosProductos();
             AplicarFiltro();
         }
 
-        private async Task CargarProductos()
+        private async Task CargarTodosProductos()
         {
             try
             {
-                var productos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
-                _productosCache = productos.ToList();
-            }
-            catch (HttpRequestException ex)
-            {
-                MessageBox.Show($"Error de red: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                var activos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
+                var inactivos = await _productoApiClient.GetAllInactivosAsync() ?? new List<ProductoDTO>();
+
+                _productosActivos = activos;
+                _productosInactivos = inactivos;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error inesperado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error cargando productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void ConfigurarColumnas()
-        {
-            dgvProductos.Columns.Clear();
-            dgvProductos.AutoGenerateColumns = false;
-
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "IdProducto", HeaderText = "ID", Width = 50 });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Nombre", HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Descripcion", HeaderText = "Descripción", Width = 250 });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Stock", HeaderText = "Stock", Width = 70 });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoProductoNombre", HeaderText = "Tipo", Width = 150 });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioActual", HeaderText = "Precio", Width = 100, DefaultCellStyle = { Format = "C2" } });
         }
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
@@ -82,149 +66,180 @@ namespace WinForms
 
         private void AplicarFiltro()
         {
-            ConfigurarColumnas();
+            string f = _filtroActual.ToLowerInvariant();
 
-            var f = _filtroActual.ToLowerInvariant();
-            if (string.IsNullOrWhiteSpace(f))
+            if (tabControl.SelectedTab == tabActivos)
             {
-                dgvProductos.DataSource = _productosCache.ToList();
+                var lista = _productosActivos
+                    .Where(p => string.IsNullOrWhiteSpace(f)
+                                || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
+                                || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                    .ToList();
+
+                ConfigurarColumnas(dgvActivos);
+                dgvActivos.DataSource = lista;
             }
             else
             {
-                dgvProductos.DataSource = _productosCache
-                    .Where(p => (p.Nombre != null && p.Nombre.ToLower().Contains(f)) ||
-                                (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                var lista = _productosInactivos
+                    .Where(p => string.IsNullOrWhiteSpace(f)
+                                || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
+                                || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
                     .ToList();
+
+                ConfigurarColumnas(dgvInactivos);
+                dgvInactivos.DataSource = lista;
             }
         }
 
-        private ProductoDTO? ObtenerSeleccionado()
+        private void ConfigurarColumnas(DataGridView dgv)
         {
-            return dgvProductos.SelectedRows.Count > 0
-                ? dgvProductos.SelectedRows[0].DataBoundItem as ProductoDTO
-                : null;
+            dgv.Columns.Clear();
+            dgv.AutoGenerateColumns = false;
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "IdProducto", HeaderText = "ID", Width = 50 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Nombre", HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Descripcion", HeaderText = "Descripción", Width = 250 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Stock", HeaderText = "Stock", Width = 70 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoProductoDescripcion", HeaderText = "Tipo", Width = 150 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioActual", HeaderText = "Precio", Width = 100, DefaultCellStyle = { Format = "C2" } });
         }
 
-        private async void btnNuevo_Click(object sender, EventArgs e)
+        private ProductoDTO? ObtenerSeleccionado(DataGridView dgv)
         {
-            using var form = _serviceProvider.GetRequiredService<CrearProductoForm>();
-            form.ShowDialog(this);
-            await CargarProductos();
+            if (dgv.SelectedRows.Count > 0)
+                return dgv.SelectedRows[0].DataBoundItem as ProductoDTO;
+            return null;
+        }
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
             AplicarFiltro();
         }
-
-        private async void btnEditar_Click(object sender, EventArgs e)
-        {
-            var producto = ObtenerSeleccionado();
-            if (producto == null) return;
-
-            using var form = new EditarProductoForm(producto.IdProducto, _productoApiClient, _serviceProvider.GetRequiredService<TipoProductoApiClient>());
-            form.ShowDialog(this);
-            await CargarProductos();
-            AplicarFiltro();
-        }
-
-        private async void btnEliminar_Click(object sender, EventArgs e)
-        {
-            var producto = ObtenerSeleccionado();
-            if (producto == null) return;
-
-            var confirm = MessageBox.Show(
-                $"¿Está seguro que desea eliminar el producto \"{producto.Nombre}\"?",
-                "Confirmar Eliminación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
-            if (confirm != DialogResult.Yes) return;
-
-            try
-            {
-                await _productoApiClient.DeleteAsync(producto.IdProducto);
-                await CargarProductos();
-                AplicarFiltro();
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
-            {
-                MessageBox.Show("No se puede eliminar el producto porque está siendo utilizado en ventas.", "Conflicto", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al eliminar el producto: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnVolver_Click(object sender, EventArgs e) => Close();
 
         private void dgvProductos_SelectionChanged(object sender, EventArgs e)
         {
-            bool seleccionado = dgvProductos.SelectedRows.Count > 0;
-            btnEditar.Visible = seleccionado;
-            btnEliminar.Visible = seleccionado;
-        }
+            // Activar/desactivar botones según la selección
+            bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
+            bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
 
-        private void dgvProductos_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-                AbrirHistorialPrecios();
+            btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
+            btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
+            btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
+
+            btnVerHistorialPrecios.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos)
+                                             || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
+            btnEditarPrecio.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos)
+                                       || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
         }
 
         private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
             {
-                dgvProductos.ClearSelection();
-                dgvProductos.Rows[e.RowIndex].Selected = true;
-                cmOpciones.Show(dgvProductos, e.Location);
+                DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+                dgv.ClearSelection();
+                dgv.Rows[e.RowIndex].Selected = true;
+                cmOpciones.Show(dgv, e.Location);
             }
         }
 
-        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => AbrirHistorialPrecios();
-
-        private async void mnuEditarPrecio_Click(object sender, EventArgs e) => await AbrirEditarPrecioAsync();
-
-        private void btnVerHistorialPrecios_Click(object? sender, EventArgs e) => AbrirHistorialPrecios();
-        private async void btnEditarPrecio_Click(object? sender, EventArgs e) => await AbrirEditarPrecioAsync();
-
-        private void AbrirHistorialPrecios()
+        private async void btnNuevo_Click(object sender, EventArgs e)
         {
-            var producto = ObtenerSeleccionado();
-            if (producto == null)
-            {
-                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            using var form = _serviceProvider.GetRequiredService<CrearProductoForm>();
+            form.ShowDialog(this);
+            await CargarTodosProductos();
+            AplicarFiltro();
+        }
+
+        private async void btnEditar_Click(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab != tabActivos) return;
+
+            var producto = ObtenerSeleccionado(dgvActivos);
+            if (producto == null) return;
+
+            using var form = new EditarProductoForm(producto.IdProducto, _productoApiClient, _serviceProvider.GetRequiredService<TipoProductoApiClient>());
+            form.ShowDialog(this);
+            await CargarTodosProductos();
+            AplicarFiltro();
+        }
+
+        private async void btnDarBaja_Click(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab != tabActivos) return;
+
+            var producto = ObtenerSeleccionado(dgvActivos);
+            if (producto == null) return;
+
+            if (MessageBox.Show($"¿Dar de baja \"{producto.Nombre}\"?", "Confirmar",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+
+            await _productoApiClient.DeleteAsync(producto.IdProducto);
+            await CargarTodosProductos();
+            AplicarFiltro();
+        }
+
+        private async void btnReactivar_Click(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab != tabInactivos) return;
+
+            var producto = ObtenerSeleccionado(dgvInactivos);
+            if (producto == null) return;
+
+            if (MessageBox.Show($"¿Reactivar \"{producto.Nombre}\"?", "Confirmar",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+
+            await _productoApiClient.ReactivarAsync(producto.IdProducto);
+            await CargarTodosProductos();
+            AplicarFiltro();
+        }
+
+        private void btnVolver_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void btnVerHistorialPrecios_Click(object sender, EventArgs e)
+        {
+            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+            var producto = ObtenerSeleccionado(dgv);
+            if (producto == null) return;
 
             using var hist = new HistorialPreciosForm(
                 _serviceProvider.GetRequiredService<PrecioApiClient>(),
                 producto.IdProducto,
-                producto.Nombre
-            );
-
+                producto.Nombre);
             hist.ShowDialog(this);
         }
 
-        private async Task AbrirEditarPrecioAsync()
+        private async void btnEditarPrecio_Click(object sender, EventArgs e)
         {
-            var producto = ObtenerSeleccionado();
-            if (producto == null)
-            {
-                MessageBox.Show("Seleccioná un producto.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+            var producto = ObtenerSeleccionado(dgv);
+            if (producto == null) return;
 
             using var edit = new EditarPrecioForm(
                 _serviceProvider.GetRequiredService<PrecioApiClient>(),
                 producto.IdProducto,
                 producto.Nombre,
-                producto.PrecioActual
-            );
+                producto.PrecioActual);
 
             if (edit.ShowDialog(this) == DialogResult.OK)
             {
-                await CargarProductos();
+                await CargarTodosProductos();
                 AplicarFiltro();
             }
         }
+
+        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e)
+        {
+            btnVerHistorialPrecios_Click(sender, e);
+        }
+
+        private async void mnuEditarPrecio_Click(object sender, EventArgs e)
+        {
+            btnEditarPrecio_Click(sender, e);
+        }
     }
 }
-

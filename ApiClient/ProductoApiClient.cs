@@ -15,10 +15,14 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        // Corregido: Debe devolver una lista de ProductoDTO, no el modelo de dominio.
         public async Task<List<ProductoDTO>?> GetAllAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/productos");
+        }
+
+        public async Task<List<ProductoDTO>?> GetAllInactivosAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/productos/inactivos");
         }
 
         public async Task<ProductoDTO?> GetByIdAsync(int id)
@@ -45,6 +49,12 @@ namespace ApiClient
         public async Task<bool> DeleteAsync(int id)
         {
             var response = await _httpClient.DeleteAsync($"api/productos/{id}");
+            return response.IsSuccessStatusCode;
+        }
+
+        public async Task<bool> ReactivarAsync(int id)
+        {
+            var response = await _httpClient.PostAsync($"api/productos/{id}/reactivar", null);
             return response.IsSuccessStatusCode;
         }
     }
