@@ -70,7 +70,7 @@ namespace WinForms
 
             // txtBuscar
             txtBuscar.Location = new Point(80, 7);
-            txtBuscar.Size = new Size(200, 23);
+            txtBuscar.Size = new Size(450, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
             // cmbFiltroStock
@@ -82,8 +82,8 @@ namespace WinForms
                 "Stock < 10"
             });
             cmbFiltroStock.SelectedIndex = 0;
-            cmbFiltroStock.Location = new Point(300, 7);
-            cmbFiltroStock.Size = new Size(150, 23);
+            cmbFiltroStock.Location = new Point(550, 7);
+            cmbFiltroStock.Size = new Size(160, 23);
             cmbFiltroStock.SelectedIndexChanged += cmbFiltroStock_SelectedIndexChanged;
 
             // tabControl
