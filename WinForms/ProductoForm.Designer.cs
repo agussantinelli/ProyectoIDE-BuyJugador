@@ -15,6 +15,7 @@ namespace WinForms
 
         private TextBox txtBuscar;
         private Label lblBuscar;
+        private ComboBox cmbFiltroStock;
 
         private Button btnNuevo;
         private Button btnEditar;
@@ -46,6 +47,7 @@ namespace WinForms
 
             txtBuscar = new TextBox();
             lblBuscar = new Label();
+            cmbFiltroStock = new ComboBox();
 
             btnNuevo = new Button();
             btnEditar = new Button();
@@ -68,8 +70,21 @@ namespace WinForms
 
             // txtBuscar
             txtBuscar.Location = new Point(80, 7);
-            txtBuscar.Size = new Size(600, 23);
+            txtBuscar.Size = new Size(200, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
+
+            // cmbFiltroStock
+            cmbFiltroStock.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFiltroStock.Items.AddRange(new object[] {
+                "Todos",
+                "Con stock",
+                "Sin stock",
+                "Stock < 10"
+            });
+            cmbFiltroStock.SelectedIndex = 0;
+            cmbFiltroStock.Location = new Point(300, 7);
+            cmbFiltroStock.Size = new Size(150, 23);
+            cmbFiltroStock.SelectedIndexChanged += cmbFiltroStock_SelectedIndexChanged;
 
             // tabControl
             tabControl.Location = new Point(20, 40);
@@ -154,6 +169,7 @@ namespace WinForms
             ClientSize = new Size(1100, 480);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
+            Controls.Add(cmbFiltroStock);
             Controls.Add(tabControl);
             Controls.Add(btnNuevo);
             Controls.Add(btnEditar);

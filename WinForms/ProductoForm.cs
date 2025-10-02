@@ -64,16 +64,27 @@ namespace WinForms
             AplicarFiltro();
         }
 
+        private void cmbFiltroStock_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            AplicarFiltro();
+        }
+
         private void AplicarFiltro()
         {
             string f = _filtroActual.ToLowerInvariant();
+            string filtroStock = cmbFiltroStock?.SelectedItem?.ToString() ?? "Todos";
 
             if (tabControl.SelectedTab == tabActivos)
             {
                 var lista = _productosActivos
-                    .Where(p => string.IsNullOrWhiteSpace(f)
+                    .Where(p => (string.IsNullOrWhiteSpace(f)
                                 || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
                                 || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                                &&
+                                (filtroStock == "Todos"
+                                 || (filtroStock == "Con stock" && p.Stock > 0)
+                                 || (filtroStock == "Sin stock" && p.Stock == 0)
+                                 || (filtroStock == "Stock < 10" && p.Stock < 10)))
                     .ToList();
 
                 ConfigurarColumnas(dgvActivos);
@@ -82,9 +93,14 @@ namespace WinForms
             else
             {
                 var lista = _productosInactivos
-                    .Where(p => string.IsNullOrWhiteSpace(f)
+                    .Where(p => (string.IsNullOrWhiteSpace(f)
                                 || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
                                 || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                                &&
+                                (filtroStock == "Todos"
+                                 || (filtroStock == "Con stock" && p.Stock > 0)
+                                 || (filtroStock == "Sin stock" && p.Stock == 0)
+                                 || (filtroStock == "Stock < 10" && p.Stock < 10)))
                     .ToList();
 
                 ConfigurarColumnas(dgvInactivos);
@@ -119,7 +135,6 @@ namespace WinForms
 
         private void dgvProductos_SelectionChanged(object sender, EventArgs e)
         {
-            // Activar/desactivar botones según la selección
             bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
             bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
 
