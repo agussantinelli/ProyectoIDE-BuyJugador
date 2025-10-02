@@ -99,7 +99,80 @@ public static class DbSeeder
                     Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, IdTipoProducto = tipos.First(t => t.Descripcion == "Mouse").IdTipoProducto,
                     Activo = true,
                     Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Laptop Gamer Xtreme",
+                    Descripcion = "Laptop con GPU RTX 4060 y 32GB RAM",
+                    Stock = 50,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Laptops").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(3000, 5001) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Router Wi-Fi 6 Mesh",
+                    Descripcion = "Sistema de red inalámbrica de alto rendimiento",
+                    Stock = 90,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Redes").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(200, 1001) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Tablet Android 10\"",
+                    Descripcion = "Pantalla FHD y batería de larga duración",
+                    Stock = 75,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Tabletas").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Impresora Láser HP",
+                    Descripcion = "Impresora monocromática rápida",
+                    Stock = 60,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Impresoras").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3001) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Disco SSD 1TB",
+                    Descripcion = "Almacenamiento rápido NVMe",
+                    Stock = 200,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Almacenamiento").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(500, 1201) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Cámara Web Full HD",
+                    Descripcion = "Con micrófono incorporado y autofoco",
+                    Stock = 150,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Cámaras").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(300, 701) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Auriculares Pro Studio",
+                    Descripcion = "Audio profesional para edición y mezcla",
+                    Stock = 40,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Audio Profesional").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
+                },
+                new Producto
+                {
+                    Nombre = "Proyector HD LED",
+                    Descripcion = "Ideal para presentaciones y cine en casa",
+                    Stock = 30,
+                    IdTipoProducto = tipos.First(t => t.Descripcion == "Proyectores").IdTipoProducto,
+                    Activo = true,
+                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(2000, 4001) * 10 } }
                 }
+
             };
             context.Productos.AddRange(productosConPrecios);
             await context.SaveChangesAsync();
