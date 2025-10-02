@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class LocalidadForm : Form
+    public partial class LocalidadForm : BaseForm
     {
         private readonly LocalidadApiClient _localidadApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
@@ -25,6 +25,12 @@ namespace WinForms
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             this.StartPosition = FormStartPosition.CenterParent;
+
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dgvLocalidades);
+            StyleManager.ApplyButtonStyle(btnOrdenarAZ);
+            StyleManager.ApplyButtonStyle(btnOrdenarZA);
+            StyleManager.ApplyButtonStyle(btnVolver);
         }
 
         private async void LocalidadForm_Load(object sender, EventArgs e)
@@ -35,12 +41,15 @@ namespace WinForms
                 _todasLasProvincias = await _provinciaApiClient.GetAllAsync() ?? new List<ProvinciaDTO>();
                 _todasLasLocalidades = await _localidadApiClient.GetAllAsync() ?? new List<LocalidadDTO>();
 
-                // 2. Configurar el ComboBox de Provincias para el filtro
-                CargarComboProvincias();
+                // 2. Configurar el ComboBox de Provincias
+                var provinciasConOpcionTodas = new List<ProvinciaDTO> { new ProvinciaDTO { IdProvincia = 0, Nombre = "Todas las provincias" } };
+                provinciasConOpcionTodas.AddRange(_todasLasProvincias.OrderBy(p => p.Nombre));
+                cboProvincias.DataSource = provinciasConOpcionTodas;
+                cboProvincias.DisplayMember = "Nombre";
+                cboProvincias.ValueMember = "IdProvincia";
 
-                // 3. Configurar y cargar el DataGridView con todas las localidades
-                ConfigurarGrilla();
-                CargarGrilla(_todasLasLocalidades);
+                // 3. Cargar la grilla con todas las localidades al inicio
+                CargarGrilla(_todasLasLocalidades.OrderBy(l => l.Nombre));
             }
             catch (Exception ex)
             {
@@ -48,72 +57,35 @@ namespace WinForms
             }
         }
 
-        private void CargarComboProvincias()
-        {
-            // Creamos una lista temporal que incluya la opción "Todas" al principio
-            var provinciasParaFiltro = new List<ProvinciaDTO>
-            {
-                new ProvinciaDTO { IdProvincia = 0, Nombre = "Todas" }
-            };
-            provinciasParaFiltro.AddRange(_todasLasProvincias.OrderBy(p => p.Nombre));
-
-            cboProvincias.DataSource = provinciasParaFiltro;
-            cboProvincias.DisplayMember = "Nombre";
-            cboProvincias.ValueMember = "IdProvincia";
-        }
-
-        private void ConfigurarGrilla()
-        {
-            dgvLocalidades.AutoGenerateColumns = false;
-            dgvLocalidades.Columns.Clear();
-
-            // Añadimos las columnas manualmente como en tu ProvinciaForm
-            dgvLocalidades.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "IdLocalidad",
-                DataPropertyName = "IdLocalidad",
-                HeaderText = "Código",
-                Width = 100
-            });
-            dgvLocalidades.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Nombre",
-                DataPropertyName = "Nombre",
-                HeaderText = "Localidad",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-            dgvLocalidades.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Provincia",
-                HeaderText = "Provincia",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-        }
-
         private void CargarGrilla(IEnumerable<LocalidadDTO> localidades)
         {
-            dgvLocalidades.Rows.Clear(); // Limpiamos la grilla antes de cargar nuevos datos
-
-            foreach (var localidad in localidades)
+            var vistaLocalidades = localidades.Select(l => new
             {
-                // Buscamos el nombre de la provincia usando el ProvinciaId de la localidad
-                string nombreProvincia = _todasLasProvincias
-                                            .FirstOrDefault(p => p.IdProvincia == localidad.IdProvincia)?
-                                            .Nombre ?? "N/D";
+                l.IdLocalidad,
+                l.Nombre,
+                NombreProvincia = _todasLasProvincias.FirstOrDefault(p => p.IdProvincia == l.IdProvincia)?.Nombre ?? "N/A"
+            }).ToList();
 
-                // Agregamos la fila a la grilla
-                dgvLocalidades.Rows.Add(localidad.IdLocalidad, localidad.Nombre, nombreProvincia);
-            }
+            dgvLocalidades.DataSource = vistaLocalidades;
+            ConfigurarColumnas();
+        }
+
+        private void ConfigurarColumnas()
+        {
+            dgvLocalidades.Columns["IdLocalidad"].HeaderText = "ID";
+            dgvLocalidades.Columns["IdLocalidad"].Width = 60;
+            dgvLocalidades.Columns["Nombre"].HeaderText = "Localidad";
+            dgvLocalidades.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            dgvLocalidades.Columns["NombreProvincia"].HeaderText = "Provincia";
+            dgvLocalidades.Columns["NombreProvincia"].Width = 200;
         }
 
         private void cboProvincias_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Se ejecuta cada vez que el usuario cambia la selección del ComboBox
             if (cboProvincias.SelectedValue is int provinciaId)
             {
                 IEnumerable<LocalidadDTO> localidadesFiltradas;
-
-                if (provinciaId == 0) // Si se selecciona "Todas"
+                if (provinciaId == 0) // "Todas las provincias"
                 {
                     localidadesFiltradas = _todasLasLocalidades;
                 }
@@ -151,7 +123,10 @@ namespace WinForms
             CargarGrilla(localidadesOrdenadas);
         }
 
-        private void btnVolver_Click(object sender, EventArgs e) => this.Close();
+        private void btnVolver_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
 

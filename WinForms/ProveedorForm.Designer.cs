@@ -17,7 +17,7 @@ namespace WinForms
         private Button btnEditar;
         private Button btnEliminar;
         private Button btnReactivar;
-        private Button btnCerrar;
+        private Button btnVolver;
 
         protected override void Dispose(bool disposing)
         {
@@ -38,7 +38,7 @@ namespace WinForms
             btnEditar = new Button();
             btnEliminar = new Button();
             btnReactivar = new Button();
-            btnCerrar = new Button();
+            btnVolver = new Button(); // Estandarizado
 
             ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
@@ -48,45 +48,44 @@ namespace WinForms
             SuspendLayout();
 
             // lblBuscar
-            lblBuscar.AutoSize = true;
+            lblBuscar.Text = "Buscar por Razón Social o CUIT:";
             lblBuscar.Location = new Point(20, 15);
-            lblBuscar.Text = "Buscar:";
+            lblBuscar.AutoSize = true;
 
             // txtBuscar
-            txtBuscar.Location = new Point(80, 12);
-            txtBuscar.Size = new Size(600, 23);
+            txtBuscar.Location = new Point(220, 12);
+            txtBuscar.Size = new Size(400, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // tabControlProveedores
+            // tabControl
+            tabControlProveedores.Location = new Point(20, 50);
+            tabControlProveedores.Size = new Size(1160, 420);
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
-            tabControlProveedores.Location = new Point(20, 50);
-            tabControlProveedores.Size = new Size(1150, 420);
             tabControlProveedores.SelectedIndexChanged += tabControlProveedores_SelectedIndexChanged;
 
-            // tabPageActivos
+            // tabActivos
+            tabPageActivos.Text = "Activos";
+            tabPageActivos.Padding = new Padding(3);
             tabPageActivos.Controls.Add(dgvActivos);
-            tabPageActivos.Text = "Proveedores Activos";
+
+            // tabInactivos
+            tabPageInactivos.Text = "Inactivos";
+            tabPageInactivos.Padding = new Padding(3);
+            tabPageInactivos.Controls.Add(dgvInactivos);
+
+            // dgv (ambos)
             dgvActivos.Dock = DockStyle.Fill;
-            dgvActivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvActivos.MultiSelect = false;
-            dgvActivos.ReadOnly = true;
             dgvActivos.SelectionChanged += dgvActivos_SelectionChanged;
 
-            // tabPageInactivos
-            tabPageInactivos.Controls.Add(dgvInactivos);
-            tabPageInactivos.Text = "Proveedores Inactivos";
             dgvInactivos.Dock = DockStyle.Fill;
-            dgvInactivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvInactivos.MultiSelect = false;
-            dgvInactivos.ReadOnly = true;
             dgvInactivos.SelectionChanged += dgvInactivos_SelectionChanged;
 
             // Botones
-            btnCerrar.Text = "Cerrar";
-            btnCerrar.Location = new Point(20, 480);
-            btnCerrar.Size = new Size(100, 30);
-            btnCerrar.Click += btnCerrar_Click;
+            btnVolver.Text = "Volver"; // Estandarizado
+            btnVolver.Location = new Point(20, 480);
+            btnVolver.Size = new Size(100, 30);
+            btnVolver.Click += btnVolver_Click;
 
             btnNuevo.Text = "Nuevo";
             btnNuevo.Location = new Point(140, 480);
@@ -117,7 +116,7 @@ namespace WinForms
             Controls.Add(btnEditar);
             Controls.Add(btnEliminar);
             Controls.Add(btnReactivar);
-            Controls.Add(btnCerrar);
+            Controls.Add(btnVolver);
             Name = "ProveedorForm";
             Text = "Gestión de Proveedores";
             Load += ProveedorForm_Load;

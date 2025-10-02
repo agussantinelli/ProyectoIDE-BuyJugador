@@ -2,12 +2,11 @@
 using DTOs;
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class EditarPrecioForm : Form
+    public partial class EditarPrecioForm : BaseForm
     {
         private readonly PrecioApiClient _precioApiClient;
         private readonly int _idProducto;
@@ -21,6 +20,10 @@ namespace WinForms
             _idProducto = idProducto;
             _nombreProducto = nombreProducto ?? "";
             _precioActual = precioActual;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private void EditarPrecioForm_Load(object sender, EventArgs e)
@@ -44,7 +47,7 @@ namespace WinForms
             var dto = new PrecioDTO
             {
                 IdProducto = _idProducto,
-                FechaDesde = DateTime.Now, 
+                FechaDesde = DateTime.Now,
                 Monto = monto
             };
 
@@ -74,3 +77,4 @@ namespace WinForms
         private void btnCancelar_Click(object sender, EventArgs e) => DialogResult = DialogResult.Cancel;
     }
 }
+

@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class CrearProveedorForm : Form
+    public partial class CrearProveedorForm : BaseForm
     {
         private readonly ProveedorApiClient _proveedorApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
@@ -21,6 +21,10 @@ namespace WinForms
             _proveedorApiClient = proveedorApiClient;
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearProveedorForm_Load(object sender, EventArgs e)
@@ -41,12 +45,9 @@ namespace WinForms
             {
                 var localidades = await _localidadApiClient.GetAllAsync() ?? new();
                 var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
-                filtradas.Insert(0, new LocalidadDTO { IdLocalidad = 0, Nombre = "-- Seleccionar localidad --" });
-
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
-                cmbLocalidad.SelectedIndex = 0;
             }
             else
             {
@@ -92,3 +93,4 @@ namespace WinForms
             => DialogResult = DialogResult.Cancel;
     }
 }
+

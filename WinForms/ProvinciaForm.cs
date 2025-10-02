@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class ProvinciaForm : Form
+    public partial class ProvinciaForm : BaseForm
     {
         private readonly ProvinciaApiClient _provinciaApiClient;
 
@@ -17,6 +17,9 @@ namespace WinForms
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             this.StartPosition = FormStartPosition.CenterParent;
 
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dgvProvincias);
+            StyleManager.ApplyButtonStyle(btnVolver);
         }
 
 
@@ -53,3 +56,4 @@ namespace WinForms
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
     }
 }
+

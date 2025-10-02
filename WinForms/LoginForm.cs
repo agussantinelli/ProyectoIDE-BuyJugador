@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class LoginForm : Form
+    public partial class LoginForm : BaseForm
     {
         private readonly PersonaApiClient _personaApiClient;
         private readonly UserSessionService _userSessionService;
@@ -14,6 +14,9 @@ namespace WinForms
             InitializeComponent();
             _personaApiClient = personaApiClient;
             _userSessionService = userSessionService;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnLogin);
         }
 
         private async void btnLogin_Click(object sender, EventArgs e)
@@ -29,7 +32,6 @@ namespace WinForms
                 var loggedInUser = await _personaApiClient.LoginAsync(dni, txtPassword.Text);
                 if (loggedInUser != null)
                 {
-                    // Guardar el usuario en el servicio de sesión
                     _userSessionService.CurrentUser = loggedInUser;
                     this.DialogResult = DialogResult.OK;
                     this.Close();
@@ -46,4 +48,3 @@ namespace WinForms
         }
     }
 }
-

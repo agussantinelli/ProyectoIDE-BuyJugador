@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class CrearVentaForm : Form
+    public partial class CrearVentaForm : BaseForm
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly VentaApiClient _ventaApiClient;
@@ -33,6 +33,13 @@ namespace WinForms
 
             _productosDisponibles = new List<ProductoDTO>();
             _lineasVentaActual = new BindingList<LineaVentaDTO>();
+
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dataGridLineasVenta);
+            StyleManager.ApplyButtonStyle(btnAgregarProducto);
+            StyleManager.ApplyButtonStyle(btnEliminarLinea);
+            StyleManager.ApplyButtonStyle(btnFinalizarVenta);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearVentaForm_Load(object sender, EventArgs e)

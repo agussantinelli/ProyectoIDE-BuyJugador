@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class HistorialPreciosForm : Form
+    public partial class HistorialPreciosForm : BaseForm
     {
         private readonly PrecioApiClient _precioApiClient;
         private readonly int _idProducto;
@@ -23,6 +23,11 @@ namespace WinForms
             _precioApiClient = precioApiClient;
             _idProducto = idProducto;
             _nombreProducto = nombreProducto ?? "";
+
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dgvHistorial);
+            StyleManager.ApplyButtonStyle(btnCerrar);
+            StyleManager.ApplyButtonStyle(btnRefrescar);
         }
 
         private async void HistorialPreciosForm_Load(object sender, EventArgs e)
@@ -50,29 +55,29 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar historial: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error inesperado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void ConfigurarColumnas()
         {
-            if (dgvHistorial.Columns.Contains("IdProducto"))
+            dgvHistorial.Columns.Clear();
+            dgvHistorial.AutoGenerateColumns = false;
+
+            dgvHistorial.Columns.Add(new DataGridViewTextBoxColumn
             {
-                dgvHistorial.Columns["IdProducto"].HeaderText = "Producto";
-                dgvHistorial.Columns["IdProducto"].Width = 90;
-            }
-            if (dgvHistorial.Columns.Contains("FechaDesde"))
+                DataPropertyName = "FechaDesde",
+                HeaderText = "Fecha desde",
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" },
+                Width = 160
+            });
+            dgvHistorial.Columns.Add(new DataGridViewTextBoxColumn
             {
-                dgvHistorial.Columns["FechaDesde"].HeaderText = "Fecha desde";
-                dgvHistorial.Columns["FechaDesde"].DefaultCellStyle.Format = "yyyy-MM-dd HH:mm";
-                dgvHistorial.Columns["FechaDesde"].Width = 160;
-            }
-            if (dgvHistorial.Columns.Contains("Monto"))
-            {
-                dgvHistorial.Columns["Monto"].HeaderText = "Monto";
-                dgvHistorial.Columns["Monto"].DefaultCellStyle.Format = "C2";
-                dgvHistorial.Columns["Monto"].Width = 110;
-            }
+                DataPropertyName = "Monto",
+                HeaderText = "Monto",
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" },
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
         }
 
         private void btnCerrar_Click(object sender, EventArgs e) => Close();
@@ -95,8 +100,6 @@ namespace WinForms
                         p.Monto.ToString("0.##").ToLower().Contains(filtro))
                     .ToList();
             }
-
-            ConfigurarColumnas();
         }
     }
 }

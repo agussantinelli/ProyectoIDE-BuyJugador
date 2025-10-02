@@ -5,7 +5,7 @@ using ApiClient;
 
 namespace WinForms
 {
-    public partial class EditarTipoProductoForm : Form
+    public partial class EditarTipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private readonly TipoProductoDTO _tipo;
@@ -15,6 +15,10 @@ namespace WinForms
             InitializeComponent();
             _tipoProductoApiClient = tipoProductoApiClient;
             _tipo = tipo;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private void EditarTipoProductoForm_Load(object sender, EventArgs e)
@@ -57,3 +61,4 @@ namespace WinForms
         }
     }
 }
+

@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class MainForm
+    partial class BaseForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,18 +30,17 @@
         {
             this.SuspendLayout();
             // 
-            // MainForm
+            // BaseForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.IsMdiContainer = true;
-            this.Name = "MainForm";
-            this.Text = "Sistema de Gestión - BuyJugador";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.MainForm_Load);
-            // Agregamos el manejador para el evento Resize.
-            this.Resize += new System.EventHandler(this.MainForm_Resize);
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(55)))), ((int)(((byte)(70)))));
+            this.ClientSize = new System.Drawing.Size(900, 600);
+            this.Font = new System.Drawing.Font("Century Gothic", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ForeColor = System.Drawing.Color.White;
+            this.Name = "BaseForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Gestión BuyJugador";
             this.ResumeLayout(false);
 
         }
@@ -49,3 +48,4 @@
         #endregion
     }
 }
+

@@ -36,14 +36,7 @@
             lblTelefono = new System.Windows.Forms.Label();
             lblDireccion = new System.Windows.Forms.Label();
             lblLocalidad = new System.Windows.Forms.Label();
-            SuspendLayout();
-            // 
-            // txtEmail
-            // 
-            txtEmail.Location = new System.Drawing.Point(30, 40);
-            txtEmail.Name = "txtEmail";
-            txtEmail.Size = new System.Drawing.Size(240, 23);
-            txtEmail.TabIndex = 0;
+            this.SuspendLayout();
             // 
             // lblEmail
             // 
@@ -51,87 +44,83 @@
             lblEmail.Location = new System.Drawing.Point(30, 20);
             lblEmail.Name = "lblEmail";
             lblEmail.Size = new System.Drawing.Size(39, 15);
-            lblEmail.TabIndex = 1;
             lblEmail.Text = "Email:";
             // 
-            // txtTelefono
+            // txtEmail
             // 
-            txtTelefono.Location = new System.Drawing.Point(30, 95);
-            txtTelefono.Name = "txtTelefono";
-            txtTelefono.Size = new System.Drawing.Size(240, 23);
-            txtTelefono.TabIndex = 2;
+            txtEmail.Location = new System.Drawing.Point(30, 40);
+            txtEmail.Name = "txtEmail";
+            txtEmail.Size = new System.Drawing.Size(240, 23);
+            txtEmail.TabIndex = 1;
             // 
             // lblTelefono
             // 
             lblTelefono.AutoSize = true;
-            lblTelefono.Location = new System.Drawing.Point(30, 75);
+            lblTelefono.Location = new System.Drawing.Point(30, 80);
             lblTelefono.Name = "lblTelefono";
             lblTelefono.Size = new System.Drawing.Size(55, 15);
-            lblTelefono.TabIndex = 3;
             lblTelefono.Text = "Teléfono:";
             // 
-            // txtDireccion
+            // txtTelefono
             // 
-            txtDireccion.Location = new System.Drawing.Point(30, 150);
-            txtDireccion.Name = "txtDireccion";
-            txtDireccion.Size = new System.Drawing.Size(240, 23);
-            txtDireccion.TabIndex = 4;
+            txtTelefono.Location = new System.Drawing.Point(30, 100);
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new System.Drawing.Size(240, 23);
+            txtTelefono.TabIndex = 3;
             // 
             // lblDireccion
             // 
             lblDireccion.AutoSize = true;
-            lblDireccion.Location = new System.Drawing.Point(30, 130);
+            lblDireccion.Location = new System.Drawing.Point(30, 140);
             lblDireccion.Name = "lblDireccion";
             lblDireccion.Size = new System.Drawing.Size(60, 15);
-            lblDireccion.TabIndex = 5;
             lblDireccion.Text = "Dirección:";
             // 
-            // cmbProvincia
+            // txtDireccion
             // 
-            cmbProvincia.Location = new System.Drawing.Point(30, 205);
-            cmbProvincia.Name = "cmbProvincia";
-            cmbProvincia.Size = new System.Drawing.Size(240, 23);
-            cmbProvincia.TabIndex = 6;
-            cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
+            txtDireccion.Location = new System.Drawing.Point(30, 160);
+            txtDireccion.Name = "txtDireccion";
+            txtDireccion.Size = new System.Drawing.Size(240, 23);
+            txtDireccion.TabIndex = 5;
             // 
             // lblProvincia
             // 
             lblProvincia.AutoSize = true;
-            lblProvincia.Location = new System.Drawing.Point(30, 185);
+            lblProvincia.Location = new System.Drawing.Point(30, 200);
             lblProvincia.Name = "lblProvincia";
             lblProvincia.Size = new System.Drawing.Size(59, 15);
-            lblProvincia.TabIndex = 7;
             lblProvincia.Text = "Provincia:";
             // 
-            // cmbLocalidad
+            // cmbProvincia
             // 
-            cmbLocalidad.Location = new System.Drawing.Point(30, 260);
-            cmbLocalidad.Name = "cmbLocalidad";
-            cmbLocalidad.Size = new System.Drawing.Size(240, 23);
-            cmbLocalidad.TabIndex = 8;
+            cmbProvincia.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbProvincia.FormattingEnabled = true;
+            cmbProvincia.Location = new System.Drawing.Point(30, 220);
+            cmbProvincia.Name = "cmbProvincia";
+            cmbProvincia.Size = new System.Drawing.Size(240, 23);
+            cmbProvincia.TabIndex = 7;
+            cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
             // 
             // lblLocalidad
             // 
             lblLocalidad.AutoSize = true;
-            lblLocalidad.Location = new System.Drawing.Point(30, 240);
+            lblLocalidad.Location = new System.Drawing.Point(30, 260);
             lblLocalidad.Name = "lblLocalidad";
             lblLocalidad.Size = new System.Drawing.Size(61, 15);
-            lblLocalidad.TabIndex = 9;
             lblLocalidad.Text = "Localidad:";
             // 
-            // btnGuardar
+            // cmbLocalidad
             // 
-            btnGuardar.Location = new System.Drawing.Point(30, 310);
-            btnGuardar.Name = "btnGuardar";
-            btnGuardar.Size = new System.Drawing.Size(100, 30);
-            btnGuardar.TabIndex = 10;
-            btnGuardar.Text = "Guardar";
-            btnGuardar.UseVisualStyleBackColor = true;
-            btnGuardar.Click += btnGuardar_Click;
+            cmbLocalidad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbLocalidad.FormattingEnabled = true;
+            cmbLocalidad.Location = new System.Drawing.Point(30, 280);
+            cmbLocalidad.Name = "cmbLocalidad";
+            cmbLocalidad.Size = new System.Drawing.Size(240, 23);
+            cmbLocalidad.TabIndex = 9;
             // 
             // btnCancelar
             // 
-            btnCancelar.Location = new System.Drawing.Point(170, 310);
+            btnCancelar.Location = new System.Drawing.Point(30, 320);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new System.Drawing.Size(100, 30);
             btnCancelar.TabIndex = 11;
@@ -139,11 +128,21 @@
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
+            // btnGuardar
+            // 
+            btnGuardar.Location = new System.Drawing.Point(170, 320);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new System.Drawing.Size(100, 30);
+            btnGuardar.TabIndex = 10;
+            btnGuardar.Text = "Guardar";
+            btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click;
+            // 
             // EditarPersonaForm
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(310, 370);
+            ClientSize = new System.Drawing.Size(304, 371);
             Controls.Add(lblEmail);
             Controls.Add(txtEmail);
             Controls.Add(lblTelefono);
@@ -160,8 +159,9 @@
             StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             Text = "Editar Persona";
             Load += EditarPersonaForm_Load;
-            ResumeLayout(false);
-            PerformLayout();
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
     }
 }
+

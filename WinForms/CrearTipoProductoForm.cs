@@ -5,7 +5,7 @@ using ApiClient;
 
 namespace WinForms
 {
-    public partial class CrearTipoProductoForm : Form
+    public partial class CrearTipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
 
@@ -13,6 +13,10 @@ namespace WinForms
         {
             InitializeComponent();
             _tipoProductoApiClient = tipoProductoApiClient;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private void CrearTipoProductoForm_Load(object sender, EventArgs e)
@@ -48,3 +52,4 @@ namespace WinForms
         }
     }
 }
+

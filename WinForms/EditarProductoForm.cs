@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class EditarProductoForm : Form
+    public partial class EditarProductoForm : BaseForm
     {
         private readonly int _productoId;
         private readonly ProductoApiClient _productoApiClient;
@@ -19,6 +19,10 @@ namespace WinForms
             _productoId = productoId;
             _productoApiClient = productoApiClient;
             _tipoProductoApiClient = tipoProductoApiClient;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void EditarProductoForm_Load(object sender, EventArgs e)
@@ -64,12 +68,15 @@ namespace WinForms
             }
 
             await _productoApiClient.UpdateAsync(_producto.IdProducto, _producto);
+            this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel;
             this.Close();
         }
     }
 }
+

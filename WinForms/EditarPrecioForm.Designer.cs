@@ -44,43 +44,40 @@ namespace WinForms
 
             // lblProductoValor
             lblProductoValor.AutoSize = true;
-            lblProductoValor.Location = new Point(95, 20);
-            lblProductoValor.Text = "-";
+            lblProductoValor.Location = new Point(120, 20);
+            lblProductoValor.Font = new Font(lblProductoValor.Font, FontStyle.Bold);
 
             // lblPrecioActual
             lblPrecioActual.AutoSize = true;
-            lblPrecioActual.Location = new Point(20, 55);
+            lblPrecioActual.Location = new Point(20, 50);
             lblPrecioActual.Text = "Precio actual:";
 
             // lblPrecioActualValor
             lblPrecioActualValor.AutoSize = true;
-            lblPrecioActualValor.Location = new Point(110, 55);
-            lblPrecioActualValor.Text = "-";
+            lblPrecioActualValor.Location = new Point(120, 50);
 
             // lblNuevoPrecio
             lblNuevoPrecio.AutoSize = true;
-            lblNuevoPrecio.Location = new Point(20, 95);
+            lblNuevoPrecio.Location = new Point(20, 90);
             lblNuevoPrecio.Text = "Nuevo precio:";
 
             // nudNuevoPrecio
-            nudNuevoPrecio.Location = new Point(110, 92);
-            nudNuevoPrecio.Size = new Size(150, 23);
+            nudNuevoPrecio.Location = new Point(120, 88);
+            nudNuevoPrecio.Size = new System.Drawing.Size(140, 23);
             nudNuevoPrecio.DecimalPlaces = 2;
-            nudNuevoPrecio.Maximum = 100000000m;
-            nudNuevoPrecio.Minimum = 0m;
-            nudNuevoPrecio.ThousandsSeparator = true;
-
-            // btnGuardar
-            btnGuardar.Location = new Point(20, 140);
-            btnGuardar.Size = new Size(100, 30);
-            btnGuardar.Text = "Guardar";
-            btnGuardar.Click += btnGuardar_Click;
+            nudNuevoPrecio.Maximum = 9999999.99m;
 
             // btnCancelar
-            btnCancelar.Location = new Point(160, 140);
-            btnCancelar.Size = new Size(100, 30);
+            btnCancelar.Location = new Point(20, 140);
+            btnCancelar.Size = new System.Drawing.Size(100, 30);
             btnCancelar.Text = "Cancelar";
             btnCancelar.Click += btnCancelar_Click;
+
+            // btnGuardar
+            btnGuardar.Location = new System.Drawing.Point(160, 140);
+            btnGuardar.Size = new System.Drawing.Size(100, 30);
+            btnGuardar.Text = "Guardar";
+            btnGuardar.Click += btnGuardar_Click;
 
             // EditarPrecioForm
             AutoScaleDimensions = new SizeF(7F, 15F);

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class TipoProductoForm : Form
+    public partial class TipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
         private List<TipoProductoDTO> _tiposCache = new();
@@ -23,6 +23,12 @@ namespace WinForms
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
             this.StartPosition = FormStartPosition.CenterParent;
 
+            // Aplicamos el estilo
+            StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
+            StyleManager.ApplyButtonStyle(btnNuevo);
+            StyleManager.ApplyButtonStyle(btnEditar);
+            StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnVolver);
         }
 
         public TipoProductoForm()
@@ -165,3 +171,4 @@ namespace WinForms
         }
     }
 }
+

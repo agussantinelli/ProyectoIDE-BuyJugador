@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WinForms
 {
-    public partial class VentaForm : Form
+    public partial class VentaForm : BaseForm
     {
         private readonly VentaApiClient _ventaApiClient;
         private readonly LineaVentaApiClient _lineaVentaApiClient;
@@ -26,6 +26,13 @@ namespace WinForms
             _lineaVentaApiClient = lineaVentaApiClient;
             _serviceProvider = serviceProvider;
             _userSessionService = userSessionService;
+
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dataGridVentas);
+            StyleManager.ApplyButtonStyle(btnNuevaVenta);
+            StyleManager.ApplyButtonStyle(btnVerDetalle);
+            StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnVolver);
         }
 
         private async void VentaForm_Load(object sender, EventArgs e)
@@ -47,7 +54,7 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error de Conexión", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -57,14 +64,15 @@ namespace WinForms
 
         private void ConfigurarColumnas()
         {
-            if (dataGridVentas.Columns.Count > 0)
-            {
-                dataGridVentas.Columns["IdVenta"].HeaderText = "N° Venta";
-                dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
-                dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
-                dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
-                dataGridVentas.Columns["IdPersona"].Visible = false;
-            }
+            dataGridVentas.Columns["IdVenta"].HeaderText = "ID Venta";
+            dataGridVentas.Columns["Fecha"].HeaderText = "Fecha";
+            dataGridVentas.Columns["Total"].HeaderText = "Total";
+            dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
+
+            dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
+            dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
+
+            dataGridVentas.Columns["NombreVendedor"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
         }
 
         private async void btnNuevaVenta_Click(object sender, EventArgs e)
@@ -80,35 +88,30 @@ namespace WinForms
         {
             if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
             {
-                MessageBox.Show("Por favor, seleccione una venta para eliminar.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Por favor, seleccione una venta para eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var confirmResult = MessageBox.Show(
-                $"¿Está seguro de que desea eliminar la venta N° {selectedVenta.IdVenta}? Esta acción no se puede deshacer y el stock de los productos será restaurado.",
-                "Confirmar Eliminación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+            var confirm = MessageBox.Show($"¿Está seguro que desea eliminar la venta #{selectedVenta.IdVenta}?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm == DialogResult.No) return;
 
-            if (confirmResult == DialogResult.Yes)
+            try
             {
-                try
+                var response = await _ventaApiClient.DeleteAsync(selectedVenta.IdVenta);
+                if (response.IsSuccessStatusCode)
                 {
-                    var response = await _ventaApiClient.DeleteAsync(selectedVenta.IdVenta);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        MessageBox.Show("La venta ha sido eliminada exitosamente.", "Eliminación Completa", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        await CargarVentas();
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Error al eliminar la venta: {response.ReasonPhrase}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    MessageBox.Show("Venta eliminada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await CargarVentas();
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al eliminar la venta: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -116,7 +119,7 @@ namespace WinForms
         {
             if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
             {
-                MessageBox.Show("Por favor, seleccione una venta para ver el detalle.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Por favor, seleccione una venta para ver su detalle.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -160,3 +163,4 @@ namespace WinForms
         }
     }
 }
+

@@ -12,7 +12,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class CrearProductoForm : Form
+    public partial class CrearProductoForm : BaseForm
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly TipoProductoApiClient _tipoProductoApiClient;
@@ -22,13 +22,16 @@ namespace WinForms
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _tipoProductoApiClient = tipoProductoApiClient;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnCrear);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearProductoForm_Load(object sender, EventArgs e)
         {
             var tiposProducto = await _tipoProductoApiClient.GetAllAsync();
             cmbTipoProducto.DataSource = tiposProducto;
-            // Corrección: Usar "Descripcion" para mostrar el nombre
             cmbTipoProducto.DisplayMember = "Descripcion";
             cmbTipoProducto.ValueMember = "IdTipoProducto";
         }

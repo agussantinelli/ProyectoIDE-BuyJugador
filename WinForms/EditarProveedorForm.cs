@@ -2,11 +2,12 @@
 using DTOs;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class EditarProveedorForm : Form
+    public partial class EditarProveedorForm : BaseForm
     {
         private readonly ProveedorApiClient _proveedorApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
@@ -24,6 +25,10 @@ namespace WinForms
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
             _proveedor = proveedor;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void EditarProveedorForm_Load(object sender, EventArgs e)
@@ -36,27 +41,23 @@ namespace WinForms
             txtDireccion.Text = _proveedor.Direccion;
 
             // Cargar y seleccionar provincia y localidad
-            var provincias = await _provinciaApiClient.GetAllAsync() ?? new();
+            var provincias = await _provinciaApiClient.GetAllAsync();
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
             cmbProvincia.ValueMember = "IdProvincia";
 
             if (_proveedor.IdLocalidad.HasValue)
             {
-                var allLocs = await _localidadApiClient.GetAllAsync() ?? new();
-                var locActual = allLocs.FirstOrDefault(l => l.IdLocalidad == _proveedor.IdLocalidad);
-                if (locActual != null)
+                var localidadActual = await _localidadApiClient.GetByIdAsync(_proveedor.IdLocalidad.Value);
+                if (localidadActual != null && localidadActual.IdProvincia.HasValue)
                 {
-                    cmbProvincia.SelectedValue = locActual.IdProvincia;
+                    cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
 
-                    // Cargar localidades correspondientes a la provincia
-                    var filtradas = allLocs.Where(l => l.IdProvincia == locActual.IdProvincia).ToList();
-                    cmbLocalidad.DataSource = filtradas;
-                    cmbLocalidad.DisplayMember = "Nombre";
-                    cmbLocalidad.ValueMember = "IdLocalidad";
+                    // Cargar las localidades de esa provincia
+                    await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
 
-                    // Seleccionar la localidad actual
-                    cmbLocalidad.SelectedValue = _proveedor.IdLocalidad;
+                    // Seleccionar la localidad
+                    cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
             }
         }
@@ -65,17 +66,23 @@ namespace WinForms
         {
             if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
             {
-                var localidades = await _localidadApiClient.GetAllAsync() ?? new();
-                var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
-                cmbLocalidad.DataSource = filtradas;
-                cmbLocalidad.DisplayMember = "Nombre";
-                cmbLocalidad.ValueMember = "IdLocalidad";
+                await CargarLocalidadesAsync(idProvincia);
             }
             else
             {
                 cmbLocalidad.DataSource = null;
             }
         }
+
+        private async Task CargarLocalidadesAsync(int idProvincia)
+        {
+            var localidades = await _localidadApiClient.GetAllAsync() ?? new();
+            var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
+            cmbLocalidad.DataSource = filtradas;
+            cmbLocalidad.DisplayMember = "Nombre";
+            cmbLocalidad.ValueMember = "IdLocalidad";
+        }
+
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {

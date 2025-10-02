@@ -49,67 +49,61 @@ namespace WinForms
             btnCancelar = new Button();
             SuspendLayout();
 
-            // Razón Social
+            // Labels
             lblRazonSocial.Text = "Razón Social:";
             lblRazonSocial.Location = new Point(25, 20);
             lblRazonSocial.AutoSize = true;
             txtRazonSocial.Location = new Point(25, 45);
             txtRazonSocial.Size = new Size(300, 23);
 
-            // CUIT
             lblCuit.Text = "CUIT:";
             lblCuit.Location = new Point(25, 80);
             lblCuit.AutoSize = true;
             txtCuit.Location = new Point(25, 105);
             txtCuit.Size = new Size(300, 23);
 
-            // Email
             lblEmail.Text = "Email:";
             lblEmail.Location = new Point(25, 140);
             lblEmail.AutoSize = true;
             txtEmail.Location = new Point(25, 165);
             txtEmail.Size = new Size(300, 23);
 
-            // Teléfono
             lblTelefono.Text = "Teléfono:";
             lblTelefono.Location = new Point(25, 200);
             lblTelefono.AutoSize = true;
             txtTelefono.Location = new Point(25, 225);
             txtTelefono.Size = new Size(300, 23);
 
-            // Dirección
             lblDireccion.Text = "Dirección:";
             lblDireccion.Location = new Point(25, 260);
             lblDireccion.AutoSize = true;
             txtDireccion.Location = new Point(25, 285);
             txtDireccion.Size = new Size(300, 23);
 
-            // Provincia
             lblProvincia.Text = "Provincia:";
             lblProvincia.Location = new Point(25, 320);
             lblProvincia.AutoSize = true;
             cmbProvincia.Location = new Point(25, 345);
             cmbProvincia.Size = new Size(300, 23);
+            cmbProvincia.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
 
-            // Localidad
             lblLocalidad.Text = "Localidad:";
             lblLocalidad.Location = new Point(25, 380);
             lblLocalidad.AutoSize = true;
             cmbLocalidad.Location = new Point(25, 405);
             cmbLocalidad.Size = new Size(300, 23);
+            cmbLocalidad.DropDownStyle = ComboBoxStyle.DropDownList;
 
-            // Botones (a la derecha)
+            // Botones
             btnCancelar.Text = "Cancelar";
             btnCancelar.Size = new Size(100, 30);
-            btnCancelar.Location = new Point(145, 450);
-            btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnCancelar.Location = new Point(25, 450);
             btnCancelar.Click += btnCancelar_Click;
 
             btnGuardar.Text = "Guardar";
             btnGuardar.Size = new Size(100, 30);
-            btnGuardar.Location = new Point(255, 450);
-            btnGuardar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnGuardar.Location = new Point(225, 450);
             btnGuardar.Click += btnGuardar_Click;
 
             // Form
@@ -124,12 +118,11 @@ namespace WinForms
                 lblLocalidad, cmbLocalidad,
                 btnCancelar, btnGuardar
             });
-            Text = "Nuevo Proveedor";
-            StartPosition = FormStartPosition.CenterParent;
+            Text = "Crear Proveedor";
             Load += CrearProveedorForm_Load;
-
             ResumeLayout(false);
             PerformLayout();
         }
     }
 }
+

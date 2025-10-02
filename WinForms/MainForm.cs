@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WinForms
 {
-    public partial class MainForm : Form
+    public partial class MainForm : BaseForm 
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly bool _isAdmin;

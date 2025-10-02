@@ -35,17 +35,17 @@
             this.txtDescripcion.Multiline = true;
             this.txtDescripcion.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
 
-            // btnGuardar
-            this.btnGuardar.Location = new System.Drawing.Point(30, 140);
-            this.btnGuardar.Size = new System.Drawing.Size(100, 30);
-            this.btnGuardar.Text = "Guardar";
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
-
-            // btnCancelar
-            this.btnCancelar.Location = new System.Drawing.Point(170, 140);
+            // btnCancelar (Movido a la izquierda)
+            this.btnCancelar.Location = new System.Drawing.Point(30, 140);
             this.btnCancelar.Size = new System.Drawing.Size(100, 30);
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+
+            // btnGuardar (Movido a la derecha)
+            this.btnGuardar.Location = new System.Drawing.Point(170, 140);
+            this.btnGuardar.Size = new System.Drawing.Size(100, 30);
+            this.btnGuardar.Text = "Guardar";
+            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
 
             // CrearTipoProductoForm
             this.ClientSize = new System.Drawing.Size(320, 200);
@@ -56,7 +56,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Crear Tipo de Producto";
             this.Load += new System.EventHandler(this.CrearTipoProductoForm_Load);
-
             this.ResumeLayout(false);
             this.PerformLayout();
         }

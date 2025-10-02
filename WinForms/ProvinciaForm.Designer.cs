@@ -16,43 +16,43 @@
         #region Windows Form Designer generated code
         private void InitializeComponent()
         {
-            dgvProvincias = new DataGridView();
-            btnVolver = new Button();
+            this.dgvProvincias = new System.Windows.Forms.DataGridView();
+            this.btnVolver = new System.Windows.Forms.Button();
 
-            ((System.ComponentModel.ISupportInitialize)dgvProvincias).BeginInit();
-            SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProvincias)).BeginInit();
+            this.SuspendLayout();
 
             // dgvProvincias
-            dgvProvincias.AllowUserToAddRows = false;
-            dgvProvincias.AllowUserToDeleteRows = false;
-            dgvProvincias.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvProvincias.Location = new Point(20, 20);
-            dgvProvincias.MultiSelect = false;
-            dgvProvincias.Name = "dgvProvincias";
-            dgvProvincias.ReadOnly = true;
-            dgvProvincias.RowTemplate.Height = 25;
-            dgvProvincias.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProvincias.Size = new Size(1040, 400); 
+            this.dgvProvincias.AllowUserToAddRows = false;
+            this.dgvProvincias.AllowUserToDeleteRows = false;
+            this.dgvProvincias.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvProvincias.Location = new System.Drawing.Point(20, 20);
+            this.dgvProvincias.MultiSelect = false;
+            this.dgvProvincias.Name = "dgvProvincias";
+            this.dgvProvincias.ReadOnly = true;
+            this.dgvProvincias.RowTemplate.Height = 25;
+            this.dgvProvincias.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvProvincias.Size = new System.Drawing.Size(1040, 400);
 
             // btnVolver
-            btnVolver.Location = new Point(20, 470);
-            btnVolver.Size = new Size(100, 30);
-            btnVolver.Text = "Volver";
-            btnVolver.Click += btnVolver_Click;
+            this.btnVolver.Location = new System.Drawing.Point(20, 470);
+            this.btnVolver.Size = new System.Drawing.Size(100, 30);
+            this.btnVolver.Text = "Volver";
+            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
 
-            // Provincia
-            AutoScaleDimensions = new SizeF(7F, 15F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1100, 520);
-            StartPosition = FormStartPosition.CenterScreen;
-            Controls.Add(btnVolver);
-            Controls.Add(dgvProvincias);
-            Name = "Provincia";
-            Text = "Gestión de Provincias";
-            Load += Provincia_Load;
+            // ProvinciaForm
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(1100, 520);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Controls.Add(this.btnVolver);
+            this.Controls.Add(this.dgvProvincias);
+            this.Name = "ProvinciaForm";
+            this.Text = "Provincias";
+            this.Load += new System.EventHandler(this.Provincia_Load);
 
-            ((System.ComponentModel.ISupportInitialize)dgvProvincias).EndInit();
-            ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvProvincias)).EndInit();
+            this.ResumeLayout(false);
         }
         #endregion
     }

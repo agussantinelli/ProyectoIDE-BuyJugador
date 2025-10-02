@@ -2,11 +2,12 @@
 using DTOs;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class CrearPersonaForm : Form
+    public partial class CrearPersonaForm : BaseForm
     {
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
@@ -21,6 +22,10 @@ namespace WinForms
             _personaApiClient = personaApiClient;
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearPersonaForm_Load(object sender, EventArgs e)
@@ -41,7 +46,6 @@ namespace WinForms
             cmbProvincia.SelectedIndex = 0;
         }
 
-
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
@@ -51,12 +55,9 @@ namespace WinForms
                     .Where(l => l.IdProvincia == idProvincia)
                     .ToList();
 
-                filtradas.Insert(0, new LocalidadDTO { IdLocalidad = 0, Nombre = "-- Seleccionar localidad --" });
-
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
-                cmbLocalidad.SelectedIndex = 0;
             }
             else
             {
@@ -101,3 +102,4 @@ namespace WinForms
             DialogResult = DialogResult.Cancel;
     }
 }
+

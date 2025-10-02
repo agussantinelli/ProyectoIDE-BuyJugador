@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class DetalleVentaForm : Form
+    public partial class DetalleVentaForm : BaseForm
     {
         public VentaDTO Venta { get; set; }
         public List<LineaVentaDTO> Lineas { get; set; }
@@ -24,6 +24,12 @@ namespace WinForms
             _lineaVentaApiClient = lineaVentaApiClient;
             _productoApiClient = productoApiClient;
             _todosLosProductos = new List<ProductoDTO>();
+
+            // Aplicar estilos
+            StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
+            StyleManager.ApplyButtonStyle(btnEliminarLinea);
+            StyleManager.ApplyButtonStyle(btnEditarCantidad);
+            StyleManager.ApplyButtonStyle(btnCerrar); // Estandarizado
         }
 
         private async void DetalleVentaForm_Load(object sender, EventArgs e)
@@ -45,12 +51,11 @@ namespace WinForms
                 lblVendedor.Text = $"Vendedor: {Venta.NombreVendedor}";
 
                 btnEliminarLinea.Visible = EsAdmin;
-                dataGridDetalle.ReadOnly = false;
+                dataGridDetalle.ReadOnly = !EsAdmin;
 
                 ConfigurarColumnasDetalle();
                 RefrescarGrid();
 
-                // 🔹 Arrancar sin ninguna selección
                 dataGridDetalle.ClearSelection();
                 btnEditarCantidad.Enabled = false;
             }
@@ -70,7 +75,7 @@ namespace WinForms
             dataGridDetalle.Columns.Clear();
 
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", HeaderText = "Producto", DataPropertyName = "NombreProducto", ReadOnly = true, AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad", ReadOnly = false });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad", ReadOnly = !EsAdmin });
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subtotal", HeaderText = "Subtotal", DataPropertyName = "Subtotal", ReadOnly = true, DefaultCellStyle = { Format = "C2" } });
         }
 
@@ -86,7 +91,7 @@ namespace WinForms
 
         private async void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0 || !EsAdmin) return;
 
             var lineaEditada = Lineas[e.RowIndex];
             if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
@@ -140,7 +145,6 @@ namespace WinForms
                 RefrescarGrid();
             }
 
-            // 🔹 Al terminar la edición, volver a selección de fila completa
             dataGridDetalle.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
@@ -181,7 +185,7 @@ namespace WinForms
             }
         }
 
-        private void btnVolver_Click(object sender, EventArgs e)
+        private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
             this.Close();
@@ -189,7 +193,7 @@ namespace WinForms
 
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
-            if (dataGridDetalle.CurrentRow == null)
+            if (dataGridDetalle.CurrentRow == null || !EsAdmin)
             {
                 MessageBox.Show("Seleccione una línea para editar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
@@ -198,20 +202,18 @@ namespace WinForms
             int rowIndex = dataGridDetalle.CurrentRow.Index;
             var colIndex = dataGridDetalle.Columns["Cantidad"].Index;
 
-            // 🔹 Cambiar a selección de celda para evitar que se pinte toda la fila
             dataGridDetalle.SelectionMode = DataGridViewSelectionMode.CellSelect;
             dataGridDetalle.ClearSelection();
 
-            // Seleccionar solo la celda de Cantidad
             dataGridDetalle.CurrentCell = dataGridDetalle.Rows[rowIndex].Cells[colIndex];
 
-            // Entrar en modo edición
             dataGridDetalle.BeginEdit(true);
         }
 
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
-            btnEditarCantidad.Enabled = dataGridDetalle.CurrentRow != null;
+            btnEditarCantidad.Enabled = dataGridDetalle.CurrentRow != null && EsAdmin;
         }
     }
 }
+

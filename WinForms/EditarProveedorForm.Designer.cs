@@ -49,143 +49,146 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 15);
+            this.label1.Location = new System.Drawing.Point(23, 25);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(73, 15);
+            this.label1.Size = new System.Drawing.Size(76, 15);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Razón Social";
+            this.label1.Text = "Razón Social:";
             // 
             // txtRazonSocial
             // 
-            this.txtRazonSocial.Location = new System.Drawing.Point(103, 12);
+            this.txtRazonSocial.Location = new System.Drawing.Point(125, 22);
             this.txtRazonSocial.Name = "txtRazonSocial";
-            this.txtRazonSocial.Size = new System.Drawing.Size(269, 23);
+            this.txtRazonSocial.Size = new System.Drawing.Size(180, 23);
             this.txtRazonSocial.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 44);
+            this.label2.Location = new System.Drawing.Point(23, 58);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(32, 15);
+            this.label2.Size = new System.Drawing.Size(35, 15);
             this.label2.TabIndex = 2;
-            this.label2.Text = "CUIT";
+            this.label2.Text = "CUIT:";
             // 
             // txtCuit
             // 
-            this.txtCuit.Enabled = false;
-            this.txtCuit.Location = new System.Drawing.Point(103, 41);
+            this.txtCuit.Location = new System.Drawing.Point(125, 55);
             this.txtCuit.Name = "txtCuit";
-            this.txtCuit.Size = new System.Drawing.Size(269, 23);
+            this.txtCuit.ReadOnly = true;
+            this.txtCuit.Size = new System.Drawing.Size(180, 23);
             this.txtCuit.TabIndex = 3;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 73);
+            this.label3.Location = new System.Drawing.Point(23, 91);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(36, 15);
+            this.label3.Size = new System.Drawing.Size(39, 15);
             this.label3.TabIndex = 4;
-            this.label3.Text = "Email";
+            this.label3.Text = "Email:";
             // 
             // txtEmail
             // 
-            this.txtEmail.Location = new System.Drawing.Point(103, 70);
+            this.txtEmail.Location = new System.Drawing.Point(125, 88);
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(269, 23);
+            this.txtEmail.Size = new System.Drawing.Size(180, 23);
             this.txtEmail.TabIndex = 5;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 102);
+            this.label4.Location = new System.Drawing.Point(23, 124);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(52, 15);
+            this.label4.Size = new System.Drawing.Size(55, 15);
             this.label4.TabIndex = 6;
-            this.label4.Text = "Teléfono";
+            this.label4.Text = "Teléfono:";
             // 
             // txtTelefono
             // 
-            this.txtTelefono.Location = new System.Drawing.Point(103, 99);
+            this.txtTelefono.Location = new System.Drawing.Point(125, 121);
             this.txtTelefono.Name = "txtTelefono";
-            this.txtTelefono.Size = new System.Drawing.Size(269, 23);
+            this.txtTelefono.Size = new System.Drawing.Size(180, 23);
             this.txtTelefono.TabIndex = 7;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 131);
+            this.label5.Location = new System.Drawing.Point(23, 157);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(57, 15);
+            this.label5.Size = new System.Drawing.Size(60, 15);
             this.label5.TabIndex = 8;
-            this.label5.Text = "Dirección";
+            this.label5.Text = "Dirección:";
             // 
             // txtDireccion
             // 
-            this.txtDireccion.Location = new System.Drawing.Point(103, 128);
+            this.txtDireccion.Location = new System.Drawing.Point(125, 154);
             this.txtDireccion.Name = "txtDireccion";
-            this.txtDireccion.Size = new System.Drawing.Size(269, 23);
+            this.txtDireccion.Size = new System.Drawing.Size(180, 23);
             this.txtDireccion.TabIndex = 9;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 160);
+            this.label6.Location = new System.Drawing.Point(23, 190);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(56, 15);
+            this.label6.Size = new System.Drawing.Size(59, 15);
             this.label6.TabIndex = 10;
-            this.label6.Text = "Provincia";
+            this.label6.Text = "Provincia:";
             // 
             // cmbProvincia
             // 
             this.cmbProvincia.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbProvincia.FormattingEnabled = true;
-            this.cmbProvincia.Location = new System.Drawing.Point(103, 157);
+            this.cmbProvincia.Location = new System.Drawing.Point(125, 187);
             this.cmbProvincia.Name = "cmbProvincia";
-            this.cmbProvincia.Size = new System.Drawing.Size(269, 23);
+            this.cmbProvincia.Size = new System.Drawing.Size(180, 23);
             this.cmbProvincia.TabIndex = 11;
+            this.cmbProvincia.SelectedIndexChanged += new System.EventHandler(this.cmbProvincia_SelectedIndexChanged);
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(12, 189);
+            this.label7.Location = new System.Drawing.Point(23, 223);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(58, 15);
+            this.label7.Size = new System.Drawing.Size(61, 15);
             this.label7.TabIndex = 12;
-            this.label7.Text = "Localidad";
+            this.label7.Text = "Localidad:";
             // 
             // cmbLocalidad
             // 
             this.cmbLocalidad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbLocalidad.FormattingEnabled = true;
-            this.cmbLocalidad.Location = new System.Drawing.Point(103, 186);
+            this.cmbLocalidad.Location = new System.Drawing.Point(125, 220);
             this.cmbLocalidad.Name = "cmbLocalidad";
-            this.cmbLocalidad.Size = new System.Drawing.Size(269, 23);
+            this.cmbLocalidad.Size = new System.Drawing.Size(180, 23);
             this.cmbLocalidad.TabIndex = 13;
-            // 
-            // btnGuardar
-            // 
-            this.btnGuardar.Location = new System.Drawing.Point(216, 226);
-            this.btnGuardar.Name = "btnGuardar";
-            this.btnGuardar.Size = new System.Drawing.Size(75, 23);
-            this.btnGuardar.TabIndex = 14;
-            this.btnGuardar.Text = "Guardar";
-            this.btnGuardar.UseVisualStyleBackColor = true;
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(297, 226);
+            this.btnCancelar.Location = new System.Drawing.Point(125, 270);
             this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(75, 23);
+            this.btnCancelar.Size = new System.Drawing.Size(80, 30);
             this.btnCancelar.TabIndex = 15;
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
             // 
+            // btnGuardar
+            // 
+            this.btnGuardar.Location = new System.Drawing.Point(225, 270);
+            this.btnGuardar.Name = "btnGuardar";
+            this.btnGuardar.Size = new System.Drawing.Size(80, 30);
+            this.btnGuardar.TabIndex = 14;
+            this.btnGuardar.Text = "Guardar";
+            this.btnGuardar.UseVisualStyleBackColor = true;
+            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
+            // 
             // EditarProveedorForm
             // 
-            this.ClientSize = new System.Drawing.Size(384, 261);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(334, 321);
             this.Controls.Add(this.btnCancelar);
             this.Controls.Add(this.btnGuardar);
             this.Controls.Add(this.cmbLocalidad);

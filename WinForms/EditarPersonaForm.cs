@@ -1,11 +1,13 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class EditarPersonaForm : Form
+    public partial class EditarPersonaForm : BaseForm
     {
         private readonly PersonaApiClient _personaApiClient;
         private readonly PersonaDTO _persona;
@@ -23,6 +25,10 @@ namespace WinForms
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
             _persona = persona;
+
+            // Aplicar estilos
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void EditarPersonaForm_Load(object sender, EventArgs e)
@@ -31,35 +37,29 @@ namespace WinForms
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
 
-            // cargar provincias
             var provincias = await _provinciaApiClient.GetAllAsync();
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
             cmbProvincia.ValueMember = "IdProvincia";
 
-            // buscar la provincia de la localidad actual
-            var localidadActual = await _localidadApiClient.GetByIdAsync(_persona.IdLocalidad ?? 0);
-            if (localidadActual != null)
+            if (_persona.IdLocalidad.HasValue)
             {
-                cmbProvincia.SelectedValue = localidadActual.IdProvincia;
+                var localidadActual = await _localidadApiClient.GetByIdAsync(_persona.IdLocalidad.Value);
+                if (localidadActual != null && localidadActual.IdProvincia.HasValue)
+                {
+                    cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
 
-                // cargar localidades de esa provincia
-                var localidades = await _localidadApiClient.GetAllAsync();
-                var filtradas = localidades?.Where(l => l.IdProvincia == localidadActual.IdProvincia).ToList();
-                cmbLocalidad.DataSource = filtradas;
-                cmbLocalidad.DisplayMember = "Nombre";
-                cmbLocalidad.ValueMember = "IdLocalidad";
+                    await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
 
-                cmbLocalidad.SelectedValue = _persona.IdLocalidad;
+                    cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
+                }
             }
         }
-
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "⚠ Estás a punto de modificar esta persona.\n\n" +
-                "Este cambio impactará en todos los lugares donde se use este registro.\n\n" +
+                "Se modificarán los datos de la persona. " +
                 "¿Querés continuar?",
                 "Confirmar edición",
                 MessageBoxButtons.YesNo,
@@ -89,16 +89,22 @@ namespace WinForms
         {
             if (cmbProvincia.SelectedValue is int idProvincia)
             {
-                var localidades = await _localidadApiClient.GetAllAsync();
-                var filtradas = localidades?
-                    .Where(l => l.IdProvincia == idProvincia)
-                    .ToList();
-
-                cmbLocalidad.DataSource = filtradas;
-                cmbLocalidad.DisplayMember = "Nombre";
-                cmbLocalidad.ValueMember = "IdLocalidad";
+                await CargarLocalidadesAsync(idProvincia);
             }
+        }
+
+        private async Task CargarLocalidadesAsync(int idProvincia)
+        {
+            var localidades = await _localidadApiClient.GetAllAsync();
+            var filtradas = localidades?
+                .Where(l => l.IdProvincia == idProvincia)
+                .ToList();
+
+            cmbLocalidad.DataSource = filtradas;
+            cmbLocalidad.DisplayMember = "Nombre";
+            cmbLocalidad.ValueMember = "IdLocalidad";
         }
 
     }
 }
+

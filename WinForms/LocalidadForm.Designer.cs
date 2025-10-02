@@ -35,16 +35,15 @@
             this.dgvLocalidades.MultiSelect = false;
             this.dgvLocalidades.Name = "dgvLocalidades";
             this.dgvLocalidades.ReadOnly = true;
-            this.dgvLocalidades.RowTemplate.Height = 25;
             this.dgvLocalidades.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvLocalidades.Size = new System.Drawing.Size(776, 356);
+            this.dgvLocalidades.Size = new System.Drawing.Size(776, 337);
             this.dgvLocalidades.TabIndex = 0;
             // 
             // btnVolver
             // 
-            this.btnVolver.Location = new System.Drawing.Point(713, 415);
+            this.btnVolver.Location = new System.Drawing.Point(12, 408);
             this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(75, 23);
+            this.btnVolver.Size = new System.Drawing.Size(100, 30);
             this.btnVolver.TabIndex = 1;
             this.btnVolver.Text = "Volver";
             this.btnVolver.UseVisualStyleBackColor = true;
@@ -54,39 +53,38 @@
             // 
             this.cboProvincias.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboProvincias.FormattingEnabled = true;
-            this.cboProvincias.Location = new System.Drawing.Point(145, 12);
+            this.cboProvincias.Location = new System.Drawing.Point(131, 19);
             this.cboProvincias.Name = "cboProvincias";
-            this.cboProvincias.Size = new System.Drawing.Size(217, 21);
+            this.cboProvincias.Size = new System.Drawing.Size(250, 21);
             this.cboProvincias.TabIndex = 2;
             this.cboProvincias.SelectedIndexChanged += new System.EventHandler(this.cboProvincias_SelectedIndexChanged);
             // 
             // lblFiltrar
             // 
             this.lblFiltrar.AutoSize = true;
-            this.lblFiltrar.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFiltrar.Location = new System.Drawing.Point(12, 15);
+            this.lblFiltrar.Location = new System.Drawing.Point(12, 22);
             this.lblFiltrar.Name = "lblFiltrar";
-            this.lblFiltrar.Size = new System.Drawing.Size(127, 15);
+            this.lblFiltrar.Size = new System.Drawing.Size(104, 13);
             this.lblFiltrar.TabIndex = 3;
             this.lblFiltrar.Text = "Filtrar por Provincia:";
             // 
             // btnOrdenarAZ
             // 
-            this.btnOrdenarAZ.Location = new System.Drawing.Point(632, 12);
+            this.btnOrdenarAZ.Location = new System.Drawing.Point(542, 17);
             this.btnOrdenarAZ.Name = "btnOrdenarAZ";
-            this.btnOrdenarAZ.Size = new System.Drawing.Size(75, 23);
+            this.btnOrdenarAZ.Size = new System.Drawing.Size(97, 23);
             this.btnOrdenarAZ.TabIndex = 4;
-            this.btnOrdenarAZ.Text = "A-Z";
+            this.btnOrdenarAZ.Text = "Ordenar A-Z";
             this.btnOrdenarAZ.UseVisualStyleBackColor = true;
             this.btnOrdenarAZ.Click += new System.EventHandler(this.btnOrdenar_Click);
             // 
             // btnOrdenarZA
             // 
-            this.btnOrdenarZA.Location = new System.Drawing.Point(713, 12);
+            this.btnOrdenarZA.Location = new System.Drawing.Point(645, 17);
             this.btnOrdenarZA.Name = "btnOrdenarZA";
-            this.btnOrdenarZA.Size = new System.Drawing.Size(75, 23);
+            this.btnOrdenarZA.Size = new System.Drawing.Size(97, 23);
             this.btnOrdenarZA.TabIndex = 5;
-            this.btnOrdenarZA.Text = "Z-A";
+            this.btnOrdenarZA.Text = "Ordenar Z-A";
             this.btnOrdenarZA.UseVisualStyleBackColor = true;
             this.btnOrdenarZA.Click += new System.EventHandler(this.btnOrdenar_Click);
             // 
@@ -122,4 +120,3 @@
         private System.Windows.Forms.Button btnOrdenarZA;
     }
 }
-
