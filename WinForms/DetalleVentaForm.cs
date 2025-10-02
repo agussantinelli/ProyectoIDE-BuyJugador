@@ -49,6 +49,10 @@ namespace WinForms
 
                 ConfigurarColumnasDetalle();
                 RefrescarGrid();
+
+                // 🔹 Arrancar sin ninguna selección
+                dataGridDetalle.ClearSelection();
+                btnEditarCantidad.Enabled = false;
             }
             catch (Exception ex)
             {
@@ -135,6 +139,9 @@ namespace WinForms
                 MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 RefrescarGrid();
             }
+
+            // 🔹 Al terminar la edición, volver a selección de fila completa
+            dataGridDetalle.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
         }
 
         private async void btnEliminarLinea_Click(object sender, EventArgs e)
@@ -176,16 +183,35 @@ namespace WinForms
 
         private void btnVolver_Click(object sender, EventArgs e)
         {
-            if (_datosModificados)
-            {
-                this.DialogResult = DialogResult.OK;
-            }
-            else
-            {
-                this.DialogResult = DialogResult.Cancel;
-            }
+            this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
             this.Close();
+        }
+
+        private void btnEditarCantidad_Click(object sender, EventArgs e)
+        {
+            if (dataGridDetalle.CurrentRow == null)
+            {
+                MessageBox.Show("Seleccione una línea para editar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            int rowIndex = dataGridDetalle.CurrentRow.Index;
+            var colIndex = dataGridDetalle.Columns["Cantidad"].Index;
+
+            // 🔹 Cambiar a selección de celda para evitar que se pinte toda la fila
+            dataGridDetalle.SelectionMode = DataGridViewSelectionMode.CellSelect;
+            dataGridDetalle.ClearSelection();
+
+            // Seleccionar solo la celda de Cantidad
+            dataGridDetalle.CurrentCell = dataGridDetalle.Rows[rowIndex].Cells[colIndex];
+
+            // Entrar en modo edición
+            dataGridDetalle.BeginEdit(true);
+        }
+
+        private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
+        {
+            btnEditarCantidad.Enabled = dataGridDetalle.CurrentRow != null;
         }
     }
 }
-

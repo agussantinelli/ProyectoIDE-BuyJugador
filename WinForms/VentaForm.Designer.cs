@@ -19,6 +19,7 @@
         {
             this.dataGridVentas = new System.Windows.Forms.DataGridView();
             this.panelBotones = new System.Windows.Forms.Panel();
+            this.btnVolver = new System.Windows.Forms.Button();
             this.btnNuevaVenta = new System.Windows.Forms.Button();
             this.btnEliminar = new System.Windows.Forms.Button();
             this.btnVerDetalle = new System.Windows.Forms.Button();
@@ -46,6 +47,7 @@
             // 
             // panelBotones
             // 
+            this.panelBotones.Controls.Add(this.btnVolver);
             this.panelBotones.Controls.Add(this.btnNuevaVenta);
             this.panelBotones.Controls.Add(this.btnEliminar);
             this.panelBotones.Controls.Add(this.btnVerDetalle);
@@ -55,9 +57,19 @@
             this.panelBotones.Size = new System.Drawing.Size(784, 62);
             this.panelBotones.TabIndex = 1;
             // 
+            // btnVolver
+            // 
+            this.btnVolver.Location = new System.Drawing.Point(12, 17);
+            this.btnVolver.Name = "btnVolver";
+            this.btnVolver.Size = new System.Drawing.Size(115, 30);
+            this.btnVolver.TabIndex = 0;
+            this.btnVolver.Text = "Volver";
+            this.btnVolver.UseVisualStyleBackColor = true;
+            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            // 
             // btnNuevaVenta
             // 
-            this.btnNuevaVenta.Location = new System.Drawing.Point(12, 17);
+            this.btnNuevaVenta.Location = new System.Drawing.Point(133, 17);
             this.btnNuevaVenta.Name = "btnNuevaVenta";
             this.btnNuevaVenta.Size = new System.Drawing.Size(115, 30);
             this.btnNuevaVenta.TabIndex = 1;
@@ -67,7 +79,7 @@
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(133, 17);
+            this.btnEliminar.Location = new System.Drawing.Point(254, 17);
             this.btnEliminar.Name = "btnEliminar";
             this.btnEliminar.Size = new System.Drawing.Size(115, 30);
             this.btnEliminar.TabIndex = 2;
@@ -109,6 +121,6 @@
         private System.Windows.Forms.Button btnVerDetalle;
         private System.Windows.Forms.Panel panelBotones;
         private System.Windows.Forms.Button btnEliminar;
+        private System.Windows.Forms.Button btnVolver;
     }
 }
-

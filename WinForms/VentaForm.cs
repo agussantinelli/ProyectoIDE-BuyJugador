@@ -84,10 +84,11 @@ namespace WinForms
                 return;
             }
 
-            var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar la venta N° {selectedVenta.IdVenta}? Esta acción no se puede deshacer y el stock de los productos será restaurado.",
-                                                 "Confirmar Eliminación",
-                                                 MessageBoxButtons.YesNo,
-                                                 MessageBoxIcon.Warning);
+            var confirmResult = MessageBox.Show(
+                $"¿Está seguro de que desea eliminar la venta N° {selectedVenta.IdVenta}? Esta acción no se puede deshacer y el stock de los productos será restaurado.",
+                "Confirmar Eliminación",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning);
 
             if (confirmResult == DialogResult.Yes)
             {
@@ -152,6 +153,10 @@ namespace WinForms
                 this.Cursor = Cursors.Default;
             }
         }
+
+        private void btnVolver_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }
-

@@ -25,6 +25,7 @@
             this.panelBotones = new System.Windows.Forms.Panel();
             this.btnVolver = new System.Windows.Forms.Button();
             this.btnEliminarLinea = new System.Windows.Forms.Button();
+            this.btnEditarCantidad = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridDetalle)).BeginInit();
             this.panelBotones.SuspendLayout();
             this.SuspendLayout();
@@ -46,6 +47,7 @@
             this.dataGridDetalle.Size = new System.Drawing.Size(760, 279);
             this.dataGridDetalle.TabIndex = 0;
             this.dataGridDetalle.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridDetalle_CellEndEdit);
+            this.dataGridDetalle.SelectionChanged += new System.EventHandler(this.dataGridDetalle_SelectionChanged);
             // 
             // lblIdVenta
             // 
@@ -90,6 +92,7 @@
             // 
             this.panelBotones.Controls.Add(this.btnVolver);
             this.panelBotones.Controls.Add(this.btnEliminarLinea);
+            this.panelBotones.Controls.Add(this.btnEditarCantidad);
             this.panelBotones.Controls.Add(this.lblTotal);
             this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panelBotones.Location = new System.Drawing.Point(0, 359);
@@ -116,6 +119,16 @@
             this.btnEliminarLinea.Text = "Eliminar Línea";
             this.btnEliminarLinea.UseVisualStyleBackColor = true;
             this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
+            // 
+            // btnEditarCantidad
+            // 
+            this.btnEditarCantidad.Location = new System.Drawing.Point(254, 17);
+            this.btnEditarCantidad.Name = "btnEditarCantidad";
+            this.btnEditarCantidad.Size = new System.Drawing.Size(115, 30);
+            this.btnEditarCantidad.TabIndex = 7;
+            this.btnEditarCantidad.Text = "Editar Cantidad";
+            this.btnEditarCantidad.UseVisualStyleBackColor = true;
+            this.btnEditarCantidad.Click += new System.EventHandler(this.btnEditarCantidad_Click);
             // 
             // DetalleVentaForm
             // 
@@ -150,6 +163,6 @@
         private System.Windows.Forms.Panel panelBotones;
         private System.Windows.Forms.Button btnVolver;
         private System.Windows.Forms.Button btnEliminarLinea;
+        private System.Windows.Forms.Button btnEditarCantidad;
     }
 }
-
