@@ -5,11 +5,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace WinForms
 {
-    public partial class MainForm : BaseForm 
+    public partial class MainForm : BaseForm
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly bool _isAdmin;
         private Panel? menuPanel;
+
+        private MenuStrip mainMenuStrip;
+        private ToolStripMenuItem verMenuItem;
+        private ToolStripMenuItem provinciasMenuItem;
+        private ToolStripMenuItem localidadesMenuItem;
 
         public MainForm(IServiceProvider serviceProvider, bool isAdmin)
         {
@@ -17,7 +22,6 @@ namespace WinForms
             _serviceProvider = serviceProvider;
             _isAdmin = isAdmin;
 
-            // Establece el color de fondo del área MDI para que coincida con el menú
             foreach (Control control in this.Controls)
             {
                 if (control is MdiClient client)
@@ -30,13 +34,51 @@ namespace WinForms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            InitializeMenuBar();
             InitializeMainMenu();
             CenterMenuPanel();
         }
 
-        /// <summary>
-        /// Crea y configura el panel del menú principal con sus botones.
-        /// </summary>
+        private void InitializeMenuBar()
+        {
+            mainMenuStrip = new MenuStrip
+            {
+                BackColor = Color.FromArgb(26, 32, 40),
+                ForeColor = Color.White,
+                Font = new Font("Century Gothic", 10F, FontStyle.Bold),
+                Renderer = new DarkMenuRenderer()
+            };
+
+            verMenuItem = new ToolStripMenuItem("Ver")
+            {
+                ForeColor = Color.White,
+                BackColor = Color.FromArgb(26, 32, 40)
+            };
+
+            provinciasMenuItem = new ToolStripMenuItem("Provincias");
+            localidadesMenuItem = new ToolStripMenuItem("Localidades");
+
+            provinciasMenuItem.Click += ProvinciasMenuItem_Click;
+            localidadesMenuItem.Click += LocalidadesMenuItem_Click;
+
+            verMenuItem.DropDownItems.Add(provinciasMenuItem);
+            verMenuItem.DropDownItems.Add(localidadesMenuItem);
+            mainMenuStrip.Items.Add(verMenuItem);
+
+            this.MainMenuStrip = mainMenuStrip;
+            this.Controls.Add(mainMenuStrip);
+        }
+
+        private void ProvinciasMenuItem_Click(object? sender, EventArgs e)
+        {
+            AbrirFormulario(_serviceProvider.GetRequiredService<ProvinciaForm>());
+        }
+
+        private void LocalidadesMenuItem_Click(object? sender, EventArgs e)
+        {
+            AbrirFormulario(_serviceProvider.GetRequiredService<LocalidadForm>());
+        }
+
         private void InitializeMainMenu()
         {
             menuPanel = new Panel
@@ -69,7 +111,6 @@ namespace WinForms
             this.Controls.Add(menuPanel);
             menuPanel.BringToFront();
 
-            // Configura la grilla de botones según el rol del usuario
             if (_isAdmin)
             {
                 buttonGrid.ColumnCount = 2;
@@ -91,9 +132,6 @@ namespace WinForms
             }
         }
 
-        /// <summary>
-        /// Centra el panel del menú en el formulario principal.
-        /// </summary>
         private void CenterMenuPanel()
         {
             if (menuPanel != null)
@@ -177,9 +215,6 @@ namespace WinForms
             }
         }
 
-        /// <summary>
-        /// Abre un formulario como hijo MDI, ocultando el menú principal.
-        /// </summary>
         private void AbrirFormulario(Form form)
         {
             if (menuPanel != null)
@@ -188,14 +223,33 @@ namespace WinForms
             }
 
             form.MdiParent = this;
-            form.FormClosed += (s, args) => {
-                // Si no quedan otros formularios hijos abiertos, vuelve a mostrar el menú.
+            form.FormClosed += (s, args) =>
+            {
                 if (this.MdiChildren.Length <= 1 && menuPanel != null)
                 {
                     menuPanel.Visible = true;
                 }
             };
             form.Show();
+        }
+    }
+
+    /// <summary>
+    /// Renderer personalizado para un estilo de menú oscuro y moderno.
+    /// </summary>
+    public class DarkMenuRenderer : ToolStripProfessionalRenderer
+    {
+        public DarkMenuRenderer() : base(new DarkMenuColors()) { }
+
+        private class DarkMenuColors : ProfessionalColorTable
+        {
+            public override Color MenuBorder => Color.FromArgb(40, 40, 40);
+            public override Color MenuItemBorder => Color.FromArgb(0, 80, 200);
+            public override Color MenuItemSelected => Color.FromArgb(0, 80, 200);
+            public override Color ToolStripDropDownBackground => Color.FromArgb(45, 55, 70);
+            public override Color ImageMarginGradientBegin => Color.FromArgb(45, 55, 70);
+            public override Color ImageMarginGradientMiddle => Color.FromArgb(45, 55, 70);
+            public override Color ImageMarginGradientEnd => Color.FromArgb(45, 55, 70);
         }
     }
 }
