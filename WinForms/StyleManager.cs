@@ -45,11 +45,13 @@ namespace WinForms
 
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
+
+            dgv.RowTemplate.Height = 32;
+            dgv.ColumnHeadersHeight = 40; 
+
+
         }
 
-        /// <summary>
-        /// Aplica un estilo oscuro y moderno a un botón.
-        /// </summary>
         public static void ApplyButtonStyle(Button btn)
         {
             btn.BackColor = Color.FromArgb(26, 32, 40);
