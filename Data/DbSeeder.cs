@@ -49,15 +49,15 @@ public static class DbSeeder
                 localidades.Any(l => l.Nombre.Contains("Comuna 1")))
             {
                 context.Proveedores.AddRange(
-                    new Proveedor { RazonSocial = "Distrito Digital S.A.", Cuit = "30-12345678-9", Telefono = "3416667788", Email = "compras@distritodigital.com", Direccion = "Calle Falsa 123", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad },
-                    new Proveedor { RazonSocial = "Logística Computacional S.R.L.", Cuit = "30-98765432-1", Telefono = "116665544", Email = "ventas@logisticacompsrl.com", Direccion = "Avenida Siempre Viva 742", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad },
-                    new Proveedor { RazonSocial = "TecnoImport Argentina", Cuit = "30-55555555-5", Telefono = "114445566", Email = "ventas@tecnoimport.com", Direccion = "Av. Corrientes 1234", IdLocalidad = localidades.First(l => l.Nombre.Contains("Comuna 1")).IdLocalidad },
-                    new Proveedor { RazonSocial = "ElectroRed S.A.", Cuit = "30-44556677-8", Telefono = "1133445566", Email = "contacto@electrored.com", Direccion = "San Martín 321", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad },
-                    new Proveedor { RazonSocial = "Softy Systems", Cuit = "30-11223344-7", Telefono = "1133557799", Email = "info@softysystems.com", Direccion = "Rivadavia 234", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad },
-                    new Proveedor { RazonSocial = "GigaNet Solutions", Cuit = "30-99887766-2", Telefono = "3412233444", Email = "soporte@giganet.com", Direccion = "Alsina 432", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad },
-                    new Proveedor { RazonSocial = "Comercial Andina SRL", Cuit = "30-33445566-3", Telefono = "2614455667", Email = "ventas@comercialandina.com", Direccion = "San Juan 100", IdLocalidad = localidades.First(l => l.Nombre == "Comuna 1").IdLocalidad },
-                    new Proveedor { RazonSocial = "Delta Peripherals", Cuit = "30-77665544-0", Telefono = "3813322110", Email = "compras@deltaperipherals.com", Direccion = "Av. Belgrano 654", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad },
-                    new Proveedor { RazonSocial = "BioTecnica Group", Cuit = "30-12121212-1", Telefono = "3794556677", Email = "contacto@biotecnica.com", Direccion = "Mitre 789", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad }
+                    new Proveedor { RazonSocial = "Distrito Digital S.A.", Cuit = "30-12345678-9", Telefono = "3416667788", Email = "compras@distritodigital.com", Direccion = "Calle Falsa 123", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Logística Computacional S.R.L.", Cuit = "30-98765432-1", Telefono = "116665544", Email = "ventas@logisticacompsrl.com", Direccion = "Avenida Siempre Viva 742", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "TecnoImport Argentina", Cuit = "30-55555555-5", Telefono = "114445566", Email = "ventas@tecnoimport.com", Direccion = "Av. Corrientes 1234", IdLocalidad = localidades.First(l => l.Nombre.Contains("Comuna 1")).IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "ElectroRed S.A.", Cuit = "30-44556677-8", Telefono = "1133445566", Email = "contacto@electrored.com", Direccion = "San Martín 321", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Softy Systems", Cuit = "30-11223344-7", Telefono = "1133557799", Email = "info@softysystems.com", Direccion = "Rivadavia 234", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "GigaNet Solutions", Cuit = "30-99887766-2", Telefono = "3412233444", Email = "soporte@giganet.com", Direccion = "Alsina 432", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Comercial Andina SRL", Cuit = "30-33445566-3", Telefono = "2614455667", Email = "ventas@comercialandina.com", Direccion = "San Juan 100", IdLocalidad = localidades.First(l => l.Nombre == "Comuna 1").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Delta Peripherals", Cuit = "30-77665544-0", Telefono = "3813322110", Email = "compras@deltaperipherals.com", Direccion = "Av. Belgrano 654", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "BioTecnica Group", Cuit = "30-12121212-1", Telefono = "3794556677", Email = "contacto@biotecnica.com", Direccion = "Mitre 789", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true }
 
                 );
                 await context.SaveChangesAsync();
@@ -194,7 +194,8 @@ public static class DbSeeder
                     new Persona { NombreCompleto = "Agustin Santinelli", Dni = 46294992, Email = "agustinsantinelli@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("agustin"), Telefono = "3416667777", Direccion = "Molina 2022", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
                     new Persona { NombreCompleto = "Carlos Lopez", Dni = 28765432, Email = "carlos.l@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado6"), Telefono = "3417778888", Direccion = "Calle Secundaria 321", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2022, 12, 10), Estado = true },
                     new Persona { NombreCompleto = "Ana Martinez", Dni = 39876543, Email = "ana.m@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado7"), Telefono = "3418889999", Direccion = "Pasaje Privado 654", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2023, 3, 25), Estado = true },
-                    new Persona { NombreCompleto = "Pedro Rodriguez", Dni = 40987654, Email = "pedro.r@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado8"), Telefono = "3419990000", Direccion = "Boulevard Principal 987", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 7, 15), Estado = true });
+                    new Persona { NombreCompleto = "Pedro Rodriguez", Dni = 40987654, Email = "pedro.r@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado8"), Telefono = "3419990000", Direccion = "Boulevard Principal 987", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 7, 15), Estado = true }
+                );
                 await context.SaveChangesAsync();
             }
         }
@@ -282,7 +283,6 @@ public static class DbSeeder
             }
         }
 
-        // --- BLOQUE AÑADIDO PARA LA RELACIÓN PRODUCTO-PROVEEDOR ---
         if (!context.ProductoProveedores.Any())
         {
             var proveedores = await context.Proveedores.ToListAsync();
@@ -293,11 +293,9 @@ public static class DbSeeder
                 var relaciones = new List<ProductoProveedor>();
                 foreach (var proveedor in proveedores)
                 {
-                    // Asignar entre 3 y 7 productos aleatorios a cada proveedor
                     var productosAsignados = productos.OrderBy(x => random.Next()).Take(random.Next(3, 8));
                     foreach (var producto in productosAsignados)
                     {
-                        // Evitar duplicados si un producto sale elegido más de una vez para el mismo proveedor
                         if (!relaciones.Any(r => r.IdProveedor == proveedor.IdProveedor && r.IdProducto == producto.IdProducto))
                         {
                             relaciones.Add(new ProductoProveedor { IdProveedor = proveedor.IdProveedor, IdProducto = producto.IdProducto });
@@ -308,7 +306,6 @@ public static class DbSeeder
                 await context.SaveChangesAsync();
             }
         }
-        // --- FIN DEL BLOQUE AÑADIDO ---
 
         Console.WriteLine("Database seeded successfully!");
     }
@@ -319,6 +316,12 @@ public static class DbSeeder
 
         var responseProvincias = await httpClient.GetStringAsync("https://apis.datos.gob.ar/georef/api/provincias?campos=nombre");
         var apiResponseProvincias = JsonSerializer.Deserialize<ApiResponseProvincias>(responseProvincias, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (apiResponseProvincias?.Provincias == null)
+        {
+            Console.WriteLine("Error fetching provincias.");
+            return;
+        }
 
         var provincias = apiResponseProvincias.Provincias.Select(p => new Provincia { Nombre = p.Nombre }).ToList();
 

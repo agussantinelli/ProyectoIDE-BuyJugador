@@ -7,52 +7,69 @@ namespace WinForms
 {
     public partial class AñadirProductoVentaForm : Form
     {
-        // Propiedades públicas para que DetalleVentaForm pueda acceder a los datos seleccionados.
         public ProductoDTO ProductoSeleccionado { get; private set; }
         public int CantidadSeleccionada { get; private set; }
 
-        public AñadirProductoVentaForm(List<ProductoDTO> productosDisponibles)
+        public AñadirProductoVentaForm()
         {
             InitializeComponent();
-            ConfigurarDataGridView();
-            dgvProductos.DataSource = productosDisponibles;
-
-            // Aplicar estilos a los controles
-            StyleManager.ApplyDataGridViewStyle(dgvProductos);
             StyleManager.ApplyButtonStyle(btnAceptar);
             StyleManager.ApplyButtonStyle(btnCancelar);
+            StyleManager.ApplyDataGridViewStyle(dgvProductos);
         }
 
-        private void ConfigurarDataGridView()
+        public void CargarProductosDisponibles(List<ProductoDTO> productos)
         {
-            dgvProductos.AutoGenerateColumns = false;
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Nombre", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioActual", HeaderText = "Precio", Width = 80 });
-            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Stock", HeaderText = "Stock", Width = 60 });
+            dgvProductos.DataSource = productos;
+            ConfigurarColumnas();
+        }
+
+        private void ConfigurarColumnas()
+        {
+            if (dgvProductos.Columns.Count > 0)
+            {
+                dgvProductos.Columns["Nombre"].HeaderText = "Producto";
+                dgvProductos.Columns["Descripcion"].HeaderText = "Descripción";
+                dgvProductos.Columns["Stock"].HeaderText = "Stock";
+                dgvProductos.Columns["PrecioActual"].HeaderText = "Precio";
+                dgvProductos.Columns["PrecioActual"].DefaultCellStyle.Format = "C2";
+
+                // Ocultar columnas no relevantes
+                dgvProductos.Columns["IdProducto"].Visible = false;
+                dgvProductos.Columns["IdTipoProducto"].Visible = false;
+                dgvProductos.Columns["Activo"].Visible = false;
+                dgvProductos.Columns["Precios"].Visible = false;
+
+                dgvProductos.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                dgvProductos.Columns["Descripcion"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            }
         }
 
         private void btnAceptar_Click(object sender, EventArgs e)
         {
-            // Validar que se haya seleccionado un producto
-            if (dgvProductos.SelectedRows.Count == 0)
+            if (dgvProductos.CurrentRow?.DataBoundItem is ProductoDTO selectedProduct && int.TryParse(txtCantidad.Text, out int cantidad))
             {
-                MessageBox.Show("Por favor, seleccione un producto de la lista.", "Selección Requerida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                if (cantidad <= 0)
+                {
+                    MessageBox.Show("La cantidad debe ser mayor a cero.", "Cantidad inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            // Validar que la cantidad sea un número válido y mayor a cero
-            if (!int.TryParse(txtCantidad.Text, out int cantidad) || cantidad <= 0)
+                if (cantidad > selectedProduct.Stock)
+                {
+                    MessageBox.Show($"La cantidad solicitada ({cantidad}) supera el stock disponible ({selectedProduct.Stock}).", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                ProductoSeleccionado = selectedProduct;
+                CantidadSeleccionada = cantidad;
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
             {
-                MessageBox.Show("Por favor, ingrese una cantidad numérica válida y mayor a cero.", "Cantidad Inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                MessageBox.Show("Por favor, seleccione un producto e ingrese una cantidad numérica válida.", "Datos incompletos", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
-
-            // Asignar los valores a las propiedades públicas
-            ProductoSeleccionado = (ProductoDTO)dgvProductos.SelectedRows[0].DataBoundItem;
-            CantidadSeleccionada = cantidad;
-
-            this.DialogResult = DialogResult.OK;
-            this.Close();
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
@@ -62,3 +79,4 @@ namespace WinForms
         }
     }
 }
+

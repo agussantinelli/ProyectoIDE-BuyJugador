@@ -29,3 +29,4 @@ public partial class Persona
 
     public virtual ICollection<Venta> Venta { get; set; } = new List<Venta>();
 }
+

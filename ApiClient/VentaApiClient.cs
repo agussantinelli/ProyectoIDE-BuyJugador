@@ -25,19 +25,15 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<VentaDTO?>($"api/ventas/{id}");
         }
 
-        public async Task<HttpResponseMessage> CreateAsync(VentaDTO dto)
-        {
-            return await _httpClient.PostAsJsonAsync("api/ventas", dto);
-        }
-
         public async Task<HttpResponseMessage> CreateCompletaAsync(CrearVentaCompletaDTO dto)
         {
             return await _httpClient.PostAsJsonAsync("api/ventas/completa", dto);
         }
 
-        public async Task<HttpResponseMessage> UpdateAsync(int id, VentaDTO dto)
+        public async Task<HttpResponseMessage> UpdateCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            return await _httpClient.PutAsJsonAsync($"api/ventas/{id}", dto);
+            // Método añadido para actualizar una venta con sus líneas
+            return await _httpClient.PutAsJsonAsync($"api/ventas/completa/{dto.IdVenta}", dto);
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(int id)
@@ -45,11 +41,10 @@ namespace ApiClient
             return await _httpClient.DeleteAsync($"api/ventas/{id}");
         }
 
-        // Método agregado para finalizar una venta a través de la API.
         public async Task<HttpResponseMessage> FinalizarVentaAsync(int id)
         {
-            // Se usa un POST a un endpoint de acción específico. El contenido es nulo.
-            return await _httpClient.PostAsync($"api/ventas/{id}/finalizar", null);
+            // Este método ahora podría ser reemplazado por UpdateCompleta, pero lo mantenemos por si se usa en otro lado
+            return await _httpClient.PutAsync($"api/ventas/{id}/finalizar", null);
         }
     }
 }

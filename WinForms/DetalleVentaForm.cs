@@ -1,10 +1,10 @@
 ﻿using ApiClient;
 using DTOs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,159 +13,184 @@ namespace WinForms
     public partial class DetalleVentaForm : BaseForm
     {
         public VentaDTO Venta { get; set; }
-        private BindingList<LineaVentaDTO> _lineasDeVenta;
         public bool EsAdmin { get; set; }
 
-        private readonly LineaVentaApiClient _lineaVentaApiClient;
+        private BindingList<LineaVentaDTO> _lineasDeVenta;
+        private readonly VentaApiClient _ventaApiClient;
         private readonly ProductoApiClient _productoApiClient;
+        private readonly IServiceProvider _serviceProvider;
+
         private List<ProductoDTO> _todosLosProductos;
         private bool _datosModificados = false;
-        private int _cantidadOriginalEdit;
 
-        public DetalleVentaForm(LineaVentaApiClient lineaVentaApiClient, ProductoApiClient productoApiClient)
+        public DetalleVentaForm(VentaApiClient ventaApiClient, ProductoApiClient productoApiClient, IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _lineaVentaApiClient = lineaVentaApiClient;
+            _ventaApiClient = ventaApiClient;
             _productoApiClient = productoApiClient;
+            _serviceProvider = serviceProvider;
             _todosLosProductos = new List<ProductoDTO>();
+            _lineasDeVenta = new BindingList<LineaVentaDTO>();
 
             this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
+            StyleManager.ApplyButtonStyle(btnEditarCantidad);
             StyleManager.ApplyButtonStyle(btnCerrar);
             StyleManager.ApplyButtonStyle(btnAgregarLinea);
             StyleManager.ApplyButtonStyle(btnConfirmarCambios);
-
-            btnEditarCantidad.Visible = false;
         }
 
         private async void DetalleVentaForm_Load(object sender, EventArgs e)
         {
-            if (Venta != null)
+            if (Venta == null)
             {
-                lblIdVenta.Text = $"ID Venta: {Venta.IdVenta}";
-                lblFecha.Text = $"Fecha: {Venta.Fecha.ToShortDateString()}";
-                lblVendedor.Text = $"Vendedor: {Venta.NombreVendedor}";
-
-                await CargarProductos();
-                CargarLineasDeVenta();
-                ActualizarTotal();
-                ConfigurarVisibilidadControles();
+                MessageBox.Show("No se proporcionaron los datos de la venta.", "Error de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
             }
-        }
 
-        private async Task CargarProductos()
-        {
+            this.Cursor = Cursors.WaitCursor;
             try
             {
-                _todosLosProductos = await _productoApiClient.GetAllAsync();
+                _todosLosProductos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
+
+                lblIdVenta.Text = $"ID Venta: {Venta.IdVenta}";
+                lblFecha.Text = $"Fecha: {Venta.Fecha:dd/MM/yyyy HH:mm}";
+                lblVendedor.Text = $"Vendedor: {Venta.NombreVendedor}";
+
+                _lineasDeVenta = new BindingList<LineaVentaDTO>(Venta.Lineas ?? new List<LineaVentaDTO>());
+
+                ConfigurarVisibilidadControles();
+                RefrescarGrid();
+                ActualizarTotal();
+
+                btnEditarCantidad.Enabled = false;
+                btnConfirmarCambios.Enabled = false;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar los detalles de la venta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void CargarLineasDeVenta()
-        {
-            _lineasDeVenta = new BindingList<LineaVentaDTO>(Venta.Lineas);
-            dataGridDetalle.DataSource = _lineasDeVenta;
-
-            if (dataGridDetalle.Columns["Cantidad"] != null)
+            finally
             {
-                dataGridDetalle.Columns["Cantidad"].ReadOnly = !EsAdmin;
-            }
-
-            if (dataGridDetalle.Columns["IdVenta"] != null)
-            {
-                dataGridDetalle.Columns["IdVenta"].Visible = false;
+                this.Cursor = Cursors.Default;
             }
         }
 
         private void ConfigurarVisibilidadControles()
         {
-            btnEliminarLinea.Visible = EsAdmin;
-            btnAgregarLinea.Visible = EsAdmin;
-            btnConfirmarCambios.Visible = EsAdmin;
-            btnConfirmarCambios.Enabled = false;
+            bool ventaPendiente = "Pendiente".Equals(Venta.Estado, StringComparison.OrdinalIgnoreCase);
+
+            btnAgregarLinea.Visible = EsAdmin && ventaPendiente;
+            btnEliminarLinea.Visible = EsAdmin && ventaPendiente;
+            btnConfirmarCambios.Visible = EsAdmin && ventaPendiente;
+            btnEditarCantidad.Visible = EsAdmin && ventaPendiente; // Hacemos visible el botón de editar
+            dataGridDetalle.ReadOnly = !EsAdmin || !ventaPendiente;
+
+            if (!dataGridDetalle.ReadOnly && dataGridDetalle.Columns.Contains("Cantidad"))
+            {
+                dataGridDetalle.Columns["Cantidad"].ReadOnly = false;
+            }
+        }
+
+        private void ConfigurarColumnas()
+        {
+            dataGridDetalle.AutoGenerateColumns = false;
+            dataGridDetalle.Columns.Clear();
+
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", HeaderText = "Producto", DataPropertyName = "NombreProducto", ReadOnly = true, AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad", ReadOnly = !EsAdmin });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "PrecioUnitario", HeaderText = "Precio Unit.", DataPropertyName = "PrecioUnitario", ReadOnly = true, DefaultCellStyle = { Format = "C2" } });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subtotal", HeaderText = "Subtotal", DataPropertyName = "Subtotal", ReadOnly = true, DefaultCellStyle = { Format = "C2" } });
+        }
+
+        private void RefrescarGrid()
+        {
+            dataGridDetalle.DataSource = null;
+            if (_lineasDeVenta.Any())
+            {
+                dataGridDetalle.DataSource = _lineasDeVenta;
+                ConfigurarColumnas();
+            }
         }
 
         private void ActualizarTotal()
         {
             Venta.Total = _lineasDeVenta.Sum(l => l.Subtotal);
-            lblTotal.Text = $"Total: ${Venta.Total:N2}";
-        }
-
-        private void btnCerrar_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void btnAgregarLinea_Click(object sender, EventArgs e)
-        {
-            var idsProductosEnVenta = _lineasDeVenta.Select(lv => lv.IdProducto).ToList();
-            var productosDisponibles = _todosLosProductos.Where(p => !idsProductosEnVenta.Contains(p.IdProducto) && p.Stock > 0).ToList();
-
-            if (!productosDisponibles.Any())
-            {
-                MessageBox.Show("No hay más productos disponibles para agregar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            using (var form = new AñadirProductoVentaForm(productosDisponibles))
-            {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    var productoSeleccionado = form.ProductoSeleccionado;
-                    var cantidadSeleccionada = form.CantidadSeleccionada;
-
-                    if (productoSeleccionado.Stock < cantidadSeleccionada)
-                    {
-                        MessageBox.Show($"Stock insuficiente. Disponible: {productoSeleccionado.Stock}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    var nuevaLinea = new LineaVentaDTO
-                    {
-                        IdVenta = Venta.IdVenta,
-                        NroLineaVenta = 0,
-                        IdProducto = productoSeleccionado.IdProducto,
-                        NombreProducto = productoSeleccionado.Nombre,
-                        Cantidad = cantidadSeleccionada,
-                        PrecioUnitario = productoSeleccionado.PrecioActual,
-                        Subtotal = cantidadSeleccionada * productoSeleccionado.PrecioActual
-                    };
-
-                    _lineasDeVenta.Add(nuevaLinea);
-                    productoSeleccionado.Stock -= cantidadSeleccionada;
-
-                    MarcarComoModificado();
-                }
-            }
-        }
-
-        private void btnEliminarLinea_Click(object sender, EventArgs e)
-        {
-            if (dataGridDetalle.CurrentRow != null)
-            {
-                var lineaAEliminar = (LineaVentaDTO)dataGridDetalle.CurrentRow.DataBoundItem;
-                _lineasDeVenta.Remove(lineaAEliminar);
-
-                var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaAEliminar.IdProducto);
-                if (producto != null)
-                {
-                    producto.Stock += lineaAEliminar.Cantidad;
-                }
-                MarcarComoModificado();
-            }
+            lblTotal.Text = $"Total: {Venta.Total:C2}";
         }
 
         private void MarcarComoModificado()
         {
             _datosModificados = true;
             btnConfirmarCambios.Enabled = true;
-            ActualizarTotal();
+        }
+
+        private void btnAgregarLinea_Click(object sender, EventArgs e)
+        {
+            var idsProductosEnVenta = _lineasDeVenta.Select(l => l.IdProducto).ToList();
+            var productosDisponibles = _todosLosProductos
+                .Where(p => p.Stock > 0 && !idsProductosEnVenta.Contains(p.IdProducto))
+                .ToList();
+
+            if (!productosDisponibles.Any())
+            {
+                MessageBox.Show("No hay más productos con stock disponibles para agregar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            using var form = _serviceProvider.GetRequiredService<AñadirProductoVentaForm>();
+            form.CargarProductosDisponibles(productosDisponibles);
+
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                var productoSeleccionado = form.ProductoSeleccionado;
+                var cantidad = form.CantidadSeleccionada;
+
+                var nuevaLinea = new LineaVentaDTO
+                {
+                    IdVenta = this.Venta.IdVenta,
+                    IdProducto = productoSeleccionado.IdProducto,
+                    NombreProducto = productoSeleccionado.Nombre,
+                    Cantidad = cantidad,
+                    PrecioUnitario = productoSeleccionado.PrecioActual,
+                    EsNueva = true // Marcamos como nueva para el guardado
+                };
+                nuevaLinea.Subtotal = nuevaLinea.Cantidad * nuevaLinea.PrecioUnitario;
+
+                _lineasDeVenta.Add(nuevaLinea);
+                MarcarComoModificado();
+                RefrescarGrid();
+                ActualizarTotal();
+            }
+        }
+
+        private void btnEliminarLinea_Click(object sender, EventArgs e)
+        {
+            if (dataGridDetalle.CurrentRow?.DataBoundItem is not LineaVentaDTO lineaSeleccionada)
+            {
+                MessageBox.Show("Seleccione la línea de producto que desea eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirm = MessageBox.Show($"¿Está seguro de que desea eliminar '{lineaSeleccionada.NombreProducto}' de la venta?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm == DialogResult.Yes)
+            {
+                _lineasDeVenta.Remove(lineaSeleccionada);
+                MarcarComoModificado();
+                RefrescarGrid();
+                ActualizarTotal();
+            }
+        }
+
+        private void btnEditarCantidad_Click(object sender, EventArgs e)
+        {
+            if (dataGridDetalle.CurrentRow == null) return;
+
+            dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
+            dataGridDetalle.BeginEdit(true);
         }
 
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
@@ -173,43 +198,33 @@ namespace WinForms
             this.Cursor = Cursors.WaitCursor;
             try
             {
-                var lineasActuales = _lineasDeVenta.ToList();
-
-                foreach (var lineaOriginal in Venta.Lineas)
+                for (int i = 0; i < _lineasDeVenta.Count; i++)
                 {
-                    if (!lineasActuales.Any(l => l.NroLineaVenta == lineaOriginal.NroLineaVenta && l.NroLineaVenta != 0))
-                    {
-                        await _lineaVentaApiClient.DeleteAsync(lineaOriginal.IdVenta, lineaOriginal.NroLineaVenta);
-                    }
+                    _lineasDeVenta[i].NroLineaVenta = i + 1;
                 }
 
-                foreach (var linea in lineasActuales)
+                var dto = new CrearVentaCompletaDTO
                 {
-                    HttpResponseMessage response;
-                    if (linea.NroLineaVenta == 0)
-                    {
-                        response = await _lineaVentaApiClient.CreateAsync(linea);
-                    }
-                    else
-                    {
-                        response = await _lineaVentaApiClient.UpdateAsync(linea.IdVenta, linea.NroLineaVenta, linea);
-                    }
+                    IdVenta = Venta.IdVenta,
+                    IdPersona = Venta.IdPersona.Value,
+                    Lineas = _lineasDeVenta.ToList(),
+                    Finalizada = false // Solo confirmamos cambios, no finalizamos
+                };
 
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        var error = await response.Content.ReadAsStringAsync();
-                        MessageBox.Show($"Error al guardar la línea {linea.NroLineaVenta}: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        this.Cursor = Cursors.Default;
-                        return;
-                    }
+                var response = await _ventaApiClient.UpdateCompletaAsync(dto);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _datosModificados = false;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
                 }
-
-                MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                _datosModificados = false;
-                btnConfirmarCambios.Enabled = false;
-
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al guardar los cambios: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -221,59 +236,61 @@ namespace WinForms
             }
         }
 
-        private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
+        private void btnCerrar_Click(object sender, EventArgs e)
         {
-            bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            btnEliminarLinea.Enabled = hayFilaSeleccionada && EsAdmin;
-        }
-
-        private void dataGridDetalle_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
-        {
-            if (dataGridDetalle.Columns[e.ColumnIndex].Name == "Cantidad" && EsAdmin)
+            if (_datosModificados)
             {
-                _cantidadOriginalEdit = (int)dataGridDetalle.Rows[e.RowIndex].Cells[e.ColumnIndex].Value;
+                var result = MessageBox.Show("Hay cambios sin guardar. ¿Desea salir de todas formas?", "Atención", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.No)
+                {
+                    return;
+                }
             }
+            this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
+            this.Close();
         }
 
         private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (dataGridDetalle.Columns[e.ColumnIndex].Name == "Cantidad" && EsAdmin)
+            if (e.RowIndex < 0) return;
+
+            var lineaEditada = _lineasDeVenta[e.RowIndex];
+
+            if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
             {
-                var lineaEditada = (LineaVentaDTO)dataGridDetalle.Rows[e.RowIndex].DataBoundItem;
-
-                if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells[e.ColumnIndex].Value.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
-                {
-                    MessageBox.Show("La cantidad debe ser un número positivo.", "Valor inválido", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    lineaEditada.Cantidad = _cantidadOriginalEdit;
-                }
-                else
-                {
-                    var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaEditada.IdProducto);
-                    if (producto == null) return;
-
-                    int cambioEnCantidad = nuevaCantidad - _cantidadOriginalEdit;
-
-                    if (cambioEnCantidad > producto.Stock)
-                    {
-                        MessageBox.Show($"Stock insuficiente. Solo puede agregar {producto.Stock} unidades más.", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        lineaEditada.Cantidad = _cantidadOriginalEdit;
-                    }
-                    else
-                    {
-                        producto.Stock -= cambioEnCantidad;
-                        lineaEditada.Cantidad = nuevaCantidad;
-                        lineaEditada.Subtotal = lineaEditada.Cantidad * lineaEditada.PrecioUnitario;
-                        MarcarComoModificado();
-                    }
-                }
-                _lineasDeVenta.ResetItem(e.RowIndex);
+                MessageBox.Show("Por favor, ingrese una cantidad numérica válida y mayor a cero.", "Cantidad Inválida", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dataGridDetalle.CancelEdit();
+                _lineasDeVenta.ResetItem(e.RowIndex); // Revertir visualmente
+                return;
             }
+
+            var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaEditada.IdProducto);
+            if (producto == null) return;
+
+            int cantidadOriginalEnVenta = Venta.Lineas.FirstOrDefault(l => l.IdProducto == lineaEditada.IdProducto)?.Cantidad ?? 0;
+            int stockDisponible = producto.Stock + cantidadOriginalEnVenta;
+
+            if (nuevaCantidad > stockDisponible)
+            {
+                MessageBox.Show($"Stock insuficiente. Stock total disponible para este producto: {stockDisponible}", "Error de Stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dataGridDetalle.CancelEdit();
+                _lineasDeVenta.ResetItem(e.RowIndex); // Revertir visualmente
+                return;
+            }
+
+            lineaEditada.Cantidad = nuevaCantidad;
+            lineaEditada.Subtotal = nuevaCantidad * lineaEditada.PrecioUnitario;
+
+            MarcarComoModificado();
+            _lineasDeVenta.ResetItem(e.RowIndex);
+            ActualizarTotal();
         }
 
-        // Método vacío para solucionar el error del diseñador.
-        private void btnEditarCantidad_Click(object sender, EventArgs e)
+        private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
-            // Este método está vacío intencionalmente porque el botón está oculto.
+            bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
+            btnEliminarLinea.Enabled = hayFilaSeleccionada && EsAdmin;
+            btnEditarCantidad.Enabled = hayFilaSeleccionada && EsAdmin;
         }
     }
 }

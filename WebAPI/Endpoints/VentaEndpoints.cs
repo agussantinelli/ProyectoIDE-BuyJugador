@@ -1,66 +1,89 @@
-﻿using Data;
+﻿using DTOs;
 using DominioServicios;
-using DTOs;
-using System;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace WebAPI.Endpoints
+public static class VentaEndpoints
 {
-    public static class VentaEndpoints
+    public static void MapVentaEndpoints(this WebApplication app)
     {
-        public static void MapVentaEndpoints(this WebApplication app)
+        var group = app.MapGroup("/api/ventas");
+
+        group.MapGet("/", async (VentaService ventaService) =>
         {
-            var group = app.MapGroup("/api/ventas");
-
-            group.MapGet("/", async (VentaService service) =>
+            var ventas = await ventaService.GetVentas().Select(v => VentaDTO.FromDominio(v)).ToListAsync();
+            foreach (var venta in ventas)
             {
-                return Results.Ok(await service.GetAllAsync());
-            });
+                var ventaConDetalles = await ventaService.GetVentaByIdAsync(venta.IdVenta);
 
-            group.MapGet("/{id}", async (int id, VentaService service) =>
-            {
-                var venta = await service.GetByIdAsync(id);
-                return venta is not null ? Results.Ok(venta) : Results.NotFound();
-            });
-
-            group.MapPost("/completa", async (CrearVentaCompletaDTO dto, VentaService service) =>
-            {
-                try
+                // --- CORRECCIÓN ---
+                // Se usa FirstOrDefault() para manejar productos sin precios.
+                // Si no hay precio, se asume 0.
+                if (ventaConDetalles?.LineaVenta != null)
                 {
-                    var nuevaVenta = await service.CreateVentaCompletaAsync(dto);
-                    return Results.Created($"/api/ventas/{nuevaVenta.IdVenta}", nuevaVenta);
+                    venta.Total = ventaConDetalles.LineaVenta.Sum(l =>
+                        l.Cantidad * (l.IdProductoNavigation?.Precios.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0)
+                    );
                 }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = ex.Message });
-                }
-            });
+            }
+            return Results.Ok(ventas);
+        });
 
-            group.MapPut("/{id}", async (int id, VentaDTO dto, VentaService service) =>
+        group.MapGet("/{id:int}", async (int id, VentaService ventaService) =>
+        {
+            var venta = await ventaService.GetVentaByIdAsync(id);
+            if (venta == null) return Results.NotFound();
+
+            var ventaDto = VentaDTO.FromDominio(venta);
+            ventaDto.Lineas = venta.LineaVenta.Select(LineaVentaDTO.FromDominio).ToList();
+
+            foreach (var linea in ventaDto.Lineas)
             {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
-            });
+                var producto = venta.LineaVenta
+                   .First(l => l.NroLineaVenta == linea.NroLineaVenta).IdProductoNavigation;
 
-            group.MapDelete("/{id}", async (int id, VentaService service) =>
+                // --- CORRECCIÓN ---
+                // Se usa FirstOrDefault() también aquí para evitar el mismo error.
+                linea.PrecioUnitario = producto.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
+                linea.Subtotal = linea.Cantidad * linea.PrecioUnitario;
+            }
+            ventaDto.Total = ventaDto.Lineas.Sum(l => l.Subtotal);
+
+            return Results.Ok(ventaDto);
+        });
+
+        group.MapPost("/completa", async (CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
+        {
+            var nuevaVenta = await ventaService.CrearVentaCompletaAsync(ventaDto);
+            return Results.Created($"/api/ventas/{nuevaVenta.IdVenta}", VentaDTO.FromDominio(nuevaVenta));
+        });
+
+        group.MapPut("/completa/{id:int}", async (int id, CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
+        {
+            if (id != ventaDto.IdVenta)
             {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
-            });
-            app.MapPut("api/ventas/finalizar/{idVenta}", async (BuyJugadorContext db, int idVenta) =>
+                return Results.BadRequest("El ID de la URL no coincide con el ID de la venta.");
+            }
+            try
             {
-                var venta = await db.Ventas.FindAsync(idVenta);
-                if (venta == null) return Results.NotFound("Venta no encontrada.");
-
-                if (venta.Estado == "Finalizada")
-                    return Results.BadRequest("La venta ya está finalizada.");
-
-                venta.Estado = "Finalizada";
-                await db.SaveChangesAsync();
-
+                await ventaService.UpdateVentaCompletaAsync(ventaDto);
                 return Results.Ok();
-            });
+            }
+            catch (System.Collections.Generic.KeyNotFoundException e)
+            {
+                return Results.NotFound(e.Message);
+            }
+        });
 
-        }
+        group.MapDelete("/{id:int}", async (int id, VentaService ventaService) =>
+        {
+            var result = await ventaService.DeleteVentaAsync(id);
+            if (!result) return Results.NotFound();
+            return Results.Ok();
+        });
     }
 }
 

@@ -18,139 +18,81 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<VentaDTO>> GetAllAsync()
+        public IQueryable<Venta> GetVentas()
         {
-            var ventas = await _context.Ventas
-                .Include(v => v.IdPersonaNavigation) 
-                .Include(v => v.LineaVenta) 
-                    .ThenInclude(lv => lv.IdProductoNavigation) 
-                        .ThenInclude(p => p.Precios) 
-                .AsNoTracking()
-                .ToListAsync();
-
-            return ventas.Select(v => {
-                var ventaDto = VentaDTO.FromDominio(v);
-                if (v.LineaVenta != null && v.LineaVenta.Any())
-                {
-                    ventaDto.Total = v.LineaVenta.Sum(lv =>
-                    {
-                        var precio = lv.IdProductoNavigation?.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
-                        return lv.Cantidad * precio;
-                    });
-                }
-                return ventaDto;
-            }).ToList();
+            return _context.Ventas.Include(v => v.IdPersonaNavigation);
         }
 
-        public async Task<VentaDTO?> GetByIdAsync(int id)
+        public async Task<Venta?> GetVentaByIdAsync(int id)
         {
-            var entidad = await _context.Ventas
+            return await _context.Ventas
                 .Include(v => v.IdPersonaNavigation)
+                .Include(v => v.LineaVenta)
+                    .ThenInclude(lv => lv.IdProductoNavigation)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.IdVenta == id);
-
-            if (entidad == null) return null;
-
-            return VentaDTO.FromDominio(entidad);
         }
 
-        public async Task<VentaDTO> CreateVentaCompletaAsync(CrearVentaCompletaDTO dto)
+        public async Task<Venta> CrearVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var nuevaVenta = new Venta
             {
-                var nuevaVenta = new Venta
+                IdPersona = dto.IdPersona,
+                Fecha = DateTime.UtcNow,
+                // --- CORRECCIÓN ---
+                // Se usa la nueva propiedad para determinar el estado inicial.
+                Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
+                LineaVenta = dto.Lineas.Select((l, index) => new LineaVenta
                 {
-                    Fecha = DateTime.Now,
-                    Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
-                    IdPersona = dto.IdPersona
-                };
-                _context.Ventas.Add(nuevaVenta);
-                await _context.SaveChangesAsync();
+                    NroLineaVenta = index + 1,
+                    IdProducto = l.IdProducto,
+                    Cantidad = l.Cantidad
+                }).ToList()
+            };
 
-                int nroLinea = 1;
-                foreach (var lineaDto in dto.Lineas)
-                {
-                    var producto = await _context.Productos.FindAsync(lineaDto.IdProducto);
-                    if (producto == null || producto.Stock < lineaDto.Cantidad)
-                    {
-                        throw new InvalidOperationException($"Stock insuficiente para el producto ID: {lineaDto.IdProducto}.");
-                    }
-                    producto.Stock -= lineaDto.Cantidad;
-
-                    var nuevaLinea = new LineaVenta
-                    {
-                        IdVenta = nuevaVenta.IdVenta,
-                        NroLineaVenta = nroLinea++,
-                        IdProducto = lineaDto.IdProducto,
-                        Cantidad = lineaDto.Cantidad
-                    };
-                    _context.LineaVentas.Add(nuevaLinea);
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return VentaDTO.FromDominio(nuevaVenta);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            _context.Ventas.Add(nuevaVenta);
+            await _context.SaveChangesAsync();
+            return nuevaVenta;
         }
 
-
-        public async Task UpdateAsync(int id, VentaDTO dto)
+        public async Task UpdateVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            var entidad = await _context.Ventas.FindAsync(id);
-            if (entidad != null)
+            var ventaExistente = await _context.Ventas.Include(v => v.LineaVenta).FirstOrDefaultAsync(v => v.IdVenta == dto.IdVenta);
+            if (ventaExistente == null)
             {
-                entidad.Fecha = dto.Fecha;
-                entidad.Estado = dto.Estado;
-                entidad.IdPersona = dto.IdPersona;
-                await _context.SaveChangesAsync();
+                throw new KeyNotFoundException("Venta no encontrada.");
             }
+
+            _context.LineaVentas.RemoveRange(ventaExistente.LineaVenta);
+
+            ventaExistente.LineaVenta = dto.Lineas.Select((l, index) => new LineaVenta
+            {
+                NroLineaVenta = index + 1,
+                IdProducto = l.IdProducto,
+                Cantidad = l.Cantidad
+            }).ToList();
+
+            // --- CORRECCIÓN ---
+            // Se usa la propiedad para actualizar el estado si se está finalizando.
+            if (dto.Finalizada)
+            {
+                ventaExistente.Estado = "Finalizada";
+            }
+
+            await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteVentaAsync(int id)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var venta = await _context.Ventas.FindAsync(id);
+            if (venta == null)
             {
-                var entidad = await _context.Ventas
-                    .Include(v => v.LineaVenta)
-                    .FirstOrDefaultAsync(v => v.IdVenta == id);
-
-                if (entidad != null)
-                {
-                    foreach (var linea in entidad.LineaVenta)
-                    {
-                        if (linea.IdProducto.HasValue)
-                        {
-                            var producto = await _context.Productos.FindAsync(linea.IdProducto.Value);
-                            if (producto != null)
-                            {
-                                producto.Stock += linea.Cantidad;
-                            }
-                        }
-                    }
-
-                    _context.Ventas.Remove(entidad);
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-                }
-                else
-                {
-                    await transaction.RollbackAsync();
-                }
+                return false;
             }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+
+            _context.Ventas.Remove(venta);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
-

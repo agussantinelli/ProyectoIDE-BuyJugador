@@ -16,6 +16,8 @@ namespace WinForms
             var host = Host.CreateDefaultBuilder().ConfigureServices((context, services) =>
             {
                 var apiBaseAddress = new Uri("https://localhost:7145/");
+
+                // Función para configurar el manejador de HttpClient
                 HttpMessageHandler CreateHandler()
                 {
                     if (context.HostingEnvironment.IsDevelopment())
@@ -29,25 +31,30 @@ namespace WinForms
                 services.AddHttpClient<LocalidadApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<TipoProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<VentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<LineaVentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<PedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<LineaPedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProductoProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
-                // --- Servicios de la App ---
+
+                // --- Servicios ---
                 services.AddSingleton<UserSessionService>();
 
                 // --- Formularios ---
                 services.AddTransient<LoginForm>();
                 services.AddTransient<MainForm>();
                 services.AddTransient<PersonaForm>();
-                services.AddTransient<ProductoForm>();
+                services.AddTransient<CrearPersonaForm>();
+                services.AddTransient<EditarPersonaForm>();
                 services.AddTransient<ProvinciaForm>();
                 services.AddTransient<LocalidadForm>();
                 services.AddTransient<TipoProductoForm>();
+                services.AddTransient<CrearTipoProductoForm>();
+                services.AddTransient<EditarTipoProductoForm>();
+                services.AddTransient<ProductoForm>();
                 services.AddTransient<CrearProductoForm>();
                 services.AddTransient<EditarProductoForm>();
                 services.AddTransient<ProveedorForm>();
@@ -67,15 +74,16 @@ namespace WinForms
 
             using var scope = host.Services.CreateScope();
             var sp = scope.ServiceProvider;
+
             var loginForm = sp.GetRequiredService<LoginForm>();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                var session = sp.GetRequiredService<UserSessionService>();
-                bool isAdmin = "Dueño".Equals(session.CurrentUser?.Rol, StringComparison.OrdinalIgnoreCase);
-                var mainForm = new MainForm(sp, isAdmin);
+                // --- CORRECCIÓN CLAVE ---
+                // Ahora obtenemos una instancia de MainForm directamente del proveedor de servicios,
+                // que automáticamente le inyectará el IServiceProvider y el UserSessionService.
+                var mainForm = sp.GetRequiredService<MainForm>();
                 Application.Run(mainForm);
             }
         }
     }
 }
-

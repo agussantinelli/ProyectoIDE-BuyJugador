@@ -1,29 +1,34 @@
-﻿using System;
+﻿using DTOs;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace WinForms
 {
     public partial class MainForm : BaseForm
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly bool _isAdmin;
+        private readonly UserSessionService _userSessionService;
         private Panel? menuPanel;
 
         private MenuStrip mainMenuStrip;
         private ToolStripMenuItem verMenuItem;
         private ToolStripMenuItem provinciasMenuItem;
         private ToolStripMenuItem localidadesMenuItem;
+        private ToolStripLabel usuarioLabel;
 
-        public MainForm(IServiceProvider serviceProvider, bool isAdmin)
+        public MainForm(IServiceProvider serviceProvider, UserSessionService userSessionService)
         {
             InitializeComponent();
             _serviceProvider = serviceProvider;
-            _isAdmin = isAdmin;
+            _userSessionService = userSessionService; // Usamos el servicio de sesión
 
+            this.IsMdiContainer = true;
             this.StartPosition = FormStartPosition.CenterScreen;
+            this.WindowState = FormWindowState.Maximized;
 
+            // Aplica un color de fondo al cliente MDI
             foreach (Control control in this.Controls)
             {
                 if (control is MdiClient client)
@@ -39,6 +44,7 @@ namespace WinForms
             InitializeMenuBar();
             InitializeMainMenu();
             CenterMenuPanel();
+            this.Resize += new EventHandler(MainForm_Resize);
         }
 
         private void InitializeMenuBar()
@@ -60,25 +66,25 @@ namespace WinForms
             provinciasMenuItem = new ToolStripMenuItem("Provincias");
             localidadesMenuItem = new ToolStripMenuItem("Localidades");
 
-            provinciasMenuItem.Click += ProvinciasMenuItem_Click;
-            localidadesMenuItem.Click += LocalidadesMenuItem_Click;
+            provinciasMenuItem.Click += (s, e) => AbrirFormulario<ProvinciaForm>();
+            localidadesMenuItem.Click += (s, e) => AbrirFormulario<LocalidadForm>();
 
             verMenuItem.DropDownItems.Add(provinciasMenuItem);
             verMenuItem.DropDownItems.Add(localidadesMenuItem);
             mainMenuStrip.Items.Add(verMenuItem);
 
+            // Etiqueta para el nombre de usuario
+            usuarioLabel = new ToolStripLabel($"Usuario: {_userSessionService.CurrentUser?.NombreCompleto ?? "N/A"}")
+            {
+                Alignment = ToolStripItemAlignment.Right,
+                ForeColor = Color.White,
+                Font = new Font("Century Gothic", 10F, FontStyle.Regular),
+                Padding = new Padding(0, 0, 20, 0)
+            };
+            mainMenuStrip.Items.Add(usuarioLabel);
+
             this.MainMenuStrip = mainMenuStrip;
             this.Controls.Add(mainMenuStrip);
-        }
-
-        private void ProvinciasMenuItem_Click(object? sender, EventArgs e)
-        {
-            AbrirFormulario(_serviceProvider.GetRequiredService<ProvinciaForm>());
-        }
-
-        private void LocalidadesMenuItem_Click(object? sender, EventArgs e)
-        {
-            AbrirFormulario(_serviceProvider.GetRequiredService<LocalidadForm>());
         }
 
         private void InitializeMainMenu()
@@ -92,7 +98,8 @@ namespace WinForms
 
             Label titleLabel = new Label
             {
-                Text = _isAdmin ? "Panel de Administrador" : "Panel de Empleados",
+                // La decisión se toma aquí, usando el servicio de sesión
+                Text = _userSessionService.EsAdmin ? "Panel de Administrador" : "Panel de Empleado",
                 ForeColor = Color.White,
                 Font = new Font("Century Gothic", 18F, FontStyle.Bold),
                 Dock = DockStyle.Top,
@@ -113,7 +120,7 @@ namespace WinForms
             this.Controls.Add(menuPanel);
             menuPanel.BringToFront();
 
-            if (_isAdmin)
+            if (_userSessionService.EsAdmin)
             {
                 buttonGrid.ColumnCount = 2;
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -139,7 +146,7 @@ namespace WinForms
             if (menuPanel != null)
             {
                 int x = (this.ClientSize.Width - menuPanel.Width) / 2;
-                int y = (this.ClientSize.Height - menuPanel.Height) / 2;
+                int y = ((this.ClientSize.Height - mainMenuStrip.Height) - menuPanel.Height) / 2 + mainMenuStrip.Height;
                 menuPanel.Location = new Point(x, y);
             }
         }
@@ -152,8 +159,8 @@ namespace WinForms
         private void CreateAdminButtons(TableLayoutPanel grid)
         {
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
-            grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Pedidos"), 1, 0);
-            grid.Controls.Add(CreateMenuButton("btnEmpleados", "Empleados"), 0, 1);
+            grid.Controls.Add(CreateMenuButton("btnPedidos", "Pedidos"), 1, 0);
+            grid.Controls.Add(CreateMenuButton("btnPersonas", "Personas"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnTiposProducto", "Tipos de Productos"), 1, 1);
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);
             grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 2);
@@ -162,7 +169,7 @@ namespace WinForms
         private void CreateEmpleadoButtons(TableLayoutPanel grid)
         {
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
-            grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Nuevo Pedido"), 0, 1);
+            grid.Controls.Add(CreateMenuButton("btnPedidos", "Pedidos"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);
         }
 
@@ -193,23 +200,22 @@ namespace WinForms
                 switch (clickedButton.Name)
                 {
                     case "btnVentas":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<VentaForm>());
+                        AbrirFormulario<VentaForm>();
                         break;
-                    case "btnNuevoPedido":
-                        // --- LÍNEA MODIFICADA ---
-                        AbrirFormulario(_serviceProvider.GetRequiredService<PedidoForm>());
+                    case "btnPedidos":
+                        AbrirFormulario<PedidoForm>();
                         break;
                     case "btnProductos":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<ProductoForm>());
+                        AbrirFormulario<ProductoForm>();
                         break;
-                    case "btnEmpleados":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<PersonaForm>());
+                    case "btnPersonas":
+                        AbrirFormulario<PersonaForm>();
                         break;
                     case "btnTiposProducto":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<TipoProductoForm>());
+                        AbrirFormulario<TipoProductoForm>();
                         break;
                     case "btnProveedores":
-                        AbrirFormulario(_serviceProvider.GetRequiredService<ProveedorForm>());
+                        AbrirFormulario<ProveedorForm>();
                         break;
                     default:
                         MessageBox.Show($"Funcionalidad para '{clickedButton.Text}' no definida.");
@@ -218,13 +224,14 @@ namespace WinForms
             }
         }
 
-        private void AbrirFormulario(Form form)
+        private void AbrirFormulario<T>() where T : Form
         {
             if (menuPanel != null)
             {
                 menuPanel.Visible = false;
             }
 
+            var form = _serviceProvider.GetRequiredService<T>();
             form.MdiParent = this;
             form.FormClosed += (s, args) =>
             {
@@ -234,6 +241,12 @@ namespace WinForms
                 }
             };
             form.Show();
+        }
+
+        private void btnCerrarSesion_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
     }
 

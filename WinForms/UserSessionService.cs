@@ -1,4 +1,5 @@
 ﻿using DTOs;
+using System;
 
 namespace WinForms
 {
@@ -9,8 +10,10 @@ namespace WinForms
     {
         public PersonaDTO? CurrentUser { get; set; }
 
-        // Propiedad agregada para verificar fácilmente si el usuario es Administrador.
-        public bool EsAdmin => CurrentUser?.Rol?.Equals("Admin", System.StringComparison.OrdinalIgnoreCase) ?? false;
+        /// <summary>
+        /// Propiedad que determina si el usuario actual es un Administrador.
+        /// </summary>
+        public bool EsAdmin => CurrentUser != null && "Admin".Equals(CurrentUser.Rol, StringComparison.OrdinalIgnoreCase);
     }
 }
 
