@@ -12,8 +12,7 @@ public partial class Proveedor
     public string Telefono { get; set; } = null!;
     public string Direccion { get; set; } = null!;
     public int? IdLocalidad { get; set; }
-
-    public bool Activo { get; set; } = true; // Soft delete
+    public bool Activo { get; set; } = true; 
 
     public virtual Localidad? IdLocalidadNavigation { get; set; }
     public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();

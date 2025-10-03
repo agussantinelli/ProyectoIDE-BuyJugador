@@ -24,7 +24,7 @@
                 Telefono = entidad.Telefono,
                 Direccion = entidad.Direccion,
                 IdLocalidad = entidad.IdLocalidad,
-                Activo = entidad.Activo   // mapeo del soft delete
+                Activo = entidad.Activo  
             };
         }
 
@@ -39,7 +39,7 @@
                 Telefono = this.Telefono,
                 Direccion = this.Direccion,
                 IdLocalidad = this.IdLocalidad,
-                Activo = this.Activo      // mapeo del soft delete
+                Activo = this.Activo
             };
         }
     }

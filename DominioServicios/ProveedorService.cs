@@ -35,10 +35,8 @@ namespace DominioServicios
 
         public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
-            // --- ESTA ES LA CORRECCIÓN CLAVE ---
-            // La condición original era "p.Activo && !p.Activo", lo cual es imposible.
-            // La condición correcta es simplemente "!p.Activo" (o sea, Activo = false).
             return await _context.Proveedores
+                .IgnoreQueryFilters()
                 .Where(p => !p.Activo)
                 .Select(p => new ProveedorDTO
                 {
@@ -48,9 +46,11 @@ namespace DominioServicios
                     Email = p.Email,
                     Telefono = p.Telefono,
                     Direccion = p.Direccion,
-                    IdLocalidad = p.IdLocalidad
+                    IdLocalidad = p.IdLocalidad,
+                    Activo = p.Activo
                 }).ToListAsync();
         }
+
 
         public async Task<ProveedorDTO?> GetByIdAsync(int id)
         {
@@ -117,7 +117,10 @@ namespace DominioServicios
 
         public async Task ReactivarAsync(int id)
         {
-            var proveedor = await _context.Proveedores.FindAsync(id);
+            var proveedor = await _context.Proveedores
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(p => p.IdProveedor == id);
+
             if (proveedor != null)
             {
                 proveedor.Activo = true;

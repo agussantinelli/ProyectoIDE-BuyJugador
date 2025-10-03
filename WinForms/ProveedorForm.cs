@@ -82,12 +82,14 @@ namespace WinForms
         {
             try
             {
-                var proveedores = await _proveedorApiClient.GetAllAsync() ?? new List<ProveedorDTO>();
+                var activos = await _proveedorApiClient.GetAllAsync() ?? new List<ProveedorDTO>();
+                var inactivos = await _proveedorApiClient.GetInactivosAsync() ?? new List<ProveedorDTO>();
+
                 _provincias = await _provinciaApiClient.GetAllAsync() ?? new List<ProvinciaDTO>();
                 _localidades = await _localidadApiClient.GetAllAsync() ?? new List<LocalidadDTO>();
 
-                _activosCache = proveedores.Where(p => p.Activo).ToList();
-                _inactivosCache = proveedores.Where(p => !p.Activo).ToList();
+                _activosCache = activos;
+                _inactivosCache = inactivos;
 
                 MapearDatos(dgvActivos, _activosCache, _activosBindingList);
                 MapearDatos(dgvInactivos, _inactivosCache, _inactivosBindingList);
@@ -97,6 +99,7 @@ namespace WinForms
                 MessageBox.Show($"Error al cargar datos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void MapearDatos(DataGridView dgv, List<ProveedorDTO> cache, BindingList<ProveedorRow> bindingList)
         {
