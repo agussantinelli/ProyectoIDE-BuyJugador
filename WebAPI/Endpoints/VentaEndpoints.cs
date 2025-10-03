@@ -1,5 +1,6 @@
-﻿using DTOs;
+﻿using Data;
 using DominioServicios;
+using DTOs;
 using System;
 
 namespace WebAPI.Endpoints
@@ -45,6 +46,20 @@ namespace WebAPI.Endpoints
                 await service.DeleteAsync(id);
                 return Results.NoContent();
             });
+            app.MapPut("api/ventas/finalizar/{idVenta}", async (BuyJugadorContext db, int idVenta) =>
+            {
+                var venta = await db.Ventas.FindAsync(idVenta);
+                if (venta == null) return Results.NotFound("Venta no encontrada.");
+
+                if (venta.Estado == "Finalizada")
+                    return Results.BadRequest("La venta ya está finalizada.");
+
+                venta.Estado = "Finalizada";
+                await db.SaveChangesAsync();
+
+                return Results.Ok();
+            });
+
         }
     }
 }

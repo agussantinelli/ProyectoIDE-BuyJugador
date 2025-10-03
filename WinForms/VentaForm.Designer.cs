@@ -98,6 +98,20 @@
             this.btnVerDetalle.UseVisualStyleBackColor = true;
             this.btnVerDetalle.Click += new System.EventHandler(this.btnVerDetalle_Click);
             // 
+            // btnFinalizarVenta
+            // 
+            this.panelBotones.ResumeLayout(false);
+            this.ResumeLayout(false);
+            this.btnFinalizarVenta = new System.Windows.Forms.Button();
+            this.btnFinalizarVenta.Location = new System.Drawing.Point(375, 17);
+            this.btnFinalizarVenta.Name = "btnFinalizarVenta";
+            this.btnFinalizarVenta.Size = new System.Drawing.Size(115, 30);
+            this.btnFinalizarVenta.TabIndex = 4;
+            this.btnFinalizarVenta.Text = "Finalizar Venta";
+            this.btnFinalizarVenta.UseVisualStyleBackColor = true;
+            this.btnFinalizarVenta.Click += new System.EventHandler(this.btnFinalizarVenta_Click);
+            this.panelBotones.Controls.Add(this.btnFinalizarVenta);
+            // 
             // VentaForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -109,13 +123,13 @@
             this.Text = "Gestión de Ventas";
             this.Load += new System.EventHandler(this.VentaForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).EndInit();
-            this.panelBotones.ResumeLayout(false);
-            this.ResumeLayout(false);
+
+
 
         }
 
         #endregion
-
+        private System.Windows.Forms.Button btnFinalizarVenta;
         private System.Windows.Forms.DataGridView dataGridVentas;
         private System.Windows.Forms.Button btnNuevaVenta;
         private System.Windows.Forms.Button btnVerDetalle;

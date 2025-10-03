@@ -20,16 +20,14 @@ namespace DominioServicios
 
         public async Task<List<VentaDTO>> GetAllAsync()
         {
-            // La API ahora se encarga de calcular el total y obtener el nombre del vendedor.
             var ventas = await _context.Ventas
-                .Include(v => v.IdPersonaNavigation) // Incluir al vendedor
-                .Include(v => v.LineaVenta) // Incluir las líneas de venta
-                    .ThenInclude(lv => lv.IdProductoNavigation) // Incluir el producto de cada línea
-                        .ThenInclude(p => p.Precios) // Incluir los precios de cada producto
+                .Include(v => v.IdPersonaNavigation) 
+                .Include(v => v.LineaVenta) 
+                    .ThenInclude(lv => lv.IdProductoNavigation) 
+                        .ThenInclude(p => p.Precios) 
                 .AsNoTracking()
                 .ToListAsync();
 
-            // Proyectar a DTOs, realizando los cálculos aquí en el servidor
             return ventas.Select(v => {
                 var ventaDto = VentaDTO.FromDominio(v);
                 if (v.LineaVenta != null && v.LineaVenta.Any())
@@ -64,7 +62,7 @@ namespace DominioServicios
                 var nuevaVenta = new Venta
                 {
                     Fecha = DateTime.Now,
-                    Estado = "Completada",
+                    Estado = "Pendiente",
                     IdPersona = dto.IdPersona
                 };
                 _context.Ventas.Add(nuevaVenta);

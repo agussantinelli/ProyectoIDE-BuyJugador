@@ -34,6 +34,8 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVerDetalle);
             StyleManager.ApplyButtonStyle(btnEliminar);
             StyleManager.ApplyButtonStyle(btnVolver);
+            StyleManager.ApplyButtonStyle(btnFinalizarVenta);
+
         }
 
         private async void VentaForm_Load(object sender, EventArgs e)
@@ -69,6 +71,7 @@ namespace WinForms
             dataGridVentas.Columns["Fecha"].HeaderText = "Fecha";
             dataGridVentas.Columns["Total"].HeaderText = "Total";
             dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
+            dataGridVentas.Columns["IdPersona"].Visible = false;
 
             dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
             dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
@@ -155,6 +158,43 @@ namespace WinForms
             finally
             {
                 this.Cursor = Cursors.Default;
+            }
+        }
+
+        private async void btnFinalizarVenta_Click(object sender, EventArgs e)
+        {
+            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
+            {
+                MessageBox.Show("Por favor, seleccione una venta para finalizar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (!"Pendiente".Equals(selectedVenta.Estado, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("La venta ya está finalizada.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var confirmar = MessageBox.Show($"¿Desea marcar la venta #{selectedVenta.IdVenta} como FINALIZADA?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirmar != DialogResult.Yes) return;
+
+            try
+            {
+                var response = await _ventaApiClient.MarcarComoFinalizadaAsync(selectedVenta.IdVenta);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Venta finalizada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await CargarVentas();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al finalizar la venta: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

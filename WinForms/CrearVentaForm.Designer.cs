@@ -98,7 +98,7 @@
             this.btnEliminarLinea.Name = "btnEliminarLinea";
             this.btnEliminarLinea.Size = new System.Drawing.Size(120, 25);
             this.btnEliminarLinea.TabIndex = 4;
-            this.btnEliminarLinea.Text = "Eliminar Línea";
+            this.btnEliminarLinea.Text = "Eliminar";
             this.btnEliminarLinea.UseVisualStyleBackColor = true;
             this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
             // 
