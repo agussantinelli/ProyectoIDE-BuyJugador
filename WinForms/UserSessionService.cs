@@ -8,5 +8,9 @@ namespace WinForms
     public class UserSessionService
     {
         public PersonaDTO? CurrentUser { get; set; }
+
+        // Propiedad agregada para verificar fácilmente si el usuario es Administrador.
+        public bool EsAdmin => CurrentUser?.Rol?.Equals("Admin", System.StringComparison.OrdinalIgnoreCase) ?? false;
     }
 }
+

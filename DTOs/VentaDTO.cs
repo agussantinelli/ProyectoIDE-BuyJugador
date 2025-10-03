@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DTOs
 {
@@ -10,6 +11,9 @@ namespace DTOs
         public int? IdPersona { get; set; }
         public string NombreVendedor { get; set; } = string.Empty;
         public decimal Total { get; set; }
+
+        // Propiedad agregada para contener las líneas de la venta.
+        public List<LineaVentaDTO> Lineas { get; set; } = new List<LineaVentaDTO>();
 
         public static VentaDTO FromDominio(DominioModelo.Venta entidad)
         {
@@ -37,4 +41,3 @@ namespace DTOs
         }
     }
 }
-

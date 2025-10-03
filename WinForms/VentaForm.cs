@@ -1,10 +1,10 @@
 ﻿using ApiClient;
 using DTOs;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace WinForms
 {
@@ -12,20 +12,22 @@ namespace WinForms
     {
         private readonly VentaApiClient _ventaApiClient;
         private readonly LineaVentaApiClient _lineaVentaApiClient;
+        private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly UserSessionService _userSessionService;
         private List<VentaDTO> _todasLasVentas = new();
 
-
         public VentaForm(
             VentaApiClient ventaApiClient,
             LineaVentaApiClient lineaVentaApiClient,
+            ProductoApiClient productoApiClient,
             IServiceProvider serviceProvider,
             UserSessionService userSessionService)
         {
             InitializeComponent();
             _ventaApiClient = ventaApiClient;
             _lineaVentaApiClient = lineaVentaApiClient;
+            _productoApiClient = productoApiClient;
             _serviceProvider = serviceProvider;
             _userSessionService = userSessionService;
 
@@ -37,164 +39,138 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnEliminar);
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnFinalizarVenta);
-
         }
 
         private async void VentaForm_Load(object sender, EventArgs e)
         {
             await CargarVentas();
+            ConfigurarVisibilidadControles();
+            ActualizarEstadoBotones();
         }
 
-        private async Task CargarVentas()
+        private void ConfigurarVisibilidadControles()
         {
-            this.Cursor = Cursors.WaitCursor;
+            bool esAdmin = _userSessionService.EsAdmin;
+            btnNuevaVenta.Visible = esAdmin;
+            btnEliminar.Visible = esAdmin;
+            btnFinalizarVenta.Visible = esAdmin;
+        }
+
+        private async System.Threading.Tasks.Task CargarVentas()
+        {
             try
             {
-                var ventas = await _ventaApiClient.GetAllAsync();
-                if (ventas != null)
-                {
-                    _todasLasVentas = ventas.OrderByDescending(v => v.Fecha).ToList();
-                    AplicarFiltros();
-                }
+                _todasLasVentas = await _ventaApiClient.GetAllAsync();
+                AplicarFiltros();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            finally
-            {
-                this.Cursor = Cursors.Default;
-            }
         }
-
 
         private void ConfigurarColumnas()
         {
-            dataGridVentas.Columns["IdVenta"].HeaderText = "ID Venta";
-            dataGridVentas.Columns["Fecha"].HeaderText = "Fecha";
-            dataGridVentas.Columns["Total"].HeaderText = "Total";
-            dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
-            dataGridVentas.Columns["IdPersona"].Visible = false;
-
-            dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
-            dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
-
-            dataGridVentas.Columns["NombreVendedor"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-        }
-        private void DataGridVentas_SelectionChanged(object? sender, EventArgs e)
-        {
-            if (dataGridVentas.CurrentRow?.DataBoundItem is VentaDTO selectedVenta)
+            if (dataGridVentas.Columns.Count > 0)
             {
-                btnFinalizarVenta.Visible = string.Equals(selectedVenta.Estado, "Pendiente", StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                btnFinalizarVenta.Visible = false;
-            }
-        }
-
-        private async void btnNuevaVenta_Click(object sender, EventArgs e)
-        {
-            using var form = _serviceProvider.GetRequiredService<CrearVentaForm>();
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                await CargarVentas();
-            }
-        }
-
-        private async void btnEliminar_Click(object sender, EventArgs e)
-        {
-            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
-            {
-                MessageBox.Show("Por favor, seleccione una venta para eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var confirm = MessageBox.Show($"¿Está seguro que desea eliminar la venta #{selectedVenta.IdVenta}?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (confirm == DialogResult.No) return;
-
-            try
-            {
-                var response = await _ventaApiClient.DeleteAsync(selectedVenta.IdVenta);
-                if (response.IsSuccessStatusCode)
+                dataGridVentas.Columns["IdVenta"].HeaderText = "ID Venta";
+                dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
+                dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
+                dataGridVentas.Columns["IdPersona"].Visible = false;
+                if (dataGridVentas.Columns.Contains("Lineas"))
                 {
-                    MessageBox.Show("Venta eliminada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    await CargarVentas();
-                }
-                else
-                {
-                    var error = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Error al eliminar la venta: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    dataGridVentas.Columns["Lineas"].Visible = false;
                 }
             }
-            catch (Exception ex)
+        }
+
+        private void btnNuevaVenta_Click(object sender, EventArgs e)
+        {
+            var crearVentaForm = _serviceProvider.GetRequiredService<CrearVentaForm>();
+            if (crearVentaForm.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CargarVentas();
             }
         }
 
         private async void btnVerDetalle_Click(object sender, EventArgs e)
         {
-            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
+            if (dataGridVentas.CurrentRow != null)
             {
-                MessageBox.Show("Por favor, seleccione una venta para ver su detalle.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            this.Cursor = Cursors.WaitCursor;
-            try
-            {
-                var lineasDeLaVenta = await _lineaVentaApiClient.GetLineasByVentaIdAsync(selectedVenta.IdVenta);
-
-                if (lineasDeLaVenta == null)
+                var ventaSeleccionada = (VentaDTO)dataGridVentas.CurrentRow.DataBoundItem;
+                try
                 {
-                    MessageBox.Show("No se pudieron cargar las líneas para esta venta.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    var ventaCompleta = await _ventaApiClient.GetByIdAsync(ventaSeleccionada.IdVenta);
+                    if (ventaCompleta != null)
+                    {
+                        var detalleForm = new DetalleVentaForm(_lineaVentaApiClient, _productoApiClient)
+                        {
+                            Venta = ventaCompleta,
+                            EsAdmin = _userSessionService.EsAdmin
+                        };
+
+                        if (detalleForm.ShowDialog() == DialogResult.OK)
+                        {
+                            await CargarVentas();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No se pudo obtener el detalle de la venta.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
-
-                bool esAdmin = "Dueño".Equals(_userSessionService.CurrentUser?.Rol, StringComparison.OrdinalIgnoreCase);
-
-                using var detalleForm = _serviceProvider.GetRequiredService<DetalleVentaForm>();
-
-                detalleForm.Venta = selectedVenta;
-                detalleForm.Lineas = lineasDeLaVenta;
-                detalleForm.EsAdmin = esAdmin;
-
-                if (detalleForm.ShowDialog() == DialogResult.OK)
+                catch (Exception ex)
                 {
-                    await CargarVentas();
+                    MessageBox.Show($"Error al cargar el detalle: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch (Exception ex)
+        }
+
+        private async void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (dataGridVentas.CurrentRow != null)
             {
-                MessageBox.Show($"Error al mostrar el detalle: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                this.Cursor = Cursors.Default;
+                var ventaSeleccionada = (VentaDTO)dataGridVentas.CurrentRow.DataBoundItem;
+                var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar la venta ID {ventaSeleccionada.IdVenta}?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (confirmResult == DialogResult.Yes)
+                {
+                    try
+                    {
+                        var response = await _ventaApiClient.DeleteAsync(ventaSeleccionada.IdVenta);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            MessageBox.Show("Venta eliminada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            await CargarVentas();
+                        }
+                        else
+                        {
+                            var error = await response.Content.ReadAsStringAsync();
+                            MessageBox.Show($"Error al eliminar la venta: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
         }
 
         private async void btnFinalizarVenta_Click(object sender, EventArgs e)
         {
-            if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
+            if (dataGridVentas.CurrentRow == null) return;
+
+            var ventaSeleccionada = (VentaDTO)dataGridVentas.CurrentRow.DataBoundItem;
+            if (ventaSeleccionada.Estado.Equals("Finalizada", StringComparison.OrdinalIgnoreCase))
             {
-                MessageBox.Show("Por favor, seleccione una venta para finalizar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Esta venta ya ha sido finalizada.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
-            if (!"Pendiente".Equals(selectedVenta.Estado, StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("La venta ya está finalizada.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var confirmar = MessageBox.Show($"¿Desea marcar la venta #{selectedVenta.IdVenta} como FINALIZADA?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (confirmar != DialogResult.Yes) return;
 
             try
             {
-                var response = await _ventaApiClient.MarcarComoFinalizadaAsync(selectedVenta.IdVenta);
+                var response = await _ventaApiClient.FinalizarVentaAsync(ventaSeleccionada.IdVenta);
                 if (response.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Venta finalizada correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -241,10 +217,22 @@ namespace WinForms
             AplicarFiltros();
         }
 
-
         private void btnVolver_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void DataGridVentas_SelectionChanged(object sender, EventArgs e)
+        {
+            ActualizarEstadoBotones();
+        }
+
+        private void ActualizarEstadoBotones()
+        {
+            bool hayFilaSeleccionada = dataGridVentas.CurrentRow != null;
+            btnVerDetalle.Enabled = hayFilaSeleccionada;
+            btnEliminar.Enabled = hayFilaSeleccionada && _userSessionService.EsAdmin;
+            btnFinalizarVenta.Enabled = hayFilaSeleccionada && _userSessionService.EsAdmin;
         }
     }
 }

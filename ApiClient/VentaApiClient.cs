@@ -45,10 +45,12 @@ namespace ApiClient
             return await _httpClient.DeleteAsync($"api/ventas/{id}");
         }
 
-        public async Task<HttpResponseMessage> MarcarComoFinalizadaAsync(int idVenta)
+        // Método agregado para finalizar una venta a través de la API.
+        public async Task<HttpResponseMessage> FinalizarVentaAsync(int id)
         {
-            return await _httpClient.PutAsync($"api/ventas/finalizar/{idVenta}", null);
+            // Se usa un POST a un endpoint de acción específico. El contenido es nulo.
+            return await _httpClient.PostAsync($"api/ventas/{id}/finalizar", null);
         }
-
     }
 }
+
