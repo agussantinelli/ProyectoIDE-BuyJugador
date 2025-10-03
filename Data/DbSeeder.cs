@@ -249,9 +249,9 @@ public static class DbSeeder
             {
                 var pedidos = new List<Pedido>
                 {
-                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-7), Estado = "Pendiente", IdProveedor = proveedores[0].IdProveedor },
+                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-7), Estado = "Recibido", IdProveedor = proveedores[0].IdProveedor },
                     new Pedido { Fecha = DateTime.UtcNow.AddDays(-3), Estado = "Recibido", IdProveedor = proveedores[1].IdProveedor },
-                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "En tránsito", IdProveedor = proveedores[0].IdProveedor }
+                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Pendiente", IdProveedor = proveedores[0].IdProveedor }
                 };
 
                 context.Pedidos.AddRange(pedidos);

@@ -23,8 +23,10 @@
             this.lblVendedor = new System.Windows.Forms.Label();
             this.lblTotal = new System.Windows.Forms.Label();
             this.btnCerrar = new System.Windows.Forms.Button();
+            this.btnAgregarLinea = new System.Windows.Forms.Button();
             this.btnEliminarLinea = new System.Windows.Forms.Button();
             this.btnEditarCantidad = new System.Windows.Forms.Button();
+            this.btnConfirmarCambios = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridDetalle)).BeginInit();
             this.SuspendLayout();
             // 
@@ -83,44 +85,68 @@
             this.lblTotal.Text = "Total: $0.00";
             this.lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // btnCerrar
+            // btnCerrar (Volver)
             // 
-            this.btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnCerrar.Location = new System.Drawing.Point(12, 419);
             this.btnCerrar.Name = "btnCerrar";
             this.btnCerrar.Size = new System.Drawing.Size(120, 30);
             this.btnCerrar.TabIndex = 5;
-            this.btnCerrar.Text = "Cerrar"; // Estandarizado
+            this.btnCerrar.Text = "Volver";
             this.btnCerrar.UseVisualStyleBackColor = true;
             this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
             // 
-            // btnEliminarLinea
+            // btnAgregarLinea
             // 
-            this.btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnEliminarLinea.Location = new System.Drawing.Point(138, 419);
-            this.btnEliminarLinea.Name = "btnEliminarLinea";
-            this.btnEliminarLinea.Size = new System.Drawing.Size(120, 30);
-            this.btnEliminarLinea.TabIndex = 6;
-            this.btnEliminarLinea.Text = "Eliminar Línea";
-            this.btnEliminarLinea.UseVisualStyleBackColor = true;
-            this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
+            this.btnAgregarLinea = new System.Windows.Forms.Button();
+            this.btnAgregarLinea.Location = new System.Drawing.Point(138, 419);
+            this.btnAgregarLinea.Name = "btnAgregarLinea";
+            this.btnAgregarLinea.Size = new System.Drawing.Size(120, 30);
+            this.btnAgregarLinea.TabIndex = 6;
+            this.btnAgregarLinea.Text = "Agregar";
+            this.btnAgregarLinea.UseVisualStyleBackColor = true;
+            this.btnAgregarLinea.Click += new System.EventHandler(this.btnAgregarLinea_Click);
+            this.Controls.Add(this.btnAgregarLinea);
             // 
             // btnEditarCantidad
             // 
-            this.btnEditarCantidad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnEditarCantidad.Location = new System.Drawing.Point(264, 419);
             this.btnEditarCantidad.Name = "btnEditarCantidad";
             this.btnEditarCantidad.Size = new System.Drawing.Size(120, 30);
             this.btnEditarCantidad.TabIndex = 7;
-            this.btnEditarCantidad.Text = "Editar Cantidad";
+            this.btnEditarCantidad.Text = "Editar";
             this.btnEditarCantidad.UseVisualStyleBackColor = true;
             this.btnEditarCantidad.Click += new System.EventHandler(this.btnEditarCantidad_Click);
+            // 
+            // btnEliminarLinea
+            // 
+            this.btnEliminarLinea.Location = new System.Drawing.Point(390, 419);
+            this.btnEliminarLinea.Name = "btnEliminarLinea";
+            this.btnEliminarLinea.Size = new System.Drawing.Size(120, 30);
+            this.btnEliminarLinea.TabIndex = 8;
+            this.btnEliminarLinea.Text = "Eliminar";
+            this.btnEliminarLinea.UseVisualStyleBackColor = true;
+            this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
+            // 
+            // btnConfirmarCambios
+            // 
+            this.btnConfirmarCambios = new System.Windows.Forms.Button();
+            this.btnConfirmarCambios.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnConfirmarCambios.Location = new System.Drawing.Point(652, 419);
+            this.btnConfirmarCambios.Name = "btnConfirmarCambios";
+            this.btnConfirmarCambios.Size = new System.Drawing.Size(120, 30);
+            this.btnConfirmarCambios.TabIndex = 8;
+            this.btnConfirmarCambios.Text = "Confirmar Cambios";
+            this.btnConfirmarCambios.UseVisualStyleBackColor = true;
+            this.btnConfirmarCambios.Enabled = false;
+            this.btnConfirmarCambios.Click += new System.EventHandler(this.btnConfirmarCambios_Click);
             // 
             // DetalleVentaForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.btnAgregarLinea);
+            this.Controls.Add(this.btnConfirmarCambios);
             this.Controls.Add(this.btnEditarCantidad);
             this.Controls.Add(this.btnEliminarLinea);
             this.Controls.Add(this.btnCerrar);
@@ -148,6 +174,8 @@
         private System.Windows.Forms.Label lblVendedor;
         private System.Windows.Forms.Label lblTotal;
         private System.Windows.Forms.Button btnCerrar;
+        private System.Windows.Forms.Button btnAgregarLinea;
+        private System.Windows.Forms.Button btnConfirmarCambios;
         private System.Windows.Forms.Button btnEliminarLinea;
         private System.Windows.Forms.Button btnEditarCantidad;
     }
