@@ -43,11 +43,19 @@ namespace WinForms
         {
             if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
             {
-                var localidades = await _localidadApiClient.GetAllAsync() ?? new();
+                var localidades = await _localidadApiClient.GetAllOrderedAsync() ?? new();
                 var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
+                filtradas.Insert(0, new LocalidadDTO
+                {
+                    IdLocalidad = 0,
+                    Nombre = "-- Seleccione una localidad --"
+                });
+
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
+                cmbLocalidad.SelectedIndex = 0;
+
             }
             else
             {

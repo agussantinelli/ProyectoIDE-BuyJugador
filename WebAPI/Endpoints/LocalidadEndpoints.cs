@@ -37,6 +37,13 @@ namespace WebAPI.Endpoints
                 await service.DeleteAsync(id);
                 return Results.NoContent();
             });
+
+            group.MapGet("/ordenadas", async (LocalidadService service) =>
+            {
+                var localidadesOrdenadas = await service.GetAllOrderedAsync();
+                return Results.Ok(localidadesOrdenadas);
+            });
+
         }
     }
 }

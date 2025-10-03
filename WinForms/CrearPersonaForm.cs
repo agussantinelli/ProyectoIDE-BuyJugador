@@ -23,7 +23,6 @@ namespace WinForms
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
 
-            // Aplicar estilos
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
@@ -32,12 +31,10 @@ namespace WinForms
         {
             cmbRol.Items.Add("Dueño");
             cmbRol.Items.Add("Empleado");
-            cmbRol.SelectedIndex = 1; // default empleado
+            cmbRol.SelectedIndex = 1; 
 
-            // cargar provincias
             var provincias = await _provinciaApiClient.GetAllAsync();
 
-            // Insertar ítem vacío al inicio
             provincias.Insert(0, new ProvinciaDTO { IdProvincia = 0, Nombre = "-- Seleccionar provincia --" });
 
             cmbProvincia.DataSource = provincias;
@@ -50,14 +47,22 @@ namespace WinForms
         {
             if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
             {
-                var localidades = await _localidadApiClient.GetAllAsync();
+                var localidades = await _localidadApiClient.GetAllOrderedAsync();
                 var filtradas = localidades?
                     .Where(l => l.IdProvincia == idProvincia)
                     .ToList();
 
+                filtradas.Insert(0, new LocalidadDTO
+                {
+                    IdLocalidad = 0,
+                    Nombre = "-- Seleccione una localidad --"
+                });
+
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
+                cmbLocalidad.SelectedIndex = 0;
+
             }
             else
             {

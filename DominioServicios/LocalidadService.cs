@@ -59,5 +59,16 @@ namespace DominioServicios
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<LocalidadDTO>> GetAllOrderedAsync()
+        {
+            var entidades = await _context.Localidades
+                .Include(l => l.IdProvinciaNavigation)
+                .OrderBy(l => l.Nombre)
+                .ToListAsync();
+
+            return entidades.Select(LocalidadDTO.FromDominio).ToList();
+        }
+
     }
 }

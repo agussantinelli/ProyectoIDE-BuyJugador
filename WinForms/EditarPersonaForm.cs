@@ -95,7 +95,7 @@ namespace WinForms
 
         private async Task CargarLocalidadesAsync(int idProvincia)
         {
-            var localidades = await _localidadApiClient.GetAllAsync();
+            var localidades = await _localidadApiClient.GetAllOrderedAsync();
             var filtradas = localidades?
                 .Where(l => l.IdProvincia == idProvincia)
                 .ToList();

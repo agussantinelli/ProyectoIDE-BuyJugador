@@ -43,5 +43,11 @@ namespace ApiClient
             var response = await _httpClient.DeleteAsync($"api/localidades/{id}");
             response.EnsureSuccessStatusCode();
         }
+
+        public async Task<List<LocalidadDTO>?> GetAllOrderedAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<LocalidadDTO>>("api/localidades/ordenadas");
+        }
+
     }
 }

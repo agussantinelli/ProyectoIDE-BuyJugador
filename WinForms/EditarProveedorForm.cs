@@ -53,10 +53,8 @@ namespace WinForms
                 {
                     cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
 
-                    // Cargar las localidades de esa provincia
                     await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
 
-                    // Seleccionar la localidad
                     cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
             }
@@ -76,7 +74,7 @@ namespace WinForms
 
         private async Task CargarLocalidadesAsync(int idProvincia)
         {
-            var localidades = await _localidadApiClient.GetAllAsync() ?? new();
+            var localidades = await _localidadApiClient.GetAllOrderedAsync() ?? new();
             var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
             cmbLocalidad.DataSource = filtradas;
             cmbLocalidad.DisplayMember = "Nombre";
