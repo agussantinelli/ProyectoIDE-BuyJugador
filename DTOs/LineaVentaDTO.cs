@@ -8,6 +8,7 @@
         public int NroLineaVenta { get; set; }
         public string NombreProducto { get; set; } = "N/A";
         public decimal Subtotal { get; set; } = 0;
+        public bool EsNueva { get; set; } = false;
 
 
         public static LineaVentaDTO FromDominio(DominioModelo.LineaVenta entidad)
@@ -21,7 +22,6 @@
                 IdProducto = entidad.IdProducto,
                 NroLineaVenta = entidad.NroLineaVenta,
                 NombreProducto = entidad.IdProductoNavigation?.Nombre ?? "Producto no encontrado"
-                // El subtotal se calcula y asigna en el LineaVentaService
             };
         }
 

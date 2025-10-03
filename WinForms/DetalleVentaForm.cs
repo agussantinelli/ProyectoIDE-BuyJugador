@@ -121,7 +121,8 @@ namespace WinForms
                         NombreProducto = producto.Nombre,
                         Cantidad = form.CantidadSeleccionada,
                         Subtotal = form.CantidadSeleccionada * producto.PrecioActual,
-                        NroLineaVenta = Lineas.Any() ? Lineas.Max(l => l.NroLineaVenta) + 1 : 1
+                        NroLineaVenta = Lineas.Any() ? Lineas.Max(l => l.NroLineaVenta) + 1 : 1,
+                        EsNueva = true
                     };
                     Lineas.Add(nuevaLinea);
                 }
@@ -262,7 +263,17 @@ namespace WinForms
 
                 foreach (var linea in Lineas)
                 {
-                    var response = await _lineaVentaApiClient.UpdateAsync(linea.IdVenta, linea.NroLineaVenta, linea);
+                    HttpResponseMessage response;
+
+                    if (linea.EsNueva)
+                    {
+                        response = await _lineaVentaApiClient.CreateAsync(linea);
+                    }
+                    else
+                    {
+                        response = await _lineaVentaApiClient.UpdateAsync(linea.IdVenta, linea.NroLineaVenta, linea);
+                    }
+
                     if (!response.IsSuccessStatusCode)
                     {
                         var error = await response.Content.ReadAsStringAsync();
@@ -271,6 +282,7 @@ namespace WinForms
                         return;
                     }
                 }
+
 
                 MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
