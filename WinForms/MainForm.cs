@@ -196,7 +196,8 @@ namespace WinForms
                         AbrirFormulario(_serviceProvider.GetRequiredService<VentaForm>());
                         break;
                     case "btnNuevoPedido":
-                        MessageBox.Show("El formulario de pedidos aún no ha sido implementado.", "En desarrollo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        // --- LÍNEA MODIFICADA ---
+                        AbrirFormulario(_serviceProvider.GetRequiredService<PedidoForm>());
                         break;
                     case "btnProductos":
                         AbrirFormulario(_serviceProvider.GetRequiredService<ProductoForm>());

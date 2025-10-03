@@ -1,19 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DominioModelo;
-
-public partial class Proveedor
+namespace DominioModelo
 {
-    public int IdProveedor { get; set; }
-    public string RazonSocial { get; set; } = null!;
-    public string Cuit { get; set; } = null!;
-    public string Email { get; set; } = null!;
-    public string Telefono { get; set; } = null!;
-    public string Direccion { get; set; } = null!;
-    public int? IdLocalidad { get; set; }
-    public bool Activo { get; set; } = true; 
+    public partial class Proveedor
+    {
+        public Proveedor()
+        {
+            Pedidos = new HashSet<Pedido>();
+            // --- LÍNEA AÑADIDA ---
+            ProductoProveedores = new HashSet<ProductoProveedor>();
+        }
 
-    public virtual Localidad? IdLocalidadNavigation { get; set; }
-    public virtual ICollection<Pedido> Pedidos { get; set; } = new List<Pedido>();
+        [Key]
+        public int IdProveedor { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string RazonSocial { get; set; }
+
+        [StringLength(20)]
+        public string Cuit { get; set; }
+
+        [StringLength(50)]
+        public string Telefono { get; set; }
+
+        [StringLength(100)]
+        public string Email { get; set; }
+
+        [StringLength(200)]
+        public string Direccion { get; set; }
+
+        public int? IdLocalidad { get; set; }
+        public bool Activo { get; set; }
+
+        [ForeignKey("IdLocalidad")]
+        public virtual Localidad IdLocalidadNavigation { get; set; }
+        public virtual ICollection<Pedido> Pedidos { get; set; }
+
+        // --- PROPIEDAD DE NAVEGACIÓN AÑADIDA ---
+        public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
+    }
 }

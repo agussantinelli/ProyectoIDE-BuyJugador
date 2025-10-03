@@ -15,6 +15,11 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
+        public async Task<List<ProveedorDTO>?> GetProveedoresAsync()
+        {
+            return await GetAllAsync();
+        }
+
         public async Task<List<ProveedorDTO>?> GetAllAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<ProveedorDTO>>("api/proveedores");
@@ -40,6 +45,7 @@ namespace ApiClient
             return await _httpClient.DeleteAsync($"api/proveedores/{id}");
         }
 
+        // --- MÉTODOS AÑADIDOS PARA CORREGIR ERRORES ---
         public async Task<List<ProveedorDTO>?> GetInactivosAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<ProveedorDTO>>("api/proveedores/inactivos");
@@ -47,7 +53,9 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> ReactivarAsync(int id)
         {
-            return await _httpClient.PostAsync($"api/proveedores/{id}/reactivar", null);
+            return await _httpClient.PutAsync($"api/proveedores/{id}/reactivar", null);
         }
+        // ---------------------------------------------
     }
 }
+

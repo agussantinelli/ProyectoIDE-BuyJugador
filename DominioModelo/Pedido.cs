@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace DominioModelo;
-
-public partial class Pedido
+namespace DominioModelo
 {
-    public int IdPedido { get; set; }
+    public partial class Pedido
+    {
+        [Key]
+        public int IdPedido { get; set; }
+        public DateTime Fecha { get; set; }
+        [Required]
+        [StringLength(50)]
+        public string Estado { get; set; }
+        public int? IdProveedor { get; set; }
 
-    public DateTime Fecha { get; set; }
+        [ForeignKey("IdProveedor")]
+        public virtual Proveedor IdProveedorNavigation { get; set; }
 
-    public string Estado { get; set; } = null!;
-
-    public int? IdProveedor { get; set; }
-
-    public virtual Proveedor? IdProveedorNavigation { get; set; }
-
-    public virtual ICollection<LineaPedido> LineaPedidos { get; set; } = new List<LineaPedido>();
+        public virtual ICollection<LineaPedido> LineasPedido { get; set; } = new List<LineaPedido>();
+    }
 }
+

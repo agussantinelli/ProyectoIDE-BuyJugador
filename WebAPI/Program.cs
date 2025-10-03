@@ -36,6 +36,8 @@ builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProvinciaService>();
 builder.Services.AddScoped<TipoProductoService>();
 builder.Services.AddScoped<VentaService>();
+// --- NUEVO SERVICIO AÑADIDO ---
+builder.Services.AddScoped<ProductoProveedorService>();
 
 #endregion
 
@@ -97,6 +99,7 @@ app.MapPrecioEndpoints();
 app.MapProvinciaEndpoints();
 app.MapTipoProductoEndpoints();
 app.MapVentaEndpoints();
+app.MapProductoProveedorEndpoints();
 
 #endregion
 

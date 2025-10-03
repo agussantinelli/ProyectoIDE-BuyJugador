@@ -1,8 +1,8 @@
 ﻿using DTOs;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ApiClient
 {
@@ -15,24 +15,21 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<PedidoDTO>?> GetAllAsync()
+        public async Task<List<PedidoDTO>?> GetPedidosAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<PedidoDTO>>("api/pedidos");
         }
 
-        public async Task<PedidoDTO?> GetByIdAsync(int id)
+        public async Task<PedidoDTO> CreatePedidoCompletoAsync(CrearPedidoCompletoDTO pedido)
         {
-            return await _httpClient.GetFromJsonAsync<PedidoDTO?>($"api/pedidos/{id}");
+            var response = await _httpClient.PostAsJsonAsync("api/pedidos/completo", pedido);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<PedidoDTO>();
         }
 
-        public async Task<HttpResponseMessage> CreateAsync(PedidoDTO dto)
+        public async Task<HttpResponseMessage> MarcarComoRecibidoAsync(int id)
         {
-            return await _httpClient.PostAsJsonAsync("api/pedidos", dto);
-        }
-
-        public async Task<HttpResponseMessage> UpdateAsync(int id, PedidoDTO dto)
-        {
-            return await _httpClient.PutAsJsonAsync($"api/pedidos/{id}", dto);
+            return await _httpClient.PutAsync($"api/pedidos/recibir/{id}", null);
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(int id)
@@ -41,3 +38,4 @@ namespace ApiClient
         }
     }
 }
+

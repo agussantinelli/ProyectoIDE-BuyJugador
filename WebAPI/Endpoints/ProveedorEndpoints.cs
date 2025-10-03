@@ -1,60 +1,65 @@
 ﻿using DTOs;
 using DominioServicios;
+using Microsoft.AspNetCore.Builder; // Necesario para WebApplication
+using Microsoft.AspNetCore.Http;    // Necesario para Results
+using Microsoft.AspNetCore.Routing; // Necesario para IEndpointRouteBuilder
 
 namespace WebAPI.Endpoints
 {
     public static class ProveedorEndpoints
     {
-        public static void MapProveedorEndpoints(this WebApplication app)
+        // Se ajusta la firma para que coincida con Program.cs
+        public static void MapProveedorEndpoints(this IEndpointRouteBuilder app)
         {
             var group = app.MapGroup("/api/proveedores");
 
-            // Obtiene todos los proveedores activos.
             group.MapGet("/", async (ProveedorService service) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var proveedores = await service.GetAllAsync();
+                return Results.Ok(proveedores);
             });
 
-            // Obtiene los proveedores que han sido dados de baja.
             group.MapGet("/inactivos", async (ProveedorService service) =>
             {
-                return Results.Ok(await service.GetInactivosAsync());
+                var proveedores = await service.GetInactivosAsync();
+                return Results.Ok(proveedores);
             });
 
-            // Obtiene un proveedor por su ID.
             group.MapGet("/{id}", async (int id, ProveedorService service) =>
             {
                 var prov = await service.GetByIdAsync(id);
                 return prov is not null ? Results.Ok(prov) : Results.NotFound();
             });
 
-            // Crea un nuevo proveedor.
             group.MapPost("/", async (ProveedorDTO dto, ProveedorService service) =>
             {
                 var nuevo = await service.CreateAsync(dto);
                 return Results.Created($"/api/proveedores/{nuevo.IdProveedor}", nuevo);
             });
 
-            // Actualiza los datos de un proveedor existente.
             group.MapPut("/{id}", async (int id, ProveedorDTO dto, ProveedorService service) =>
             {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
+                if (id != dto.IdProveedor) return Results.BadRequest("El ID no coincide.");
+
+                var success = await service.UpdateAsync(id, dto);
+                return success ? Results.NoContent() : Results.NotFound();
             });
 
-            // Realiza la baja lógica de un proveedor.
             group.MapDelete("/{id}", async (int id, ProveedorService service) =>
             {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
+                var success = await service.DeleteAsync(id);
+                return success ? Results.NoContent() : Results.NotFound();
             });
 
-            // Reactiva un proveedor que fue dado de baja.
-            group.MapPost("/{id}/reactivar", async (int id, ProveedorService service) =>
+            // --- CORRECCIÓN PRINCIPAL APLICADA ---
+            // Se cambió MapPost por MapPut para que coincida con la llamada del cliente.
+            group.MapPut("/{id}/reactivar", async (int id, ProveedorService service) =>
             {
-                await service.ReactivarAsync(id);
-                return Results.NoContent();
+                var success = await service.ReactivarAsync(id);
+                // Si el servicio devuelve 'false', es porque no encontró al proveedor.
+                return success ? Results.NoContent() : Results.NotFound();
             });
         }
     }
 }
+

@@ -1,7 +1,9 @@
 ﻿using Data;
-using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -14,45 +16,29 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<LineaPedidoDTO>> GetAllAsync()
+        public async Task<List<LineaPedidoDTO>> GetLineasByPedidoIdAsync(int idPedido)
         {
-            var entidades = await _context.LineaPedidos.ToListAsync();
-            return entidades.Select(e => LineaPedidoDTO.FromDominio(e)).ToList();
-        }
+            var pedido = await _context.Pedidos.FindAsync(idPedido);
+            if (pedido == null) return new List<LineaPedidoDTO>();
 
-        public async Task<LineaPedidoDTO?> GetByIdAsync(int idPedido, int nroLineaPedido)
-        {
-            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
-            return LineaPedidoDTO.FromDominio(entidad);
-        }
+            var lineas = await _context.LineaPedidos
+                .Where(l => l.IdPedido == idPedido)
+                .Include(l => l.IdProductoNavigation)
+                    .ThenInclude(p => p.Precios)
+                .AsNoTracking()
+                .ToListAsync();
 
-        public async Task<LineaPedidoDTO> CreateAsync(LineaPedidoDTO dto)
-        {
-            var entidad = dto.ToDominio();
-            _context.LineaPedidos.Add(entidad);
-            await _context.SaveChangesAsync();
-            return LineaPedidoDTO.FromDominio(entidad);
-        }
-
-        public async Task UpdateAsync(int idPedido, int nroLineaPedido, LineaPedidoDTO dto)
-        {
-            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
-            if (entidad != null)
-            {
-                entidad.Cantidad = dto.Cantidad;
-                entidad.IdProducto = dto.IdProducto;
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task DeleteAsync(int idPedido, int nroLineaPedido)
-        {
-            var entidad = await _context.LineaPedidos.FindAsync(idPedido, nroLineaPedido);
-            if (entidad != null)
-            {
-                _context.LineaPedidos.Remove(entidad);
-                await _context.SaveChangesAsync();
-            }
+            return lineas.Select(l => {
+                var lineaDto = LineaPedidoDTO.FromDominio(l);
+                if (l.IdProductoNavigation != null)
+                {
+                    var precio = l.IdProductoNavigation.Precios?
+                                  .OrderByDescending(p => p.FechaDesde)
+                                  .FirstOrDefault(p => p.FechaDesde <= pedido.Fecha)?.Monto ?? 0;
+                    lineaDto.PrecioUnitario = precio;
+                }
+                return lineaDto;
+            }).ToList();
         }
     }
 }

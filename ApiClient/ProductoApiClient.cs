@@ -15,9 +15,41 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
+        public async Task<List<ProductoDTO>?> GetProductosAsync()
+        {
+            return await GetAllAsync();
+        }
+
+        // --- MÉTODO AÑADIDO PARA LA NUEVA FUNCIONALIDAD ---
+        public async Task<List<ProductoDTO>?> GetProductosByProveedorIdAsync(int idProveedor)
+        {
+            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/producto-proveedor/{idProveedor}");
+        }
+        // ---------------------------------------------
+
         public async Task<List<ProductoDTO>?> GetAllAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/productos");
+        }
+
+        public async Task<ProductoDTO?> GetByIdAsync(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<ProductoDTO?>($"api/productos/{id}");
+        }
+
+        public async Task<HttpResponseMessage> CreateAsync(ProductoDTO dto)
+        {
+            return await _httpClient.PostAsJsonAsync("api/productos", dto);
+        }
+
+        public async Task<HttpResponseMessage> UpdateAsync(int id, ProductoDTO dto)
+        {
+            return await _httpClient.PutAsJsonAsync($"api/productos/{id}", dto);
+        }
+
+        public async Task<HttpResponseMessage> DeleteAsync(int id)
+        {
+            return await _httpClient.DeleteAsync($"api/productos/{id}");
         }
 
         public async Task<List<ProductoDTO>?> GetAllInactivosAsync()
@@ -25,37 +57,10 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>("api/productos/inactivos");
         }
 
-        public async Task<ProductoDTO?> GetByIdAsync(int id)
+        public async Task<HttpResponseMessage> ReactivarAsync(int id)
         {
-            return await _httpClient.GetFromJsonAsync<ProductoDTO>($"api/productos/{id}");
-        }
-
-        public async Task<ProductoDTO?> CreateAsync(ProductoDTO producto)
-        {
-            var response = await _httpClient.PostAsJsonAsync("api/productos", producto);
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<ProductoDTO>();
-            }
-            return null;
-        }
-
-        public async Task<bool> UpdateAsync(int id, ProductoDTO producto)
-        {
-            var response = await _httpClient.PutAsJsonAsync($"api/productos/{id}", producto);
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var response = await _httpClient.DeleteAsync($"api/productos/{id}");
-            return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> ReactivarAsync(int id)
-        {
-            var response = await _httpClient.PostAsync($"api/productos/{id}/reactivar", null);
-            return response.IsSuccessStatusCode;
+            return await _httpClient.PutAsync($"api/productos/{id}/reactivar", null);
         }
     }
 }
+

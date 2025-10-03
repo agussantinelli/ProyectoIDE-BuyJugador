@@ -7,6 +7,12 @@
         public int? IdProducto { get; set; }
         public int NroLineaPedido { get; set; }
 
+        // --- Propiedades añadidas para la UI ---
+        public string NombreProducto { get; set; } = "N/A";
+        public decimal PrecioUnitario { get; set; }
+        public decimal Subtotal => Cantidad * PrecioUnitario;
+
+        // --- MÉTODOS AÑADIDOS PARA CORREGIR ERRORES ---
         public static LineaPedidoDTO FromDominio(DominioModelo.LineaPedido entidad)
         {
             if (entidad == null) return null;
@@ -16,7 +22,8 @@
                 Cantidad = entidad.Cantidad,
                 IdPedido = entidad.IdPedido,
                 IdProducto = entidad.IdProducto,
-                NroLineaPedido = entidad.NroLineaPedido
+                NroLineaPedido = entidad.NroLineaPedido,
+                NombreProducto = entidad.IdProductoNavigation?.Nombre ?? "N/A"
             };
         }
 

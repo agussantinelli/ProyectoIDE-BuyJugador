@@ -15,29 +15,9 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<LineaPedidoDTO>?> GetAllAsync()
+        public async Task<List<LineaPedidoDTO>?> GetLineasByPedidoIdAsync(int idPedido)
         {
-            return await _httpClient.GetFromJsonAsync<List<LineaPedidoDTO>>("api/lineaspedido");
-        }
-
-        public async Task<LineaPedidoDTO?> GetByIdAsync(int nroLineaPedido)
-        {
-            return await _httpClient.GetFromJsonAsync<LineaPedidoDTO?>($"api/lineaspedido/{nroLineaPedido}");
-        }
-
-        public async Task<HttpResponseMessage> CreateAsync(LineaPedidoDTO dto)
-        {
-            return await _httpClient.PostAsJsonAsync("api/lineaspedido", dto);
-        }
-
-        public async Task<HttpResponseMessage> UpdateAsync(int nroLineaPedido, LineaPedidoDTO dto)
-        {
-            return await _httpClient.PutAsJsonAsync($"api/lineaspedido/{nroLineaPedido}", dto);
-        }
-
-        public async Task<HttpResponseMessage> DeleteAsync(int nroLineaPedido)
-        {
-            return await _httpClient.DeleteAsync($"api/lineaspedido/{nroLineaPedido}");
+            return await _httpClient.GetFromJsonAsync<List<LineaPedidoDTO>>($"api/lineapedidos/porpedido/{idPedido}");
         }
     }
 }

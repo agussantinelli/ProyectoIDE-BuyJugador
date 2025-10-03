@@ -3,7 +3,7 @@ using System.Drawing;
 
 namespace WinForms
 {
-    partial class AñadirProductoForm
+    partial class AñadirProductoVentaForm
     {
         private System.ComponentModel.IContainer components = null;
         private Label lblProducto;
@@ -103,7 +103,7 @@ namespace WinForms
             this.Controls.Add(this.btnCancelar);
             this.Name = "AñadirProductoForm";
             this.Text = "Agregar Producto";
-            this.Load += new EventHandler(this.AñadirProductoForm_Load);
+            this.Load += new EventHandler(this.AñadirProductoVentaForm_Load);
             this.StartPosition = FormStartPosition.CenterParent;
             ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
             this.ResumeLayout(false);

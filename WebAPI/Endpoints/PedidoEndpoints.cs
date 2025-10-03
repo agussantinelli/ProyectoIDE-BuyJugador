@@ -1,5 +1,9 @@
-﻿using DTOs;
-using DominioServicios;
+﻿using DominioServicios;
+using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace WebAPI.Endpoints
 {
@@ -9,34 +13,51 @@ namespace WebAPI.Endpoints
         {
             var group = app.MapGroup("/api/pedidos");
 
-            group.MapGet("/", async (PedidoService service) =>
+            group.MapGet("/", async (PedidoService pedidoService) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var pedidos = await pedidoService.GetAllPedidosDetalladosAsync();
+                return Results.Ok(pedidos);
             });
 
-            group.MapGet("/{id}", async (int id, PedidoService service) =>
+            group.MapPost("/completo", async (PedidoService pedidoService, [FromBody] CrearPedidoCompletoDTO pedidoDto) =>
             {
-                var pedido = await service.GetByIdAsync(id);
-                return pedido is not null ? Results.Ok(pedido) : Results.NotFound();
-            });
-
-            group.MapPost("/", async (PedidoDTO dto, PedidoService service) =>
-            {
-                var nuevo = await service.CreateAsync(dto);
-                return Results.Created($"/api/pedidos/{nuevo.IdPedido}", nuevo);
-            });
-
-            group.MapPut("/{id}", async (int id, PedidoDTO dto, PedidoService service) =>
-            {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
+                try
+                {
+                    var nuevoPedido = await pedidoService.CrearPedidoCompletoAsync(pedidoDto);
+                    return Results.Created($"/api/pedidos/{nuevoPedido.IdPedido}", nuevoPedido);
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { message = $"Error al crear el pedido: {ex.Message}" });
+                }
             });
 
             group.MapDelete("/{id}", async (int id, PedidoService service) =>
             {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
+                try
+                {
+                    await service.DeletePedidoCompletoAsync(id);
+                    return Results.NoContent();
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
+            });
+
+            group.MapPut("/recibir/{id}", async (int id, PedidoService service) =>
+            {
+                try
+                {
+                    await service.MarcarComoRecibidoAsync(id);
+                    return Results.Ok();
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
             });
         }
     }
 }
+

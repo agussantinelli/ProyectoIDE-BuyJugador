@@ -18,6 +18,8 @@ namespace WinForms
         private Button btnEliminar;
         private Button btnReactivar;
         private Button btnVolver;
+        // --- BOTÓN AÑADIDO ---
+        private Button btnAsignarProductos;
 
         protected override void Dispose(bool disposing)
         {
@@ -38,7 +40,9 @@ namespace WinForms
             btnEditar = new Button();
             btnEliminar = new Button();
             btnReactivar = new Button();
-            btnVolver = new Button(); // Estandarizado
+            btnVolver = new Button();
+            // --- BOTÓN AÑADIDO ---
+            btnAsignarProductos = new Button();
 
             ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
@@ -47,64 +51,64 @@ namespace WinForms
             tabPageInactivos.SuspendLayout();
             SuspendLayout();
 
-            // lblBuscar
-            lblBuscar.Text = "Buscar por Razón Social o CUIT:";
-            lblBuscar.Location = new Point(20, 15);
+            // Controles de Búsqueda
+            lblBuscar.Text = "Buscar por Razón Social:";
+            lblBuscar.Location = new Point(12, 15);
             lblBuscar.AutoSize = true;
-
-            // txtBuscar
-            txtBuscar.Location = new Point(220, 12);
-            txtBuscar.Size = new Size(400, 23);
+            txtBuscar.Location = new Point(160, 12);
+            txtBuscar.Size = new Size(300, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // tabControl
-            tabControlProveedores.Location = new Point(20, 50);
-            tabControlProveedores.Size = new Size(1160, 420);
+            // TabControl
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
+            tabControlProveedores.Location = new Point(12, 50);
+            tabControlProveedores.Size = new Size(1176, 420);
             tabControlProveedores.SelectedIndexChanged += tabControlProveedores_SelectedIndexChanged;
 
-            // tabActivos
+            // Pestañas
             tabPageActivos.Text = "Activos";
-            tabPageActivos.Padding = new Padding(3);
             tabPageActivos.Controls.Add(dgvActivos);
-
-            // tabInactivos
             tabPageInactivos.Text = "Inactivos";
-            tabPageInactivos.Padding = new Padding(3);
             tabPageInactivos.Controls.Add(dgvInactivos);
 
-            // dgv (ambos)
+            // DataGridViews
             dgvActivos.Dock = DockStyle.Fill;
-            dgvActivos.SelectionChanged += dgvActivos_SelectionChanged;
-
+            dgvActivos.SelectionChanged += dgv_SelectionChanged;
             dgvInactivos.Dock = DockStyle.Fill;
-            dgvInactivos.SelectionChanged += dgvInactivos_SelectionChanged;
+            dgvInactivos.SelectionChanged += dgv_SelectionChanged;
 
             // Botones
-            btnVolver.Text = "Volver"; // Estandarizado
-            btnVolver.Location = new Point(20, 480);
+            btnVolver.Text = "Volver";
+            btnVolver.Location = new Point(12, 480);
             btnVolver.Size = new Size(100, 30);
             btnVolver.Click += btnVolver_Click;
 
             btnNuevo.Text = "Nuevo";
-            btnNuevo.Location = new Point(140, 480);
+            btnNuevo.Location = new Point(1088, 480);
             btnNuevo.Size = new Size(100, 30);
             btnNuevo.Click += btnNuevo_Click;
 
             btnEditar.Text = "Editar";
-            btnEditar.Location = new Point(260, 480);
+            btnEditar.Location = new Point(982, 480);
             btnEditar.Size = new Size(100, 30);
             btnEditar.Click += btnEditar_Click;
 
             btnEliminar.Text = "Dar de Baja";
-            btnEliminar.Location = new Point(380, 480);
+            btnEliminar.Location = new Point(876, 480);
             btnEliminar.Size = new Size(100, 30);
             btnEliminar.Click += btnEliminar_Click;
 
+            // --- BOTÓN AÑADIDO ---
+            btnAsignarProductos.Text = "Asignar Productos";
+            btnAsignarProductos.Location = new Point(720, 480);
+            btnAsignarProductos.Size = new Size(150, 30);
+            btnAsignarProductos.Click += btnAsignarProductos_Click;
+
             btnReactivar.Text = "Reactivar";
-            btnReactivar.Location = new Point(500, 480);
+            btnReactivar.Location = new Point(982, 480);
             btnReactivar.Size = new Size(100, 30);
+            btnReactivar.Visible = false;
             btnReactivar.Click += btnReactivar_Click;
 
             // Form
@@ -116,6 +120,7 @@ namespace WinForms
             Controls.Add(btnEditar);
             Controls.Add(btnEliminar);
             Controls.Add(btnReactivar);
+            Controls.Add(btnAsignarProductos);
             Controls.Add(btnVolver);
             Name = "ProveedorForm";
             Text = "Gestión de Proveedores";

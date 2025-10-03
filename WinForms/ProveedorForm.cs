@@ -11,16 +11,18 @@ namespace WinForms
 {
     public partial class ProveedorForm : BaseForm
     {
+        private readonly IServiceProvider _serviceProvider;
         private readonly ProveedorApiClient _proveedorApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
+        private readonly ProductoApiClient _productoApiClient;
+        private readonly ProductoProveedorApiClient _productoProveedorApiClient;
+
 
         private BindingList<ProveedorRow> _activosBindingList;
         private BindingList<ProveedorRow> _inactivosBindingList;
-
         private List<ProveedorDTO> _activosCache = new();
         private List<ProveedorDTO> _inactivosCache = new();
-
         private List<ProvinciaDTO> _provincias = new();
         private List<LocalidadDTO> _localidades = new();
         private string _filtroActual = string.Empty;
@@ -28,10 +30,12 @@ namespace WinForms
         public ProveedorForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-
+            _serviceProvider = serviceProvider;
             _proveedorApiClient = serviceProvider.GetRequiredService<ProveedorApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
+            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
+            _productoProveedorApiClient = serviceProvider.GetRequiredService<ProductoProveedorApiClient>();
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -40,59 +44,32 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnEliminar);
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
-
+            StyleManager.ApplyButtonStyle(btnAsignarProductos);
             this.StartPosition = FormStartPosition.CenterScreen;
-
-
-            _activosBindingList = new BindingList<ProveedorRow>();
-            _inactivosBindingList = new BindingList<ProveedorRow>();
-
-            PrepararGrid(dgvActivos, _activosBindingList);
-            PrepararGrid(dgvInactivos, _inactivosBindingList);
-
-            this.StartPosition = FormStartPosition.CenterParent;
-        }
-
-        private void PrepararGrid(DataGridView dgv, BindingList<ProveedorRow> bindingList)
-        {
-            dgv.AutoGenerateColumns = false;
-            dgv.DataSource = bindingList;
-            dgv.Columns.Clear();
-            dgv.ReadOnly = true;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect = false;
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "RazonSocial", HeaderText = "Razón Social", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cuit", HeaderText = "CUIT", Width = 140 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Width = 220 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Telefono", HeaderText = "Teléfono", Width = 100 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Direccion", HeaderText = "Dirección", Width = 170 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "LocalidadNombre", HeaderText = "Localidad", Width = 120 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ProvinciaNombre", HeaderText = "Provincia", Width = 120 });
         }
 
         private async void ProveedorForm_Load(object sender, EventArgs e)
         {
-            await CargarDatos();
+            await CargarDatosIniciales();
             AplicarFiltro();
-            ActualizarVisibilidadBotones();
+            ActualizarBotones();
         }
 
-        private async Task CargarDatos()
+        private async Task CargarDatosIniciales()
         {
             try
             {
-                var activos = await _proveedorApiClient.GetAllAsync() ?? new List<ProveedorDTO>();
-                var inactivos = await _proveedorApiClient.GetInactivosAsync() ?? new List<ProveedorDTO>();
+                var activosTask = _proveedorApiClient.GetAllAsync();
+                var inactivosTask = _proveedorApiClient.GetInactivosAsync();
+                var provinciasTask = _provinciaApiClient.GetAllAsync();
+                var localidadesTask = _localidadApiClient.GetAllAsync();
 
-                _provincias = await _provinciaApiClient.GetAllAsync() ?? new List<ProvinciaDTO>();
-                _localidades = await _localidadApiClient.GetAllAsync() ?? new List<LocalidadDTO>();
+                await Task.WhenAll(activosTask, inactivosTask, provinciasTask, localidadesTask);
 
-                _activosCache = activos;
-                _inactivosCache = inactivos;
-
-                MapearDatos(dgvActivos, _activosCache, _activosBindingList);
-                MapearDatos(dgvInactivos, _inactivosCache, _inactivosBindingList);
+                _activosCache = activosTask.Result ?? new List<ProveedorDTO>();
+                _inactivosCache = inactivosTask.Result ?? new List<ProveedorDTO>();
+                _provincias = provinciasTask.Result ?? new List<ProvinciaDTO>();
+                _localidades = localidadesTask.Result ?? new List<LocalidadDTO>();
             }
             catch (Exception ex)
             {
@@ -100,51 +77,15 @@ namespace WinForms
             }
         }
 
-
-        private void MapearDatos(DataGridView dgv, List<ProveedorDTO> cache, BindingList<ProveedorRow> bindingList)
-        {
-            bindingList.Clear();
-            foreach (var p in cache)
-            {
-                bindingList.Add(ProveedorRow.From(p, _localidades, _provincias));
-            }
-            dgv.Refresh();
-        }
-
-        private void txtBuscar_TextChanged(object sender, EventArgs e)
-        {
-            _filtroActual = txtBuscar.Text?.Trim() ?? string.Empty;
-            AplicarFiltro();
-        }
-
-        private void AplicarFiltro()
-        {
-            var filtro = _filtroActual.ToLowerInvariant();
-            var dgvActual = tabControlProveedores.SelectedTab == tabPageActivos ? dgvActivos : dgvInactivos;
-            var bindingListActual = tabControlProveedores.SelectedTab == tabPageActivos ? _activosBindingList : _inactivosBindingList;
-
-            var itemsFiltrados = bindingListActual.Where(row =>
-                (row.RazonSocial != null && row.RazonSocial.ToLower().Contains(filtro)) ||
-                (row.Cuit != null && row.Cuit.ToLower().Contains(filtro))
-            ).ToList();
-
-            dgvActual.DataSource = new BindingList<ProveedorRow>(itemsFiltrados);
-        }
-
-        private ProveedorDTO? ObtenerSeleccionado(DataGridView dgv)
-        {
-            if (dgv.SelectedRows.Count > 0 && dgv.SelectedRows[0].DataBoundItem is ProveedorRow selectedRow)
-            {
-                var cacheActual = tabControlProveedores.SelectedTab == tabPageActivos ? _activosCache : _inactivosCache;
-                return cacheActual.FirstOrDefault(p => p.IdProveedor == selectedRow.IdProveedor);
-            }
-            return null;
-        }
-
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            using var form = new CrearProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient);
-            if (form.ShowDialog(this) == DialogResult.OK)
+            using var form = new CrearProveedorForm(
+                _proveedorApiClient,
+                _provinciaApiClient,
+                _localidadApiClient
+            );
+
+            if (form.ShowDialog() == DialogResult.OK)
             {
                 ProveedorForm_Load(this, EventArgs.Empty);
             }
@@ -152,11 +93,22 @@ namespace WinForms
 
         private void btnEditar_Click(object sender, EventArgs e)
         {
-            var proveedor = ObtenerSeleccionado(dgvActivos);
-            if (proveedor == null) return;
+            var seleccionado = ObtenerSeleccionado(dgvActivos);
+            if (seleccionado == null) return;
 
-            using var form = new EditarProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient, proveedor);
-            if (form.ShowDialog(this) == DialogResult.OK)
+            var proveedorDto = _activosCache.FirstOrDefault(p => p.IdProveedor == seleccionado.IdProveedor);
+            if (proveedorDto == null) return;
+
+            // --- CORRECCIÓN REALIZADA ---
+            // Se ha corregido el orden de los parámetros para que coincida con el constructor de EditarProveedorForm.
+            using var form = new EditarProveedorForm(
+                _proveedorApiClient,
+                _provinciaApiClient,
+                _localidadApiClient,
+                proveedorDto
+            );
+
+            if (form.ShowDialog() == DialogResult.OK)
             {
                 ProveedorForm_Load(this, EventArgs.Empty);
             }
@@ -164,73 +116,118 @@ namespace WinForms
 
         private async void btnEliminar_Click(object sender, EventArgs e)
         {
-            var proveedor = ObtenerSeleccionado(dgvActivos);
-            if (proveedor == null) return;
+            var seleccionado = ObtenerSeleccionado(dgvActivos);
+            if (seleccionado == null) return;
 
-            var confirm = MessageBox.Show($"¿Dar de baja a {proveedor.RazonSocial}?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (confirm != DialogResult.Yes) return;
-
-            try
+            var confirmResult = MessageBox.Show($"¿Está seguro de que desea dar de baja al proveedor '{seleccionado.RazonSocial}'?", "Confirmar Baja", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirmResult == DialogResult.Yes)
             {
-                var resp = await _proveedorApiClient.DeleteAsync(proveedor.IdProveedor);
-                if (resp.IsSuccessStatusCode)
+                try
                 {
+                    await _proveedorApiClient.DeleteAsync(seleccionado.IdProveedor);
+                    MessageBox.Show("Proveedor dado de baja correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ProveedorForm_Load(this, EventArgs.Empty);
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("No se pudo dar de baja.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error al dar de baja: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private async void btnReactivar_Click(object sender, EventArgs e)
         {
-            var proveedor = ObtenerSeleccionado(dgvInactivos);
-            if (proveedor == null) return;
+            var seleccionado = ObtenerSeleccionado(dgvInactivos);
+            if (seleccionado == null) return;
 
-            var confirm = MessageBox.Show($"¿Reactivar a {proveedor.RazonSocial}?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (confirm != DialogResult.Yes) return;
-
-            try
+            var confirmResult = MessageBox.Show($"¿Está seguro de que desea reactivar al proveedor '{seleccionado.RazonSocial}'?", "Confirmar Reactivación", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirmResult == DialogResult.Yes)
             {
-                var resp = await _proveedorApiClient.ReactivarAsync(proveedor.IdProveedor);
-                if (resp.IsSuccessStatusCode)
+                try
                 {
+                    await _proveedorApiClient.ReactivarAsync(seleccionado.IdProveedor);
+                    MessageBox.Show("Proveedor reactivado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     ProveedorForm_Load(this, EventArgs.Empty);
                 }
-                else
+                catch (Exception ex)
                 {
-                    MessageBox.Show("No se pudo reactivar.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Error al reactivar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnVolver_Click(object sender, EventArgs e) => Close();
+        private void btnAsignarProductos_Click(object sender, EventArgs e)
+        {
+            var seleccionado = ObtenerSeleccionado(dgvActivos);
+            if (seleccionado == null) return;
+
+            using var form = new AsignarProductosProveedorForm(
+                seleccionado.IdProveedor,
+                seleccionado.RazonSocial,
+                _productoApiClient,
+                _productoProveedorApiClient
+            );
+            form.ShowDialog();
+        }
+
+        private void btnVolver_Click(object sender, EventArgs e) => this.Close();
+        private void txtBuscar_TextChanged(object sender, EventArgs e)
+        {
+            _filtroActual = txtBuscar.Text;
+            AplicarFiltro();
+        }
 
         private void tabControlProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
             AplicarFiltro();
-            ActualizarVisibilidadBotones();
+            ActualizarBotones();
         }
 
-        private void dgvActivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
-        private void dgvInactivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
+        private void dgv_SelectionChanged(object sender, EventArgs e)
+        {
+            ActualizarBotones();
+        }
 
-        private void ActualizarVisibilidadBotones()
+        private ProveedorRow? ObtenerSeleccionado(DataGridView dgv)
+        {
+            if (dgv.CurrentRow != null && dgv.CurrentRow.DataBoundItem is ProveedorRow proveedor)
+            {
+                return proveedor;
+            }
+            MessageBox.Show("Por favor, seleccione un proveedor.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return null;
+        }
+
+        private void AplicarFiltro()
+        {
+            var filtro = _filtroActual.ToLower();
+            if (tabControlProveedores.SelectedTab == tabPageActivos)
+            {
+                var filtrados = _activosCache
+                    .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
+                    .Select(p => ProveedorRow.From(p, _localidades, _provincias))
+                    .ToList();
+                _activosBindingList = new BindingList<ProveedorRow>(filtrados);
+                dgvActivos.DataSource = _activosBindingList;
+            }
+            else
+            {
+                var filtrados = _inactivosCache
+                    .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
+                    .Select(p => ProveedorRow.From(p, _localidades, _provincias))
+                    .ToList();
+                _inactivosBindingList = new BindingList<ProveedorRow>(filtrados);
+                dgvInactivos.DataSource = _inactivosBindingList;
+            }
+        }
+
+        private void ActualizarBotones()
         {
             bool esActivos = tabControlProveedores.SelectedTab == tabPageActivos;
-            btnEditar.Visible = esActivos && ObtenerSeleccionado(dgvActivos) != null;
-            btnEliminar.Visible = esActivos && ObtenerSeleccionado(dgvActivos) != null;
-            btnReactivar.Visible = !esActivos && ObtenerSeleccionado(dgvInactivos) != null;
+            btnEditar.Visible = esActivos && dgvActivos.CurrentRow != null;
+            btnEliminar.Visible = esActivos && dgvActivos.CurrentRow != null;
+            btnReactivar.Visible = !esActivos && dgvInactivos.CurrentRow != null;
+            btnAsignarProductos.Visible = esActivos && dgvActivos.CurrentRow != null;
         }
 
         private class ProveedorRow
@@ -263,4 +260,3 @@ namespace WinForms
         }
     }
 }
-

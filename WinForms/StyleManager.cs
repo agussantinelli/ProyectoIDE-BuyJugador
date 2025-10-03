@@ -5,9 +5,29 @@ namespace WinForms
 {
     public static class StyleManager
     {
+        // --- MÉTODOS AÑADIDOS PARA CORREGIR ERRORES ---
+        public static void ApplyPrimaryButtonStyle(Button btn)
+        {
+            btn.BackColor = Color.FromArgb(0, 122, 204); // Azul primario
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
+            btn.FlatAppearance.BorderSize = 0;
+        }
+
+        public static void ApplySecondaryButtonStyle(Button btn)
+        {
+            btn.BackColor = Color.FromArgb(63, 63, 70); // Gris secundario
+            btn.ForeColor = Color.White;
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.Font = new Font("Century Gothic", 9.5F);
+            btn.FlatAppearance.BorderSize = 1;
+            btn.FlatAppearance.BorderColor = Color.FromArgb(83, 83, 90);
+        }
+        // ---------------------------------------------
+
         public static void ApplyDataGridViewStyle(DataGridView dgv)
         {
-            // Colores
             var backgroundColor = Color.FromArgb(45, 55, 70);
             var headerColor = Color.FromArgb(26, 32, 40);
             var rowColor = Color.FromArgb(49, 66, 82);
@@ -16,7 +36,6 @@ namespace WinForms
             var gridColor = Color.FromArgb(60, 70, 85);
             var selectionColor = Color.FromArgb(0, 80, 200);
 
-            // Estilo General
             dgv.BackgroundColor = backgroundColor;
             dgv.BorderStyle = BorderStyle.None;
             dgv.GridColor = gridColor;
@@ -24,32 +43,23 @@ namespace WinForms
             dgv.AllowUserToAddRows = false;
             dgv.AllowUserToDeleteRows = false;
             dgv.AllowUserToResizeRows = false;
-
-            // Estilo de Columnas
             dgv.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
             dgv.ColumnHeadersDefaultCellStyle.BackColor = headerColor;
             dgv.ColumnHeadersDefaultCellStyle.ForeColor = textColor;
             dgv.ColumnHeadersDefaultCellStyle.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
             dgv.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
             dgv.EnableHeadersVisualStyles = false;
-
-            // Estilo de Filas
             dgv.DefaultCellStyle.BackColor = rowColor;
             dgv.DefaultCellStyle.ForeColor = textColor;
             dgv.DefaultCellStyle.Font = new Font("Century Gothic", 9.5F);
             dgv.DefaultCellStyle.SelectionBackColor = selectionColor;
             dgv.DefaultCellStyle.SelectionForeColor = textColor;
             dgv.DefaultCellStyle.Padding = new Padding(4);
-
             dgv.AlternatingRowsDefaultCellStyle.BackColor = alternateRowColor;
-
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
-
             dgv.RowTemplate.Height = 32;
-            dgv.ColumnHeadersHeight = 40; 
-
-
+            dgv.ColumnHeadersHeight = 40;
         }
 
         public static void ApplyButtonStyle(Button btn)
@@ -60,9 +70,6 @@ namespace WinForms
             btn.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
             btn.FlatAppearance.BorderSize = 1;
             btn.FlatAppearance.BorderColor = Color.FromArgb(0, 80, 200);
-            btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(0, 80, 200);
-            btn.Cursor = Cursors.Hand;
         }
     }
 }
-

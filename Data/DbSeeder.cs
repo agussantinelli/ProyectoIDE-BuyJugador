@@ -282,6 +282,34 @@ public static class DbSeeder
             }
         }
 
+        // --- BLOQUE AÑADIDO PARA LA RELACIÓN PRODUCTO-PROVEEDOR ---
+        if (!context.ProductoProveedores.Any())
+        {
+            var proveedores = await context.Proveedores.ToListAsync();
+            var productos = await context.Productos.ToListAsync();
+            if (proveedores.Any() && productos.Any())
+            {
+                var random = new Random();
+                var relaciones = new List<ProductoProveedor>();
+                foreach (var proveedor in proveedores)
+                {
+                    // Asignar entre 3 y 7 productos aleatorios a cada proveedor
+                    var productosAsignados = productos.OrderBy(x => random.Next()).Take(random.Next(3, 8));
+                    foreach (var producto in productosAsignados)
+                    {
+                        // Evitar duplicados si un producto sale elegido más de una vez para el mismo proveedor
+                        if (!relaciones.Any(r => r.IdProveedor == proveedor.IdProveedor && r.IdProducto == producto.IdProducto))
+                        {
+                            relaciones.Add(new ProductoProveedor { IdProveedor = proveedor.IdProveedor, IdProducto = producto.IdProducto });
+                        }
+                    }
+                }
+                context.ProductoProveedores.AddRange(relaciones);
+                await context.SaveChangesAsync();
+            }
+        }
+        // --- FIN DEL BLOQUE AÑADIDO ---
+
         Console.WriteLine("Database seeded successfully!");
     }
 
