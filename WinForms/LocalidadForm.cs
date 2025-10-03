@@ -21,12 +21,11 @@ namespace WinForms
         public LocalidadForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            // Obtenemos las instancias de los ApiClients a través del proveedor de servicios
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
-            this.StartPosition = FormStartPosition.CenterParent;
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dgvLocalidades);
             StyleManager.ApplyButtonStyle(btnOrdenarAZ);
             StyleManager.ApplyButtonStyle(btnOrdenarZA);
@@ -37,18 +36,15 @@ namespace WinForms
         {
             try
             {
-                // 1. Cargar datos de Provincias y Localidades
                 _todasLasProvincias = await _provinciaApiClient.GetAllAsync() ?? new List<ProvinciaDTO>();
                 _todasLasLocalidades = await _localidadApiClient.GetAllAsync() ?? new List<LocalidadDTO>();
 
-                // 2. Configurar el ComboBox de Provincias
                 var provinciasConOpcionTodas = new List<ProvinciaDTO> { new ProvinciaDTO { IdProvincia = 0, Nombre = "Todas las provincias" } };
                 provinciasConOpcionTodas.AddRange(_todasLasProvincias.OrderBy(p => p.Nombre));
                 cboProvincias.DataSource = provinciasConOpcionTodas;
                 cboProvincias.DisplayMember = "Nombre";
                 cboProvincias.ValueMember = "IdProvincia";
 
-                // 3. Cargar la grilla con todas las localidades al inicio
                 CargarGrilla(_todasLasLocalidades.OrderBy(l => l.Nombre));
             }
             catch (Exception ex)
@@ -77,7 +73,7 @@ namespace WinForms
             dgvLocalidades.Columns["Nombre"].HeaderText = "Localidad";
             dgvLocalidades.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             dgvLocalidades.Columns["NombreProvincia"].HeaderText = "Provincia";
-            dgvLocalidades.Columns["NombreProvincia"].Width = 200;
+            dgvLocalidades.Columns["NombreProvincia"].Width = 290;
         }
 
         private void cboProvincias_SelectedIndexChanged(object sender, EventArgs e)

@@ -22,14 +22,14 @@ namespace WinForms
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearProveedorForm_Load(object sender, EventArgs e)
         {
-            // provincias
             var provincias = await _provinciaApiClient.GetAllAsync() ?? new();
             provincias.Insert(0, new ProvinciaDTO { IdProvincia = 0, Nombre = "-- Seleccionar provincia --" });
 

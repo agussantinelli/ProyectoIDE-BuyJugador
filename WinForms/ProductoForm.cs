@@ -25,6 +25,8 @@ namespace WinForms
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _serviceProvider = serviceProvider;
 
+
+
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
@@ -34,6 +36,8 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVerHistorialPrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
             StyleManager.ApplyButtonStyle(btnVolver);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
@@ -115,7 +119,7 @@ namespace WinForms
 
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "IdProducto", HeaderText = "ID", Width = 50 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Nombre", HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Descripcion", HeaderText = "Descripción", Width = 250 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Descripcion", HeaderText = "Descripción", Width = 420 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Stock", HeaderText = "Stock", Width = 70 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "TipoProductoDescripcion", HeaderText = "Tipo", Width = 150 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioActual", HeaderText = "Precio", Width = 100, DefaultCellStyle = { Format = "C2" } });

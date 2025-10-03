@@ -34,7 +34,8 @@ namespace WinForms
             _productosDisponibles = new List<ProductoDTO>();
             _lineasVentaActual = new BindingList<LineaVentaDTO>();
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dataGridLineasVenta);
             StyleManager.ApplyButtonStyle(btnAgregarProducto);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);

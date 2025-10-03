@@ -21,9 +21,9 @@ namespace WinForms
         {
             InitializeComponent();
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
-            this.StartPosition = FormStartPosition.CenterParent;
 
-            // Aplicamos el estilo
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);

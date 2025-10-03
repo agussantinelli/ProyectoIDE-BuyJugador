@@ -21,7 +21,8 @@ namespace WinForms
             _nombreProducto = nombreProducto ?? "";
             _precioActual = precioActual;
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }

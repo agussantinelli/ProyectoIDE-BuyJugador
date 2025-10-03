@@ -17,7 +17,6 @@ namespace WinForms
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             this.StartPosition = FormStartPosition.CenterParent;
 
-            // Aplicar estilos
             StyleManager.ApplyDataGridViewStyle(dgvProvincias);
             StyleManager.ApplyButtonStyle(btnVolver);
         }

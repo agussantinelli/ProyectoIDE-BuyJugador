@@ -22,6 +22,7 @@ namespace WinForms
             _personaApiClient = personaApiClient;
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
+            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);

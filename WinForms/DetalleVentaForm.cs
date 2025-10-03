@@ -25,11 +25,12 @@ namespace WinForms
             _productoApiClient = productoApiClient;
             _todosLosProductos = new List<ProductoDTO>();
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
             StyleManager.ApplyButtonStyle(btnEditarCantidad);
-            StyleManager.ApplyButtonStyle(btnCerrar); // Estandarizado
+            StyleManager.ApplyButtonStyle(btnCerrar);
         }
 
         private async void DetalleVentaForm_Load(object sender, EventArgs e)

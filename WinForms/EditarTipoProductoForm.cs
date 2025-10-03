@@ -16,7 +16,8 @@ namespace WinForms
             _tipoProductoApiClient = tipoProductoApiClient;
             _tipo = tipo;
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }

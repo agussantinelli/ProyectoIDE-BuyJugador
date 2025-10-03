@@ -22,6 +22,8 @@ namespace WinForms
             _serviceProvider = serviceProvider;
             _isAdmin = isAdmin;
 
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             foreach (Control control in this.Controls)
             {
                 if (control is MdiClient client)

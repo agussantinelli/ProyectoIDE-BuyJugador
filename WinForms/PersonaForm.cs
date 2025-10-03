@@ -26,7 +26,8 @@ namespace WinForms
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
@@ -42,7 +43,6 @@ namespace WinForms
             this.StartPosition = FormStartPosition.CenterParent;
 
         }
-
         private void PrepararGrid(DataGridView dgv)
         {
             dgv.AutoGenerateColumns = false;
@@ -51,16 +51,17 @@ namespace WinForms
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
 
-            // Columnas visibles
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreCompleto", HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Dni", HeaderText = "DNI", Width = 100 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Width = 200 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Telefono", HeaderText = "Teléfono", Width = 120 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Direccion", HeaderText = "Dirección", Width = 250 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "FechaIngreso", HeaderText = "Fecha Ingreso", Width = 120, DefaultCellStyle = { Format = "yyyy-MM-dd" } });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Telefono", HeaderText = "Teléfono", Width = 100 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Direccion", HeaderText = "Dirección", Width = 200 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "FechaIngresoFormateada", HeaderText = "Fecha Ingreso", Width = 130 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "LocalidadNombre", HeaderText = "Localidad", Width = 100 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ProvinciaNombre", HeaderText = "Provincia", Width = 100 });
         }
 
-
+        
         private async void PersonaForm_Load(object sender, EventArgs e)
         {
             await CargarPersonas();

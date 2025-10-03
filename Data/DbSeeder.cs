@@ -205,10 +205,10 @@ public static class DbSeeder
             if (personasActivas.Count > 2)
             {
                 context.Ventas.AddRange(
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Pagada", IdPersona = personasActivas[2].IdPersona },
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pagada", IdPersona = personasActivas[3].IdPersona },
+                    new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personasActivas[2].IdPersona },
+                    new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personasActivas[3].IdPersona },
                     new Venta { Fecha = DateTime.UtcNow.AddDays(-2), Estado = "Pendiente", IdPersona = personasActivas[4].IdPersona },
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Entregada", IdPersona = personasActivas[5].IdPersona }
+                    new Venta { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Finalizada", IdPersona = personasActivas[5].IdPersona }
                 );
                 await context.SaveChangesAsync();
 

@@ -27,7 +27,8 @@ namespace WinForms
             _serviceProvider = serviceProvider;
             _userSessionService = userSessionService;
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dataGridVentas);
             StyleManager.ApplyButtonStyle(btnNuevaVenta);
             StyleManager.ApplyButtonStyle(btnVerDetalle);

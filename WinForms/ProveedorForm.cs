@@ -33,17 +33,17 @@ namespace WinForms
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
 
-            // Aplicar estilos
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnEliminar);
             StyleManager.ApplyButtonStyle(btnReactivar);
-            StyleManager.ApplyButtonStyle(btnVolver); // Estandarizado
+            StyleManager.ApplyButtonStyle(btnVolver);
+
+            this.StartPosition = FormStartPosition.CenterScreen;
 
 
-            // Inicialización de BindingLists
             _activosBindingList = new BindingList<ProveedorRow>();
             _inactivosBindingList = new BindingList<ProveedorRow>();
 
@@ -63,12 +63,12 @@ namespace WinForms
             dgv.MultiSelect = false;
 
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "RazonSocial", HeaderText = "Razón Social", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cuit", HeaderText = "CUIT", Width = 120 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Width = 200 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Telefono", HeaderText = "Teléfono", Width = 120 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Direccion", HeaderText = "Dirección", Width = 250 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "LocalidadNombre", HeaderText = "Localidad", Width = 150 });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ProvinciaNombre", HeaderText = "Provincia", Width = 150 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cuit", HeaderText = "CUIT", Width = 140 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Width = 220 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Telefono", HeaderText = "Teléfono", Width = 100 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Direccion", HeaderText = "Dirección", Width = 170 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "LocalidadNombre", HeaderText = "Localidad", Width = 120 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ProvinciaNombre", HeaderText = "Provincia", Width = 120 });
         }
 
         private async void ProveedorForm_Load(object sender, EventArgs e)

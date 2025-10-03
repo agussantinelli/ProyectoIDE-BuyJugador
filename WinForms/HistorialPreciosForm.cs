@@ -24,7 +24,8 @@ namespace WinForms
             _idProducto = idProducto;
             _nombreProducto = nombreProducto ?? "";
 
-            // Aplicar estilos
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dgvHistorial);
             StyleManager.ApplyButtonStyle(btnCerrar);
             StyleManager.ApplyButtonStyle(btnRefrescar);
