@@ -43,7 +43,6 @@
             // numCantidad
             // 
             this.numCantidad.Location = new System.Drawing.Point(271, 30);
-            // --- CORRECCIÓN: Aumentar el valor máximo ---
             this.numCantidad.Maximum = new decimal(new int[] {
             9999,
             0,
@@ -84,7 +83,9 @@
             this.dataGridLineasVenta.Location = new System.Drawing.Point(15, 60);
             this.dataGridLineasVenta.MultiSelect = false;
             this.dataGridLineasVenta.Name = "dataGridLineasVenta";
-            this.dataGridLineasVenta.ReadOnly = true;
+            this.dataGridLineasVenta.ReadOnly = false;
+            this.dataGridLineasVenta.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dataGridLineasVenta.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridLineasVenta_CellEndEdit);
             this.dataGridLineasVenta.RowTemplate.Height = 25;
             this.dataGridLineasVenta.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridLineasVenta.Size = new System.Drawing.Size(757, 300);

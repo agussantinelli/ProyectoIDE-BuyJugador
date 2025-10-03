@@ -73,11 +73,39 @@ namespace WinForms
         {
             dataGridLineasVenta.AutoGenerateColumns = false;
             dataGridLineasVenta.Columns.Clear();
-            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { Name = "Producto", DataPropertyName = "NombreProducto", HeaderText = "Producto", ReadOnly = true });
-            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", DataPropertyName = "Cantidad", HeaderText = "Cantidad", ReadOnly = true });
-            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subtotal", DataPropertyName = "Subtotal", HeaderText = "Subtotal", ReadOnly = true, DefaultCellStyle = { Format = "C" } });
-            dataGridLineasVenta.Columns["Producto"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Producto",
+                DataPropertyName = "NombreProducto",
+                HeaderText = "Producto",
+                ReadOnly = true,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+
+            var cantidadCol = new DataGridViewTextBoxColumn
+            {
+                Name = "Cantidad",
+                DataPropertyName = "Cantidad",
+                HeaderText = "Cantidad",
+                ReadOnly = false,
+                Width = 100
+            };
+            dataGridLineasVenta.Columns.Add(cantidadCol);
+
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Subtotal",
+                DataPropertyName = "Subtotal",
+                HeaderText = "Subtotal",
+                ReadOnly = true,
+                Width = 120,
+                DefaultCellStyle = { Format = "C2" }
+            });
+
+            dataGridLineasVenta.CellEndEdit += DataGridLineasVenta_CellEndEdit;
         }
+
 
         private void btnAgregarProducto_Click(object sender, EventArgs e)
         {
@@ -97,7 +125,6 @@ namespace WinForms
             var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
             var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
 
-            // --- MEJORA: Validar contra el stock disponible ---
             if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
             {
                 MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'.\nStock disponible: {productoSeleccionado.Stock}\nCantidad en venta actual: {cantidadYaEnCarro}", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -128,6 +155,38 @@ namespace WinForms
             cmbProductos.Text = "";
             numCantidad.Value = 1;
             cmbProductos.Focus();
+        }
+
+        private void DataGridLineasVenta_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex != dataGridLineasVenta.Columns["Cantidad"].Index) return;
+
+            if (dataGridLineasVenta.Rows[e.RowIndex].DataBoundItem is LineaVentaDTO linea)
+            {
+                var producto = _productosDisponibles.FirstOrDefault(p => p.IdProducto == linea.IdProducto);
+                if (producto == null) return;
+
+                var celda = dataGridLineasVenta.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                if (int.TryParse(celda.Value?.ToString(), out int nuevaCantidad) && nuevaCantidad > 0)
+                {
+                    if (nuevaCantidad > producto.Stock)
+                    {
+                        MessageBox.Show($"Stock insuficiente para '{producto.Nombre}'. Máximo disponible: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        celda.Value = linea.Cantidad; 
+                        return;
+                    }
+
+                    linea.Cantidad = nuevaCantidad;
+                    linea.Subtotal = producto.PrecioActual * nuevaCantidad;
+                    _lineasVentaActual.ResetBindings();
+                    ActualizarTotal();
+                }
+                else
+                {
+                    MessageBox.Show("Ingrese una cantidad válida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    celda.Value = linea.Cantidad;
+                }
+            }
         }
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
@@ -163,7 +222,6 @@ namespace WinForms
                 return;
             }
 
-            // --- MEJORA: Usar el nuevo endpoint transaccional ---
             var ventaCompletaDto = new CrearVentaCompletaDTO
             {
                 IdPersona = _userSessionService.CurrentUser.IdPersona,
