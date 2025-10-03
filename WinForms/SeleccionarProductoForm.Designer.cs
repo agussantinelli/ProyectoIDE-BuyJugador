@@ -72,18 +72,18 @@
             // 
             // btnSeleccionar
             // 
-            this.btnSeleccionar.Location = new Point(140, 130);
+            this.btnSeleccionar.Location = new Point(100, 130);
             this.btnSeleccionar.Name = "btnSeleccionar";
-            this.btnSeleccionar.Size = new Size(90, 30);
-            this.btnSeleccionar.Text = "Seleccionar";
+            this.btnSeleccionar.Size = new Size(100, 30);
+            this.btnSeleccionar.Text = "Agregar";
             this.btnSeleccionar.UseVisualStyleBackColor = true;
             this.btnSeleccionar.Click += new EventHandler(this.btnSeleccionar_Click);
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new Point(240, 130);
+            this.btnCancelar.Location = new Point(220, 130);
             this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new Size(80, 30);
+            this.btnCancelar.Size = new Size(100, 30);
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
             this.btnCancelar.Click += new EventHandler(this.btnCancelar_Click);

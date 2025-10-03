@@ -14,6 +14,8 @@ namespace WinForms
         private readonly LineaVentaApiClient _lineaVentaApiClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly UserSessionService _userSessionService;
+        private List<VentaDTO> _todasLasVentas = new();
+
 
         public VentaForm(
             VentaApiClient ventaApiClient,
@@ -51,8 +53,8 @@ namespace WinForms
                 var ventas = await _ventaApiClient.GetAllAsync();
                 if (ventas != null)
                 {
-                    dataGridVentas.DataSource = ventas.OrderByDescending(v => v.Fecha).ToList();
-                    ConfigurarColumnas();
+                    _todasLasVentas = ventas.OrderByDescending(v => v.Fecha).ToList();
+                    AplicarFiltros();
                 }
             }
             catch (Exception ex)
@@ -64,6 +66,7 @@ namespace WinForms
                 this.Cursor = Cursors.Default;
             }
         }
+
 
         private void ConfigurarColumnas()
         {
@@ -208,6 +211,36 @@ namespace WinForms
                 MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void AplicarFiltros()
+        {
+            var textoBusqueda = txtBuscarCliente.Text.Trim().ToLower();
+            var filtroGasto = cmbFiltroGasto.SelectedIndex;
+
+            var ventasFiltradas = _todasLasVentas
+                .Where(v => v.NombreVendedor.ToLower().Contains(textoBusqueda))
+                .Where(v =>
+                {
+                    return filtroGasto switch
+                    {
+                        1 => v.Total <= 10000,
+                        2 => v.Total > 10000 && v.Total <= 50000,
+                        3 => v.Total > 50000,
+                        _ => true
+                    };
+                })
+                .ToList();
+
+            dataGridVentas.DataSource = null;
+            dataGridVentas.DataSource = ventasFiltradas;
+            ConfigurarColumnas();
+        }
+
+        private void FiltrosChanged(object sender, EventArgs e)
+        {
+            AplicarFiltros();
+        }
+
 
         private void btnVolver_Click(object sender, EventArgs e)
         {

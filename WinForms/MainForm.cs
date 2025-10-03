@@ -152,7 +152,7 @@ namespace WinForms
         private void CreateAdminButtons(TableLayoutPanel grid)
         {
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
-            grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Nuevo Pedido"), 1, 0);
+            grid.Controls.Add(CreateMenuButton("btnNuevoPedido", "Pedidos"), 1, 0);
             grid.Controls.Add(CreateMenuButton("btnEmpleados", "Empleados"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnTiposProducto", "Tipos de Productos"), 1, 1);
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);

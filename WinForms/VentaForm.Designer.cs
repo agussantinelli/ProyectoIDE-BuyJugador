@@ -17,6 +17,10 @@
 
         private void InitializeComponent()
         {
+            this.txtBuscarCliente = new System.Windows.Forms.TextBox();
+            this.lblBuscarCliente = new System.Windows.Forms.Label();
+            this.cmbFiltroGasto = new System.Windows.Forms.ComboBox();
+            this.lblFiltroGasto = new System.Windows.Forms.Label();
             this.dataGridVentas = new System.Windows.Forms.DataGridView();
             this.panelBotones = new System.Windows.Forms.Panel();
             this.btnVolver = new System.Windows.Forms.Button();
@@ -26,6 +30,32 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).BeginInit();
             this.panelBotones.SuspendLayout();
             this.SuspendLayout();
+            // lblBuscarCliente
+            this.lblBuscarCliente.AutoSize = true;
+            lblBuscarCliente.Text = "Buscar por cliente:";
+            this.lblBuscarCliente.Location = new System.Drawing.Point(12, 12);
+
+            // txtBuscarCliente
+            this.txtBuscarCliente.Location = new System.Drawing.Point(135, 12);
+            this.txtBuscarCliente.Size = new System.Drawing.Size(400, 23);
+            this.txtBuscarCliente.TextChanged += new System.EventHandler(this.FiltrosChanged);
+
+            // lblFiltroGasto
+            this.lblFiltroGasto.AutoSize = true;
+            this.lblFiltroGasto.Location = new System.Drawing.Point(550, 12);
+
+            // cmbFiltroGasto
+            this.cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFiltroGasto.Items.AddRange(new object[] {
+                "Todos",
+                "Hasta $10.000",
+                "$10.001 a $50.000",
+                "Más de $50.000"
+            });
+            this.cmbFiltroGasto.SelectedIndex = 0;
+            this.cmbFiltroGasto.Location = new System.Drawing.Point(550, 12);
+            this.cmbFiltroGasto.Size = new System.Drawing.Size(160, 23);
+            this.cmbFiltroGasto.SelectedIndexChanged += new System.EventHandler(this.FiltrosChanged);
             // 
             // dataGridVentas
             // 
@@ -36,13 +66,13 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridVentas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridVentas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridVentas.Location = new System.Drawing.Point(12, 12);
+            this.dataGridVentas.Location = new System.Drawing.Point(12, 45);
+            this.dataGridVentas.Size = new System.Drawing.Size(760, 340); 
             this.dataGridVentas.MultiSelect = false;
             this.dataGridVentas.Name = "dataGridVentas";
             this.dataGridVentas.ReadOnly = true;
             this.dataGridVentas.RowTemplate.Height = 25;
             this.dataGridVentas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridVentas.Size = new System.Drawing.Size(760, 371);
             this.dataGridVentas.TabIndex = 0;
             dataGridVentas.SelectionChanged += DataGridVentas_SelectionChanged;
 
@@ -121,6 +151,12 @@
             this.ClientSize = new System.Drawing.Size(784, 461);
             this.Controls.Add(this.panelBotones);
             this.Controls.Add(this.dataGridVentas);
+            this.Controls.Add(this.txtBuscarCliente);
+            this.Controls.Add(this.lblBuscarCliente);
+            this.Controls.Add(this.cmbFiltroGasto);
+            this.Controls.Add(this.lblFiltroGasto);
+            this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
+
             this.Name = "VentaForm";
             this.Text = "Gestión de Ventas";
             this.Load += new System.EventHandler(this.VentaForm_Load);
@@ -138,5 +174,10 @@
         private System.Windows.Forms.Panel panelBotones;
         private System.Windows.Forms.Button btnEliminar;
         private System.Windows.Forms.Button btnVolver;
+        private System.Windows.Forms.TextBox txtBuscarCliente;
+        private System.Windows.Forms.Label lblBuscarCliente;
+        private System.Windows.Forms.ComboBox cmbFiltroGasto;
+        private System.Windows.Forms.Label lblFiltroGasto;
+
     }
 }
