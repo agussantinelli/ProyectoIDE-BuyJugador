@@ -100,7 +100,7 @@ namespace WinForms
                 return;
             }
 
-            using var form = new SeleccionarProductoForm(_todosLosProductos);
+            using var form = new AñadirProductoForm(_todosLosProductos);
             if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
             {
                 var producto = form.ProductoSeleccionado;

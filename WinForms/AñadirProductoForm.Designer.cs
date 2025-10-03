@@ -1,6 +1,9 @@
-﻿namespace WinForms
+﻿using System.Windows.Forms;
+using System.Drawing;
+
+namespace WinForms
 {
-    partial class SeleccionarProductoForm
+    partial class AñadirProductoForm
     {
         private System.ComponentModel.IContainer components = null;
         private Label lblProducto;
@@ -88,7 +91,7 @@
             this.btnCancelar.UseVisualStyleBackColor = true;
             this.btnCancelar.Click += new EventHandler(this.btnCancelar_Click);
             // 
-            // SeleccionarProductoForm
+            // AñadirProductoForm
             // 
             this.ClientSize = new Size(350, 180);
             this.Controls.Add(this.lblProducto);
@@ -98,9 +101,9 @@
             this.Controls.Add(this.numCantidad);
             this.Controls.Add(this.btnSeleccionar);
             this.Controls.Add(this.btnCancelar);
-            this.Name = "SeleccionarProductoForm";
+            this.Name = "AñadirProductoForm";
             this.Text = "Agregar Producto";
-            this.Load += new EventHandler(this.SeleccionarProductoForm_Load);
+            this.Load += new EventHandler(this.AñadirProductoForm_Load);
             this.StartPosition = FormStartPosition.CenterParent;
             ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
             this.ResumeLayout(false);
@@ -108,3 +111,4 @@
         }
     }
 }
+

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -172,7 +173,7 @@ namespace WinForms
                     if (nuevaCantidad > producto.Stock)
                     {
                         MessageBox.Show($"Stock insuficiente para '{producto.Nombre}'. Máximo disponible: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        celda.Value = linea.Cantidad; 
+                        celda.Value = linea.Cantidad;
                         return;
                     }
 

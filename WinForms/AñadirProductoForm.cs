@@ -6,14 +6,14 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class SeleccionarProductoForm : BaseForm
+    public partial class AñadirProductoForm : BaseForm
     {
         private readonly List<ProductoDTO> _productos;
 
         public ProductoDTO? ProductoSeleccionado { get; private set; }
         public int CantidadSeleccionada => (int)numCantidad.Value;
 
-        public SeleccionarProductoForm(List<ProductoDTO> productosDisponibles)
+        public AñadirProductoForm(List<ProductoDTO> productosDisponibles)
         {
             InitializeComponent();
             _productos = productosDisponibles.Where(p => p.Stock > 0).ToList();
@@ -24,7 +24,7 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
-        private void SeleccionarProductoForm_Load(object sender, EventArgs e)
+        private void AñadirProductoForm_Load(object sender, EventArgs e)
         {
             cmbProductos.DataSource = _productos;
             cmbProductos.DisplayMember = "Nombre";
@@ -69,3 +69,4 @@ namespace WinForms
         }
     }
 }
+
