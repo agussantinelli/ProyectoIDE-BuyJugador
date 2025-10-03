@@ -44,6 +44,8 @@
             this.dataGridVentas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridVentas.Size = new System.Drawing.Size(760, 371);
             this.dataGridVentas.TabIndex = 0;
+            dataGridVentas.SelectionChanged += DataGridVentas_SelectionChanged;
+
             // 
             // panelBotones
             // 

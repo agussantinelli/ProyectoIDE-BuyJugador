@@ -62,7 +62,7 @@ namespace DominioServicios
                 var nuevaVenta = new Venta
                 {
                     Fecha = DateTime.Now,
-                    Estado = "Pendiente",
+                    Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
                     IdPersona = dto.IdPersona
                 };
                 _context.Ventas.Add(nuevaVenta);

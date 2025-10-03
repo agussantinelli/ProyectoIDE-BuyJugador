@@ -22,7 +22,6 @@ namespace DTOs
                 Estado = entidad.Estado,
                 IdPersona = entidad.IdPersona,
                 NombreVendedor = entidad.IdPersonaNavigation?.NombreCompleto ?? "N/A"
-                // El total se calcula y asigna en el VentaService
             };
         }
 

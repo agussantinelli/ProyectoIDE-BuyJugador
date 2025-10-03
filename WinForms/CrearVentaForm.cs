@@ -225,7 +225,8 @@ namespace WinForms
             var ventaCompletaDto = new CrearVentaCompletaDTO
             {
                 IdPersona = _userSessionService.CurrentUser.IdPersona,
-                Lineas = _lineasVentaActual.ToList()
+                Lineas = _lineasVentaActual.ToList(),
+                Finalizada = chkMarcarFinalizada.Checked
             };
 
             try

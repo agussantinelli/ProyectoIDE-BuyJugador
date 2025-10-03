@@ -27,6 +27,7 @@
             this.lblProducto = new System.Windows.Forms.Label();
             this.lblCantidad = new System.Windows.Forms.Label();
             this.lblTotalVenta = new System.Windows.Forms.Label();
+            this.chkMarcarFinalizada = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasVenta)).BeginInit();
             this.SuspendLayout();
@@ -110,7 +111,7 @@
             this.btnFinalizarVenta.Name = "btnFinalizarVenta";
             this.btnFinalizarVenta.Size = new System.Drawing.Size(120, 30);
             this.btnFinalizarVenta.TabIndex = 5;
-            this.btnFinalizarVenta.Text = "Finalizar Venta";
+            this.btnFinalizarVenta.Text = "Confirmar Venta";
             this.btnFinalizarVenta.UseVisualStyleBackColor = true;
             this.btnFinalizarVenta.Click += new System.EventHandler(this.btnFinalizarVenta_Click);
             // 
@@ -154,6 +155,16 @@
             this.lblTotalVenta.TabIndex = 9;
             this.lblTotalVenta.Text = "Total: $0.00";
             // 
+            // chkMarcarFinalizada
+            // 
+            this.chkMarcarFinalizada.AutoSize = true;
+            this.chkMarcarFinalizada.Location = new System.Drawing.Point(15, 370); 
+            this.chkMarcarFinalizada.Name = "chkMarcarFinalizada";
+            this.chkMarcarFinalizada.Size = new System.Drawing.Size(182, 19);
+            this.chkMarcarFinalizada.TabIndex = 10;
+            this.chkMarcarFinalizada.Text = "Marcar venta como finalizada";
+            this.chkMarcarFinalizada.UseVisualStyleBackColor = true;
+            // 
             // CrearVentaForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -163,6 +174,7 @@
             this.Controls.Add(this.lblCantidad);
             this.Controls.Add(this.lblProducto);
             this.Controls.Add(this.btnCancelar);
+            this.Controls.Add(this.chkMarcarFinalizada);
             this.Controls.Add(this.btnFinalizarVenta);
             this.Controls.Add(this.btnEliminarLinea);
             this.Controls.Add(this.dataGridLineasVenta);
@@ -183,6 +195,7 @@
 
         #endregion
 
+        private System.Windows.Forms.CheckBox chkMarcarFinalizada;
         private System.Windows.Forms.ComboBox cmbProductos;
         private System.Windows.Forms.NumericUpDown numCantidad;
         private System.Windows.Forms.Button btnAgregarProducto;

@@ -78,6 +78,17 @@ namespace WinForms
 
             dataGridVentas.Columns["NombreVendedor"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
         }
+        private void DataGridVentas_SelectionChanged(object? sender, EventArgs e)
+        {
+            if (dataGridVentas.CurrentRow?.DataBoundItem is VentaDTO selectedVenta)
+            {
+                btnFinalizarVenta.Visible = string.Equals(selectedVenta.Estado, "Pendiente", StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                btnFinalizarVenta.Visible = false;
+            }
+        }
 
         private async void btnNuevaVenta_Click(object sender, EventArgs e)
         {
