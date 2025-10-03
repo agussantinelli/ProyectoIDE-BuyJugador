@@ -18,7 +18,6 @@ namespace WinForms
         private Button btnEliminar;
         private Button btnReactivar;
         private Button btnVolver;
-        // --- BOTÓN AÑADIDO ---
         private Button btnAsignarProductos;
 
         protected override void Dispose(bool disposing)
@@ -41,7 +40,6 @@ namespace WinForms
             btnEliminar = new Button();
             btnReactivar = new Button();
             btnVolver = new Button();
-            // --- BOTÓN AÑADIDO ---
             btnAsignarProductos = new Button();
 
             ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
@@ -99,7 +97,6 @@ namespace WinForms
             btnEliminar.Size = new Size(100, 30);
             btnEliminar.Click += btnEliminar_Click;
 
-            // --- BOTÓN AÑADIDO ---
             btnAsignarProductos.Text = "Asignar Productos";
             btnAsignarProductos.Location = new Point(720, 480);
             btnAsignarProductos.Size = new Size(150, 30);

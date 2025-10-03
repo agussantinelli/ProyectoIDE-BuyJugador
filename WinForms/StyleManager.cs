@@ -5,27 +5,6 @@ namespace WinForms
 {
     public static class StyleManager
     {
-        // --- MÉTODOS AÑADIDOS PARA CORREGIR ERRORES ---
-        public static void ApplyPrimaryButtonStyle(Button btn)
-        {
-            btn.BackColor = Color.FromArgb(0, 122, 204); // Azul primario
-            btn.ForeColor = Color.White;
-            btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
-            btn.FlatAppearance.BorderSize = 0;
-        }
-
-        public static void ApplySecondaryButtonStyle(Button btn)
-        {
-            btn.BackColor = Color.FromArgb(63, 63, 70); // Gris secundario
-            btn.ForeColor = Color.White;
-            btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = new Font("Century Gothic", 9.5F);
-            btn.FlatAppearance.BorderSize = 1;
-            btn.FlatAppearance.BorderColor = Color.FromArgb(83, 83, 90);
-        }
-        // ---------------------------------------------
-
         public static void ApplyDataGridViewStyle(DataGridView dgv)
         {
             var backgroundColor = Color.FromArgb(45, 55, 70);

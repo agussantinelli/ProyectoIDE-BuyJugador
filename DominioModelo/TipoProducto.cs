@@ -11,3 +11,4 @@ public partial class TipoProducto
 
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }
+

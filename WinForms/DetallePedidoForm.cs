@@ -1,26 +1,34 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
-using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
     public partial class DetallePedidoForm : BaseForm
     {
-        public PedidoDTO Pedido { get; set; }
-        public bool EsAdmin { get; set; } // Para habilitar/deshabilitar controles
-
         private readonly LineaPedidoApiClient _lineaPedidoApiClient;
-        private List<LineaPedidoDTO> _lineas;
+        private readonly PedidoApiClient _pedidoApiClient;
+        private BindingList<LineaPedidoDTO> _lineasPedidoBindingList;
 
-        public DetallePedidoForm(LineaPedidoApiClient lineaPedidoApiClient)
+        public PedidoDTO Pedido { get; set; }
+        public bool EsAdmin { get; set; }
+
+        public DetallePedidoForm(LineaPedidoApiClient lineaPedidoApiClient, PedidoApiClient pedidoApiClient)
         {
             InitializeComponent();
             _lineaPedidoApiClient = lineaPedidoApiClient;
+            _pedidoApiClient = pedidoApiClient;
+            this.StartPosition = FormStartPosition.CenterScreen;
 
-            StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
-            StyleManager.ApplySecondaryButtonStyle(btnCerrar);
+            // Estilos
+            StyleManager.ApplyDataGridViewStyle(dataGridDetalles);
+            StyleManager.ApplyButtonStyle(btnGuardar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
+            StyleManager.ApplyButtonStyle(btnEliminar);
         }
 
         private async void DetallePedidoForm_Load(object sender, EventArgs e)
@@ -32,41 +40,86 @@ namespace WinForms
                 return;
             }
 
-            // Cargar datos del encabezado
-            lblIdPedido.Text = $"Pedido Nro: {Pedido.IdPedido}";
-            lblFecha.Text = $"Fecha: {Pedido.Fecha:dd/MM/yyyy}";
+            lblNumeroPedido.Text = $"Detalles del Pedido #{Pedido.IdPedido}";
             lblProveedor.Text = $"Proveedor: {Pedido.ProveedorRazonSocial}";
-            lblTotal.Text = $"Total: {Pedido.Total:C}";
+            lblFecha.Text = $"Fecha: {Pedido.Fecha:dd/MM/yyyy}";
             lblEstado.Text = $"Estado: {Pedido.Estado}";
 
-            // Cargar líneas de pedido
+            await CargarLineasPedido();
+            ConfigurarControles();
+        }
+
+        private async Task CargarLineasPedido()
+        {
             try
             {
-                _lineas = await _lineaPedidoApiClient.GetLineasByPedidoIdAsync(Pedido.IdPedido);
-                dataGridDetalle.DataSource = _lineas;
-                ConfigurarGrid();
+                var lineas = await _lineaPedidoApiClient.GetLineasByPedidoIdAsync(Pedido.IdPedido);
+                _lineasPedidoBindingList = new BindingList<LineaPedidoDTO>(lineas);
+                dataGridDetalles.DataSource = _lineasPedidoBindingList;
+                ActualizarTotal();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar el detalle del pedido: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar los detalles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ConfigurarGrid()
+        private void ConfigurarControles()
         {
-            dataGridDetalle.AutoGenerateColumns = false;
-            dataGridDetalle.Columns.Clear();
-
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad" });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            bool editable = EsAdmin && Pedido.Estado == "Pendiente";
+            dataGridDetalles.ReadOnly = !editable;
+            btnGuardar.Visible = editable;
+            btnEliminar.Visible = editable;
+            btnCancelar.Text = editable ? "Cancelar Cambios" : "Cerrar";
         }
 
-        private void btnCerrar_Click(object sender, EventArgs e)
+        private void dataGridDetalles_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            if (e.RowIndex >= 0 && (dataGridDetalles.Columns[e.ColumnIndex].Name == "Cantidad" || dataGridDetalles.Columns[e.ColumnIndex].Name == "PrecioUnitario"))
+            {
+                ActualizarTotal();
+            }
+        }
+
+        private void ActualizarTotal()
+        {
+            lblTotal.Text = $"Total: {_lineasPedidoBindingList.Sum(l => l.Subtotal):C}";
+        }
+
+        private async void btnGuardar_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Pedido.LineasPedido = _lineasPedidoBindingList.ToList();
+                var response = await _pedidoApiClient.UpdateAsync(Pedido.IdPedido, Pedido);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Pedido actualizado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DialogResult = DialogResult.OK;
+                }
+                else
+                {
+                    MessageBox.Show("Error al actualizar el pedido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ocurrió un error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnEliminar_Click(object sender, EventArgs e)
+        {
+            if (dataGridDetalles.CurrentRow?.DataBoundItem is LineaPedidoDTO linea)
+            {
+                _lineasPedidoBindingList.Remove(linea);
+                ActualizarTotal();
+            }
+        }
+
+        private void btnCancelar_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
         }
     }
 }

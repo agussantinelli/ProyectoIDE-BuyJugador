@@ -1,9 +1,10 @@
-﻿using DTOs;
-using ApiClient;
+﻿using ApiClient;
+using DTOs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -14,61 +15,74 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
 
-        private BindingList<ProductoDTO> _asignados = new();
-        private BindingList<ProductoDTO> _noAsignados = new();
+        private BindingList<ProductoDTO> _disponiblesBindingList = new();
+        private BindingList<ProductoDTO> _asignadosBindingList = new();
 
-        public AsignarProductosProveedorForm(int idProveedor, string nombreProveedor, ProductoApiClient productoApiClient, ProductoProveedorApiClient productoProveedorApiClient)
+        public AsignarProductosProveedorForm(
+            int idProveedor,
+            string razonSocial,
+            ProductoApiClient productoApiClient,
+            ProductoProveedorApiClient productoProveedorApiClient)
         {
             InitializeComponent();
             _idProveedor = idProveedor;
             _productoApiClient = productoApiClient;
             _productoProveedorApiClient = productoProveedorApiClient;
 
-            this.Text = $"Asignar Productos a: {nombreProveedor}";
-            StyleManager.ApplyPrimaryButtonStyle(btnGuardar);
-            StyleManager.ApplySecondaryButtonStyle(btnCancelar);
+            this.Text = $"Asignar Productos a {razonSocial}";
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            StyleManager.ApplyDataGridViewStyle(dgvDisponibles);
+            StyleManager.ApplyDataGridViewStyle(dgvAsignados);
+            StyleManager.ApplyButtonStyle(btnAsignar);
+            StyleManager.ApplyButtonStyle(btnQuitar);
+            StyleManager.ApplyButtonStyle(btnGuardar);
         }
 
         private async void AsignarProductosProveedorForm_Load(object sender, EventArgs e)
         {
+            await CargarProductos();
+        }
+
+        private async Task CargarProductos()
+        {
             try
             {
-                var todosProductosTask = _productoApiClient.GetProductosAsync();
-                var asignadosTask = _productoApiClient.GetProductosByProveedorIdAsync(_idProveedor);
-                await Task.WhenAll(todosProductosTask, asignadosTask);
+                var todosLosProductos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
+                var productosAsignadosIds = (await _productoProveedorApiClient.GetByProveedorIdAsync(_idProveedor))
+                                            .Select(pp => pp.IdProducto)
+                                            .ToHashSet();
 
-                var todos = (await todosProductosTask) ?? new List<ProductoDTO>();
-                var asignados = (await asignadosTask) ?? new List<ProductoDTO>();
+                var asignados = todosLosProductos.Where(p => productosAsignadosIds.Contains(p.IdProducto)).ToList();
+                var disponibles = todosLosProductos.Where(p => !productosAsignadosIds.Contains(p.IdProducto)).ToList();
 
-                _asignados = new BindingList<ProductoDTO>(asignados);
-                _noAsignados = new BindingList<ProductoDTO>(todos.Where(p => !asignados.Any(a => a.IdProducto == p.IdProducto)).ToList());
+                _asignadosBindingList = new BindingList<ProductoDTO>(asignados);
+                _disponiblesBindingList = new BindingList<ProductoDTO>(disponibles);
 
-                lstAsignados.DataSource = _asignados;
-                lstAsignados.DisplayMember = "Nombre";
-                lstNoAsignados.DataSource = _noAsignados;
-                lstNoAsignados.DisplayMember = "Nombre";
+                dgvAsignados.DataSource = _asignadosBindingList;
+                dgvDisponibles.DataSource = _disponiblesBindingList;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error");
+                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnAsignar_Click(object sender, EventArgs e)
         {
-            if (lstNoAsignados.SelectedItem is ProductoDTO seleccionado)
+            if (dgvDisponibles.CurrentRow?.DataBoundItem is ProductoDTO producto)
             {
-                _noAsignados.Remove(seleccionado);
-                _asignados.Add(seleccionado);
+                _disponiblesBindingList.Remove(producto);
+                _asignadosBindingList.Add(producto);
             }
         }
 
-        private void btnDesasignar_Click(object sender, EventArgs e)
+        private void btnQuitar_Click(object sender, EventArgs e)
         {
-            if (lstAsignados.SelectedItem is ProductoDTO seleccionado)
+            if (dgvAsignados.CurrentRow?.DataBoundItem is ProductoDTO producto)
             {
-                _asignados.Remove(seleccionado);
-                _noAsignados.Add(seleccionado);
+                _asignadosBindingList.Remove(producto);
+                _disponiblesBindingList.Add(producto);
             }
         }
 
@@ -77,23 +91,20 @@ namespace WinForms
             var dto = new ProductoProveedorDTO
             {
                 IdProveedor = _idProveedor,
-                IdsProducto = _asignados.Select(p => p.IdProducto).ToList()
+                IdsProducto = _asignadosBindingList.Select(p => p.IdProducto).ToList()
             };
 
             try
             {
                 await _productoProveedorApiClient.UpdateProductosProveedorAsync(dto);
-                MessageBox.Show("Asignación de productos guardada.", "Éxito");
-                this.DialogResult = DialogResult.OK;
+                MessageBox.Show("Asignación de productos guardada.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar: {ex.Message}", "Error");
+                MessageBox.Show($"Error al guardar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        private void btnCancelar_Click(object sender, EventArgs e) => this.Close();
     }
 }
 

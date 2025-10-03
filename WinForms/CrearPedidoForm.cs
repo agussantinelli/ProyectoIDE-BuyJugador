@@ -27,10 +27,10 @@ namespace WinForms
 
             // Estilos
             StyleManager.ApplyDataGridViewStyle(dataGridLineasPedido);
-            StyleManager.ApplyPrimaryButtonStyle(btnConfirmarPedido);
-            StyleManager.ApplySecondaryButtonStyle(btnAgregarProducto);
-            StyleManager.ApplySecondaryButtonStyle(btnEliminarLinea);
-            StyleManager.ApplySecondaryButtonStyle(btnCancelar);
+            StyleManager.ApplyButtonStyle(btnConfirmarPedido);
+            StyleManager.ApplyButtonStyle(btnAgregarProducto);
+            StyleManager.ApplyButtonStyle(btnEliminarLinea);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void CrearPedidoForm_Load(object sender, EventArgs e)
@@ -121,7 +121,9 @@ namespace WinForms
                     NroLineaPedido = _nroLineaCounter++
                 });
             }
-            _lineasPedidoActual.ResetBindings();
+            // Forzar actualización del DataGridView
+            dataGridLineasPedido.DataSource = null;
+            dataGridLineasPedido.DataSource = _lineasPedidoActual;
             ActualizarTotal();
         }
 
@@ -169,4 +171,3 @@ namespace WinForms
         private void btnCancelar_Click(object sender, EventArgs e) => this.DialogResult = DialogResult.Cancel;
     }
 }
-

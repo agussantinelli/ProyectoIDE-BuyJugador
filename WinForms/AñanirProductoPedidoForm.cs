@@ -1,69 +1,49 @@
 ﻿using DTOs;
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class AñadirProductoPedidoForm : BaseForm
+    public partial class AñanirProductoPedidoForm : Form
     {
-        private readonly List<ProductoDTO> _productos;
+        public LineaPedidoDTO LineaPedido { get; private set; }
+        private readonly ProductoDTO _producto;
 
-        public ProductoDTO? ProductoSeleccionado { get; private set; }
-        public int CantidadSeleccionada => (int)numCantidad.Value;
-
-        public AñadirProductoPedidoForm(List<ProductoDTO> productosDisponibles)
+        public AñanirProductoPedidoForm(ProductoDTO producto)
         {
             InitializeComponent();
-            _productos = productosDisponibles;
+            _producto = producto;
+            lblProductoNombre.Text = producto.Nombre;
+            numCantidad.Value = 1;
 
-            // Estilos
-            StyleManager.ApplyPrimaryButtonStyle(btnSeleccionar);
-            StyleManager.ApplySecondaryButtonStyle(btnCancelar);
+            StyleManager.ApplyButtonStyle(btnConfirmar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
-        private void AñadirProductoPedidoForm_Load(object sender, EventArgs e)
+        private void btnConfirmar_Click(object sender, EventArgs e)
         {
-            cmbProductos.DataSource = _productos;
-            cmbProductos.DisplayMember = "Nombre";
-            cmbProductos.ValueMember = "IdProducto";
-            cmbProductos.SelectedIndex = -1;
-            lblPrecio.Text = "Precio: $0.00";
-        }
-
-        private void cmbProductos_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cmbProductos.SelectedItem is ProductoDTO producto)
+            int cantidad = (int)numCantidad.Value;
+            if (cantidad > 0)
             {
-                lblPrecio.Text = $"Precio: {producto.PrecioActual:C}";
-                // A diferencia de la venta, no limitamos la cantidad por el stock.
-                numCantidad.Maximum = 9999;
-                numCantidad.Value = 1;
-            }
-            else
-            {
-                lblPrecio.Text = "Precio: $0.00";
-            }
-        }
-
-        private void btnSeleccionar_Click(object sender, EventArgs e)
-        {
-            if (cmbProductos.SelectedItem is ProductoDTO seleccionado)
-            {
-                ProductoSeleccionado = seleccionado;
+                LineaPedido = new LineaPedidoDTO
+                {
+                    IdProducto = _producto.IdProducto,
+                    NombreProducto = _producto.Nombre,
+                    Cantidad = cantidad,
+                    PrecioUnitario = _producto.PrecioActual
+                };
                 DialogResult = DialogResult.OK;
-                Close();
             }
             else
             {
-                MessageBox.Show("Seleccione un producto válido.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("La cantidad debe ser mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
         }
     }
 }
+

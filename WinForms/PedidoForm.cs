@@ -23,11 +23,11 @@ namespace WinForms
 
             // Aplicar Estilos
             StyleManager.ApplyDataGridViewStyle(dataGridPedidos);
-            StyleManager.ApplyPrimaryButtonStyle(btnNuevoPedido);
-            StyleManager.ApplySecondaryButtonStyle(btnVerDetalle);
-            StyleManager.ApplySecondaryButtonStyle(btnEliminar);
-            StyleManager.ApplyPrimaryButtonStyle(btnFinalizarPedido);
-            StyleManager.ApplySecondaryButtonStyle(btnVolver);
+            StyleManager.ApplyButtonStyle(btnNuevoPedido);
+            StyleManager.ApplyButtonStyle(btnVerDetalle);
+            StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnFinalizarPedido);
+            StyleManager.ApplyButtonStyle(btnVolver);
 
             ConfigurarColumnas();
         }
@@ -74,7 +74,7 @@ namespace WinForms
             var crearPedidoForm = _serviceProvider.GetRequiredService<CrearPedidoForm>();
             if (crearPedidoForm.ShowDialog() == DialogResult.OK)
             {
-                CargarPedidos();
+                _ = CargarPedidos();
             }
         }
 
@@ -84,9 +84,6 @@ namespace WinForms
             {
                 var detalleForm = _serviceProvider.GetRequiredService<DetallePedidoForm>();
                 detalleForm.Pedido = pedidoSeleccionado;
-
-                // Suponiendo que el usuario actual es admin para habilitar edición
-                // Adapta esta lógica si tienes roles de usuario
                 detalleForm.EsAdmin = true;
 
                 if (detalleForm.ShowDialog() == DialogResult.OK)
@@ -189,4 +186,3 @@ namespace WinForms
         private void FiltrosChanged(object sender, EventArgs e) => AplicarFiltros();
     }
 }
-

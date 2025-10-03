@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DominioModelo;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using DominioModelo;
 
 namespace Data
 {
@@ -50,7 +50,8 @@ namespace Data
 
                 entity.HasOne(d => d.IdProductoNavigation)
                     .WithMany(p => p.LineaPedido)
-                    .HasForeignKey(d => d.IdProducto);
+                    .HasForeignKey(d => d.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<LineaVenta>(entity =>
@@ -59,7 +60,8 @@ namespace Data
 
                 entity.HasOne(d => d.IdProductoNavigation)
                     .WithMany(p => p.LineaVenta)
-                    .HasForeignKey(d => d.IdProducto);
+                    .HasForeignKey(d => d.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict);
 
             });
 
@@ -96,6 +98,7 @@ namespace Data
                 entity.Property(e => e.NombreCompleto).HasMaxLength(200);
                 entity.Property(e => e.Password).HasMaxLength(100);
                 entity.Property(e => e.Telefono).HasMaxLength(50);
+
                 entity.Property(e => e.Estado).HasDefaultValue(true);
                 entity.HasQueryFilter(p => p.Estado);
 
@@ -172,6 +175,8 @@ namespace Data
                     .HasForeignKey(p => p.IdVenta)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<ProductoProveedor>().HasQueryFilter(pp => pp.Producto.Activo && pp.Proveedor.Activo);
 
             OnModelCreatingPartial(modelBuilder);
         }

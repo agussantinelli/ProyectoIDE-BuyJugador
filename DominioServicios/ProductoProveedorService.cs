@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace DominioServicios
 {
     public class ProductoProveedorService
     {
         private readonly BuyJugadorContext _context;
+
         public ProductoProveedorService(BuyJugadorContext context)
         {
             _context = context;
@@ -18,7 +20,7 @@ namespace DominioServicios
 
         public async Task<List<ProductoDTO>> GetProductosByProveedorIdAsync(int idProveedor)
         {
-            return await _context.ProductoProveedores
+            var productos = await _context.ProductoProveedores
                 .Where(pp => pp.IdProveedor == idProveedor)
                 .Select(pp => pp.Producto)
                 .Select(p => new ProductoDTO
@@ -27,23 +29,53 @@ namespace DominioServicios
                     Nombre = p.Nombre,
                     Descripcion = p.Descripcion,
                     Stock = p.Stock,
-                    PrecioActual = p.Precios.OrderByDescending(pr => pr.FechaDesde).FirstOrDefault().Monto
-                }).ToListAsync();
+                    PrecioActual = p.Precios.OrderByDescending(pr => pr.FechaDesde).FirstOrDefault().Monto,
+                    IdTipoProducto = p.IdTipoProducto,
+                    // --- CORRECCIÓN APLICADA ---
+                    // Se utiliza el nombre de propiedad correcto del DTO.
+                    TipoProductoDescripcion = p.IdTipoProductoNavigation.Descripcion
+                })
+                .ToListAsync();
+
+            return productos;
         }
 
         public async Task UpdateProductosProveedorAsync(ProductoProveedorDTO dto)
         {
-            var existentes = await _context.ProductoProveedores
+            var existing = await _context.ProductoProveedores
+                .IgnoreQueryFilters()
                 .Where(pp => pp.IdProveedor == dto.IdProveedor)
                 .ToListAsync();
 
-            _context.ProductoProveedores.RemoveRange(existentes);
+            _context.ProductoProveedores.RemoveRange(existing);
 
-            var nuevasRelaciones = dto.IdsProducto
-                .Select(idProd => new ProductoProveedor { IdProveedor = dto.IdProveedor, IdProducto = idProd });
+            if (dto.IdsProducto.Any())
+            {
+                var newRelations = dto.IdsProducto.Select(idProducto => new ProductoProveedor
+                {
+                    IdProveedor = dto.IdProveedor,
+                    IdProducto = idProducto
+                });
+                await _context.ProductoProveedores.AddRangeAsync(newRelations);
+            }
 
-            await _context.ProductoProveedores.AddRangeAsync(nuevasRelaciones);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteAsync(int idProducto, int idProveedor)
+        {
+            var pp = await _context.ProductoProveedores
+                .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+
+            if (pp == null)
+            {
+                return false;
+            }
+
+            _context.ProductoProveedores.Remove(pp);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }
+

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -99,8 +100,6 @@ namespace WinForms
             var proveedorDto = _activosCache.FirstOrDefault(p => p.IdProveedor == seleccionado.IdProveedor);
             if (proveedorDto == null) return;
 
-            // --- CORRECCIÓN REALIZADA ---
-            // Se ha corregido el orden de los parámetros para que coincida con el constructor de EditarProveedorForm.
             using var form = new EditarProveedorForm(
                 _proveedorApiClient,
                 _provinciaApiClient,
@@ -260,3 +259,4 @@ namespace WinForms
         }
     }
 }
+

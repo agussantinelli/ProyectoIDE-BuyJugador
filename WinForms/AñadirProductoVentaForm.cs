@@ -1,71 +1,55 @@
 ﻿using DTOs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class AñadirProductoVentaForm : BaseForm
+    public partial class AñadirProductoVentaForm : Form
     {
-        private readonly List<ProductoDTO> _productos;
+        public LineaVentaDTO LineaVenta { get; private set; }
+        private readonly ProductoDTO _producto;
 
-        public ProductoDTO? ProductoSeleccionado { get; private set; }
-        public int CantidadSeleccionada => (int)numCantidad.Value;
-
-        public AñadirProductoVentaForm(List<ProductoDTO> productosDisponibles)
+        public AñadirProductoVentaForm(ProductoDTO producto)
         {
             InitializeComponent();
-            _productos = productosDisponibles.Where(p => p.Stock > 0).ToList();
+            _producto = producto;
+            lblProductoNombre.Text = producto.Nombre;
 
-            this.StartPosition = FormStartPosition.CenterParent;
-
-            StyleManager.ApplyPrimaryButtonStyle(btnSeleccionar);
-            StyleManager.ApplySecondaryButtonStyle(btnCancelar);
-        }
-
-        private void AñadirProductoVentaForm_Load(object sender, EventArgs e)
-        {
-            cmbProductos.DataSource = _productos;
-            cmbProductos.DisplayMember = "Nombre";
-            cmbProductos.ValueMember = "IdProducto";
-            cmbProductos.SelectedIndex = -1;
-            lblPrecio.Text = "Precio: $0.00";
-        }
-
-        private void cmbProductos_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cmbProductos.SelectedItem is ProductoDTO producto)
+            numCantidad.Maximum = producto.Stock > 0 ? producto.Stock : 1;
+            if (producto.Stock > 0)
             {
-                lblPrecio.Text = $"Precio: {producto.PrecioActual:C}";
-                numCantidad.Maximum = producto.Stock;
                 numCantidad.Value = 1;
             }
-            else
-            {
-                lblPrecio.Text = "Precio: $0.00";
-                numCantidad.Maximum = 1;
-            }
+
+            StyleManager.ApplyButtonStyle(btnConfirmar);
+            StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
-        private void btnSeleccionar_Click(object sender, EventArgs e)
+        private void btnConfirmar_Click(object sender, EventArgs e)
         {
-            if (cmbProductos.SelectedItem is ProductoDTO seleccionado)
+            int cantidad = (int)numCantidad.Value;
+            if (cantidad > 0)
             {
-                ProductoSeleccionado = seleccionado;
+                LineaVenta = new LineaVentaDTO
+                {
+                    IdProducto = _producto.IdProducto,
+                    NombreProducto = _producto.Nombre,
+                    Cantidad = cantidad,
+                    PrecioUnitario = _producto.PrecioActual,
+                    Subtotal = cantidad * _producto.PrecioActual
+                };
                 DialogResult = DialogResult.OK;
-                Close();
             }
             else
             {
-                MessageBox.Show("Seleccione un producto válido.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("La cantidad debe ser mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
+            DialogResult = DialogResult.Cancel;
         }
     }
 }
+

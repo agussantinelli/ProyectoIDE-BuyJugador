@@ -169,7 +169,6 @@ namespace WinForms
             }
         }
 
-
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             if (!_datosModificados)
@@ -186,7 +185,6 @@ namespace WinForms
                 this.Close();
             }
         }
-
 
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
@@ -207,7 +205,7 @@ namespace WinForms
             dataGridDetalle.BeginEdit(true);
         }
 
-        private async void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || !EsAdmin) return;
 
@@ -243,11 +241,10 @@ namespace WinForms
             lineaEditada.Cantidad = nuevaCantidad;
             lineaEditada.Subtotal = nuevaCantidad * (producto.PrecioActual);
 
-            MarcarComoModificado(); 
+            MarcarComoModificado();
 
             RefrescarGrid();
         }
-
 
         private void MarcarComoModificado()
         {
@@ -283,10 +280,9 @@ namespace WinForms
                     }
                 }
 
-
                 MessageBox.Show("Cambios guardados correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                _datosModificados = false; 
+                _datosModificados = false;
                 btnConfirmarCambios.Enabled = false;
 
                 this.DialogResult = DialogResult.OK;
@@ -301,7 +297,6 @@ namespace WinForms
                 this.Cursor = Cursors.Default;
             }
         }
- 
 
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
