@@ -8,10 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Builder Configuration
 
-// 1. Se restaura la lectura de la cadena de conexión desde el archivo de configuración.
 var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
 
-// 2. Se configura el DbContext para que use la cadena de conexión leída.
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(connectionString)
            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
@@ -30,13 +28,13 @@ builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<LocalidadService>();
 builder.Services.AddScoped<PedidoService>();
+builder.Services.AddScoped<PrecioCompraService>();
 builder.Services.AddScoped<PrecioVentaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProvinciaService>();
 builder.Services.AddScoped<TipoProductoService>();
 builder.Services.AddScoped<VentaService>();
-// --- NUEVO SERVICIO AÑADIDO ---
 builder.Services.AddScoped<ProductoProveedorService>();
 
 #endregion
@@ -69,7 +67,6 @@ app.MapRazorPages();
 
 #endregion
 
-// CORRECCIÓN: La llamada al seeder ahora es asíncrona para esperar a la API de localidades.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -77,7 +74,6 @@ using (var scope = app.Services.CreateScope())
     var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
-        // Se llama a la nueva versión asíncrona del método
         await DbSeeder.SeedAsync(context);
     }
     catch (Exception ex)
@@ -95,7 +91,8 @@ app.MapLineaPedidoEndpoints();
 app.MapLineaVentaEndpoints();
 app.MapLocalidadEndpoints();
 app.MapPedidoEndpoints();
-app.MapPrecioEndpoints();
+app.MapPrecioCompraEndpoints();
+app.MapPrecioVentaEndpoints();
 app.MapProvinciaEndpoints();
 app.MapTipoProductoEndpoints();
 app.MapVentaEndpoints();

@@ -17,7 +17,6 @@ namespace WinForms
             {
                 var apiBaseAddress = new Uri("https://localhost:7145/");
 
-                // Función para configurar el manejador de HttpClient
                 HttpMessageHandler CreateHandler()
                 {
                     if (context.HostingEnvironment.IsDevelopment())
@@ -25,14 +24,14 @@ namespace WinForms
                     return new HttpClientHandler();
                 }
 
-                // --- Clientes de API ---
                 services.AddHttpClient<PersonaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                services.AddHttpClient<PrecioCompraApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProvinciaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<LocalidadApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<TipoProductoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
-                services.AddHttpClient<PrecioApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
+                services.AddHttpClient<PrecioVentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<VentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<LineaVentaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<PedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
@@ -78,9 +77,6 @@ namespace WinForms
             var loginForm = sp.GetRequiredService<LoginForm>();
             if (loginForm.ShowDialog() == DialogResult.OK)
             {
-                // --- CORRECCIÓN CLAVE ---
-                // Ahora obtenemos una instancia de MainForm directamente del proveedor de servicios,
-                // que automáticamente le inyectará el IServiceProvider y el UserSessionService.
                 var mainForm = sp.GetRequiredService<MainForm>();
                 Application.Run(mainForm);
             }
