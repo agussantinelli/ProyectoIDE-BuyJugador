@@ -286,89 +286,115 @@ public static class DbSeeder
                 await context.SaveChangesAsync();
             }
         }
-
         if (!context.Ventas.Any())
         {
-            var personasActivas = context.Personas.ToList();
-            if (personasActivas.Count > 2)
+            var personas = context.Personas.ToList();
+            var productos = context.Productos
+                .Include(p => p.PreciosVenta)
+                .OrderBy(p => p.IdProducto)
+                .ToList();
+
+            var ventas = new List<Venta>
             {
-                context.Ventas.AddRange(
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personasActivas[2].IdPersona },
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personasActivas[3].IdPersona },
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-2), Estado = "Pendiente", IdPersona = personasActivas[4].IdPersona },
-                    new Venta { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Finalizada", IdPersona = personasActivas[5].IdPersona }
-                );
-                await context.SaveChangesAsync();
+                new Venta { Fecha = new DateTime(2025, 9, 20), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
+                new Venta { Fecha = new DateTime(2025, 9, 25), Estado = "Pendiente", IdPersona = personas[1].IdPersona },
+                new Venta { Fecha = new DateTime(2025, 9, 27), Estado = "Pendiente", IdPersona = personas[2].IdPersona },
+                new Venta { Fecha = new DateTime(2025, 9, 29), Estado = "Finalizada", IdPersona = personas[3].IdPersona }
+            };
 
-                var ventasInsertadas = context.Ventas.ToList();
-                var productosDisponibles = context.Productos.ToList();
-                var lineasParaVentas = new List<LineaVenta>();
-                var random = new Random();
+            context.Ventas.AddRange(ventas);
+            await context.SaveChangesAsync();
 
-                foreach (var venta in ventasInsertadas)
+            var lineasVenta = new List<LineaVenta>();
+            int nroLineaVenta = 1;
+
+            foreach (var venta in ventas)
+            {
+                foreach (var producto in productos.Take(5))
                 {
-                    var cantidadLineas = random.Next(2, 4);
-                    var productosElegidos = productosDisponibles.OrderBy(p => random.Next()).Take(cantidadLineas).ToList();
+                    var precioVenta = producto.PreciosVenta
+                        .OrderByDescending(pv => pv.FechaDesde)
+                        .FirstOrDefault()?.Monto ?? 0;
 
-                    for (int i = 0; i < productosElegidos.Count; i++)
+                    decimal precioDiferente = Math.Round(precioVenta * (1 + (nroLineaVenta % 3) * 0.02m), 2);
+
+                    lineasVenta.Add(new LineaVenta
                     {
-                        lineasParaVentas.Add(new LineaVenta
-                        {
-                            IdVenta = venta.IdVenta,
-                            NroLineaVenta = i + 1,
-                            IdProducto = productosElegidos[i].IdProducto,
-                            Cantidad = random.Next(1, 6)
-                        });
-                    }
-                }
+                        IdVenta = venta.IdVenta,
+                        NroLineaVenta = nroLineaVenta,
+                        IdProducto = producto.IdProducto,
+                        Cantidad = nroLineaVenta % 2 == 0 ? 3 : 2,
+                        IdProductoNavigation = producto,
+                        IdVentaNavigation = venta
+                    });
 
-                context.LineaVentas.AddRange(lineasParaVentas);
-                await context.SaveChangesAsync();
+                    nroLineaVenta++;
+                }
             }
+
+            context.LineaVentas.AddRange(lineasVenta);
+            await context.SaveChangesAsync();
         }
+
 
         if (!context.Pedidos.Any())
         {
-            var proveedores = context.Proveedores.ToList();
-            var productos = context.Productos.ToList();
-            var random = new Random();
+            var proveedores = context.Proveedores
+                .Include(p => p.PreciosCompra)
+                .OrderBy(p => p.IdProveedor)
+                .ToList();
 
-            if (proveedores.Count >= 2 && productos.Any())
+            var productos = context.Productos
+                .Include(p => p.PreciosCompra)
+                .OrderBy(p => p.IdProducto)
+                .ToList();
+
+            var pedidos = new List<Pedido>
             {
-                var pedidos = new List<Pedido>
+                new Pedido { Fecha = new DateTime(2025, 9, 8), Estado = "Recibido", IdProveedor = proveedores[0].IdProveedor },
+                new Pedido { Fecha = new DateTime(2025, 9, 22), Estado = "Recibido", IdProveedor = proveedores[1].IdProveedor },
+                new Pedido { Fecha = new DateTime(2025, 9, 30), Estado = "Pendiente", IdProveedor = proveedores[2].IdProveedor }
+            };
+
+            context.Pedidos.AddRange(pedidos);
+            await context.SaveChangesAsync();
+
+            var lineasPedido = new List<LineaPedido>();
+            int nroLineaPedido = 1;
+
+            foreach (var pedido in pedidos)
+            {
+                foreach (var producto in productos.Take(5))
                 {
-                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-7), Estado = "Recibido", IdProveedor = proveedores[0].IdProveedor },
-                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-3), Estado = "Recibido", IdProveedor = proveedores[1].IdProveedor },
-                    new Pedido { Fecha = DateTime.UtcNow.AddDays(-1), Estado = "Pendiente", IdProveedor = proveedores[0].IdProveedor }
-                };
+                    var precioCompra = producto.PreciosCompra
+                        .Where(pc => pc.IdProveedor == pedido.IdProveedor)
+                        .OrderByDescending(pc => pc.IdProducto)
+                        .FirstOrDefault()?.Monto
+                        ?? producto.PreciosCompra.FirstOrDefault()?.Monto
+                        ?? 0;
 
-                context.Pedidos.AddRange(pedidos);
-                await context.SaveChangesAsync();
+                    decimal precioDiferente = Math.Round(precioCompra * (1 + (nroLineaPedido % 4) * 0.03m), 2);
 
-                var pedidosGuardados = context.Pedidos.ToList();
-                var lineas = new List<LineaPedido>();
-
-                foreach (var pedido in pedidosGuardados)
-                {
-                    var cantidadLineas = random.Next(2, 4);
-                    var productosElegidos = productos.OrderBy(p => random.Next()).Take(cantidadLineas).ToList();
-
-                    for (int i = 0; i < productosElegidos.Count; i++)
+                    lineasPedido.Add(new LineaPedido
                     {
-                        lineas.Add(new LineaPedido
-                        {
-                            IdPedido = pedido.IdPedido,
-                            NroLineaPedido = i + 1,
-                            IdProducto = productosElegidos[i].IdProducto,
-                            Cantidad = random.Next(5, 21)
-                        });
-                    }
-                }
+                        IdPedido = pedido.IdPedido,
+                        NroLineaPedido = nroLineaPedido,
+                        IdProducto = producto.IdProducto,
+                        Cantidad = nroLineaPedido % 2 == 0 ? 10 : 5,
+                        PrecioUnitario = precioDiferente,
+                        IdPedidoNavigation = pedido,
+                        IdProductoNavigation = producto
+                    });
 
-                context.LineaPedidos.AddRange(lineas);
-                await context.SaveChangesAsync();
+                    nroLineaPedido++;
+                }
             }
+
+            context.LineaPedidos.AddRange(lineasPedido);
+            await context.SaveChangesAsync();
         }
+
+
 
         if (!context.ProductoProveedores.Any())
         {

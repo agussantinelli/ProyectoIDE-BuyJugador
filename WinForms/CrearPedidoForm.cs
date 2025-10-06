@@ -121,7 +121,6 @@ namespace WinForms
                     NroLineaPedido = _nroLineaCounter++
                 });
             }
-            // Forzar actualización del DataGridView
             dataGridLineasPedido.DataSource = null;
             dataGridLineasPedido.DataSource = _lineasPedidoActual;
             ActualizarTotal();
