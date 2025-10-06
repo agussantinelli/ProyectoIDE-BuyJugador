@@ -3,8 +3,8 @@ using DTOs;
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace WinForms
 {
@@ -14,8 +14,10 @@ namespace WinForms
         private readonly PedidoApiClient _pedidoApiClient;
         private BindingList<LineaPedidoDTO> _lineasPedidoBindingList;
 
+
         public PedidoDTO Pedido { get; set; }
         public bool EsAdmin { get; set; }
+
 
         public DetallePedidoForm(LineaPedidoApiClient lineaPedidoApiClient, PedidoApiClient pedidoApiClient)
         {
@@ -24,12 +26,13 @@ namespace WinForms
             _pedidoApiClient = pedidoApiClient;
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // Estilos
+
             StyleManager.ApplyDataGridViewStyle(dataGridDetalles);
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
             StyleManager.ApplyButtonStyle(btnEliminar);
         }
+
 
         private async void DetallePedidoForm_Load(object sender, EventArgs e)
         {
@@ -40,51 +43,66 @@ namespace WinForms
                 return;
             }
 
-            lblNumeroPedido.Text = $"Detalles del Pedido #{Pedido.IdPedido}";
-            lblProveedor.Text = $"Proveedor: {Pedido.ProveedorRazonSocial}";
+
+            var pedidoDetallado = await _pedidoApiClient.GetByIdAsync(Pedido.IdPedido);
+            if (pedidoDetallado == null)
+            {
+                MessageBox.Show("No se pudo cargar el detalle del pedido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                this.Close();
+                return;
+            }
+
+            Pedido = pedidoDetallado;
+
+
+            lblNumeroPedido.Text = $"Pedido N°: {Pedido.IdPedido}";
             lblFecha.Text = $"Fecha: {Pedido.Fecha:dd/MM/yyyy}";
+            lblProveedor.Text = $"Proveedor: {Pedido.ProveedorRazonSocial}";
             lblEstado.Text = $"Estado: {Pedido.Estado}";
 
-            await CargarLineasPedido();
-            ConfigurarControles();
+
+            _lineasPedidoBindingList = new BindingList<LineaPedidoDTO>(Pedido.LineasPedido);
+            dataGridDetalles.DataSource = _lineasPedidoBindingList;
+            ConfigurarColumnas();
+
+            bool esEditable = Pedido.Estado == "Pendiente" && EsAdmin;
+            dataGridDetalles.ReadOnly = !esEditable;
+            btnGuardar.Visible = esEditable;
+            btnEliminar.Visible = esEditable;
+
+
+            ActualizarTotal();
         }
 
-        private async Task CargarLineasPedido()
+
+        private void ConfigurarColumnas()
         {
-            try
+            dataGridDetalles.AutoGenerateColumns = false;
+            dataGridDetalles.Columns.Clear();
+
+
+            dataGridDetalles.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", ReadOnly = true, Width = 250 });
+            dataGridDetalles.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad" });
+
+            dataGridDetalles.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unitario", DefaultCellStyle = { Format = "C" }, ReadOnly = true });
+
+            dataGridDetalles.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", DefaultCellStyle = { Format = "C" }, ReadOnly = true });
+
+
+            foreach (DataGridViewColumn col in dataGridDetalles.Columns)
             {
-                var lineas = await _lineaPedidoApiClient.GetLineasByPedidoIdAsync(Pedido.IdPedido);
-                _lineasPedidoBindingList = new BindingList<LineaPedidoDTO>(lineas);
-                dataGridDetalles.DataSource = _lineasPedidoBindingList;
-                ActualizarTotal();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar los detalles: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                col.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
         }
 
-        private void ConfigurarControles()
-        {
-            bool editable = EsAdmin && Pedido.Estado == "Pendiente";
-            dataGridDetalles.ReadOnly = !editable;
-            btnGuardar.Visible = editable;
-            btnEliminar.Visible = editable;
-            btnCancelar.Text = editable ? "Cancelar Cambios" : "Cerrar";
-        }
 
-        private void dataGridDetalles_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0 && (dataGridDetalles.Columns[e.ColumnIndex].Name == "Cantidad" || dataGridDetalles.Columns[e.ColumnIndex].Name == "PrecioUnitario"))
-            {
-                ActualizarTotal();
-            }
-        }
+
 
         private void ActualizarTotal()
         {
             lblTotal.Text = $"Total: {_lineasPedidoBindingList.Sum(l => l.Subtotal):C}";
         }
+
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
@@ -108,6 +126,7 @@ namespace WinForms
             }
         }
 
+
         private void btnEliminar_Click(object sender, EventArgs e)
         {
             if (dataGridDetalles.CurrentRow?.DataBoundItem is LineaPedidoDTO linea)
@@ -116,6 +135,15 @@ namespace WinForms
                 ActualizarTotal();
             }
         }
+        private void dataGridDetalles_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && dataGridDetalles.Columns[e.ColumnIndex].DataPropertyName == "Cantidad")
+            {
+                dataGridDetalles.InvalidateRow(e.RowIndex);
+                ActualizarTotal();
+            }
+        }
+
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {

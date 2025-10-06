@@ -11,7 +11,6 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
-            // Endpoint para obtener todas las personas ACTIVAS 
             app.MapGet("/api/personas", async (BuyJugadorContext db) =>
             {
                 var personas = await db.Personas
@@ -22,7 +21,6 @@ namespace WebAPI.Endpoints
                 return Results.Ok(personas);
             });
 
-            // Endpoint para obtener todas las personas INACTIVAS
             app.MapGet("/api/personas/inactivos", async (BuyJugadorContext db) =>
             {
                 var personas = await db.Personas
@@ -35,7 +33,6 @@ namespace WebAPI.Endpoints
                 return Results.Ok(personas);
             });
 
-            // Obtiene una persona por su ID 
             app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {
                 var persona = await db.Personas
@@ -48,7 +45,6 @@ namespace WebAPI.Endpoints
                 return Results.Ok(PersonaDTO.FromDominio(persona));
             });
 
-            // Crea una nueva persona
             app.MapPost("/api/personas", async (BuyJugadorContext db, PersonaDTO personaDto) =>
             {
                 var persona = new Persona
@@ -61,7 +57,7 @@ namespace WebAPI.Endpoints
                     Direccion = personaDto.Direccion,
                     IdLocalidad = personaDto.IdLocalidad,
                     FechaIngreso = personaDto.FechaIngreso,
-                    Estado = true // Nuevas personas siempre activas
+                    Estado = true 
                 };
                 db.Personas.Add(persona);
                 await db.SaveChangesAsync();
@@ -71,7 +67,6 @@ namespace WebAPI.Endpoints
                 return Results.Created($"/api/personas/{persona.IdPersona}", dtoCreado);
             });
 
-            // Actualiza una persona
             app.MapPut("/api/personas/{id}", async (BuyJugadorContext db, int id, PersonaDTO personaDto) =>
             {
                 var persona = await db.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -86,7 +81,6 @@ namespace WebAPI.Endpoints
                 return Results.NoContent();
             });
 
-            // Reactiva una persona (cambia estado a true)
             app.MapPut("/api/personas/reactivar/{id}", async (BuyJugadorContext db, int id) =>
             {
                 var persona = await db.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -97,7 +91,6 @@ namespace WebAPI.Endpoints
                 return Results.NoContent();
             });
 
-            // Borrado lógico de una persona (cambia estado a false)
             app.MapDelete("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
             {
                 var persona = await db.Personas.FindAsync(id);
@@ -108,7 +101,6 @@ namespace WebAPI.Endpoints
                 return Results.NoContent();
             });
 
-            // Endpoint de Login
             app.MapPost("/api/personas/login", async (BuyJugadorContext db, LoginRequestDto loginRequest) =>
             {
                 var persona = await db.Personas

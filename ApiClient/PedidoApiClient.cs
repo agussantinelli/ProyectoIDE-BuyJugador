@@ -20,6 +20,11 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<List<PedidoDTO>>("api/pedidos");
         }
 
+        public async Task<PedidoDTO> GetByIdAsync(int id)
+        {
+            return await _httpClient.GetFromJsonAsync<PedidoDTO>($"api/pedidos/{id}");
+        }
+
         public async Task<PedidoDTO> CreatePedidoCompletoAsync(CrearPedidoCompletoDTO dto)
         {
             var response = await _httpClient.PostAsJsonAsync("api/pedidos/completo", dto);
