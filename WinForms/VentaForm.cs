@@ -40,10 +40,24 @@ namespace WinForms
 
         private async void VentaForm_Load(object sender, EventArgs e)
         {
+            if (cmbFiltroGasto.Items.Count == 0)
+            {
+                cmbFiltroGasto.Items.AddRange(new object[]
+                {
+            "Todos",
+            "Hasta $10.000",
+            "$10.001 a $50.000",
+            "Más de $50.000"
+                });
+            }
+
+            cmbFiltroGasto.SelectedIndex = 0;
+
             await CargarVentas();
             ConfigurarVisibilidadControles();
             ActualizarEstadoBotones();
         }
+
 
         private void ConfigurarVisibilidadControles()
         {

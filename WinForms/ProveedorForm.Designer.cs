@@ -149,7 +149,7 @@ namespace WinForms
             // 
             // btnEliminar
             // 
-            btnEliminar.Location = new Point(254, 17);
+            btnEliminar.Location = new Point(375, 17);
             btnEliminar.Name = "btnEliminar";
             btnEliminar.Size = new Size(115, 30);
             btnEliminar.TabIndex = 2;
@@ -158,7 +158,7 @@ namespace WinForms
             // 
             // btnEditar
             // 
-            btnEditar.Location = new Point(375, 17);
+            btnEditar.Location = new Point(254, 17);
             btnEditar.Name = "btnEditar";
             btnEditar.Size = new Size(115, 30);
             btnEditar.TabIndex = 3;
