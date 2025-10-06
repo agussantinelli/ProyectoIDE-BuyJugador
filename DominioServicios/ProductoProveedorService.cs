@@ -1,6 +1,8 @@
 ﻿using Data;
+using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,26 +40,36 @@ namespace DominioServicios
             return productos;
         }
 
-        public async Task UpdateProductosProveedorAsync(ProductoProveedorDTO dto)
+        public async Task UpdateProductosProveedorAsync(int idProveedor, List<int> idProductos)
         {
-            var existing = await _context.ProductoProveedores
-                .IgnoreQueryFilters()
-                .Where(pp => pp.IdProveedor == dto.IdProveedor)
-                .ToListAsync();
-
-            _context.ProductoProveedores.RemoveRange(existing);
-
-            if (dto.IdsProducto.Any())
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                var newRelations = dto.IdsProducto.Select(idProducto => new DominioModelo.ProductoProveedor
-                {
-                    IdProveedor = dto.IdProveedor,
-                    IdProducto = idProducto
-                });
-                await _context.ProductoProveedores.AddRangeAsync(newRelations);
-            }
+                var existing = await _context.ProductoProveedores
+                    .Where(pp => pp.IdProveedor == idProveedor)
+                    .ToListAsync();
 
-            await _context.SaveChangesAsync();
+                _context.ProductoProveedores.RemoveRange(existing);
+                await _context.SaveChangesAsync(); 
+
+                if (idProductos != null && idProductos.Any())
+                {
+                    var newRelations = idProductos.Select(idProducto => new DominioModelo.ProductoProveedor
+                    {
+                        IdProveedor = idProveedor,
+                        IdProducto = idProducto
+                    });
+                    await _context.ProductoProveedores.AddRangeAsync(newRelations);
+                }
+
+                await _context.SaveChangesAsync(); 
+                await transaction.CommitAsync(); 
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync(); 
+                throw;
+            }
         }
 
         public async Task<bool> DeleteAsync(int idProducto, int idProveedor)
@@ -73,3 +85,4 @@ namespace DominioServicios
         }
     }
 }
+
