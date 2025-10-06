@@ -12,7 +12,7 @@ namespace WinForms
         private readonly UserSessionService _userSessionService;
         private Panel? menuPanel;
 
-        private MenuStrip mainMenuStrip;
+        // No declaramos un nuevo MenuStrip aquí, usamos el 'menuStrip1' del Designer.
         private ToolStripMenuItem verMenuItem;
         private ToolStripMenuItem provinciasMenuItem;
         private ToolStripMenuItem localidadesMenuItem;
@@ -22,13 +22,12 @@ namespace WinForms
         {
             InitializeComponent();
             _serviceProvider = serviceProvider;
-            _userSessionService = userSessionService; // Usamos el servicio de sesión
+            _userSessionService = userSessionService;
 
             this.IsMdiContainer = true;
             this.StartPosition = FormStartPosition.CenterScreen;
             this.WindowState = FormWindowState.Maximized;
 
-            // Aplica un color de fondo al cliente MDI
             foreach (Control control in this.Controls)
             {
                 if (control is MdiClient client)
@@ -41,39 +40,36 @@ namespace WinForms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            // Volvemos a tu estructura original que funcionaba bien.
             InitializeMenuBar();
             InitializeMainMenu();
             CenterMenuPanel();
-            this.Resize += new EventHandler(MainForm_Resize);
         }
 
         private void InitializeMenuBar()
         {
-            mainMenuStrip = new MenuStrip
-            {
-                BackColor = Color.FromArgb(26, 32, 40),
-                ForeColor = Color.White,
-                Font = new Font("Century Gothic", 10F, FontStyle.Bold),
-                Renderer = new DarkMenuRenderer()
-            };
+            // Usamos 'menuStrip1', que viene del archivo Designer, en lugar de crear uno nuevo.
+            menuStrip1.BackColor = Color.FromArgb(26, 32, 40);
+            menuStrip1.ForeColor = Color.White;
+            menuStrip1.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
+            menuStrip1.Renderer = new DarkMenuRenderer();
 
-            verMenuItem = new ToolStripMenuItem("Ver")
-            {
-                ForeColor = Color.White,
-                BackColor = Color.FromArgb(26, 32, 40)
-            };
-
+            // --- Menú "Ver" ---
+            verMenuItem = new ToolStripMenuItem("Ver");
             provinciasMenuItem = new ToolStripMenuItem("Provincias");
             localidadesMenuItem = new ToolStripMenuItem("Localidades");
-
             provinciasMenuItem.Click += (s, e) => AbrirFormulario<ProvinciaForm>();
             localidadesMenuItem.Click += (s, e) => AbrirFormulario<LocalidadForm>();
+            verMenuItem.DropDownItems.AddRange(new ToolStripItem[] { provinciasMenuItem, localidadesMenuItem });
 
-            verMenuItem.DropDownItems.Add(provinciasMenuItem);
-            verMenuItem.DropDownItems.Add(localidadesMenuItem);
-            mainMenuStrip.Items.Add(verMenuItem);
+            // --- Botón "Cerrar Sesión" ---
+            var btnCerrarSesion = new ToolStripMenuItem("Cerrar Sesión")
+            {
+                Alignment = ToolStripItemAlignment.Right // Alineado a la derecha
+            };
+            btnCerrarSesion.Click += btnCerrarSesion_Click; // Asignamos el evento
 
-            // Etiqueta para el nombre de usuario
+            // --- Etiqueta de Usuario ---
             usuarioLabel = new ToolStripLabel($"Usuario: {_userSessionService.CurrentUser?.NombreCompleto ?? "N/A"}")
             {
                 Alignment = ToolStripItemAlignment.Right,
@@ -81,12 +77,15 @@ namespace WinForms
                 Font = new Font("Century Gothic", 10F, FontStyle.Regular),
                 Padding = new Padding(0, 0, 20, 0)
             };
-            mainMenuStrip.Items.Add(usuarioLabel);
 
-            this.MainMenuStrip = mainMenuStrip;
-            this.Controls.Add(mainMenuStrip);
+            // Limpiamos items por si acaso y añadimos los nuestros en el orden correcto
+            menuStrip1.Items.Clear();
+            menuStrip1.Items.Add(verMenuItem);
+            menuStrip1.Items.Add(btnCerrarSesion);
+            menuStrip1.Items.Add(usuarioLabel);
         }
 
+        // Este método se mantiene exactamente como lo tenías, porque funcionaba bien.
         private void InitializeMainMenu()
         {
             menuPanel = new Panel
@@ -98,7 +97,6 @@ namespace WinForms
 
             Label titleLabel = new Label
             {
-                // La decisión se toma aquí, usando el servicio de sesión
                 Text = _userSessionService.EsAdmin ? "Panel de Administrador" : "Panel de Empleado",
                 ForeColor = Color.White,
                 Font = new Font("Century Gothic", 18F, FontStyle.Bold),
@@ -146,7 +144,8 @@ namespace WinForms
             if (menuPanel != null)
             {
                 int x = (this.ClientSize.Width - menuPanel.Width) / 2;
-                int y = ((this.ClientSize.Height - mainMenuStrip.Height) - menuPanel.Height) / 2 + mainMenuStrip.Height;
+                // Corregimos el cálculo de 'y' para que use 'menuStrip1'
+                int y = ((this.ClientSize.Height - menuStrip1.Height) - menuPanel.Height) / 2 + menuStrip1.Height;
                 menuPanel.Location = new Point(x, y);
             }
         }
@@ -199,27 +198,13 @@ namespace WinForms
             {
                 switch (clickedButton.Name)
                 {
-                    case "btnVentas":
-                        AbrirFormulario<VentaForm>();
-                        break;
-                    case "btnPedidos":
-                        AbrirFormulario<PedidoForm>();
-                        break;
-                    case "btnProductos":
-                        AbrirFormulario<ProductoForm>();
-                        break;
-                    case "btnPersonas":
-                        AbrirFormulario<PersonaForm>();
-                        break;
-                    case "btnTiposProducto":
-                        AbrirFormulario<TipoProductoForm>();
-                        break;
-                    case "btnProveedores":
-                        AbrirFormulario<ProveedorForm>();
-                        break;
-                    default:
-                        MessageBox.Show($"Funcionalidad para '{clickedButton.Text}' no definida.");
-                        break;
+                    case "btnVentas": AbrirFormulario<VentaForm>(); break;
+                    case "btnPedidos": AbrirFormulario<PedidoForm>(); break;
+                    case "btnProductos": AbrirFormulario<ProductoForm>(); break;
+                    case "btnPersonas": AbrirFormulario<PersonaForm>(); break;
+                    case "btnTiposProducto": AbrirFormulario<TipoProductoForm>(); break;
+                    case "btnProveedores": AbrirFormulario<ProveedorForm>(); break;
+                    default: MessageBox.Show($"Funcionalidad no definida."); break;
                 }
             }
         }
@@ -243,16 +228,14 @@ namespace WinForms
             form.Show();
         }
 
+        // Lógica de Cerrar Sesión (la que ya funcionaba bien)
         private void btnCerrarSesion_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
+            _userSessionService.Logout();
             this.Close();
         }
     }
 
-    /// <summary>
-    /// Renderer personalizado para un estilo de menú oscuro y moderno.
-    /// </summary>
     public class DarkMenuRenderer : ToolStripProfessionalRenderer
     {
         public DarkMenuRenderer() : base(new DarkMenuColors()) { }
@@ -269,4 +252,3 @@ namespace WinForms
         }
     }
 }
-
