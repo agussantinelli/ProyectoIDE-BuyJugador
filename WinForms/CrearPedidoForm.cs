@@ -117,7 +117,7 @@ namespace WinForms
                     IdProducto = productoSeleccionado.IdProducto,
                     Cantidad = cantidad,
                     NombreProducto = productoSeleccionado.Nombre,
-                    PrecioUnitario = productoSeleccionado.PrecioActual,
+                    PrecioUnitario = (decimal)productoSeleccionado.PrecioActual,
                     NroLineaPedido = _nroLineaCounter++
                 });
             }

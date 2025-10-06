@@ -135,7 +135,7 @@ namespace WinForms
             if (lineaExistente != null)
             {
                 lineaExistente.Cantidad += cantidadDeseada;
-                lineaExistente.Subtotal = lineaExistente.Cantidad * productoSeleccionado.PrecioActual;
+                lineaExistente.Subtotal = (decimal)(lineaExistente.Cantidad * productoSeleccionado.PrecioActual);
                 _lineasVentaActual.ResetBindings();
             }
             else
@@ -145,7 +145,7 @@ namespace WinForms
                     IdProducto = productoSeleccionado.IdProducto,
                     NombreProducto = productoSeleccionado.Nombre,
                     Cantidad = cantidadDeseada,
-                    Subtotal = productoSeleccionado.PrecioActual * (decimal)cantidadDeseada,
+                    Subtotal = (decimal)(productoSeleccionado.PrecioActual ?? 0) * cantidadDeseada,
                     NroLineaVenta = _nroLineaCounter++
                 };
                 _lineasVentaActual.Add(nuevaLinea);
@@ -178,7 +178,7 @@ namespace WinForms
                     }
 
                     linea.Cantidad = nuevaCantidad;
-                    linea.Subtotal = producto.PrecioActual * nuevaCantidad;
+                    linea.Subtotal = (decimal)producto.PrecioActual * nuevaCantidad;
                     _lineasVentaActual.ResetBindings();
                     ActualizarTotal();
                 }

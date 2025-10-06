@@ -155,8 +155,8 @@ namespace WinForms
                     IdProducto = productoSeleccionado.IdProducto,
                     NombreProducto = productoSeleccionado.Nombre,
                     Cantidad = cantidad,
-                    PrecioUnitario = productoSeleccionado.PrecioActual,
-                    EsNueva = true // Marcamos como nueva para el guardado
+                    PrecioUnitario = (decimal)productoSeleccionado.PrecioActual,
+                    EsNueva = true 
                 };
                 nuevaLinea.Subtotal = nuevaLinea.Cantidad * nuevaLinea.PrecioUnitario;
 

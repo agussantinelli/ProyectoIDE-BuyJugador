@@ -52,7 +52,7 @@ namespace WinForms
 
                 var precioDto = new PrecioVentaDTO
                 {
-                    Monto = numPrecio.Value,
+                    Monto = (decimal)numPrecio.Value,
                     FechaDesde = DateTime.Now
                 };
                 productoDto.Precios.Add(precioDto);

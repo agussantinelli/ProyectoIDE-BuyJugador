@@ -38,7 +38,7 @@ namespace WinForms
             txtNombre.Text = _producto.Nombre;
             txtDescripcion.Text = _producto.Descripcion;
             numStock.Value = _producto.Stock;
-            numPrecio.Value = _producto.PrecioActual;
+            numPrecio.Value = (decimal)(_producto.PrecioActual ?? 0);
             if (_producto.IdTipoProducto.HasValue)
             {
                 cmbTipoProducto.SelectedValue = _producto.IdTipoProducto.Value;
@@ -52,15 +52,14 @@ namespace WinForms
             _producto.Stock = (int)numStock.Value;
             _producto.IdTipoProducto = (int)cmbTipoProducto.SelectedValue;
 
-            // Si el precio cambió, se agrega uno nuevo con la fecha actual.
             if (numPrecio.Value != _producto.PrecioActual)
             {
                 var nuevoPrecio = new PrecioVentaDTO
                 {
-                    Monto = numPrecio.Value,
+                    Monto = (decimal)numPrecio.Value,
                     FechaDesde = DateTime.Now
                 };
-                // Aseguramos que la lista de precios no sea nula
+
                 if (_producto.Precios == null)
                 {
                     _producto.Precios = new List<PrecioVentaDTO>();

@@ -30,7 +30,7 @@ namespace WinForms
                     IdProducto = _producto.IdProducto,
                     NombreProducto = _producto.Nombre,
                     Cantidad = cantidad,
-                    PrecioUnitario = _producto.PrecioActual
+                    PrecioUnitario = (decimal)_producto.PrecioActual
                 };
                 DialogResult = DialogResult.OK;
             }

@@ -18,7 +18,11 @@ namespace WebAPI.Endpoints
             g.MapGet("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
                 var dto = await service.GetByIdAsync(idProducto, idProveedor);
-                return dto is not null ? Results.Ok(dto) : Results.NotFound();
+                if (dto is null)
+                {
+                    return Results.NotFound();
+                }
+                return Results.Ok(dto);
             });
 
             g.MapPost("/", async (PrecioCompraDTO dto, PrecioCompraService service) =>
@@ -29,14 +33,14 @@ namespace WebAPI.Endpoints
 
             g.MapPut("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraDTO dto, PrecioCompraService service) =>
             {
-                var actualizado = await service.UpdateAsync(idProducto, idProveedor, dto);
-                return actualizado ? Results.NoContent() : Results.NotFound();
+                await service.UpdateAsync(idProducto, idProveedor, dto);
+                return Results.NoContent();
             });
 
             g.MapDelete("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
-                var eliminado = await service.DeleteAsync(idProducto, idProveedor);
-                return eliminado ? Results.NoContent() : Results.NotFound();
+                await service.DeleteAsync(idProducto, idProveedor);
+                return Results.NoContent();
             });
         }
     }

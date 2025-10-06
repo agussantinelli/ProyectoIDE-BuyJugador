@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DTOs
 {
@@ -11,6 +13,7 @@ namespace DTOs
         public int? IdTipoProducto { get; set; }
         public string? TipoProductoDescripcion { get; set; }
         public decimal? PrecioActual { get; set; }
+        public List<PrecioVentaDTO> Precios { get; set; } = new();
 
         public static ProductoDTO? FromDominio(DominioModelo.Producto p)
         {
@@ -28,7 +31,14 @@ namespace DTOs
                 Stock = p.Stock,
                 IdTipoProducto = p.IdTipoProducto,
                 TipoProductoDescripcion = p.IdTipoProductoNavigation?.Descripcion,
-                PrecioActual = precioActual
+                PrecioActual = precioActual,
+                Precios = p.PreciosVenta?.Select(pr => new PrecioVentaDTO
+                {
+                    IdProducto = pr.IdProducto,
+                    FechaDesde = pr.FechaDesde,
+                    Monto = pr.Monto,
+                    NombreProducto = p.Nombre
+                }).ToList() ?? new List<PrecioVentaDTO>()
             };
         }
 
@@ -40,10 +50,9 @@ namespace DTOs
                 Nombre = Nombre,
                 Descripcion = Descripcion,
                 Stock = Stock,
-                IdTipoProducto = IdTipoProducto ?? null,
+                IdTipoProducto = IdTipoProducto,
                 Activo = true
             };
         }
     }
 }
-
