@@ -286,6 +286,88 @@ public static class DbSeeder
                 await context.SaveChangesAsync();
             }
         }
+
+        if (!context.ProductoProveedores.Any() || context.PreciosCompra.Count() < context.ProductoProveedores.Count())
+        {
+            var proveedores = await context.Proveedores.ToListAsync();
+            var productos = await context.Productos
+                .Include(p => p.PreciosVenta)
+                .ToListAsync();
+
+            var relaciones = new List<ProductoProveedor>();
+            var preciosCompra = new List<PrecioCompra>();
+
+            foreach (var proveedor in proveedores)
+            {
+                var productosAsignados = productos
+                    .OrderBy(p => p.IdProducto)
+                    .Skip((proveedor.IdProveedor * 2) % productos.Count)
+                    .Take(8)
+                    .ToList();
+
+                foreach (var producto in productosAsignados)
+                {
+                    if (!context.ProductoProveedores.Any(r => r.IdProveedor == proveedor.IdProveedor && r.IdProducto == producto.IdProducto))
+                    {
+                        relaciones.Add(new ProductoProveedor
+                        {
+                            IdProveedor = proveedor.IdProveedor,
+                            IdProducto = producto.IdProducto
+                        });
+                    }
+
+                    var precioVenta = producto.PreciosVenta.FirstOrDefault()?.Monto ?? 10000m;
+
+                    decimal multiplicadorCompra = 0.70m; 
+                    if (producto.Nombre.Contains("Software", StringComparison.OrdinalIgnoreCase))
+                        multiplicadorCompra = 0.85m;
+                    else if (producto.Nombre.Contains("Servidor", StringComparison.OrdinalIgnoreCase))
+                        multiplicadorCompra = 0.75m;
+                    else if (producto.Nombre.Contains("Accesorio", StringComparison.OrdinalIgnoreCase) ||
+                             producto.Nombre.Contains("Kit", StringComparison.OrdinalIgnoreCase))
+                        multiplicadorCompra = 0.60m;
+                    else if (producto.Nombre.Contains("Laptop", StringComparison.OrdinalIgnoreCase))
+                        multiplicadorCompra = 0.65m;
+
+                    var ajusteProveedor = proveedor.RazonSocial switch
+                    {
+                        var s when s.Contains("TecnoImport") => 1.05m,
+                        var s when s.Contains("ElectroRed") => 0.97m,
+                        var s when s.Contains("Softy") => 0.90m,
+                        var s when s.Contains("GigaNet") => 0.95m,
+                        var s when s.Contains("Comercial Andina") => 1.08m,
+                        _ => 1.00m
+                    };
+
+                    var precioCompraFinal = Math.Round(precioVenta * multiplicadorCompra * ajusteProveedor, 2);
+
+                    if (!context.PreciosCompra.Any(pc => pc.IdProveedor == proveedor.IdProveedor && pc.IdProducto == producto.IdProducto))
+                    {
+                        preciosCompra.Add(new PrecioCompra
+                        {
+                            IdProveedor = proveedor.IdProveedor,
+                            IdProducto = producto.IdProducto,
+                            Monto = precioCompraFinal
+                        });
+                    }
+                }
+            }
+
+            if (relaciones.Any())
+            {
+                context.ProductoProveedores.AddRange(relaciones);
+            }
+
+            if (preciosCompra.Any())
+            {
+                context.PreciosCompra.AddRange(preciosCompra);
+            }
+
+            await context.SaveChangesAsync();
+            Console.WriteLine("Relaciones Producto-Proveedor y PreciosCompra sincronizados correctamente.");
+        }
+
+
         if (!context.Ventas.Any())
         {
             var personas = context.Personas.ToList();
@@ -423,11 +505,33 @@ public static class DbSeeder
         Console.WriteLine("Database seeded successfully!");
     }
 
+    private static async Task<string> GetWithRetryAsync(HttpClient client, string url, int maxRetries = 5)
+    {
+        for (int i = 0; i < maxRetries; i++)
+        {
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                Console.WriteLine($"API limit reached, waiting {3 * (i + 1)}s...");
+                await Task.Delay(3000 * (i + 1)); 
+            }
+            else
+            {
+                response.EnsureSuccessStatusCode();
+            }
+        }
+
+        throw new HttpRequestException("Max retries reached for: " + url);
+    }
+
     private static async Task SeedProvinciasYLocalidadesAsync(BuyJugadorContext context)
     {
         using var httpClient = new HttpClient();
 
-        var responseProvincias = await httpClient.GetStringAsync("https://apis.datos.gob.ar/georef/api/provincias?campos=nombre");
+        var responseProvincias = await GetWithRetryAsync(httpClient, "https://apis.datos.gob.ar/georef/api/provincias?campos=nombre");
         var apiResponseProvincias = JsonSerializer.Deserialize<ApiResponseProvincias>(responseProvincias, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (apiResponseProvincias?.Provincias == null)
@@ -451,7 +555,7 @@ public static class DbSeeder
         foreach (var provincia in provinciasDB)
         {
             var nombreProvinciaParaApi = provincia.Nombre == "CABA" ? "Ciudad Autónoma de Buenos Aires" : provincia.Nombre;
-            var responseLocalidades = await httpClient.GetStringAsync($"https://apis.datos.gob.ar/georef/api/municipios?provincia={Uri.EscapeDataString(nombreProvinciaParaApi)}&campos=nombre&max=500");
+            var responseLocalidades = await GetWithRetryAsync(httpClient, $"https://apis.datos.gob.ar/georef/api/municipios?provincia={Uri.EscapeDataString(nombreProvinciaParaApi)}&campos=nombre&max=500");
             var apiResponseLocalidades = JsonSerializer.Deserialize<ApiResponseMunicipios>(responseLocalidades, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             if (apiResponseLocalidades?.Municipios != null)
