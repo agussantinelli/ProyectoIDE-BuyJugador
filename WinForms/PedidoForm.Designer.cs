@@ -32,72 +32,77 @@
             this.panelBotones.SuspendLayout();
             this.SuspendLayout();
             // 
-            // txtBuscarProveedor
-            // 
-            this.txtBuscarProveedor.Location = new System.Drawing.Point(135, 12);
-            this.txtBuscarProveedor.Name = "txtBuscarProveedor";
-            this.txtBuscarProveedor.Size = new System.Drawing.Size(200, 23);
-            this.txtBuscarProveedor.TabIndex = 0;
-            this.txtBuscarProveedor.TextChanged += new System.EventHandler(this.FiltrosChanged);
-            // 
             // lblBuscarProveedor
             // 
             this.lblBuscarProveedor.AutoSize = true;
-            this.lblBuscarProveedor.Location = new System.Drawing.Point(12, 15);
+            this.lblBuscarProveedor.Location = new System.Drawing.Point(12, 12);
             this.lblBuscarProveedor.Name = "lblBuscarProveedor";
-            this.lblBuscarProveedor.Size = new System.Drawing.Size(117, 15);
-            this.lblBuscarProveedor.TabIndex = 1;
-            this.lblBuscarProveedor.Text = "Buscar por Proveedor:";
+            this.lblBuscarProveedor.Size = new System.Drawing.Size(121, 15);
+            this.lblBuscarProveedor.Text = "Buscar por proveedor:";
             // 
-            // cmbFiltroGasto
+            // txtBuscarProveedor
             // 
-            this.cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFiltroGasto.FormattingEnabled = true;
-            this.cmbFiltroGasto.Location = new System.Drawing.Point(450, 12);
-            this.cmbFiltroGasto.Name = "cmbFiltroGasto";
-            this.cmbFiltroGasto.Size = new System.Drawing.Size(180, 23);
-            this.cmbFiltroGasto.TabIndex = 2;
-            this.cmbFiltroGasto.SelectedIndexChanged += new System.EventHandler(this.FiltrosChanged);
+            this.txtBuscarProveedor.Location = new System.Drawing.Point(139, 12);
+            this.txtBuscarProveedor.Size = new System.Drawing.Size(400, 23);
+            this.txtBuscarProveedor.TextChanged += new System.EventHandler(this.FiltrosChanged);
             // 
             // lblFiltroGasto
             // 
             this.lblFiltroGasto.AutoSize = true;
-            this.lblFiltroGasto.Location = new System.Drawing.Point(360, 15);
+            this.lblFiltroGasto.Location = new System.Drawing.Point(550, 12);
             this.lblFiltroGasto.Name = "lblFiltroGasto";
-            this.lblFiltroGasto.Size = new System.Drawing.Size(84, 15);
-            this.lblFiltroGasto.TabIndex = 3;
-            this.lblFiltroGasto.Text = "Filtrar por Total:";
+            this.lblFiltroGasto.Size = new System.Drawing.Size(86, 15);
+            this.lblFiltroGasto.Text = "Filtrar por total:";
+            // 
+            // cmbFiltroGasto
+            // 
+            this.cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbFiltroGasto.Items.AddRange(new object[] {
+                "Todos",
+                "Hasta $10.000",
+                "$10.001 a $50.000",
+                "Más de $50.000"
+            });
+            this.cmbFiltroGasto.SelectedIndex = 0;
+            this.cmbFiltroGasto.Location = new System.Drawing.Point(640, 12);
+            this.cmbFiltroGasto.Size = new System.Drawing.Size(130, 23);
+            this.cmbFiltroGasto.SelectedIndexChanged += new System.EventHandler(this.FiltrosChanged);
             // 
             // dataGridPedidos
             // 
+            this.dataGridPedidos.AllowUserToAddRows = false;
+            this.dataGridPedidos.AllowUserToDeleteRows = false;
             this.dataGridPedidos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridPedidos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridPedidos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridPedidos.Location = new System.Drawing.Point(12, 50);
-            this.dataGridPedidos.Name = "dataGridPedidos";
+            this.dataGridPedidos.Location = new System.Drawing.Point(12, 45);
+            this.dataGridPedidos.MultiSelect = false;
+            this.dataGridPedidos.ReadOnly = true;
             this.dataGridPedidos.RowTemplate.Height = 25;
+            this.dataGridPedidos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridPedidos.Size = new System.Drawing.Size(760, 340);
-            this.dataGridPedidos.TabIndex = 4;
+            this.dataGridPedidos.SelectionChanged += new System.EventHandler(this.DataGridPedidos_SelectionChanged);
             // 
             // panelBotones
             // 
             this.panelBotones.Controls.Add(this.btnVolver);
-            this.panelBotones.Controls.Add(this.btnFinalizarPedido);
             this.panelBotones.Controls.Add(this.btnNuevoPedido);
             this.panelBotones.Controls.Add(this.btnEliminar);
             this.panelBotones.Controls.Add(this.btnVerDetalle);
+            this.panelBotones.Controls.Add(this.btnFinalizarPedido);
             this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelBotones.Location = new System.Drawing.Point(0, 400);
+            this.panelBotones.Location = new System.Drawing.Point(0, 399);
             this.panelBotones.Name = "panelBotones";
-            this.panelBotones.Size = new System.Drawing.Size(784, 61);
-            this.panelBotones.TabIndex = 5;
+            this.panelBotones.Size = new System.Drawing.Size(784, 62);
+            this.panelBotones.TabIndex = 1;
             // 
             // btnVolver
             // 
-            this.btnVolver.Location = new System.Drawing.Point(12, 19);
+            this.btnVolver.Location = new System.Drawing.Point(12, 17);
             this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(100, 30);
+            this.btnVolver.Size = new System.Drawing.Size(115, 30);
             this.btnVolver.TabIndex = 0;
             this.btnVolver.Text = "Volver";
             this.btnVolver.UseVisualStyleBackColor = true;
@@ -105,10 +110,9 @@
             // 
             // btnNuevoPedido
             // 
-            this.btnNuevoPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnNuevoPedido.Location = new System.Drawing.Point(672, 19);
+            this.btnNuevoPedido.Location = new System.Drawing.Point(133, 17);
             this.btnNuevoPedido.Name = "btnNuevoPedido";
-            this.btnNuevoPedido.Size = new System.Drawing.Size(100, 30);
+            this.btnNuevoPedido.Size = new System.Drawing.Size(115, 30);
             this.btnNuevoPedido.TabIndex = 1;
             this.btnNuevoPedido.Text = "Nuevo Pedido";
             this.btnNuevoPedido.UseVisualStyleBackColor = true;
@@ -116,10 +120,9 @@
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnEliminar.Location = new System.Drawing.Point(566, 19);
+            this.btnEliminar.Location = new System.Drawing.Point(254, 17);
             this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(100, 30);
+            this.btnEliminar.Size = new System.Drawing.Size(115, 30);
             this.btnEliminar.TabIndex = 2;
             this.btnEliminar.Text = "Eliminar";
             this.btnEliminar.UseVisualStyleBackColor = true;
@@ -128,9 +131,9 @@
             // btnVerDetalle
             // 
             this.btnVerDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnVerDetalle.Location = new System.Drawing.Point(460, 19);
+            this.btnVerDetalle.Location = new System.Drawing.Point(657, 17);
             this.btnVerDetalle.Name = "btnVerDetalle";
-            this.btnVerDetalle.Size = new System.Drawing.Size(100, 30);
+            this.btnVerDetalle.Size = new System.Drawing.Size(115, 30);
             this.btnVerDetalle.TabIndex = 3;
             this.btnVerDetalle.Text = "Ver Detalle";
             this.btnVerDetalle.UseVisualStyleBackColor = true;
@@ -138,12 +141,11 @@
             // 
             // btnFinalizarPedido
             // 
-            this.btnFinalizarPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnFinalizarPedido.Location = new System.Drawing.Point(324, 19);
+            this.btnFinalizarPedido.Location = new System.Drawing.Point(375, 17);
             this.btnFinalizarPedido.Name = "btnFinalizarPedido";
-            this.btnFinalizarPedido.Size = new System.Drawing.Size(130, 30);
+            this.btnFinalizarPedido.Size = new System.Drawing.Size(115, 30);
             this.btnFinalizarPedido.TabIndex = 4;
-            this.btnFinalizarPedido.Text = "Marcar como Recibido";
+            this.btnFinalizarPedido.Text = "Recibido";
             this.btnFinalizarPedido.UseVisualStyleBackColor = true;
             this.btnFinalizarPedido.Click += new System.EventHandler(this.btnFinalizarPedido_Click);
             // 
@@ -182,4 +184,3 @@
         private System.Windows.Forms.Label lblFiltroGasto;
     }
 }
-

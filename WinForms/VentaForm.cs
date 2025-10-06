@@ -25,7 +25,7 @@ namespace WinForms
             _ventaApiClient = ventaApiClient;
             _serviceProvider = serviceProvider;
             _userSessionService = userSessionService;
-            _todasLasVentas = new List<VentaDTO>(); // Inicializar para evitar nulos
+            _todasLasVentas = new List<VentaDTO>();
 
             this.StartPosition = FormStartPosition.CenterScreen;
 
@@ -50,7 +50,6 @@ namespace WinForms
             bool esAdmin = _userSessionService.EsAdmin;
             btnNuevaVenta.Visible = esAdmin;
             btnEliminar.Visible = esAdmin;
-            // La visibilidad de Finalizar Venta se controla dinámicamente
         }
 
         private async Task CargarVentas()
@@ -64,7 +63,7 @@ namespace WinForms
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                _todasLasVentas = new List<VentaDTO>(); // Asegurar que la lista no sea nula en caso de error
+                _todasLasVentas = new List<VentaDTO>(); 
             }
             finally
             {
@@ -179,7 +178,7 @@ namespace WinForms
                 }
 
                 detalleForm.Venta = ventaCompleta;
-                // --- LÍNEA CORREGIDA ---
+
                 detalleForm.EsAdmin = _userSessionService.EsAdmin;
 
                 if (detalleForm.ShowDialog() == DialogResult.OK)
@@ -290,7 +289,7 @@ namespace WinForms
             else
             {
                 btnFinalizarVenta.Enabled = false;
-                btnFinalizarVenta.Visible = _userSessionService.EsAdmin; // Mantener visible pero deshabilitado si es admin
+                btnFinalizarVenta.Visible = _userSessionService.EsAdmin; 
             }
         }
 
