@@ -1,6 +1,6 @@
+using ApiClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ApiClient;
 using System;
 using System.Net.Http;
 using System.Windows.Forms;
@@ -13,10 +13,13 @@ namespace WinForms
         static void Main()
         {
             ApplicationConfiguration.Initialize();
+
+            // 1. Se configura y construye el host que manejará las dependencias.
             var host = Host.CreateDefaultBuilder().ConfigureServices((context, services) =>
             {
-                var apiBaseAddress = new Uri("https://localhost:7145/");
+                var apiBaseAddress = new Uri("https://localhost:7145/"); // Asegúrate que este puerto sea el correcto
 
+                // Función para manejar certificados SSL en desarrollo
                 HttpMessageHandler CreateHandler()
                 {
                     if (context.HostingEnvironment.IsDevelopment())
@@ -24,6 +27,7 @@ namespace WinForms
                     return new HttpClientHandler();
                 }
 
+                // Registro de todos los ApiClients
                 services.AddHttpClient<PersonaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<PrecioCompraApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProvinciaApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
@@ -38,7 +42,7 @@ namespace WinForms
                 services.AddHttpClient<LineaPedidoApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
                 services.AddHttpClient<ProductoProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
-
+                // --- Servicios ---
                 services.AddSingleton<UserSessionService>();
 
                 services.AddTransient<LoginForm>();
@@ -67,17 +71,42 @@ namespace WinForms
                 services.AddTransient<CrearPedidoForm>();
                 services.AddTransient<DetallePedidoForm>();
                 services.AddTransient<AsignarProductosProveedorForm>();
-
+                services.AddTransient<AñanirProductoPedidoForm>(); // Corregí el nombre que estaba en tu código original
             }).Build();
 
-            using var scope = host.Services.CreateScope();
-            var sp = scope.ServiceProvider;
-
-            var loginForm = sp.GetRequiredService<LoginForm>();
-            if (loginForm.ShowDialog() == DialogResult.OK)
+            // 2. Bucle principal que controla el flujo de la aplicación
+            while (true)
             {
-                var mainForm = sp.GetRequiredService<MainForm>();
-                Application.Run(mainForm);
+                var userSessionService = host.Services.GetRequiredService<UserSessionService>();
+
+                // Usamos el Service Provider del host para obtener una nueva instancia del LoginForm
+                using (var loginForm = host.Services.GetRequiredService<LoginForm>())
+                {
+                    // Si el usuario cierra el login, salimos del bucle y la app termina.
+                    if (loginForm.ShowDialog() != DialogResult.OK)
+                    {
+                        break;
+                    }
+                }
+
+                // Si el login fue exitoso, creamos y corremos el formulario principal.
+                using (var mainForm = host.Services.GetRequiredService<MainForm>())
+                {
+                    Application.Run(mainForm);
+                }
+
+                // Después de que MainForm se cierra, verificamos si fue por un logout.
+                // Si CurrentUser es null, es porque se llamó a Logout().
+                if (userSessionService.CurrentUser == null)
+                {
+                    // Si fue un logout, el bucle 'while' se reinicia y vuelve a mostrar el LoginForm.
+                    continue;
+                }
+                else
+                {
+                    // Si se cerró con la 'X', la sesión NO es null, y salimos del bucle para cerrar la app.
+                    break;
+                }
             }
         }
     }
