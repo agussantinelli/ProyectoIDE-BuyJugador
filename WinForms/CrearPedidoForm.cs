@@ -1,11 +1,11 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace WinForms
 {
@@ -14,18 +14,22 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly PedidoApiClient _pedidoApiClient;
         private readonly ProveedorApiClient _proveedorApiClient;
+        private readonly PrecioCompraApiClient _precioCompraApiClient;
+
 
         private BindingList<LineaPedidoDTO> _lineasPedidoActual = new();
         private int _nroLineaCounter = 1;
 
-        public CrearPedidoForm(ProductoApiClient productoApiClient, PedidoApiClient pedidoApiClient, ProveedorApiClient proveedorApiClient)
+
+        public CrearPedidoForm(ProductoApiClient productoApiClient, PedidoApiClient pedidoApiClient, ProveedorApiClient proveedorApiClient, PrecioCompraApiClient precioCompraApiClient)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _pedidoApiClient = pedidoApiClient;
             _proveedorApiClient = proveedorApiClient;
+            _precioCompraApiClient = precioCompraApiClient;
 
-            // Estilos
+
             StyleManager.ApplyDataGridViewStyle(dataGridLineasPedido);
             StyleManager.ApplyButtonStyle(btnConfirmarPedido);
             StyleManager.ApplyButtonStyle(btnAgregarProducto);
@@ -33,12 +37,14 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
+
         private async void CrearPedidoForm_Load(object sender, EventArgs e)
         {
             await CargarProveedores();
             ConfigurarGridLineas();
             dataGridLineasPedido.DataSource = _lineasPedidoActual;
         }
+
 
         private async Task CargarProveedores()
         {
@@ -56,6 +62,7 @@ namespace WinForms
                 MessageBox.Show($"Error al cargar proveedores: {ex.Message}", "Error");
             }
         }
+
 
         private async void cmbProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -80,22 +87,23 @@ namespace WinForms
             }
         }
 
+
         private void ConfigurarGridLineas()
         {
             dataGridLineasPedido.AutoGenerateColumns = false;
             dataGridLineasPedido.Columns.Clear();
-
             dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
             dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = true });
             dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
             dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
         }
 
-        private void btnAgregarProducto_Click(object sender, EventArgs e)
+
+        private async void btnAgregarProducto_Click(object sender, EventArgs e)
         {
-            if (cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
+            if (cmbProveedores.SelectedItem is not ProveedorDTO proveedorSeleccionado || cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
             {
-                MessageBox.Show("Seleccione un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Seleccione un proveedor y un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             var cantidad = (int)numCantidad.Value;
@@ -105,26 +113,44 @@ namespace WinForms
                 return;
             }
 
-            var lineaExistente = _lineasPedidoActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
-            if (lineaExistente != null)
+
+            try
             {
-                lineaExistente.Cantidad += cantidad;
-            }
-            else
-            {
-                _lineasPedidoActual.Add(new LineaPedidoDTO
+                var precioCompra = await _precioCompraApiClient.GetByIdAsync(productoSeleccionado.IdProducto, proveedorSeleccionado.IdProveedor);
+
+
+                if (precioCompra == null)
                 {
-                    IdProducto = productoSeleccionado.IdProducto,
-                    Cantidad = cantidad,
-                    NombreProducto = productoSeleccionado.Nombre,
-                    PrecioUnitario = (decimal)productoSeleccionado.PrecioActual,
-                    NroLineaPedido = _nroLineaCounter++
-                });
+                    MessageBox.Show("Este producto no tiene un precio de compra asignado por el proveedor seleccionado. No se puede agregar al pedido.", "Precio no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+
+                var lineaExistente = _lineasPedidoActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
+                if (lineaExistente != null)
+                {
+                    lineaExistente.Cantidad += cantidad;
+                }
+                else
+                {
+                    _lineasPedidoActual.Add(new LineaPedidoDTO
+                    {
+                        IdProducto = productoSeleccionado.IdProducto,
+                        Cantidad = cantidad,
+                        NombreProducto = productoSeleccionado.Nombre,
+                        PrecioUnitario = precioCompra.Monto,
+                        NroLineaPedido = _nroLineaCounter++
+                    });
+                }
+                _lineasPedidoActual.ResetBindings();
+                ActualizarTotal();
             }
-            dataGridLineasPedido.DataSource = null;
-            dataGridLineasPedido.DataSource = _lineasPedidoActual;
-            ActualizarTotal();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ocurrió un error al verificar el precio: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
@@ -135,10 +161,12 @@ namespace WinForms
             }
         }
 
+
         private void ActualizarTotal()
         {
             lblTotalPedido.Text = $"Total: {_lineasPedidoActual.Sum(l => l.Subtotal):C}";
         }
+
 
         private async void btnConfirmarPedido_Click(object sender, EventArgs e)
         {
@@ -148,11 +176,13 @@ namespace WinForms
                 return;
             }
 
+
             var pedidoCompletoDto = new CrearPedidoCompletoDTO
             {
                 IdProveedor = (int)cmbProveedores.SelectedValue,
                 LineasPedido = _lineasPedidoActual.ToList(),
             };
+
 
             try
             {
@@ -167,6 +197,9 @@ namespace WinForms
             }
         }
 
+
         private void btnCancelar_Click(object sender, EventArgs e) => this.DialogResult = DialogResult.Cancel;
     }
 }
+
+

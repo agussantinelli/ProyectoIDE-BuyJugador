@@ -1,5 +1,9 @@
 ﻿using DominioServicios;
 using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
 
 namespace WebAPI.Endpoints
 {
@@ -7,37 +11,33 @@ namespace WebAPI.Endpoints
     {
         public static void MapPrecioCompraEndpoints(this WebApplication app)
         {
-            var g = app.MapGroup("/api/precios-compra");
+            var group = app.MapGroup("/api/preciocompra");
 
-            g.MapGet("/", async (PrecioCompraService service) =>
+
+            group.MapGet("/", async (PrecioCompraService service) => Results.Ok(await service.GetAllAsync()));
+
+            group.MapGet("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
-                var precios = await service.GetAllAsync();
-                return Results.Ok(precios);
+                var precio = await service.GetByIdAsync(idProducto, idProveedor);
+                return precio is not null ? Results.Ok(precio) : Results.NotFound();
             });
 
-            g.MapGet("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
+
+            group.MapPost("/", async (PrecioCompraService service, [FromBody] PrecioCompraDTO dto) =>
             {
-                var dto = await service.GetByIdAsync(idProducto, idProveedor);
-                if (dto is null)
-                {
-                    return Results.NotFound();
-                }
-                return Results.Ok(dto);
+                var created = await service.CreateAsync(dto);
+                return Results.Created($"/api/preciocompra/{created.IdProducto}/{created.IdProveedor}", created);
             });
 
-            g.MapPost("/", async (PrecioCompraDTO dto, PrecioCompraService service) =>
-            {
-                var creado = await service.CreateAsync(dto);
-                return Results.Created($"/api/precios-compra/{creado.IdProducto}/{creado.IdProveedor}", creado);
-            });
 
-            g.MapPut("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraDTO dto, PrecioCompraService service) =>
+            group.MapPut("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, [FromBody] PrecioCompraDTO dto, PrecioCompraService service) =>
             {
                 await service.UpdateAsync(idProducto, idProveedor, dto);
                 return Results.NoContent();
             });
 
-            g.MapDelete("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
+
+            group.MapDelete("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
                 await service.DeleteAsync(idProducto, idProveedor);
                 return Results.NoContent();
