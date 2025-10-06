@@ -130,12 +130,14 @@ namespace WinForms
             }
             else
             {
-                buttonGrid.ColumnCount = 1;
-                buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+                buttonGrid.ColumnCount = 2;
+                buttonGrid.RowCount = 2; // Especificamos 2 filas
+                buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+                buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Fila 1
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Fila 2
                 CreateEmpleadoButtons(buttonGrid);
+
             }
         }
 
@@ -168,8 +170,9 @@ namespace WinForms
         private void CreateEmpleadoButtons(TableLayoutPanel grid)
         {
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
+            grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 0); // Botón nuevo
             grid.Controls.Add(CreateMenuButton("btnPedidos", "Pedidos"), 0, 1);
-            grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);
+            grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 1, 1);
         }
 
         private Button CreateMenuButton(string name, string text)
