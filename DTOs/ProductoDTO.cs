@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace DTOs
 {
@@ -8,58 +6,43 @@ namespace DTOs
     {
         public int IdProducto { get; set; }
         public string Nombre { get; set; }
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
         public int Stock { get; set; }
         public int? IdTipoProducto { get; set; }
-        public string TipoProductoDescripcion { get; set; }
-        public decimal PrecioActual { get; set; }
-        public List<PrecioVentaDTO> Precios { get; set; } = new List<PrecioVentaDTO>();
+        public string? TipoProductoDescripcion { get; set; }
+        public decimal? PrecioActual { get; set; }
 
-        public static ProductoDTO FromDominio(DominioModelo.Producto entidad)
+        public static ProductoDTO? FromDominio(DominioModelo.Producto p)
         {
-            if (entidad == null) return null;
+            if (p == null) return null;
+
+            var precioActual = p.PreciosVenta?
+                .OrderByDescending(pr => pr.FechaDesde)
+                .FirstOrDefault()?.Monto;
 
             return new ProductoDTO
             {
-                IdProducto = entidad.IdProducto,
-                Nombre = entidad.Nombre,
-                Descripcion = entidad.Descripcion,
-                Stock = entidad.Stock,
-                IdTipoProducto = entidad.IdTipoProducto,
-                TipoProductoDescripcion = entidad.IdTipoProductoNavigation?.Descripcion,
-                PrecioActual = entidad.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0,
-                Precios = entidad.Precios?.Select(PrecioVentaDTO.FromDominio).ToList() ?? new List<PrecioVentaDTO>()
+                IdProducto = p.IdProducto,
+                Nombre = p.Nombre,
+                Descripcion = p.Descripcion,
+                Stock = p.Stock,
+                IdTipoProducto = p.IdTipoProducto,
+                TipoProductoDescripcion = p.IdTipoProductoNavigation?.Descripcion,
+                PrecioActual = precioActual
             };
         }
 
         public DominioModelo.Producto ToDominio()
         {
-            var productoDominio = new DominioModelo.Producto
+            return new DominioModelo.Producto
             {
-                IdProducto = this.IdProducto,
-                Nombre = this.Nombre,
-                Descripcion = this.Descripcion,
-                Stock = this.Stock,
-                IdTipoProducto = this.IdTipoProducto,
-                Activo = true 
+                IdProducto = IdProducto,
+                Nombre = Nombre,
+                Descripcion = Descripcion,
+                Stock = Stock,
+                IdTipoProducto = IdTipoProducto ?? null,
+                Activo = true
             };
-
-            if (this.Precios != null)
-            {
-                foreach (var precioDto in this.Precios)
-                {
-                    if (precioDto != null)
-                    {
-                        productoDominio.Precios.Add(new DominioModelo.PrecioVenta
-                        {
-                            Monto = precioDto.Monto,
-                            FechaDesde = precioDto.FechaDesde
-                        });
-                    }
-                }
-            }
-
-            return productoDominio;
         }
     }
 }

@@ -9,32 +9,34 @@ namespace WebAPI.Endpoints
         {
             var g = app.MapGroup("/api/precios-compra");
 
-            g.MapGet("/", async (PrecioCompraService s) => Results.Ok(await s.GetAllAsync()));
-
-            g.MapGet("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService s) =>
+            g.MapGet("/", async (PrecioCompraService service) =>
             {
-                var dto = await s.GetByIdAsync(idProducto, idProveedor);
+                var precios = await service.GetAllAsync();
+                return Results.Ok(precios);
+            });
+
+            g.MapGet("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
+            {
+                var dto = await service.GetByIdAsync(idProducto, idProveedor);
                 return dto is not null ? Results.Ok(dto) : Results.NotFound();
             });
 
-            g.MapPost("/", async (PrecioCompraDTO dto, PrecioCompraService s) =>
+            g.MapPost("/", async (PrecioCompraDTO dto, PrecioCompraService service) =>
             {
-                var nuevo = await s.UpsertAsync(dto);
-                return Results.Created($"/api/precios-compra/{nuevo.IdProducto}/{nuevo.IdProveedor}", nuevo);
+                var creado = await service.CreateAsync(dto);
+                return Results.Created($"/api/precios-compra/{creado.IdProducto}/{creado.IdProveedor}", creado);
             });
 
-            g.MapPut("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraDTO dto, PrecioCompraService s) =>
+            g.MapPut("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraDTO dto, PrecioCompraService service) =>
             {
-                if (idProducto != dto.IdProducto || idProveedor != dto.IdProveedor)
-                    return Results.BadRequest();
-                await s.UpsertAsync(dto);
-                return Results.NoContent();
+                var actualizado = await service.UpdateAsync(idProducto, idProveedor, dto);
+                return actualizado ? Results.NoContent() : Results.NotFound();
             });
 
-            g.MapDelete("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService s) =>
+            g.MapDelete("/{idProducto:int}/{idProveedor:int}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
-                await s.DeleteAsync(idProducto, idProveedor);
-                return Results.NoContent();
+                var eliminado = await service.DeleteAsync(idProducto, idProveedor);
+                return eliminado ? Results.NoContent() : Results.NotFound();
             });
         }
     }

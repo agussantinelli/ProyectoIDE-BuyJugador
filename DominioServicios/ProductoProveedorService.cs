@@ -1,11 +1,9 @@
 ﻿using Data;
-using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace DominioServicios
 {
@@ -29,9 +27,11 @@ namespace DominioServicios
                     Nombre = p.Nombre,
                     Descripcion = p.Descripcion,
                     Stock = p.Stock,
-                    PrecioActual = p.Precios.OrderByDescending(pr => pr.FechaDesde).FirstOrDefault().Monto,
                     IdTipoProducto = p.IdTipoProducto,
-                    TipoProductoDescripcion = p.IdTipoProductoNavigation.Descripcion
+                    TipoProductoDescripcion = p.IdTipoProductoNavigation.Descripcion,
+                    PrecioActual = p.PreciosVenta
+                        .OrderByDescending(pr => pr.FechaDesde)
+                        .FirstOrDefault().Monto
                 })
                 .ToListAsync();
 
@@ -49,7 +49,7 @@ namespace DominioServicios
 
             if (dto.IdsProducto.Any())
             {
-                var newRelations = dto.IdsProducto.Select(idProducto => new ProductoProveedor
+                var newRelations = dto.IdsProducto.Select(idProducto => new DominioModelo.ProductoProveedor
                 {
                     IdProveedor = dto.IdProveedor,
                     IdProducto = idProducto
@@ -65,10 +65,7 @@ namespace DominioServicios
             var pp = await _context.ProductoProveedores
                 .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
 
-            if (pp == null)
-            {
-                return false;
-            }
+            if (pp == null) return false;
 
             _context.ProductoProveedores.Remove(pp);
             await _context.SaveChangesAsync();
@@ -76,4 +73,3 @@ namespace DominioServicios
         }
     }
 }
-

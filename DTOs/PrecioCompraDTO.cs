@@ -5,15 +5,19 @@
         public int IdProducto { get; set; }
         public int IdProveedor { get; set; }
         public decimal Monto { get; set; }
+        public string? NombreProducto { get; set; }
+        public string? RazonSocialProveedor { get; set; }
 
-        public static PrecioCompraDTO FromDominio(DominioModelo.PrecioCompra e)
+        public static PrecioCompraDTO? FromDominio(DominioModelo.PrecioCompra e)
         {
             if (e == null) return null;
             return new PrecioCompraDTO
             {
                 IdProducto = e.IdProducto,
                 IdProveedor = e.IdProveedor,
-                Monto = e.Monto
+                Monto = e.Monto,
+                NombreProducto = e.Producto?.Nombre,
+                RazonSocialProveedor = e.Proveedor?.RazonSocial
             };
         }
 

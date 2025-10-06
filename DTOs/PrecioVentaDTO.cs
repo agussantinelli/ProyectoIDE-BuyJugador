@@ -8,14 +8,17 @@ namespace DTOs
         public DateTime FechaDesde { get; set; }
         public decimal Monto { get; set; }
 
-        public static PrecioVentaDTO FromDominio(DominioModelo.PrecioVenta e)
+        public string? NombreProducto { get; set; }
+
+        public static PrecioVentaDTO? FromDominio(DominioModelo.PrecioVenta e)
         {
             if (e == null) return null;
             return new PrecioVentaDTO
             {
                 IdProducto = e.IdProducto,
                 FechaDesde = e.FechaDesde,
-                Monto = e.Monto
+                Monto = e.Monto,
+                NombreProducto = e.Producto?.Nombre
             };
         }
 

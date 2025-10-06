@@ -1,14 +1,13 @@
 ﻿using DTOs;
 using DominioServicios;
-using Microsoft.AspNetCore.Builder; // Necesario para WebApplication
-using Microsoft.AspNetCore.Http;    // Necesario para Results
-using Microsoft.AspNetCore.Routing; // Necesario para IEndpointRouteBuilder
+using Microsoft.AspNetCore.Builder; 
+using Microsoft.AspNetCore.Http;    
+using Microsoft.AspNetCore.Routing; 
 
 namespace WebAPI.Endpoints
 {
     public static class ProveedorEndpoints
     {
-        // Se ajusta la firma para que coincida con Program.cs
         public static void MapProveedorEndpoints(this IEndpointRouteBuilder app)
         {
             var group = app.MapGroup("/api/proveedores");
@@ -51,12 +50,9 @@ namespace WebAPI.Endpoints
                 return success ? Results.NoContent() : Results.NotFound();
             });
 
-            // --- CORRECCIÓN PRINCIPAL APLICADA ---
-            // Se cambió MapPost por MapPut para que coincida con la llamada del cliente.
             group.MapPut("/{id}/reactivar", async (int id, ProveedorService service) =>
             {
                 var success = await service.ReactivarAsync(id);
-                // Si el servicio devuelve 'false', es porque no encontró al proveedor.
                 return success ? Results.NoContent() : Results.NotFound();
             });
         }

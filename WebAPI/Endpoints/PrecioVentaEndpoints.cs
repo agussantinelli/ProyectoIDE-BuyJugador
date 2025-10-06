@@ -9,31 +9,36 @@ namespace WebAPI.Endpoints
         {
             var g = app.MapGroup("/api/precios-venta");
 
-            g.MapGet("/", async (PrecioVentaService s) => Results.Ok(await s.GetAllAsync()));
-
-            g.MapGet("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService s) =>
+            g.MapGet("/", async (PrecioVentaService service) =>
             {
-                var dto = await s.GetByIdAsync(idProducto, fechaDesde);
+                var precios = await service.GetAllAsync();
+                return Results.Ok(precios);
+            });
+
+            g.MapGet("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
+            {
+                var dto = await service.GetByIdAsync(idProducto, fechaDesde);
                 return dto is not null ? Results.Ok(dto) : Results.NotFound();
             });
 
-            g.MapPost("/", async (PrecioVentaDTO dto, PrecioVentaService s) =>
+            g.MapPost("/", async (PrecioVentaDTO dto, PrecioVentaService service) =>
             {
-                var nuevo = await s.CreateAsync(dto);
-                return Results.Created($"/api/precios-venta/{nuevo.IdProducto}/{nuevo.FechaDesde:yyyy-MM-ddTHH:mm:ss}", nuevo);
+                var creado = await service.CreateAsync(dto);
+                return Results.Created($"/api/precios-venta/{creado.IdProducto}/{creado.FechaDesde:yyyy-MM-ddTHH:mm:ss}", creado);
             });
 
-            g.MapPut("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaDTO dto, PrecioVentaService s) =>
+            g.MapPut("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaDTO dto, PrecioVentaService service) =>
             {
-                await s.UpdateAsync(idProducto, fechaDesde, dto);
-                return Results.NoContent();
+                var actualizado = await service.UpdateAsync(idProducto, fechaDesde, dto);
+                return actualizado ? Results.NoContent() : Results.NotFound();
             });
 
-            g.MapDelete("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService s) =>
+            g.MapDelete("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
             {
-                await s.DeleteAsync(idProducto, fechaDesde);
-                return Results.NoContent();
+                var eliminado = await service.DeleteAsync(idProducto, fechaDesde);
+                return eliminado ? Results.NoContent() : Results.NotFound();
             });
         }
     }
 }
+

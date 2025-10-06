@@ -20,7 +20,7 @@ namespace DominioServicios
         {
             return await _context.Productos
                 .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.Precios)
+                .Include(p => p.PreciosVenta)
                 .ToListAsync();
         }
 
@@ -30,7 +30,7 @@ namespace DominioServicios
                 .IgnoreQueryFilters()
                 .Where(p => !p.Activo)
                 .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.Precios)
+                .Include(p => p.PreciosVenta)
                 .ToListAsync();
         }
 
@@ -39,7 +39,7 @@ namespace DominioServicios
             return await _context.Productos
                 .IgnoreQueryFilters()
                 .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.Precios)
+                .Include(p => p.PreciosVenta)
                 .FirstOrDefaultAsync(p => p.IdProducto == id);
         }
 
@@ -52,13 +52,13 @@ namespace DominioServicios
 
         public async Task UpdateAsync(Producto producto)
         {
-            var existingProducto = await _context.Productos
+            var existing = await _context.Productos
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.IdProducto == producto.IdProducto);
 
-            if (existingProducto != null)
+            if (existing != null)
             {
-                _context.Entry(existingProducto).CurrentValues.SetValues(producto);
+                _context.Entry(existing).CurrentValues.SetValues(producto);
                 await _context.SaveChangesAsync();
             }
         }
