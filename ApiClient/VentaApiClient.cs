@@ -32,7 +32,6 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> UpdateCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            // Método añadido para actualizar una venta con sus líneas
             return await _httpClient.PutAsJsonAsync($"api/ventas/completa/{dto.IdVenta}", dto);
         }
 
@@ -43,7 +42,6 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> FinalizarVentaAsync(int id)
         {
-            // Este método ahora podría ser reemplazado por UpdateCompleta, pero lo mantenemos por si se usa en otro lado
             return await _httpClient.PutAsync($"api/ventas/{id}/finalizar", null);
         }
     }

@@ -29,7 +29,6 @@ namespace WinForms
 
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // Aplicar estilos
             StyleManager.ApplyDataGridViewStyle(dataGridVentas);
             StyleManager.ApplyButtonStyle(btnNuevaVenta);
             StyleManager.ApplyButtonStyle(btnVerDetalle);

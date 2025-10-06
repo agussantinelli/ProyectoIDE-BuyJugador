@@ -8,10 +8,7 @@ namespace DTOs
         public int IdPersona { get; set; }
         public List<LineaVentaDTO> Lineas { get; set; }
 
-        /// <summary>
-        /// Indica si la venta debe crearse o marcarse como 'Finalizada'.
-        /// </summary>
-        public bool Finalizada { get; set; } // Propiedad añadida
+        public bool Finalizada { get; set; } 
 
         public CrearVentaCompletaDTO()
         {

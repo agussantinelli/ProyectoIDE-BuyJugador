@@ -15,9 +15,6 @@ namespace DTOs
         public DateOnly? FechaIngreso { get; set; }
         public string? LocalidadNombre { get; set; }
         public string? ProvinciaNombre { get; set; }
-
-        // --- CORRECCIÓN CLAVE AQUÍ ---
-        // Cambiamos "Dueño" por "Admin" para que coincida con el resto de la aplicación.
         public string Rol => !FechaIngreso.HasValue ? "Admin" : "Empleado";
 
         public string FechaIngresoFormateada => FechaIngreso.HasValue ? FechaIngreso.Value.ToString("dd/MM/yy") : "-";
