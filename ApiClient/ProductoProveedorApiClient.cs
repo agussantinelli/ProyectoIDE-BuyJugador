@@ -9,6 +9,7 @@ namespace ApiClient
     public class ProductoProveedorApiClient
     {
         private readonly HttpClient _httpClient;
+
         public ProductoProveedorApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -16,14 +17,9 @@ namespace ApiClient
 
         public async Task<List<ProductoDTO>> GetByProveedorIdAsync(int idProveedor)
         {
-            var response = await _httpClient.GetAsync($"api/productos/proveedor/{idProveedor}");
+            var response = await _httpClient.GetAsync($"api/producto-proveedor/{idProveedor}");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<ProductoDTO>>();
-        }
-
-        public async Task<HttpResponseMessage> CreateAsync(ProductoProveedorDTO dto)
-        {
-            return await _httpClient.PostAsJsonAsync("api/producto-proveedor", dto);
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(int idProducto, int idProveedor)
@@ -31,9 +27,10 @@ namespace ApiClient
             return await _httpClient.DeleteAsync($"api/producto-proveedor/{idProducto}/{idProveedor}");
         }
 
-        public async Task<HttpResponseMessage> UpdateProductosProveedorAsync(ProductoProveedorDTO dto)
+        public async Task<HttpResponseMessage> UpdateProductosProveedorAsync(int idProveedor, List<int> idsProducto)
         {
-            return await _httpClient.PostAsJsonAsync("api/producto-proveedor", dto);
+            var response = await _httpClient.PutAsJsonAsync($"api/producto-proveedor/{idProveedor}", idsProducto);
+            return response;
         }
     }
 }

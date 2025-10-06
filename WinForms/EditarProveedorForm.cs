@@ -1,6 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,14 +35,24 @@ namespace WinForms
 
         private async void EditarProveedorForm_Load(object sender, EventArgs e)
         {
-            // Cargar datos del proveedor en los campos del formulario
+            // Cargar datos no editables
+            txtId.Text = _proveedor.IdProveedor.ToString();
             txtRazonSocial.Text = _proveedor.RazonSocial;
-            txtCuit.Text = _proveedor.Cuit; // CUIT se muestra pero no se edita
+            txtCuit.Text = _proveedor.Cuit;
+
+            // Configurar campos como solo lectura
+            txtId.ReadOnly = true;
+            txtId.BackColor = Color.LightGray;
+            txtRazonSocial.ReadOnly = true;
+            txtRazonSocial.BackColor = Color.LightGray;
+            txtCuit.ReadOnly = true;
+            txtCuit.BackColor = Color.LightGray;
+
+            // Cargar datos editables
             txtEmail.Text = _proveedor.Email;
             txtTelefono.Text = _proveedor.Telefono;
             txtDireccion.Text = _proveedor.Direccion;
 
-            // Cargar y seleccionar provincia y localidad
             var provincias = await _provinciaApiClient.GetAllAsync();
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
@@ -53,48 +64,40 @@ namespace WinForms
                 if (localidadActual != null && localidadActual.IdProvincia.HasValue)
                 {
                     cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
-
+                    // Corregido: se accede a .Value para el tipo no nulable
                     await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
-
                     cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
             }
         }
 
-        private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cmbProvincia.SelectedValue is int idProvincia && idProvincia > 0)
-            {
-                await CargarLocalidadesAsync(idProvincia);
-            }
-            else
-            {
-                cmbLocalidad.DataSource = null;
-            }
-        }
-
         private async Task CargarLocalidadesAsync(int idProvincia)
         {
-            var localidades = await _localidadApiClient.GetAllOrderedAsync() ?? new();
-            var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
-            cmbLocalidad.DataSource = filtradas;
+            var localidades = await _localidadApiClient.GetAllOrderedAsync();
+            cmbLocalidad.DataSource = localidades?.Where(l => l.IdProvincia == idProvincia).ToList();
             cmbLocalidad.DisplayMember = "Nombre";
             cmbLocalidad.ValueMember = "IdLocalidad";
         }
 
+        private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbProvincia.SelectedItem is ProvinciaDTO provinciaSeleccionada)
+            {
+                await CargarLocalidadesAsync(provinciaSeleccionada.IdProvincia);
+            }
+        }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "⚠ Se modificarán los datos del proveedor.\n¿Desea continuar?",
+                "⚠️ Se modificarán los datos del proveedor.\\n¿Desea continuar?",
                 "Confirmar edición",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
             if (confirm != DialogResult.Yes) return;
 
-            // Actualizar el DTO con los nuevos datos
-            _proveedor.RazonSocial = txtRazonSocial.Text.Trim();
+            // Actualizar solo los campos editables del DTO
             _proveedor.Email = txtEmail.Text.Trim();
             _proveedor.Telefono = txtTelefono.Text.Trim();
             _proveedor.Direccion = txtDireccion.Text.Trim();

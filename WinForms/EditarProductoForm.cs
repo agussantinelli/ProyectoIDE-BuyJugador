@@ -1,7 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
-using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -35,10 +35,22 @@ namespace WinForms
             cmbTipoProducto.DisplayMember = "Descripcion";
             cmbTipoProducto.ValueMember = "IdTipoProducto";
 
+            // Cargar datos no editables
+            txtId.Text = _producto.IdProducto.ToString();
             txtNombre.Text = _producto.Nombre;
+            txtPrecio.Text = _producto.PrecioActual?.ToString("C2") ?? "N/A";
+
+            // Configurar campos como solo lectura
+            txtId.ReadOnly = true;
+            txtId.BackColor = Color.LightGray;
+            txtNombre.ReadOnly = true;
+            txtNombre.BackColor = Color.LightGray;
+            txtPrecio.ReadOnly = true;
+            txtPrecio.BackColor = Color.LightGray;
+
+            // Cargar datos editables
             txtDescripcion.Text = _producto.Descripcion;
             numStock.Value = _producto.Stock;
-            numPrecio.Value = (decimal)(_producto.PrecioActual ?? 0);
             if (_producto.IdTipoProducto.HasValue)
             {
                 cmbTipoProducto.SelectedValue = _producto.IdTipoProducto.Value;
@@ -47,25 +59,10 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            _producto.Nombre = txtNombre.Text;
+            // Actualizar solo los datos pertinentes del producto
             _producto.Descripcion = txtDescripcion.Text;
             _producto.Stock = (int)numStock.Value;
             _producto.IdTipoProducto = (int)cmbTipoProducto.SelectedValue;
-
-            if (numPrecio.Value != _producto.PrecioActual)
-            {
-                var nuevoPrecio = new PrecioVentaDTO
-                {
-                    Monto = (decimal)numPrecio.Value,
-                    FechaDesde = DateTime.Now
-                };
-
-                if (_producto.Precios == null)
-                {
-                    _producto.Precios = new List<PrecioVentaDTO>();
-                }
-                _producto.Precios.Add(nuevoPrecio);
-            }
 
             await _productoApiClient.UpdateAsync(_producto.IdProducto, _producto);
             this.DialogResult = DialogResult.OK;
