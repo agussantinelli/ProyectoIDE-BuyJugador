@@ -12,7 +12,6 @@ namespace WinForms
         private readonly UserSessionService _userSessionService;
         private Panel? menuPanel;
 
-        // No declaramos un nuevo MenuStrip aquí, usamos el 'menuStrip1' del Designer.
         private ToolStripMenuItem verMenuItem;
         private ToolStripMenuItem provinciasMenuItem;
         private ToolStripMenuItem localidadesMenuItem;

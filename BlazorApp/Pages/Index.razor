@@ -1,0 +1,42 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+
+<div class="menu-panel">
+    <h2>@Titulo</h2>
+
+    <div class="button-grid">
+        @foreach (var boton in Botones)
+        {
+            <button class="menu-btn" @onclick="@(() => Navegar(boton.Link))">
+                @boton.Text
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    private string Titulo => EsAdmin ? "Panel de Administrador" : "Panel de Empleado";
+    private bool EsAdmin => true;
+
+    private List<(string Text, string Link)> Botones =>
+        EsAdmin
+        ? new() {
+            ("Ventas", "/ventas"),
+            ("Pedidos", "/pedidos"),
+            ("Personas", "/personas"),
+            ("Tipos de Productos", "/tipos-producto"),
+            ("Productos", "/productos"),
+            ("Proveedores", "/proveedores")
+          }
+        : new() {
+            ("Ventas", "/ventas"),
+            ("Proveedores", "/proveedores"),
+            ("Pedidos", "/pedidos"),
+            ("Productos", "/productos")
+          };
+
+    private void Navegar(string link)
+    {
+        NavManager.NavigateTo(link);
+    }
+}

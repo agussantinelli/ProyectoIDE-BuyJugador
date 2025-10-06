@@ -1,0 +1,92 @@
+﻿@page "/productos"
+@using ApiClient
+@using DTOs
+@inject ProductoApiClient productoApiClient
+
+<div class="productos-container">
+    <div class="productos-header">
+        <h2>Gestión de Productos</h2>
+        <div class="buscar-box">
+            <input type="text" placeholder="Buscar producto..." @bind="textoBusqueda" @bind:event="oninput" />
+            <button @onclick="NuevoProducto">Nuevo</button>
+        </div>
+    </div>
+
+    @if (productosFiltrados == null)
+    {
+        <p>Cargando productos...</p>
+    }
+    else if (!productosFiltrados.Any())
+    {
+        <p>No se encontraron productos.</p>
+    }
+    else
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Tipo</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in productosFiltrados)
+                {
+                    <tr>
+                        <td>@p.Nombre</td>
+                        <td>@p.Descripcion</td>
+                        <td>@p.TipoProductoDescripcion</td>
+                        <td>@(p.PrecioActual?.ToString("C") ?? "-")</td>
+                        <td>@p.Stock</td>
+                        <td class="text-end table-actions">
+                            <button @onclick="() => VerDetalle(p)">👁</button>
+                            <button @onclick="() => Editar(p)">✏</button>
+                            <button class="btn-danger" @onclick="() => Eliminar(p)">🗑</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<ProductoDTO>? productos;
+    private List<ProductoDTO>? productosFiltrados;
+    private string textoBusqueda = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos()
+    {
+        productos = await productoApiClient.GetAllAsync() ?? new();
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrWhiteSpace(textoBusqueda))
+            productosFiltrados = productos;
+        else
+            productosFiltrados = productos?
+                .Where(p => p.Nombre.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+    }
+
+    private void NuevoProducto() => Console.WriteLine("Nuevo producto");
+    private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
+    private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
+    private async Task Eliminar(ProductoDTO p)
+    {
+        var response = await productoApiClient.DeleteAsync(p.IdProducto);
+        if (response.IsSuccessStatusCode)
+            await CargarProductos();
+    }
+}
