@@ -3,13 +3,11 @@ using DTOs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace WinForms
 {
@@ -17,25 +15,30 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly VentaApiClient _ventaApiClient;
-        private readonly LineaVentaApiClient _lineaVentaApiClient;
         private readonly UserSessionService _userSessionService;
+        private readonly PrecioVentaApiClient _precioVentaApiClient;
+
 
         private List<ProductoDTO> _productosDisponibles;
         private BindingList<LineaVentaDTO> _lineasVentaActual;
         private int _nroLineaCounter = 1;
 
-        public CrearVentaForm(ProductoApiClient productoApiClient, VentaApiClient ventaApiClient, LineaVentaApiClient lineaVentaApiClient, UserSessionService userSessionService)
+
+        public CrearVentaForm(ProductoApiClient productoApiClient, VentaApiClient ventaApiClient, UserSessionService userSessionService, PrecioVentaApiClient precioVentaApiClient)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _ventaApiClient = ventaApiClient;
-            _lineaVentaApiClient = lineaVentaApiClient;
             _userSessionService = userSessionService;
+            _precioVentaApiClient = precioVentaApiClient;
+
 
             _productosDisponibles = new List<ProductoDTO>();
             _lineasVentaActual = new BindingList<LineaVentaDTO>();
 
+
             this.StartPosition = FormStartPosition.CenterScreen;
+
 
             StyleManager.ApplyDataGridViewStyle(dataGridLineasVenta);
             StyleManager.ApplyButtonStyle(btnAgregarProducto);
@@ -44,12 +47,14 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
+
         private async void CrearVentaForm_Load(object sender, EventArgs e)
         {
             await CargarProductos();
             ConfigurarGrilla();
             dataGridLineasVenta.DataSource = _lineasVentaActual;
         }
+
 
         private async Task CargarProductos()
         {
@@ -66,101 +71,100 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar los productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void ConfigurarGrilla()
         {
             dataGridLineasVenta.AutoGenerateColumns = false;
             dataGridLineasVenta.Columns.Clear();
 
-            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Producto",
-                DataPropertyName = "NombreProducto",
-                HeaderText = "Producto",
-                ReadOnly = true,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
 
-            var cantidadCol = new DataGridViewTextBoxColumn
-            {
-                Name = "Cantidad",
-                DataPropertyName = "Cantidad",
-                HeaderText = "Cantidad",
-                ReadOnly = false,
-                Width = 100
-            };
-            dataGridLineasVenta.Columns.Add(cantidadCol);
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = false });
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = { Format = "C2" }, ReadOnly = true });
+            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = { Format = "C2" }, ReadOnly = true });
 
-            dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "Subtotal",
-                DataPropertyName = "Subtotal",
-                HeaderText = "Subtotal",
-                ReadOnly = true,
-                Width = 120,
-                DefaultCellStyle = { Format = "C2" }
-            });
 
             dataGridLineasVenta.CellEndEdit += DataGridLineasVenta_CellEndEdit;
         }
 
 
-        private void btnAgregarProducto_Click(object sender, EventArgs e)
+        private async void btnAgregarProducto_Click(object sender, EventArgs e)
         {
             if (cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
             {
-                MessageBox.Show("Por favor, seleccione un producto válido de la lista.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Seleccione un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            if (numCantidad.Value <= 0)
+
+            var cantidadDeseada = (int)numCantidad.Value;
+            if (cantidadDeseada <= 0)
             {
                 MessageBox.Show("La cantidad debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var cantidadDeseada = (int)numCantidad.Value;
-            var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
-            var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
 
-            if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
+            try
             {
-                MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'.\nStock disponible: {productoSeleccionado.Stock}\nCantidad en venta actual: {cantidadYaEnCarro}", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            if (lineaExistente != null)
-            {
-                lineaExistente.Cantidad += cantidadDeseada;
-                lineaExistente.Subtotal = (decimal)(lineaExistente.Cantidad * productoSeleccionado.PrecioActual);
-                _lineasVentaActual.ResetBindings();
-            }
-            else
-            {
-                var nuevaLinea = new LineaVentaDTO
+                var precioVenta = await _precioVentaApiClient.GetPrecioVigenteAsync(productoSeleccionado.IdProducto);
+                if (precioVenta == null)
                 {
-                    IdProducto = productoSeleccionado.IdProducto,
-                    NombreProducto = productoSeleccionado.Nombre,
-                    Cantidad = cantidadDeseada,
-                    Subtotal = (decimal)(productoSeleccionado.PrecioActual ?? 0) * cantidadDeseada,
-                    NroLineaVenta = _nroLineaCounter++
-                };
-                _lineasVentaActual.Add(nuevaLinea);
-            }
+                    MessageBox.Show($"El producto '{productoSeleccionado.Nombre}' no tiene un precio de venta asignado.", "Precio no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-            ActualizarTotal();
-            cmbProductos.SelectedIndex = -1;
-            cmbProductos.Text = "";
-            numCantidad.Value = 1;
-            cmbProductos.Focus();
+
+                var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
+                var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
+
+
+                if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
+                {
+                    MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'.", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+
+                if (lineaExistente != null)
+                {
+                    lineaExistente.Cantidad += cantidadDeseada;
+                }
+                else
+                {
+                    _lineasVentaActual.Add(new LineaVentaDTO
+                    {
+                        IdProducto = productoSeleccionado.IdProducto,
+                        NombreProducto = productoSeleccionado.Nombre,
+                        Cantidad = cantidadDeseada,
+                        PrecioUnitario = precioVenta.Monto,
+                        NroLineaVenta = _nroLineaCounter++
+                    });
+                }
+
+
+                _lineasVentaActual.ResetBindings();
+                ActualizarTotal();
+                cmbProductos.SelectedIndex = -1;
+                cmbProductos.Text = "";
+                numCantidad.Value = 1;
+                cmbProductos.Focus();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al verificar el precio: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         private void DataGridLineasVenta_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex != dataGridLineasVenta.Columns["Cantidad"].Index) return;
+
 
             if (dataGridLineasVenta.Rows[e.RowIndex].DataBoundItem is LineaVentaDTO linea)
             {
@@ -172,23 +176,22 @@ namespace WinForms
                 {
                     if (nuevaCantidad > producto.Stock)
                     {
-                        MessageBox.Show($"Stock insuficiente para '{producto.Nombre}'. Máximo disponible: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show($"Stock insuficiente. Máximo: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         celda.Value = linea.Cantidad;
                         return;
                     }
-
                     linea.Cantidad = nuevaCantidad;
-                    linea.Subtotal = (decimal)producto.PrecioActual * nuevaCantidad;
-                    _lineasVentaActual.ResetBindings();
-                    ActualizarTotal();
                 }
                 else
                 {
-                    MessageBox.Show("Ingrese una cantidad válida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Cantidad inválida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     celda.Value = linea.Cantidad;
                 }
+                _lineasVentaActual.ResetBindings();
+                ActualizarTotal();
             }
         }
+
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
@@ -197,11 +200,8 @@ namespace WinForms
                 _lineasVentaActual.Remove(lineaSeleccionada);
                 ActualizarTotal();
             }
-            else
-            {
-                MessageBox.Show("Seleccione una línea de la venta para eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
         }
+
 
         private void ActualizarTotal()
         {
@@ -209,19 +209,20 @@ namespace WinForms
             lblTotalVenta.Text = $"Total: {total:C}";
         }
 
+
         private async void btnFinalizarVenta_Click(object sender, EventArgs e)
         {
-            if (_lineasVentaActual.Count == 0)
+            if (!_lineasVentaActual.Any())
             {
-                MessageBox.Show("Debe agregar al menos un producto a la venta.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe agregar al menos un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (_userSessionService.CurrentUser == null)
+            {
+                MessageBox.Show("Error de sesión.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (_userSessionService.CurrentUser == null)
-            {
-                MessageBox.Show("Error fatal: No se pudo identificar al vendedor.", "Error de Sesión", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             var ventaCompletaDto = new CrearVentaCompletaDTO
             {
@@ -230,34 +231,23 @@ namespace WinForms
                 Finalizada = chkMarcarFinalizada.Checked
             };
 
+
             try
             {
                 var response = await _ventaApiClient.CreateCompletaAsync(ventaCompletaDto);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var ventaCreada = await response.Content.ReadFromJsonAsync<VentaDTO>();
-                    MessageBox.Show($"Venta #{ventaCreada?.IdVenta} creada exitosamente.", "Venta Finalizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                else
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Error al crear la venta: {errorContent}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                var ventaCreada = await response.Content.ReadFromJsonAsync<VentaDTO>();
+                MessageBox.Show($"Venta #{ventaCreada?.IdVenta} creada.", "Venta Finalizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ocurrió un error al finalizar la venta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al crear la venta: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
-            this.Close();
-        }
+
+        private void btnCancelar_Click(object sender, EventArgs e) => this.Close();
     }
 }
 

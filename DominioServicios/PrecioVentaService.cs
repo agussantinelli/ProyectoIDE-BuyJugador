@@ -2,8 +2,11 @@
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
 
 namespace DominioServicios
 {
@@ -11,10 +14,22 @@ namespace DominioServicios
     {
         private readonly BuyJugadorContext _context;
 
+
         public PrecioVentaService(BuyJugadorContext context)
         {
             _context = context;
         }
+
+
+        public async Task<PrecioVenta?> GetPrecioVigenteAsync(int idProducto)
+        {
+            return await _context.PreciosVenta
+                .AsNoTracking()
+                .Where(pv => pv.IdProducto == idProducto && pv.FechaDesde <= DateTime.UtcNow)
+                .OrderByDescending(pv => pv.FechaDesde)
+                .FirstOrDefaultAsync();
+        }
+
 
         public async Task<List<PrecioVentaDTO>> GetAllAsync()
         {
@@ -30,13 +45,16 @@ namespace DominioServicios
                 .ToListAsync();
         }
 
+
         public async Task<PrecioVentaDTO?> GetByIdAsync(int idProducto, DateTime fechaDesde)
         {
             var pv = await _context.PreciosVenta
                 .Include(p => p.Producto)
                 .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.FechaDesde == fechaDesde);
 
+
             if (pv == null) return null;
+
 
             return new PrecioVentaDTO
             {
@@ -47,26 +65,24 @@ namespace DominioServicios
             };
         }
 
+
         public async Task<PrecioVentaDTO> CreateAsync(PrecioVentaDTO dto)
         {
             var entity = new PrecioVenta
             {
                 IdProducto = dto.IdProducto,
-                FechaDesde = dto.FechaDesde,
+                FechaDesde = dto.FechaDesde.ToUniversalTime(),
                 Monto = dto.Monto
             };
-
             _context.PreciosVenta.Add(entity);
             await _context.SaveChangesAsync();
-
             return dto;
         }
 
+
         public async Task UpdateAsync(int idProducto, DateTime fechaDesde, PrecioVentaDTO dto)
         {
-            var entity = await _context.PreciosVenta
-                .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.FechaDesde == fechaDesde);
-
+            var entity = await _context.PreciosVenta.FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.FechaDesde == fechaDesde);
             if (entity != null)
             {
                 entity.Monto = dto.Monto;
@@ -74,11 +90,10 @@ namespace DominioServicios
             }
         }
 
+
         public async Task DeleteAsync(int idProducto, DateTime fechaDesde)
         {
-            var entity = await _context.PreciosVenta
-                .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.FechaDesde == fechaDesde);
-
+            var entity = await _context.PreciosVenta.FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.FechaDesde == fechaDesde);
             if (entity != null)
             {
                 _context.PreciosVenta.Remove(entity);

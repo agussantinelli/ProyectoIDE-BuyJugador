@@ -39,10 +39,8 @@ namespace WinForms
                 services.AddHttpClient<ProductoProveedorApiClient>(c => c.BaseAddress = apiBaseAddress).ConfigurePrimaryHttpMessageHandler(CreateHandler);
 
 
-                // --- Servicios ---
                 services.AddSingleton<UserSessionService>();
 
-                // --- Formularios ---
                 services.AddTransient<LoginForm>();
                 services.AddTransient<MainForm>();
                 services.AddTransient<PersonaForm>();
@@ -69,6 +67,7 @@ namespace WinForms
                 services.AddTransient<CrearPedidoForm>();
                 services.AddTransient<DetallePedidoForm>();
                 services.AddTransient<AsignarProductosProveedorForm>();
+
             }).Build();
 
             using var scope = host.Services.CreateScope();

@@ -367,53 +367,48 @@ public static class DbSeeder
             Console.WriteLine("Relaciones Producto-Proveedor y PreciosCompra sincronizados correctamente.");
         }
 
-
         if (!context.Ventas.Any())
         {
-            var personas = context.Personas.ToList();
-            var productos = context.Productos
-                .Include(p => p.PreciosVenta)
-                .OrderBy(p => p.IdProducto)
-                .ToList();
+            var personas = await context.Personas.ToListAsync();
+            var productos = await context.Productos.Include(p => p.PreciosVenta).ToListAsync();
+            var random = new Random();
+
 
             var ventas = new List<Venta>
             {
-                new Venta { Fecha = new DateTime(2025, 9, 20), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 25), Estado = "Pendiente", IdPersona = personas[1].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 27), Estado = "Pendiente", IdPersona = personas[2].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 29), Estado = "Finalizada", IdPersona = personas[3].IdPersona }
+                new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
+                new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personas[1].IdPersona }
             };
-
             context.Ventas.AddRange(ventas);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(); 
+
 
             var lineasVenta = new List<LineaVenta>();
-            int nroLineaVenta = 1;
-
+            int nroLineaCounter = 1;
             foreach (var venta in ventas)
             {
-                foreach (var producto in productos.Take(5))
+                var productosParaVenta = productos.OrderBy(x => random.Next()).Take(random.Next(2, 4));
+                foreach (var producto in productosParaVenta)
                 {
-                    var precioVenta = producto.PreciosVenta
+                    var precioVigente = producto.PreciosVenta
+                        .Where(pv => pv.FechaDesde <= venta.Fecha)
                         .OrderByDescending(pv => pv.FechaDesde)
-                        .FirstOrDefault()?.Monto ?? 0;
+                        .FirstOrDefault();
 
-                    decimal precioDiferente = Math.Round(precioVenta * (1 + (nroLineaVenta % 3) * 0.02m), 2);
 
-                    lineasVenta.Add(new LineaVenta
+                    if (precioVigente != null) 
                     {
-                        IdVenta = venta.IdVenta,
-                        NroLineaVenta = nroLineaVenta,
-                        IdProducto = producto.IdProducto,
-                        Cantidad = nroLineaVenta % 2 == 0 ? 3 : 2,
-                        IdProductoNavigation = producto,
-                        IdVentaNavigation = venta
-                    });
-
-                    nroLineaVenta++;
+                        lineasVenta.Add(new LineaVenta
+                        {
+                            IdVenta = venta.IdVenta,
+                            NroLineaVenta = nroLineaCounter++,
+                            IdProducto = producto.IdProducto,
+                            Cantidad = random.Next(1, 4), 
+                            PrecioUnitario = precioVigente.Monto 
+                        });
+                    }
                 }
             }
-
             context.LineaVentas.AddRange(lineasVenta);
             await context.SaveChangesAsync();
         }
