@@ -7,6 +7,7 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(BuyJugadorContext context)
     {
+        //context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         if (!context.Provincias.Any())
@@ -367,53 +368,48 @@ public static class DbSeeder
             Console.WriteLine("Relaciones Producto-Proveedor y PreciosCompra sincronizados correctamente.");
         }
 
-
         if (!context.Ventas.Any())
         {
-            var personas = context.Personas.ToList();
-            var productos = context.Productos
-                .Include(p => p.PreciosVenta)
-                .OrderBy(p => p.IdProducto)
-                .ToList();
+            var personas = await context.Personas.ToListAsync();
+            var productos = await context.Productos.Include(p => p.PreciosVenta).ToListAsync();
+            var random = new Random();
+
 
             var ventas = new List<Venta>
             {
-                new Venta { Fecha = new DateTime(2025, 9, 20), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 25), Estado = "Pendiente", IdPersona = personas[1].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 27), Estado = "Pendiente", IdPersona = personas[2].IdPersona },
-                new Venta { Fecha = new DateTime(2025, 9, 29), Estado = "Finalizada", IdPersona = personas[3].IdPersona }
+                new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
+                new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personas[1].IdPersona }
             };
-
             context.Ventas.AddRange(ventas);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(); 
+
 
             var lineasVenta = new List<LineaVenta>();
-            int nroLineaVenta = 1;
-
+            int nroLineaCounter = 1;
             foreach (var venta in ventas)
             {
-                foreach (var producto in productos.Take(5))
+                var productosParaVenta = productos.OrderBy(x => random.Next()).Take(random.Next(2, 4));
+                foreach (var producto in productosParaVenta)
                 {
-                    var precioVenta = producto.PreciosVenta
+                    var precioVigente = producto.PreciosVenta
+                        .Where(pv => pv.FechaDesde <= venta.Fecha)
                         .OrderByDescending(pv => pv.FechaDesde)
-                        .FirstOrDefault()?.Monto ?? 0;
+                        .FirstOrDefault();
 
-                    decimal precioDiferente = Math.Round(precioVenta * (1 + (nroLineaVenta % 3) * 0.02m), 2);
 
-                    lineasVenta.Add(new LineaVenta
+                    if (precioVigente != null) 
                     {
-                        IdVenta = venta.IdVenta,
-                        NroLineaVenta = nroLineaVenta,
-                        IdProducto = producto.IdProducto,
-                        Cantidad = nroLineaVenta % 2 == 0 ? 3 : 2,
-                        IdProductoNavigation = producto,
-                        IdVentaNavigation = venta
-                    });
-
-                    nroLineaVenta++;
+                        lineasVenta.Add(new LineaVenta
+                        {
+                            IdVenta = venta.IdVenta,
+                            NroLineaVenta = nroLineaCounter++,
+                            IdProducto = producto.IdProducto,
+                            Cantidad = random.Next(1, 4), 
+                            PrecioUnitario = precioVigente.Monto 
+                        });
+                    }
                 }
             }
-
             context.LineaVentas.AddRange(lineasVenta);
             await context.SaveChangesAsync();
         }
@@ -531,52 +527,47 @@ public static class DbSeeder
     {
         using var httpClient = new HttpClient();
 
-        var responseProvincias = await GetWithRetryAsync(httpClient, "https://apis.datos.gob.ar/georef/api/provincias?campos=nombre");
+        var responseProvincias = await GetWithRetryAsync(httpClient, "https://apis.datos.gob.ar/georef/api/provincias?campos=id,nombre");
         var apiResponseProvincias = JsonSerializer.Deserialize<ApiResponseProvincias>(responseProvincias, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         if (apiResponseProvincias?.Provincias == null)
         {
-            Console.WriteLine("Error fetching provincias.");
+            Console.WriteLine("Error al obtener las provincias.");
             return;
         }
 
         var provincias = apiResponseProvincias.Provincias.Select(p => new Provincia { Nombre = p.Nombre }).ToList();
-
         var caba = provincias.FirstOrDefault(p => p.Nombre == "Ciudad Autónoma de Buenos Aires");
         if (caba != null) caba.Nombre = "CABA";
 
         context.Provincias.AddRange(provincias);
         await context.SaveChangesAsync();
-        Console.WriteLine("Provincias seeded.");
+        Console.WriteLine("Provincias sembradas.");
 
-        var provinciasDB = await context.Provincias.ToListAsync();
-        var todasLasLocalidades = new List<Localidad>();
+        var provinciasDbMap = await context.Provincias.ToDictionaryAsync(p => p.Nombre, p => p.IdProvincia);
 
-        foreach (var provincia in provinciasDB)
+        var responseLocalidades = await GetWithRetryAsync(httpClient, "https://apis.datos.gob.ar/georef/api/municipios?campos=nombre,provincia&max=2000");
+        var apiResponseLocalidades = JsonSerializer.Deserialize<ApiResponseMunicipios>(responseLocalidades, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        if (apiResponseLocalidades?.Municipios != null)
         {
-            var nombreProvinciaParaApi = provincia.Nombre == "CABA" ? "Ciudad Autónoma de Buenos Aires" : provincia.Nombre;
-            var responseLocalidades = await GetWithRetryAsync(httpClient, $"https://apis.datos.gob.ar/georef/api/municipios?provincia={Uri.EscapeDataString(nombreProvinciaParaApi)}&campos=nombre&max=500");
-            var apiResponseLocalidades = JsonSerializer.Deserialize<ApiResponseMunicipios>(responseLocalidades, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            if (apiResponseLocalidades?.Municipios != null)
-            {
-                var localidadesDeProvincia = apiResponseLocalidades.Municipios.Select(m => new Localidad
+            var todasLasLocalidades = apiResponseLocalidades.Municipios.Select(m => {
+                var nombreProvincia = m.Provincia.Nombre == "Ciudad Autónoma de Buenos Aires" ? "CABA" : m.Provincia.Nombre;
+                return new Localidad
                 {
                     Nombre = m.Nombre,
-                    IdProvincia = provincia.IdProvincia
-                });
-                todasLasLocalidades.AddRange(localidadesDeProvincia);
-            }
-        }
+                    IdProvincia = provinciasDbMap.ContainsKey(nombreProvincia) ? provinciasDbMap[nombreProvincia] : (int?)null
+                };
+            }).Where(l => l.IdProvincia.HasValue).ToList(); 
 
-        context.Localidades.AddRange(todasLasLocalidades);
-        await context.SaveChangesAsync();
-        Console.WriteLine("Localidades seeded.");
-        await Task.Delay(200);
+            context.Localidades.AddRange(todasLasLocalidades);
+            await context.SaveChangesAsync();
+            Console.WriteLine("Localidades sembradas.");
+        }
     }
 
     private class ApiResponseProvincias { public List<ProvinciaAPI> Provincias { get; set; } }
-    private class ProvinciaAPI { public string Nombre { get; set; } }
+    private class ProvinciaAPI { public string Id { get; set; } public string Nombre { get; set; } }
     private class ApiResponseMunicipios { public List<MunicipioAPI> Municipios { get; set; } }
-    private class MunicipioAPI { public string Nombre { get; set; } }
+    private class MunicipioAPI { public string Nombre { get; set; } public ProvinciaAPI Provincia { get; set; } }
 }

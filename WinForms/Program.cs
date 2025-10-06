@@ -45,7 +45,6 @@ namespace WinForms
                 // --- Servicios ---
                 services.AddSingleton<UserSessionService>();
 
-                // --- Formularios ---
                 services.AddTransient<LoginForm>();
                 services.AddTransient<MainForm>();
                 services.AddTransient<PersonaForm>();

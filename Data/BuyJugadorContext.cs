@@ -64,7 +64,7 @@ namespace Data
             modelBuilder.Entity<LineaVenta>(entity =>
             {
                 entity.HasKey(e => new { e.IdVenta, e.NroLineaVenta });
-
+                entity.Property(e => e.PrecioUnitario).HasColumnType("decimal(18,2)");
                 entity.HasOne(d => d.IdProductoNavigation)
                     .WithMany(p => p.LineaVenta)
                     .HasForeignKey(d => d.IdProducto)

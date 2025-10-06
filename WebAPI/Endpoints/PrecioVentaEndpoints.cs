@@ -1,5 +1,10 @@
 ﻿using DominioServicios;
 using DTOs;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System;
+
 
 namespace WebAPI.Endpoints
 {
@@ -9,21 +14,22 @@ namespace WebAPI.Endpoints
         {
             var g = app.MapGroup("/api/precios-venta");
 
-            g.MapGet("/", async (PrecioVentaService service) =>
+
+            g.MapGet("/", async (PrecioVentaService service) => Results.Ok(await service.GetAllAsync()));
+
+            g.MapGet("/vigente/{idProducto:int}", async (int idProducto, PrecioVentaService service) =>
             {
-                var precios = await service.GetAllAsync();
-                return Results.Ok(precios);
+                var precio = await service.GetPrecioVigenteAsync(idProducto);
+                return precio is not null ? Results.Ok(precio) : Results.NotFound();
             });
+
 
             g.MapGet("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
             {
                 var dto = await service.GetByIdAsync(idProducto, fechaDesde);
-                if (dto is null)
-                {
-                    return Results.NotFound();
-                }
-                return Results.Ok(dto);
+                return dto is not null ? Results.Ok(dto) : Results.NotFound();
             });
+
 
             g.MapPost("/", async (PrecioVentaDTO dto, PrecioVentaService service) =>
             {
@@ -31,11 +37,13 @@ namespace WebAPI.Endpoints
                 return Results.Created($"/api/precios-venta/{creado.IdProducto}/{creado.FechaDesde:yyyy-MM-ddTHH:mm:ss}", creado);
             });
 
+
             g.MapPut("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaDTO dto, PrecioVentaService service) =>
             {
                 await service.UpdateAsync(idProducto, fechaDesde, dto);
                 return Results.NoContent();
             });
+
 
             g.MapDelete("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
             {
@@ -45,3 +53,5 @@ namespace WebAPI.Endpoints
         }
     }
 }
+
+
