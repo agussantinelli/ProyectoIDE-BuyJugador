@@ -7,15 +7,14 @@ namespace WinForms
     {
         private System.ComponentModel.IContainer components = null;
 
+        private TextBox txtBuscar;
+        private Label lblBuscar;
+        private ComboBox cmbFiltroStock;
         private TabControl tabControl;
         private TabPage tabActivos;
         private TabPage tabInactivos;
         private DataGridView dgvActivos;
         private DataGridView dgvInactivos;
-
-        private TextBox txtBuscar;
-        private Label lblBuscar;
-        private ComboBox cmbFiltroStock;
 
         private Button btnNuevo;
         private Button btnEditar;
@@ -31,7 +30,8 @@ namespace WinForms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null)) components.Dispose();
+            if (disposing && (components != null))
+                components.Dispose();
             base.Dispose(disposing);
         }
 
@@ -39,15 +39,14 @@ namespace WinForms
         {
             components = new System.ComponentModel.Container();
 
-            tabControl = new TabControl();
-            tabActivos = new TabPage("Activos");
-            tabInactivos = new TabPage("Inactivos");
-            dgvActivos = new DataGridView();
-            dgvInactivos = new DataGridView();
-
             txtBuscar = new TextBox();
             lblBuscar = new Label();
             cmbFiltroStock = new ComboBox();
+            tabControl = new TabControl();
+            tabActivos = new TabPage();
+            dgvActivos = new DataGridView();
+            tabInactivos = new TabPage();
+            dgvInactivos = new DataGridView();
 
             btnNuevo = new Button();
             btnEditar = new Button();
@@ -61,39 +60,47 @@ namespace WinForms
             mnuVerHistorialPrecios = new ToolStripMenuItem();
             mnuEditarPrecio = new ToolStripMenuItem();
 
+            ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
+            tabControl.SuspendLayout();
+            tabActivos.SuspendLayout();
+            tabInactivos.SuspendLayout();
             SuspendLayout();
 
-            // lblBuscar
-            lblBuscar.Text = "Buscar:";
-            lblBuscar.Location = new Point(20, 10);
+            // --- Buscar ---
             lblBuscar.AutoSize = true;
+            lblBuscar.Location = new Point(20, 15);
+            lblBuscar.Text = "Buscar:";
 
-            // txtBuscar
-            txtBuscar.Location = new Point(80, 7);
-            txtBuscar.Size = new Size(450, 23);
+            txtBuscar.Location = new Point(80, 12);
+            txtBuscar.Size = new Size(400, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // cmbFiltroStock
+            // --- Filtro Stock ---
             cmbFiltroStock.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbFiltroStock.Items.AddRange(new object[] {
+            cmbFiltroStock.Items.AddRange(new object[]
+            {
                 "Todos",
                 "Con stock",
                 "Sin stock",
                 "Stock < 10"
             });
             cmbFiltroStock.SelectedIndex = 0;
-            cmbFiltroStock.Location = new Point(550, 7);
+            cmbFiltroStock.Location = new Point(500, 12);
             cmbFiltroStock.Size = new Size(160, 23);
             cmbFiltroStock.SelectedIndexChanged += cmbFiltroStock_SelectedIndexChanged;
 
-            // tabControl
-            tabControl.Location = new Point(20, 40);
-            tabControl.Size = new Size(1060, 380);
-            tabControl.TabPages.Add(tabActivos);
-            tabControl.TabPages.Add(tabInactivos);
+            // --- Tabs ---
+            tabControl.Controls.Add(tabActivos);
+            tabControl.Controls.Add(tabInactivos);
+            tabControl.Location = new Point(20, 50);
+            tabControl.Size = new Size(1150, 420);
             tabControl.SelectedIndexChanged += tabControl_SelectedIndexChanged;
 
-            // dgvActivos
+            // --- Activos ---
+            tabActivos.Text = "Activos";
+            tabActivos.Controls.Add(dgvActivos);
+
             dgvActivos.Dock = DockStyle.Fill;
             dgvActivos.ReadOnly = true;
             dgvActivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -102,9 +109,11 @@ namespace WinForms
             dgvActivos.AllowUserToDeleteRows = false;
             dgvActivos.SelectionChanged += dgvProductos_SelectionChanged;
             dgvActivos.CellMouseDown += dgvProductos_CellMouseDown;
-            tabActivos.Controls.Add(dgvActivos);
 
-            // dgvInactivos
+            // --- Inactivos ---
+            tabInactivos.Text = "Inactivos";
+            tabInactivos.Controls.Add(dgvInactivos);
+
             dgvInactivos.Dock = DockStyle.Fill;
             dgvInactivos.ReadOnly = true;
             dgvInactivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -113,13 +122,14 @@ namespace WinForms
             dgvInactivos.AllowUserToDeleteRows = false;
             dgvInactivos.SelectionChanged += dgvProductos_SelectionChanged;
             dgvInactivos.CellMouseDown += dgvProductos_CellMouseDown;
-            tabInactivos.Controls.Add(dgvInactivos);
 
-            // Context menu
-            cmOpciones.Items.AddRange(new ToolStripItem[] {
+            // --- Context Menu ---
+            cmOpciones.Items.AddRange(new ToolStripItem[]
+            {
                 mnuVerHistorialPrecios,
                 mnuEditarPrecio
             });
+
             mnuVerHistorialPrecios.Text = "Ver historial de precios";
             mnuVerHistorialPrecios.Click += mnuVerHistorialPrecios_Click;
 
@@ -129,44 +139,45 @@ namespace WinForms
             dgvActivos.ContextMenuStrip = cmOpciones;
             dgvInactivos.ContextMenuStrip = cmOpciones;
 
-            // Botones
-            btnNuevo.Text = "Nuevo";
-            btnNuevo.Location = new Point(20, 430);
-            btnNuevo.Size = new Size(100, 30);
-            btnNuevo.Click += btnNuevo_Click;
-
-            btnEditar.Text = "Editar";
-            btnEditar.Location = new Point(130, 430);
-            btnEditar.Size = new Size(100, 30);
-            btnEditar.Click += btnEditar_Click;
-
-            btnDarBaja.Text = "Dar de baja";
-            btnDarBaja.Location = new Point(240, 430);
-            btnDarBaja.Size = new Size(100, 30);
-            btnDarBaja.Click += btnDarBaja_Click;
-
-            btnReactivar.Text = "Reactivar";
-            btnReactivar.Location = new Point(350, 430);
-            btnReactivar.Size = new Size(100, 30);
-            btnReactivar.Click += btnReactivar_Click;
-
-            btnVerHistorialPrecios.Text = "Ver Historial Precios";
-            btnVerHistorialPrecios.Location = new Point(470, 430);
-            btnVerHistorialPrecios.Size = new Size(170, 30);
-            btnVerHistorialPrecios.Click += btnVerHistorialPrecios_Click;
-
-            btnEditarPrecio.Text = "Editar precio";
-            btnEditarPrecio.Location = new Point(650, 430);
-            btnEditarPrecio.Size = new Size(150, 30);
-            btnEditarPrecio.Click += btnEditarPrecio_Click;
-
-            btnVolver.Text = "Volver";
-            btnVolver.Location = new Point(810, 430);
+            // --- Botones inferiores ---
+            btnVolver.Location = new Point(20, 480);
             btnVolver.Size = new Size(100, 30);
+            btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
 
-            // Form
-            ClientSize = new Size(1100, 480);
+            btnNuevo.Location = new Point(140, 480);
+            btnNuevo.Size = new Size(100, 30);
+            btnNuevo.Text = "Nuevo";
+            btnNuevo.Click += btnNuevo_Click;
+
+            btnEditar.Location = new Point(260, 480);
+            btnEditar.Size = new Size(100, 30);
+            btnEditar.Text = "Editar";
+            btnEditar.Click += btnEditar_Click;
+
+            btnDarBaja.Location = new Point(380, 480);
+            btnDarBaja.Size = new Size(100, 30);
+            btnDarBaja.Text = "Dar de Baja";
+            btnDarBaja.Click += btnDarBaja_Click;
+
+            btnReactivar.Location = new Point(500, 480);
+            btnReactivar.Size = new Size(100, 30);
+            btnReactivar.Text = "Reactivar";
+            btnReactivar.Click += btnReactivar_Click;
+
+            btnVerHistorialPrecios.Location = new Point(620, 480);
+            btnVerHistorialPrecios.Size = new Size(150, 30);
+            btnVerHistorialPrecios.Text = "Ver Historial Precios";
+            btnVerHistorialPrecios.Click += btnVerHistorialPrecios_Click;
+
+            btnEditarPrecio.Location = new Point(780, 480);
+            btnEditarPrecio.Size = new Size(130, 30);
+            btnEditarPrecio.Text = "Editar Precio";
+            btnEditarPrecio.Click += btnEditarPrecio_Click;
+
+            // --- Form ---
+            ClientSize = new Size(1200, 530);
+            StartPosition = FormStartPosition.CenterScreen;
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(cmbFiltroStock);
@@ -182,6 +193,11 @@ namespace WinForms
             Text = "Gestión de Productos";
             Load += ProductoForm_Load;
 
+            ((System.ComponentModel.ISupportInitialize)dgvActivos).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dgvInactivos).EndInit();
+            tabControl.ResumeLayout(false);
+            tabActivos.ResumeLayout(false);
+            tabInactivos.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }

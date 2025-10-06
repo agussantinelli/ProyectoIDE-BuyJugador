@@ -17,156 +17,144 @@
 
         private void InitializeComponent()
         {
-            this.txtBuscarProveedor = new System.Windows.Forms.TextBox();
-            this.lblBuscarProveedor = new System.Windows.Forms.Label();
-            this.cmbFiltroGasto = new System.Windows.Forms.ComboBox();
-            this.lblFiltroGasto = new System.Windows.Forms.Label();
-            this.dataGridPedidos = new System.Windows.Forms.DataGridView();
-            this.panelBotones = new System.Windows.Forms.Panel();
-            this.btnVolver = new System.Windows.Forms.Button();
-            this.btnNuevoPedido = new System.Windows.Forms.Button();
-            this.btnEliminar = new System.Windows.Forms.Button();
-            this.btnVerDetalle = new System.Windows.Forms.Button();
-            this.btnFinalizarPedido = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridPedidos)).BeginInit();
-            this.panelBotones.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // lblBuscarProveedor
-            // 
-            this.lblBuscarProveedor.AutoSize = true;
-            this.lblBuscarProveedor.Location = new System.Drawing.Point(12, 12);
-            this.lblBuscarProveedor.Name = "lblBuscarProveedor";
-            this.lblBuscarProveedor.Size = new System.Drawing.Size(121, 15);
-            this.lblBuscarProveedor.Text = "Buscar por proveedor:";
+            txtBuscarProveedor = new TextBox();
+            lblBuscarProveedor = new Label();
+            cmbFiltroGasto = new ComboBox();
+            dataGridPedidos = new DataGridView();
+            panelBotones = new Panel();
+            btnVolver = new Button();
+            btnNuevoPedido = new Button();
+            btnEliminar = new Button();
+            btnVerDetalle = new Button();
+            btnFinalizarPedido = new Button();
+            ((System.ComponentModel.ISupportInitialize)dataGridPedidos).BeginInit();
+            panelBotones.SuspendLayout();
+            SuspendLayout();
             // 
             // txtBuscarProveedor
             // 
-            this.txtBuscarProveedor.Location = new System.Drawing.Point(139, 12);
-            this.txtBuscarProveedor.Size = new System.Drawing.Size(400, 23);
-            this.txtBuscarProveedor.TextChanged += new System.EventHandler(this.FiltrosChanged);
+            txtBuscarProveedor.Location = new Point(158, 14);
+            txtBuscarProveedor.Name = "txtBuscarProveedor";
+            txtBuscarProveedor.Size = new Size(400, 22);
+            txtBuscarProveedor.TabIndex = 3;
+            txtBuscarProveedor.TextChanged += FiltrosChanged;
             // 
-            // lblFiltroGasto
+            // lblBuscarProveedor
             // 
-            this.lblFiltroGasto.AutoSize = true;
-            this.lblFiltroGasto.Location = new System.Drawing.Point(550, 12);
-            this.lblFiltroGasto.Name = "lblFiltroGasto";
-            this.lblFiltroGasto.Size = new System.Drawing.Size(86, 15);
-            this.lblFiltroGasto.Text = "Filtrar por total:";
+            lblBuscarProveedor.AutoSize = true;
+            lblBuscarProveedor.Location = new Point(12, 14);
+            lblBuscarProveedor.Name = "lblBuscarProveedor";
+            lblBuscarProveedor.Size = new Size(140, 17);
+            lblBuscarProveedor.TabIndex = 4;
+            lblBuscarProveedor.Text = "Buscar por proveedor:";
             // 
             // cmbFiltroGasto
             // 
-            this.cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFiltroGasto.Items.AddRange(new object[] {
-                "Todos",
-                "Hasta $10.000",
-                "$10.001 a $50.000",
-                "Más de $50.000"
-            });
-            this.cmbFiltroGasto.SelectedIndex = 0;
-            this.cmbFiltroGasto.Location = new System.Drawing.Point(640, 12);
-            this.cmbFiltroGasto.Size = new System.Drawing.Size(130, 23);
-            this.cmbFiltroGasto.SelectedIndexChanged += new System.EventHandler(this.FiltrosChanged);
+            cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFiltroGasto.Items.AddRange(new object[] { "Todos", "Hasta $10.000", "$10.001 a $50.000", "Más de $50.000" });
+            cmbFiltroGasto.Location = new Point(589, 11);
+            cmbFiltroGasto.Name = "cmbFiltroGasto";
+            cmbFiltroGasto.Size = new Size(130, 25);
+            cmbFiltroGasto.TabIndex = 5;
+            cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
             // 
             // dataGridPedidos
             // 
-            this.dataGridPedidos.AllowUserToAddRows = false;
-            this.dataGridPedidos.AllowUserToDeleteRows = false;
-            this.dataGridPedidos.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridPedidos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridPedidos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridPedidos.Location = new System.Drawing.Point(12, 45);
-            this.dataGridPedidos.MultiSelect = false;
-            this.dataGridPedidos.ReadOnly = true;
-            this.dataGridPedidos.RowTemplate.Height = 25;
-            this.dataGridPedidos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridPedidos.Size = new System.Drawing.Size(760, 340);
-            this.dataGridPedidos.SelectionChanged += new System.EventHandler(this.DataGridPedidos_SelectionChanged);
+            dataGridPedidos.AllowUserToAddRows = false;
+            dataGridPedidos.AllowUserToDeleteRows = false;
+            dataGridPedidos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridPedidos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridPedidos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridPedidos.Location = new Point(12, 51);
+            dataGridPedidos.MultiSelect = false;
+            dataGridPedidos.Name = "dataGridPedidos";
+            dataGridPedidos.ReadOnly = true;
+            dataGridPedidos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridPedidos.Size = new Size(760, 385);
+            dataGridPedidos.TabIndex = 2;
+            dataGridPedidos.SelectionChanged += DataGridPedidos_SelectionChanged;
             // 
             // panelBotones
             // 
-            this.panelBotones.Controls.Add(this.btnVolver);
-            this.panelBotones.Controls.Add(this.btnNuevoPedido);
-            this.panelBotones.Controls.Add(this.btnEliminar);
-            this.panelBotones.Controls.Add(this.btnVerDetalle);
-            this.panelBotones.Controls.Add(this.btnFinalizarPedido);
-            this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelBotones.Location = new System.Drawing.Point(0, 399);
-            this.panelBotones.Name = "panelBotones";
-            this.panelBotones.Size = new System.Drawing.Size(784, 62);
-            this.panelBotones.TabIndex = 1;
+            panelBotones.Controls.Add(btnVolver);
+            panelBotones.Controls.Add(btnNuevoPedido);
+            panelBotones.Controls.Add(btnEliminar);
+            panelBotones.Controls.Add(btnVerDetalle);
+            panelBotones.Controls.Add(btnFinalizarPedido);
+            panelBotones.Dock = DockStyle.Bottom;
+            panelBotones.Location = new Point(0, 452);
+            panelBotones.Name = "panelBotones";
+            panelBotones.Size = new Size(784, 70);
+            panelBotones.TabIndex = 1;
             // 
             // btnVolver
             // 
-            this.btnVolver.Location = new System.Drawing.Point(12, 17);
-            this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(115, 30);
-            this.btnVolver.TabIndex = 0;
-            this.btnVolver.Text = "Volver";
-            this.btnVolver.UseVisualStyleBackColor = true;
-            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            btnVolver.Location = new Point(12, 19);
+            btnVolver.Name = "btnVolver";
+            btnVolver.Size = new Size(115, 34);
+            btnVolver.TabIndex = 0;
+            btnVolver.Text = "Volver";
+            btnVolver.UseVisualStyleBackColor = true;
+            btnVolver.Click += btnVolver_Click;
             // 
             // btnNuevoPedido
             // 
-            this.btnNuevoPedido.Location = new System.Drawing.Point(133, 17);
-            this.btnNuevoPedido.Name = "btnNuevoPedido";
-            this.btnNuevoPedido.Size = new System.Drawing.Size(115, 30);
-            this.btnNuevoPedido.TabIndex = 1;
-            this.btnNuevoPedido.Text = "Nuevo Pedido";
-            this.btnNuevoPedido.UseVisualStyleBackColor = true;
-            this.btnNuevoPedido.Click += new System.EventHandler(this.btnNuevoPedido_Click);
+            btnNuevoPedido.Location = new Point(133, 19);
+            btnNuevoPedido.Name = "btnNuevoPedido";
+            btnNuevoPedido.Size = new Size(115, 34);
+            btnNuevoPedido.TabIndex = 1;
+            btnNuevoPedido.Text = "Nuevo Pedido";
+            btnNuevoPedido.UseVisualStyleBackColor = true;
+            btnNuevoPedido.Click += btnNuevoPedido_Click;
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(254, 17);
-            this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(115, 30);
-            this.btnEliminar.TabIndex = 2;
-            this.btnEliminar.Text = "Eliminar";
-            this.btnEliminar.UseVisualStyleBackColor = true;
-            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            btnEliminar.Location = new Point(254, 19);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(115, 34);
+            btnEliminar.TabIndex = 2;
+            btnEliminar.Text = "Eliminar";
+            btnEliminar.UseVisualStyleBackColor = true;
+            btnEliminar.Click += btnEliminar_Click;
             // 
             // btnVerDetalle
             // 
-            this.btnVerDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnVerDetalle.Location = new System.Drawing.Point(657, 17);
-            this.btnVerDetalle.Name = "btnVerDetalle";
-            this.btnVerDetalle.Size = new System.Drawing.Size(115, 30);
-            this.btnVerDetalle.TabIndex = 3;
-            this.btnVerDetalle.Text = "Ver Detalle";
-            this.btnVerDetalle.UseVisualStyleBackColor = true;
-            this.btnVerDetalle.Click += new System.EventHandler(this.btnVerDetalle_Click);
+            btnVerDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnVerDetalle.Location = new Point(657, 19);
+            btnVerDetalle.Name = "btnVerDetalle";
+            btnVerDetalle.Size = new Size(115, 34);
+            btnVerDetalle.TabIndex = 3;
+            btnVerDetalle.Text = "Ver Detalle";
+            btnVerDetalle.UseVisualStyleBackColor = true;
+            btnVerDetalle.Click += btnVerDetalle_Click;
             // 
             // btnFinalizarPedido
             // 
-            this.btnFinalizarPedido.Location = new System.Drawing.Point(375, 17);
-            this.btnFinalizarPedido.Name = "btnFinalizarPedido";
-            this.btnFinalizarPedido.Size = new System.Drawing.Size(115, 30);
-            this.btnFinalizarPedido.TabIndex = 4;
-            this.btnFinalizarPedido.Text = "Recibido";
-            this.btnFinalizarPedido.UseVisualStyleBackColor = true;
-            this.btnFinalizarPedido.Click += new System.EventHandler(this.btnFinalizarPedido_Click);
+            btnFinalizarPedido.Location = new Point(375, 19);
+            btnFinalizarPedido.Name = "btnFinalizarPedido";
+            btnFinalizarPedido.Size = new Size(115, 34);
+            btnFinalizarPedido.TabIndex = 4;
+            btnFinalizarPedido.Text = "Recibido";
+            btnFinalizarPedido.UseVisualStyleBackColor = true;
+            btnFinalizarPedido.Click += btnFinalizarPedido_Click;
             // 
             // PedidoForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 461);
-            this.Controls.Add(this.panelBotones);
-            this.Controls.Add(this.dataGridPedidos);
-            this.Controls.Add(this.txtBuscarProveedor);
-            this.Controls.Add(this.lblBuscarProveedor);
-            this.Controls.Add(this.cmbFiltroGasto);
-            this.Controls.Add(this.lblFiltroGasto);
-            this.Name = "PedidoForm";
-            this.Text = "Gestión de Pedidos";
-            this.Load += new System.EventHandler(this.PedidoForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridPedidos)).EndInit();
-            this.panelBotones.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(784, 522);
+            Controls.Add(panelBotones);
+            Controls.Add(dataGridPedidos);
+            Controls.Add(txtBuscarProveedor);
+            Controls.Add(lblBuscarProveedor);
+            Controls.Add(cmbFiltroGasto);
+            Name = "PedidoForm";
+            Text = "Gestión de Pedidos";
+            Load += PedidoForm_Load;
+            ((System.ComponentModel.ISupportInitialize)dataGridPedidos).EndInit();
+            panelBotones.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -181,6 +169,5 @@
         private System.Windows.Forms.TextBox txtBuscarProveedor;
         private System.Windows.Forms.Label lblBuscarProveedor;
         private System.Windows.Forms.ComboBox cmbFiltroGasto;
-        private System.Windows.Forms.Label lblFiltroGasto;
     }
 }

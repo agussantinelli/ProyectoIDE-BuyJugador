@@ -17,150 +17,154 @@
 
         private void InitializeComponent()
         {
-            this.txtBuscarCliente = new System.Windows.Forms.TextBox();
-            this.lblBuscarCliente = new System.Windows.Forms.Label();
-            this.cmbFiltroGasto = new System.Windows.Forms.ComboBox();
-            this.lblFiltroGasto = new System.Windows.Forms.Label();
-            this.dataGridVentas = new System.Windows.Forms.DataGridView();
-            this.panelBotones = new System.Windows.Forms.Panel();
-            this.btnVolver = new System.Windows.Forms.Button();
-            this.btnNuevaVenta = new System.Windows.Forms.Button();
-            this.btnEliminar = new System.Windows.Forms.Button();
-            this.btnVerDetalle = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).BeginInit();
-            this.panelBotones.SuspendLayout();
-            this.SuspendLayout();
-            // lblBuscarCliente
-            this.lblBuscarCliente.AutoSize = true;
-            lblBuscarCliente.Text = "Buscar por cliente:";
-            this.lblBuscarCliente.Location = new System.Drawing.Point(12, 12);
-
+            txtBuscarCliente = new TextBox();
+            lblBuscarCliente = new Label();
+            cmbFiltroGasto = new ComboBox();
+            lblFiltroGasto = new Label();
+            dataGridVentas = new DataGridView();
+            panelBotones = new Panel();
+            btnVolver = new Button();
+            btnNuevaVenta = new Button();
+            btnEliminar = new Button();
+            btnVerDetalle = new Button();
+            btnFinalizarVenta = new Button();
+            ((System.ComponentModel.ISupportInitialize)dataGridVentas).BeginInit();
+            panelBotones.SuspendLayout();
+            SuspendLayout();
+            // 
             // txtBuscarCliente
-            this.txtBuscarCliente.Location = new System.Drawing.Point(135, 12);
-            this.txtBuscarCliente.Size = new System.Drawing.Size(400, 23);
-            this.txtBuscarCliente.TextChanged += new System.EventHandler(this.FiltrosChanged);
-
-            // lblFiltroGasto
-            this.lblFiltroGasto.AutoSize = true;
-            this.lblFiltroGasto.Location = new System.Drawing.Point(550, 12);
-
+            // 
+            txtBuscarCliente.Location = new Point(135, 14);
+            txtBuscarCliente.Name = "txtBuscarCliente";
+            txtBuscarCliente.Size = new Size(400, 22);
+            txtBuscarCliente.TabIndex = 2;
+            txtBuscarCliente.TextChanged += FiltrosChanged;
+            // 
+            // lblBuscarCliente
+            // 
+            lblBuscarCliente.AutoSize = true;
+            lblBuscarCliente.Location = new Point(12, 14);
+            lblBuscarCliente.Name = "lblBuscarCliente";
+            lblBuscarCliente.Size = new Size(118, 17);
+            lblBuscarCliente.TabIndex = 3;
+            lblBuscarCliente.Text = "Buscar por cliente:";
+            // 
             // cmbFiltroGasto
-            this.cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbFiltroGasto.Items.AddRange(new object[] {
-                "Todos",
-                "Hasta $10.000",
-                "$10.001 a $50.000",
-                "Más de $50.000"
-            });
-            this.cmbFiltroGasto.SelectedIndex = 0;
-            this.cmbFiltroGasto.Location = new System.Drawing.Point(550, 12);
-            this.cmbFiltroGasto.Size = new System.Drawing.Size(160, 23);
-            this.cmbFiltroGasto.SelectedIndexChanged += new System.EventHandler(this.FiltrosChanged);
+            // 
+            cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFiltroGasto.Items.AddRange(new object[] { "Todos", "Hasta $10.000", "$10.001 a $50.000", "Más de $50.000" });
+            cmbFiltroGasto.Location = new Point(556, 14);
+            cmbFiltroGasto.Name = "cmbFiltroGasto";
+            cmbFiltroGasto.Size = new Size(160, 25);
+            cmbFiltroGasto.TabIndex = 4;
+            cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
+            // 
+            // lblFiltroGasto
+            // 
+            lblFiltroGasto.AutoSize = true;
+            lblFiltroGasto.Location = new Point(550, 14);
+            lblFiltroGasto.Name = "lblFiltroGasto";
+            lblFiltroGasto.Size = new Size(0, 17);
+            lblFiltroGasto.TabIndex = 5;
             // 
             // dataGridVentas
             // 
-            this.dataGridVentas.AllowUserToAddRows = false;
-            this.dataGridVentas.AllowUserToDeleteRows = false;
-            this.dataGridVentas.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridVentas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridVentas.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridVentas.Location = new System.Drawing.Point(12, 45);
-            this.dataGridVentas.Size = new System.Drawing.Size(760, 340); 
-            this.dataGridVentas.MultiSelect = false;
-            this.dataGridVentas.Name = "dataGridVentas";
-            this.dataGridVentas.ReadOnly = true;
-            this.dataGridVentas.RowTemplate.Height = 25;
-            this.dataGridVentas.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridVentas.TabIndex = 0;
+            dataGridVentas.AllowUserToAddRows = false;
+            dataGridVentas.AllowUserToDeleteRows = false;
+            dataGridVentas.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridVentas.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridVentas.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridVentas.Location = new Point(12, 51);
+            dataGridVentas.MultiSelect = false;
+            dataGridVentas.Name = "dataGridVentas";
+            dataGridVentas.ReadOnly = true;
+            dataGridVentas.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridVentas.Size = new Size(760, 385);
+            dataGridVentas.TabIndex = 0;
             dataGridVentas.SelectionChanged += DataGridVentas_SelectionChanged;
-
             // 
             // panelBotones
             // 
-            this.panelBotones.Controls.Add(this.btnVolver);
-            this.panelBotones.Controls.Add(this.btnNuevaVenta);
-            this.panelBotones.Controls.Add(this.btnEliminar);
-            this.panelBotones.Controls.Add(this.btnVerDetalle);
-            this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panelBotones.Location = new System.Drawing.Point(0, 399);
-            this.panelBotones.Name = "panelBotones";
-            this.panelBotones.Size = new System.Drawing.Size(784, 62);
-            this.panelBotones.TabIndex = 1;
+            panelBotones.Controls.Add(btnVolver);
+            panelBotones.Controls.Add(btnNuevaVenta);
+            panelBotones.Controls.Add(btnEliminar);
+            panelBotones.Controls.Add(btnVerDetalle);
+            panelBotones.Controls.Add(btnFinalizarVenta);
+            panelBotones.Dock = DockStyle.Bottom;
+            panelBotones.Location = new Point(0, 452);
+            panelBotones.Name = "panelBotones";
+            panelBotones.Size = new Size(784, 70);
+            panelBotones.TabIndex = 1;
             // 
             // btnVolver
             // 
-            this.btnVolver.Location = new System.Drawing.Point(12, 17);
-            this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(115, 30);
-            this.btnVolver.TabIndex = 0;
-            this.btnVolver.Text = "Volver";
-            this.btnVolver.UseVisualStyleBackColor = true;
-            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            btnVolver.Location = new Point(12, 19);
+            btnVolver.Name = "btnVolver";
+            btnVolver.Size = new Size(115, 34);
+            btnVolver.TabIndex = 0;
+            btnVolver.Text = "Volver";
+            btnVolver.UseVisualStyleBackColor = true;
+            btnVolver.Click += btnVolver_Click;
             // 
             // btnNuevaVenta
             // 
-            this.btnNuevaVenta.Location = new System.Drawing.Point(133, 17);
-            this.btnNuevaVenta.Name = "btnNuevaVenta";
-            this.btnNuevaVenta.Size = new System.Drawing.Size(115, 30);
-            this.btnNuevaVenta.TabIndex = 1;
-            this.btnNuevaVenta.Text = "Nueva";
-            this.btnNuevaVenta.UseVisualStyleBackColor = true;
-            this.btnNuevaVenta.Click += new System.EventHandler(this.btnNuevaVenta_Click);
+            btnNuevaVenta.Location = new Point(133, 19);
+            btnNuevaVenta.Name = "btnNuevaVenta";
+            btnNuevaVenta.Size = new Size(115, 34);
+            btnNuevaVenta.TabIndex = 1;
+            btnNuevaVenta.Text = "Nueva";
+            btnNuevaVenta.UseVisualStyleBackColor = true;
+            btnNuevaVenta.Click += btnNuevaVenta_Click;
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(254, 17);
-            this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(115, 30);
-            this.btnEliminar.TabIndex = 2;
-            this.btnEliminar.Text = "Eliminar";
-            this.btnEliminar.UseVisualStyleBackColor = true;
-            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            btnEliminar.Location = new Point(254, 19);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(115, 34);
+            btnEliminar.TabIndex = 2;
+            btnEliminar.Text = "Eliminar";
+            btnEliminar.UseVisualStyleBackColor = true;
+            btnEliminar.Click += btnEliminar_Click;
             // 
             // btnVerDetalle
             // 
-            this.btnVerDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnVerDetalle.Location = new System.Drawing.Point(657, 17);
-            this.btnVerDetalle.Name = "btnVerDetalle";
-            this.btnVerDetalle.Size = new System.Drawing.Size(115, 30);
-            this.btnVerDetalle.TabIndex = 3;
-            this.btnVerDetalle.Text = "Ver Detalle";
-            this.btnVerDetalle.UseVisualStyleBackColor = true;
-            this.btnVerDetalle.Click += new System.EventHandler(this.btnVerDetalle_Click);
+            btnVerDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnVerDetalle.Location = new Point(657, 19);
+            btnVerDetalle.Name = "btnVerDetalle";
+            btnVerDetalle.Size = new Size(115, 34);
+            btnVerDetalle.TabIndex = 3;
+            btnVerDetalle.Text = "Ver Detalle";
+            btnVerDetalle.UseVisualStyleBackColor = true;
+            btnVerDetalle.Click += btnVerDetalle_Click;
             // 
             // btnFinalizarVenta
             // 
-            this.panelBotones.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.btnFinalizarVenta = new System.Windows.Forms.Button();
-            this.btnFinalizarVenta.Location = new System.Drawing.Point(375, 17);
-            this.btnFinalizarVenta.Name = "btnFinalizarVenta";
-            this.btnFinalizarVenta.Size = new System.Drawing.Size(115, 30);
-            this.btnFinalizarVenta.TabIndex = 4;
-            this.btnFinalizarVenta.Text = "Finalizar Venta";
-            this.btnFinalizarVenta.UseVisualStyleBackColor = true;
-            this.btnFinalizarVenta.Click += new System.EventHandler(this.btnFinalizarVenta_Click);
-            this.panelBotones.Controls.Add(this.btnFinalizarVenta);
+            btnFinalizarVenta.Location = new Point(375, 19);
+            btnFinalizarVenta.Name = "btnFinalizarVenta";
+            btnFinalizarVenta.Size = new Size(115, 34);
+            btnFinalizarVenta.TabIndex = 4;
+            btnFinalizarVenta.Text = "Finalizar Venta";
+            btnFinalizarVenta.UseVisualStyleBackColor = true;
+            btnFinalizarVenta.Click += btnFinalizarVenta_Click;
             // 
             // VentaForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 461);
-            this.Controls.Add(this.panelBotones);
-            this.Controls.Add(this.dataGridVentas);
-            this.Controls.Add(this.txtBuscarCliente);
-            this.Controls.Add(this.lblBuscarCliente);
-            this.Controls.Add(this.cmbFiltroGasto);
-            this.Controls.Add(this.lblFiltroGasto);
-            this.panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
-
-            this.Name = "VentaForm";
-            this.Text = "Gestión de Ventas";
-            this.Load += new System.EventHandler(this.VentaForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridVentas)).EndInit();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(784, 522);
+            Controls.Add(panelBotones);
+            Controls.Add(dataGridVentas);
+            Controls.Add(txtBuscarCliente);
+            Controls.Add(lblBuscarCliente);
+            Controls.Add(cmbFiltroGasto);
+            Controls.Add(lblFiltroGasto);
+            Name = "VentaForm";
+            Text = "Gestión de Ventas";
+            Load += VentaForm_Load;
+            ((System.ComponentModel.ISupportInitialize)dataGridVentas).EndInit();
+            panelBotones.ResumeLayout(false);
+            ResumeLayout(false);
+            PerformLayout();
 
 
 
