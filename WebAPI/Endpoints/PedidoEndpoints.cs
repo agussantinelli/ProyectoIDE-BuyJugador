@@ -19,6 +19,13 @@ namespace WebAPI.Endpoints
                 return Results.Ok(pedidos);
             });
 
+            group.MapGet("/{id}", async (int id, PedidoService pedidoService) =>
+            {
+                var pedido = await pedidoService.GetPedidoDetalladoByIdAsync(id);
+
+                return pedido is not null ? Results.Ok(pedido) : Results.NotFound();
+            });
+
             group.MapPost("/completo", async (PedidoService pedidoService, [FromBody] CrearPedidoCompletoDTO pedidoDto) =>
             {
                 try
@@ -57,7 +64,23 @@ namespace WebAPI.Endpoints
                     return Results.BadRequest(new { message = ex.Message });
                 }
             });
+
+            group.MapPut("/{id}", async (int id, PedidoDTO pedidoDto, PedidoService service) =>
+            {
+                try
+                {
+                    await service.UpdatePedidoCompletoAsync(id, pedidoDto);
+                    return Results.NoContent();
+                }
+                catch (KeyNotFoundException)
+                {
+                    return Results.NotFound();
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { message = ex.Message });
+                }
+            });
         }
     }
 }
-

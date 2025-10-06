@@ -41,9 +41,12 @@ namespace Data
                     .HasForeignKey(d => d.IdProveedor);
             });
 
+
             modelBuilder.Entity<LineaPedido>(entity =>
             {
                 entity.HasKey(e => new { e.IdPedido, e.NroLineaPedido });
+
+                entity.Property(e => e.PrecioUnitario).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(d => d.IdPedidoNavigation)
                     .WithMany(p => p.LineasPedido)
@@ -53,8 +56,10 @@ namespace Data
                 entity.HasOne(d => d.IdProductoNavigation)
                     .WithMany(p => p.LineaPedido)
                     .HasForeignKey(d => d.IdProducto)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
             });
+
 
             modelBuilder.Entity<LineaVenta>(entity =>
             {
@@ -63,8 +68,8 @@ namespace Data
                 entity.HasOne(d => d.IdProductoNavigation)
                     .WithMany(p => p.LineaVenta)
                     .HasForeignKey(d => d.IdProducto)
-                    .OnDelete(DeleteBehavior.Restrict);
-
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
             });
 
             modelBuilder.Entity<Localidad>(entity =>
@@ -115,15 +120,18 @@ namespace Data
                 entity.Property(e => e.Monto).HasColumnType("decimal(18,2)");
 
                 entity.HasOne(e => e.Producto)
-                      .WithMany(p => p.PreciosCompra)
-                      .HasForeignKey(e => e.IdProducto)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany(p => p.PreciosCompra)
+                    .HasForeignKey(e => e.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
 
                 entity.HasOne(e => e.Proveedor)
-                      .WithMany(p => p.PreciosCompra)
-                      .HasForeignKey(e => e.IdProveedor)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany(p => p.PreciosCompra)
+                    .HasForeignKey(e => e.IdProveedor)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
             });
+
 
             modelBuilder.Entity<PrecioVenta>(entity =>
             {
@@ -132,11 +140,11 @@ namespace Data
                 entity.Property(e => e.FechaDesde).HasColumnType("datetime");
 
                 entity.HasOne(e => e.Producto)
-                      .WithMany(p => p.PreciosVenta)
-                      .HasForeignKey(e => e.IdProducto)
-                      .OnDelete(DeleteBehavior.Restrict);
+                    .WithMany(p => p.PreciosVenta)
+                    .HasForeignKey(e => e.IdProducto)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
             });
-
 
             modelBuilder.Entity<Producto>(entity =>
             {

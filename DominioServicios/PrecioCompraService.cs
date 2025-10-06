@@ -3,7 +3,9 @@ using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
 
 namespace DominioServicios
 {
@@ -11,14 +13,28 @@ namespace DominioServicios
     {
         private readonly BuyJugadorContext _context;
 
+
         public PrecioCompraService(BuyJugadorContext context)
         {
             _context = context;
         }
 
+
+        public async Task<decimal?> GetMontoAsync(int idProducto, int idProveedor)
+        {
+            var precioCompra = await _context.PreciosCompra
+                .AsNoTracking()
+                .FirstOrDefaultAsync(pc => pc.IdProducto == idProducto && pc.IdProveedor == idProveedor);
+
+
+            return precioCompra?.Monto;
+        }
+
+
         public async Task<List<PrecioCompraDTO>> GetAllAsync()
         {
             return await _context.PreciosCompra
+                .AsNoTracking()
                 .Include(pc => pc.Producto)
                 .Include(pc => pc.Proveedor)
                 .Select(pc => new PrecioCompraDTO
@@ -32,14 +48,17 @@ namespace DominioServicios
                 .ToListAsync();
         }
 
+
         public async Task<PrecioCompraDTO?> GetByIdAsync(int idProducto, int idProveedor)
         {
             var pc = await _context.PreciosCompra
+                .AsNoTracking()
                 .Include(p => p.Producto)
                 .Include(p => p.Proveedor)
                 .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
 
             if (pc == null) return null;
+
 
             return new PrecioCompraDTO
             {
@@ -50,6 +69,7 @@ namespace DominioServicios
                 RazonSocialProveedor = pc.Proveedor.RazonSocial
             };
         }
+
 
         public async Task<PrecioCompraDTO> CreateAsync(PrecioCompraDTO dto)
         {
@@ -62,14 +82,15 @@ namespace DominioServicios
 
             _context.PreciosCompra.Add(entity);
             await _context.SaveChangesAsync();
-
             return dto;
         }
+
 
         public async Task UpdateAsync(int idProducto, int idProveedor, PrecioCompraDTO dto)
         {
             var entity = await _context.PreciosCompra
                 .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
+
 
             if (entity != null)
             {
@@ -78,10 +99,12 @@ namespace DominioServicios
             }
         }
 
+
         public async Task DeleteAsync(int idProducto, int idProveedor)
         {
             var entity = await _context.PreciosCompra
                 .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
+
 
             if (entity != null)
             {

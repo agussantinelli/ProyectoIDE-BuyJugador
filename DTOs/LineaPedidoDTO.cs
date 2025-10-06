@@ -2,11 +2,11 @@
 {
     public class LineaPedidoDTO
     {
-        public int Cantidad { get; set; }
         public int IdPedido { get; set; }
-        public int? IdProducto { get; set; }
         public int NroLineaPedido { get; set; }
+        public int IdProducto { get; set; }
         public string NombreProducto { get; set; } = "N/A";
+        public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
         public decimal Subtotal => Cantidad * PrecioUnitario;
 
@@ -14,12 +14,14 @@
         {
             if (entidad == null) return null;
 
+
             return new LineaPedidoDTO
             {
-                Cantidad = entidad.Cantidad,
                 IdPedido = entidad.IdPedido,
-                IdProducto = entidad.IdProducto,
                 NroLineaPedido = entidad.NroLineaPedido,
+                IdProducto = entidad.IdProducto,
+                Cantidad = entidad.Cantidad,
+                PrecioUnitario = entidad.PrecioUnitario,
                 NombreProducto = entidad.IdProductoNavigation?.Nombre ?? "N/A"
             };
         }
@@ -28,12 +30,15 @@
         {
             return new DominioModelo.LineaPedido
             {
-                Cantidad = this.Cantidad,
                 IdPedido = this.IdPedido,
+                NroLineaPedido = this.NroLineaPedido,
                 IdProducto = this.IdProducto,
-                NroLineaPedido = this.NroLineaPedido
+                Cantidad = this.Cantidad,
+                PrecioUnitario = this.PrecioUnitario
             };
         }
+
     }
 }
+
 
