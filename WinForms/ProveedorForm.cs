@@ -200,14 +200,17 @@ namespace WinForms
         private void AplicarFiltro()
         {
             var filtro = _filtroActual.ToLower();
+
             if (tabControlProveedores.SelectedTab == tabPageActivos)
             {
                 var filtrados = _activosCache
                     .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
                     .Select(p => ProveedorRow.From(p, _localidades, _provincias))
                     .ToList();
+
                 _activosBindingList = new BindingList<ProveedorRow>(filtrados);
                 dgvActivos.DataSource = _activosBindingList;
+                ConfigurarColumnas(dgvActivos);
             }
             else
             {
@@ -215,10 +218,75 @@ namespace WinForms
                     .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
                     .Select(p => ProveedorRow.From(p, _localidades, _provincias))
                     .ToList();
+
                 _inactivosBindingList = new BindingList<ProveedorRow>(filtrados);
                 dgvInactivos.DataSource = _inactivosBindingList;
+                ConfigurarColumnas(dgvInactivos);
             }
         }
+
+        private void ConfigurarColumnas(DataGridView dgv)
+        {
+            dgv.AutoGenerateColumns = false;
+            dgv.Columns.Clear();
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.RazonSocial),
+                HeaderText = "Razón Social",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.Cuit),
+                HeaderText = "CUIT",
+                Width = 120
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.Email),
+                HeaderText = "Email",
+                Width = 180
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.Telefono),
+                HeaderText = "Teléfono",
+                Width = 120
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.Direccion),
+                HeaderText = "Dirección",
+                Width = 200
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.LocalidadNombre),
+                HeaderText = "Localidad",
+                Width = 150
+            });
+
+            dgv.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = nameof(ProveedorRow.ProvinciaNombre),
+                HeaderText = "Provincia",
+                Width = 150
+            });
+
+            dgv.ReadOnly = true;
+            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgv.MultiSelect = false;
+            dgv.RowHeadersVisible = false;
+            dgv.AllowUserToAddRows = false;
+            dgv.AllowUserToDeleteRows = false;
+        }
+
 
         private void ActualizarBotones()
         {

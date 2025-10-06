@@ -13,6 +13,7 @@ namespace WinForms
         private TabPage tabPageInactivos;
         private DataGridView dgvActivos;
         private DataGridView dgvInactivos;
+        private Panel panelBotones;
         private Button btnNuevo;
         private Button btnEditar;
         private Button btnEliminar;
@@ -35,102 +36,117 @@ namespace WinForms
             tabPageInactivos = new TabPage();
             dgvActivos = new DataGridView();
             dgvInactivos = new DataGridView();
-            btnNuevo = new Button();
-            btnEditar = new Button();
-            btnEliminar = new Button();
-            btnReactivar = new Button();
+            panelBotones = new Panel();
             btnVolver = new Button();
+            btnNuevo = new Button();
+            btnEliminar = new Button();
+            btnEditar = new Button();
             btnAsignarProductos = new Button();
+            btnReactivar = new Button();
 
             ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
             tabControlProveedores.SuspendLayout();
             tabPageActivos.SuspendLayout();
             tabPageInactivos.SuspendLayout();
+            panelBotones.SuspendLayout();
             SuspendLayout();
 
-            // Controles de Búsqueda
+            // === Buscar ===
             lblBuscar.Text = "Buscar por Razón Social:";
             lblBuscar.Location = new Point(12, 15);
             lblBuscar.AutoSize = true;
+
             txtBuscar.Location = new Point(160, 12);
             txtBuscar.Size = new Size(300, 23);
             txtBuscar.TextChanged += txtBuscar_TextChanged;
 
-            // TabControl
+            // === TabControl ===
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
             tabControlProveedores.Location = new Point(12, 50);
             tabControlProveedores.Size = new Size(1176, 420);
             tabControlProveedores.SelectedIndexChanged += tabControlProveedores_SelectedIndexChanged;
 
-            // Pestañas
+            // === Pestañas ===
             tabPageActivos.Text = "Activos";
             tabPageActivos.Controls.Add(dgvActivos);
+
             tabPageInactivos.Text = "Inactivos";
             tabPageInactivos.Controls.Add(dgvInactivos);
 
-            // DataGridViews
+            // === DataGrids ===
             dgvActivos.Dock = DockStyle.Fill;
             dgvActivos.SelectionChanged += dgv_SelectionChanged;
+
             dgvInactivos.Dock = DockStyle.Fill;
             dgvInactivos.SelectionChanged += dgv_SelectionChanged;
 
-            // Botones
+            // === Panel de botones ===
+            panelBotones.Dock = DockStyle.Bottom;
+            panelBotones.Height = 65;
+            panelBotones.Controls.Add(btnVolver);
+            panelBotones.Controls.Add(btnNuevo);
+            panelBotones.Controls.Add(btnEliminar);
+            panelBotones.Controls.Add(btnEditar);
+            panelBotones.Controls.Add(btnAsignarProductos);
+            panelBotones.Controls.Add(btnReactivar);
+
+            // === Botones ===
+            int baseY = 17;
+
             btnVolver.Text = "Volver";
-            btnVolver.Location = new Point(12, 480);
-            btnVolver.Size = new Size(100, 30);
+            btnVolver.Location = new Point(12, baseY);
+            btnVolver.Size = new Size(115, 30);
             btnVolver.Click += btnVolver_Click;
 
             btnNuevo.Text = "Nuevo";
-            btnNuevo.Location = new Point(1088, 480);
-            btnNuevo.Size = new Size(100, 30);
+            btnNuevo.Location = new Point(133, baseY);
+            btnNuevo.Size = new Size(115, 30);
             btnNuevo.Click += btnNuevo_Click;
 
-            btnEditar.Text = "Editar";
-            btnEditar.Location = new Point(982, 480);
-            btnEditar.Size = new Size(100, 30);
-            btnEditar.Click += btnEditar_Click;
-
             btnEliminar.Text = "Dar de Baja";
-            btnEliminar.Location = new Point(876, 480);
-            btnEliminar.Size = new Size(100, 30);
+            btnEliminar.Location = new Point(254, baseY);
+            btnEliminar.Size = new Size(115, 30);
             btnEliminar.Click += btnEliminar_Click;
 
+            btnEditar.Text = "Editar";
+            btnEditar.Location = new Point(375, baseY);
+            btnEditar.Size = new Size(115, 30);
+            btnEditar.Click += btnEditar_Click;
+
             btnAsignarProductos.Text = "Asignar Productos";
-            btnAsignarProductos.Location = new Point(720, 480);
+            btnAsignarProductos.Location = new Point(496, baseY);
             btnAsignarProductos.Size = new Size(150, 30);
             btnAsignarProductos.Click += btnAsignarProductos_Click;
 
             btnReactivar.Text = "Reactivar";
-            btnReactivar.Location = new Point(982, 480);
-            btnReactivar.Size = new Size(100, 30);
-            btnReactivar.Visible = false;
+            btnReactivar.Location = new Point(656, baseY);
+            btnReactivar.Size = new Size(115, 30);
             btnReactivar.Click += btnReactivar_Click;
+            btnReactivar.Visible = false;
 
-            // Form
+            // === Form ===
             ClientSize = new Size(1200, 530);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(tabControlProveedores);
-            Controls.Add(btnNuevo);
-            Controls.Add(btnEditar);
-            Controls.Add(btnEliminar);
-            Controls.Add(btnReactivar);
-            Controls.Add(btnAsignarProductos);
-            Controls.Add(btnVolver);
+            Controls.Add(panelBotones);
             Name = "ProveedorForm";
             Text = "Gestión de Proveedores";
-            Load += ProveedorForm_Load;
             StartPosition = FormStartPosition.CenterScreen;
+            Load += ProveedorForm_Load;
 
             ((System.ComponentModel.ISupportInitialize)dgvActivos).EndInit();
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).EndInit();
             tabControlProveedores.ResumeLayout(false);
             tabPageActivos.ResumeLayout(false);
             tabPageInactivos.ResumeLayout(false);
+            panelBotones.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
     }
 }
+
+
