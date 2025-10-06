@@ -42,26 +42,58 @@ public static class DbSeeder
             await context.SaveChangesAsync();
         }
 
-        if (!context.Proveedores.Any())
+
+
+        if (!context.Personas.IgnoreQueryFilters().Any())
         {
-            var localidades = context.Localidades.ToList();
-            if (localidades.Any(l => l.Nombre == "Rosario") &&
-                localidades.Any(l => l.Nombre == "Córdoba") &&
-                localidades.Any(l => l.Nombre.Contains("Comuna 1")))
+            var locs = context.Localidades.ToList();
+            if (locs.Any())
             {
-                context.Proveedores.AddRange(
-                    new Proveedor { RazonSocial = "Distrito Digital S.A.", Cuit = "30-12345678-9", Telefono = "3416667788", Email = "compras@distritodigital.com", Direccion = "Calle Falsa 123", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "Logística Computacional S.R.L.", Cuit = "30-98765432-1", Telefono = "116665544", Email = "ventas@logisticacompsrl.com", Direccion = "Avenida Siempre Viva 742", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "TecnoImport Argentina", Cuit = "30-55555555-5", Telefono = "114445566", Email = "ventas@tecnoimport.com", Direccion = "Av. Corrientes 1234", IdLocalidad = localidades.First(l => l.Nombre.Contains("Comuna 1")).IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "ElectroRed S.A.", Cuit = "30-44556677-8", Telefono = "1133445566", Email = "contacto@electrored.com", Direccion = "San Martín 321", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "Softy Systems", Cuit = "30-11223344-7", Telefono = "1133557799", Email = "info@softysystems.com", Direccion = "Rivadavia 234", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "GigaNet Solutions", Cuit = "30-99887766-2", Telefono = "3412233444", Email = "soporte@giganet.com", Direccion = "Alsina 432", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "Comercial Andina SRL", Cuit = "30-33445566-3", Telefono = "2614455667", Email = "ventas@comercialandina.com", Direccion = "San Juan 100", IdLocalidad = localidades.First(l => l.Nombre == "Comuna 1").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "Delta Peripherals", Cuit = "30-77665544-0", Telefono = "3813322110", Email = "compras@deltaperipherals.com", Direccion = "Av. Belgrano 654", IdLocalidad = localidades.First(l => l.Nombre == "Rosario").IdLocalidad, Activo = true },
-                    new Proveedor { RazonSocial = "BioTecnica Group", Cuit = "30-12121212-1", Telefono = "3794556677", Email = "contacto@biotecnica.com", Direccion = "Mitre 789", IdLocalidad = localidades.First(l => l.Nombre == "Córdoba").IdLocalidad, Activo = true }
+                context.Personas.AddRange(
+                    new Persona { NombreCompleto = "Tomas Levrand", Dni = 46191695, Email = "tomylevrand@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("tomy"), Telefono = "3416668877", Direccion = "Mendoza 2138", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
+                    new Persona { NombreCompleto = "Martin Ratti", Dni = 12345678, Email = "marto@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("admin"), Telefono = "34115559101", Direccion = "Falsa 123", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, Estado = true },
+                    new Persona { NombreCompleto = "Frank Fabra", Dni = 41111111, Email = "fabra@email.com", Password = BCrypt.Net.BCrypt.HashPassword("boca123"), Telefono = "3411111111", Direccion = "Verdadera 456", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, Estado = true },
+                    new Persona { NombreCompleto = "Joaquin Peralta", Dni = 44444444, Email = "joaquin@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado1"), Telefono = "115550202", Direccion = "Avenida Imaginaria 2", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 5, 10), Estado = true },
+                    new Persona { NombreCompleto = "Ayrton Costa", Dni = 42333444, Email = "ayrton@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado2"), Telefono = "3415552222", Direccion = "Calle Demo 4", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2023, 2, 15), Estado = true },
+                    new Persona { NombreCompleto = "Luka Doncic", Dni = 42553400, Email = "luka@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado3"), Telefono = "3415882922", Direccion = "Calle Prueba 5", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2022, 8, 30), Estado = true },
+                    new Persona { NombreCompleto = "Stephen Curry", Dni = 32393404, Email = "curry@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado4"), Telefono = "3415559202", Direccion = "Calle Test 6", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2021, 11, 5), Estado = true },
+                    new Persona { NombreCompleto = "Agustin Santinelli", Dni = 46294992, Email = "agustinsantinelli@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("agustin"), Telefono = "3416667777", Direccion = "Molina 2022", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
+                    new Persona { NombreCompleto = "Carlos Lopez", Dni = 28765432, Email = "carlos.l@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado6"), Telefono = "3417778888", Direccion = "Calle Secundaria 321", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2022, 12, 10), Estado = true },
+                    new Persona { NombreCompleto = "Ana Martinez", Dni = 39876543, Email = "ana.m@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado7"), Telefono = "3418889999", Direccion = "Pasaje Privado 654", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2023, 3, 25), Estado = true },
+                    new Persona { NombreCompleto = "Pedro Rodriguez", Dni = 40987654, Email = "pedro.r@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado8"), Telefono = "3419990000", Direccion = "Boulevard Principal 987", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 7, 15), Estado = true }
                 );
                 await context.SaveChangesAsync();
             }
+        }
+
+
+        if (!context.Proveedores.Any())
+        {
+            var localidades = context.Localidades.ToList();
+            var locRosario = localidades.FirstOrDefault(l => l.Nombre.Contains("Rosario", StringComparison.OrdinalIgnoreCase));
+            var locCordoba = localidades.FirstOrDefault(l => l.Nombre.Contains("Córdoba", StringComparison.OrdinalIgnoreCase));
+            var locCaba = localidades.FirstOrDefault(l => l.Nombre.Contains("Comuna", StringComparison.OrdinalIgnoreCase) || l.Nombre.Contains("CABA", StringComparison.OrdinalIgnoreCase));
+
+            if (locRosario != null && locCordoba != null && locCaba != null)
+            {
+                context.Proveedores.AddRange(
+                    new Proveedor { RazonSocial = "Distrito Digital S.A.", Cuit = "30-12345678-9", Telefono = "3416667788", Email = "compras@distritodigital.com", Direccion = "Calle Falsa 123", IdLocalidad = locRosario.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Logística Computacional S.R.L.", Cuit = "30-98765432-1", Telefono = "116665544", Email = "ventas@logisticacompsrl.com", Direccion = "Avenida Siempre Viva 742", IdLocalidad = locCordoba.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "TecnoImport Argentina", Cuit = "30-55555555-5", Telefono = "114445566", Email = "ventas@tecnoimport.com", Direccion = "Av. Corrientes 1234", IdLocalidad = locCaba.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "ElectroRed S.A.", Cuit = "30-44556677-8", Telefono = "1133445566", Email = "contacto@electrored.com", Direccion = "San Martín 321", IdLocalidad = locRosario.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Softy Systems", Cuit = "30-11223344-7", Telefono = "1133557799", Email = "info@softysystems.com", Direccion = "Rivadavia 234", IdLocalidad = locCordoba.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "GigaNet Solutions", Cuit = "30-99887766-2", Telefono = "3412233444", Email = "soporte@giganet.com", Direccion = "Alsina 432", IdLocalidad = locRosario.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Comercial Andina SRL", Cuit = "30-33445566-3", Telefono = "2614455667", Email = "ventas@comercialandina.com", Direccion = "San Juan 100", IdLocalidad = locCaba.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "Delta Peripherals", Cuit = "30-77665544-0", Telefono = "3813322110", Email = "compras@deltaperipherals.com", Direccion = "Av. Belgrano 654", IdLocalidad = locRosario.IdLocalidad, Activo = true },
+                    new Proveedor { RazonSocial = "BioTecnica Group", Cuit = "30-12121212-1", Telefono = "3794556677", Email = "contacto@biotecnica.com", Direccion = "Mitre 789", IdLocalidad = locCordoba.IdLocalidad, Activo = true }
+                );
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                Console.WriteLine("⚠No se encontraron las localidades esperadas (Rosario, Córdoba, CABA). No se crearon proveedores.");
+            }
+
         }
 
         if (!context.Productos.Any())
@@ -241,54 +273,8 @@ public static class DbSeeder
             await context.SaveChangesAsync();
         }
 
-        if (!context.PreciosCompra.Any())
-        {
-            var proveedores = await context.Proveedores.ToListAsync();
-            var productos = await context.Productos.ToListAsync();
-            var random = new Random();
-            var preciosCompra = new List<PrecioCompra>();
 
-            foreach (var proveedor in proveedores)
-            {
-                var productosAsignados = productos.OrderBy(x => random.Next()).Take(random.Next(3, 6));
-                foreach (var producto in productosAsignados)
-                {
-                    preciosCompra.Add(new PrecioCompra
-                    {
-                        IdProducto = producto.IdProducto,
-                        IdProveedor = proveedor.IdProveedor,
-                        Monto = random.Next(4000, 15000)
-                    });
-                }
-            }
-
-            context.PreciosCompra.AddRange(preciosCompra);
-            await context.SaveChangesAsync();
-        }
-
-        if (!context.Personas.IgnoreQueryFilters().Any())
-        {
-            var locs = context.Localidades.ToList();
-            if (locs.Any())
-            {
-                context.Personas.AddRange(
-                    new Persona { NombreCompleto = "Tomas Levrand", Dni = 46191695, Email = "tomylevrand@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("tomy"), Telefono = "3416668877", Direccion = "Mendoza 2138", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
-                    new Persona { NombreCompleto = "Martin Ratti", Dni = 12345678, Email = "marto@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("admin"), Telefono = "34115559101", Direccion = "Falsa 123", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, Estado = true },
-                    new Persona { NombreCompleto = "Frank Fabra", Dni = 41111111, Email = "fabra@email.com", Password = BCrypt.Net.BCrypt.HashPassword("boca123"), Telefono = "3411111111", Direccion = "Verdadera 456", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, Estado = true },
-                    new Persona { NombreCompleto = "Joaquin Peralta", Dni = 44444444, Email = "joaquin@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado1"), Telefono = "115550202", Direccion = "Avenida Imaginaria 2", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 5, 10), Estado = true },
-                    new Persona { NombreCompleto = "Ayrton Costa", Dni = 42333444, Email = "ayrton@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado2"), Telefono = "3415552222", Direccion = "Calle Demo 4", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2023, 2, 15), Estado = true },
-                    new Persona { NombreCompleto = "Luka Doncic", Dni = 42553400, Email = "luka@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado3"), Telefono = "3415882922", Direccion = "Calle Prueba 5", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2022, 8, 30), Estado = true },
-                    new Persona { NombreCompleto = "Stephen Curry", Dni = 32393404, Email = "curry@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado4"), Telefono = "3415559202", Direccion = "Calle Test 6", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2021, 11, 5), Estado = true },
-                    new Persona { NombreCompleto = "Agustin Santinelli", Dni = 46294992, Email = "agustinsantinelli@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("agustin"), Telefono = "3416667777", Direccion = "Molina 2022", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
-                    new Persona { NombreCompleto = "Carlos Lopez", Dni = 28765432, Email = "carlos.l@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado6"), Telefono = "3417778888", Direccion = "Calle Secundaria 321", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2022, 12, 10), Estado = true },
-                    new Persona { NombreCompleto = "Ana Martinez", Dni = 39876543, Email = "ana.m@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado7"), Telefono = "3418889999", Direccion = "Pasaje Privado 654", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2023, 3, 25), Estado = true },
-                    new Persona { NombreCompleto = "Pedro Rodriguez", Dni = 40987654, Email = "pedro.r@email.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado8"), Telefono = "3419990000", Direccion = "Boulevard Principal 987", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 7, 15), Estado = true }
-                );
-                await context.SaveChangesAsync();
-            }
-        }
-
-        if (!context.ProductoProveedores.Any() || context.PreciosCompra.Count() < context.ProductoProveedores.Count())
+        if (!context.ProductoProveedores.Any())
         {
             var proveedores = await context.Proveedores.ToListAsync();
             var productos = await context.Productos
@@ -297,29 +283,33 @@ public static class DbSeeder
 
             var relaciones = new List<ProductoProveedor>();
             var preciosCompra = new List<PrecioCompra>();
+            var random = new Random();
 
             foreach (var proveedor in proveedores)
             {
-                var productosAsignados = productos
-                    .OrderBy(p => p.IdProducto)
-                    .Skip((proveedor.IdProveedor * 2) % productos.Count)
-                    .Take(8)
-                    .ToList();
+                List<Producto> productosAsignados;
+
+                if (proveedor.RazonSocial.Contains("Softy Systems", StringComparison.OrdinalIgnoreCase))
+                {
+                    productosAsignados = productos.ToList(); 
+                    Console.WriteLine("💡 Softy Systems recibirá todos los productos.");
+                }
+                else
+                {
+                    productosAsignados = productos.OrderBy(p => random.Next()).Take(random.Next(5, 10)).ToList();
+                }
 
                 foreach (var producto in productosAsignados)
                 {
-                    if (!context.ProductoProveedores.Any(r => r.IdProveedor == proveedor.IdProveedor && r.IdProducto == producto.IdProducto))
+                    relaciones.Add(new ProductoProveedor
                     {
-                        relaciones.Add(new ProductoProveedor
-                        {
-                            IdProveedor = proveedor.IdProveedor,
-                            IdProducto = producto.IdProducto
-                        });
-                    }
+                        IdProveedor = proveedor.IdProveedor,
+                        IdProducto = producto.IdProducto
+                    });
 
                     var precioVenta = producto.PreciosVenta.FirstOrDefault()?.Monto ?? 10000m;
 
-                    decimal multiplicadorCompra = 0.70m; 
+                    decimal multiplicadorCompra = 0.70m;
                     if (producto.Nombre.Contains("Software", StringComparison.OrdinalIgnoreCase))
                         multiplicadorCompra = 0.85m;
                     else if (producto.Nombre.Contains("Servidor", StringComparison.OrdinalIgnoreCase))
@@ -332,41 +322,33 @@ public static class DbSeeder
 
                     var ajusteProveedor = proveedor.RazonSocial switch
                     {
-                        var s when s.Contains("TecnoImport") => 1.05m,
-                        var s when s.Contains("ElectroRed") => 0.97m,
-                        var s when s.Contains("Softy") => 0.90m,
-                        var s when s.Contains("GigaNet") => 0.95m,
-                        var s when s.Contains("Comercial Andina") => 1.08m,
+                        var s when s.Contains("TecnoImport", StringComparison.OrdinalIgnoreCase) => 1.05m,
+                        var s when s.Contains("ElectroRed", StringComparison.OrdinalIgnoreCase) => 0.97m,
+                        var s when s.Contains("Softy", StringComparison.OrdinalIgnoreCase) => 0.90m,
+                        var s when s.Contains("GigaNet", StringComparison.OrdinalIgnoreCase) => 0.95m,
+                        var s when s.Contains("Comercial Andina", StringComparison.OrdinalIgnoreCase) => 1.08m,
                         _ => 1.00m
                     };
 
                     var precioCompraFinal = Math.Round(precioVenta * multiplicadorCompra * ajusteProveedor, 2);
 
-                    if (!context.PreciosCompra.Any(pc => pc.IdProveedor == proveedor.IdProveedor && pc.IdProducto == producto.IdProducto))
+                    preciosCompra.Add(new PrecioCompra
                     {
-                        preciosCompra.Add(new PrecioCompra
-                        {
-                            IdProveedor = proveedor.IdProveedor,
-                            IdProducto = producto.IdProducto,
-                            Monto = precioCompraFinal
-                        });
-                    }
+                        IdProveedor = proveedor.IdProveedor,
+                        IdProducto = producto.IdProducto,
+                        Monto = precioCompraFinal
+                    });
                 }
             }
 
-            if (relaciones.Any())
-            {
-                context.ProductoProveedores.AddRange(relaciones);
-            }
-
-            if (preciosCompra.Any())
-            {
-                context.PreciosCompra.AddRange(preciosCompra);
-            }
+            context.ProductoProveedores.AddRange(relaciones);
+            context.PreciosCompra.AddRange(preciosCompra);
 
             await context.SaveChangesAsync();
-            Console.WriteLine("Relaciones Producto-Proveedor y PreciosCompra sincronizados correctamente.");
+            Console.WriteLine("✅ Relaciones Producto-Proveedor y PreciosCompra generadas correctamente (Softy Systems con todos los productos).");
         }
+
+
 
         if (!context.Ventas.Any())
         {
@@ -374,45 +356,69 @@ public static class DbSeeder
             var productos = await context.Productos.Include(p => p.PreciosVenta).ToListAsync();
             var random = new Random();
 
+            Console.WriteLine($"Cantidad de personas: {personas.Count}");
 
-            var ventas = new List<Venta>
+            if (personas.Count < 1)
             {
-                new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
-                new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personas[1].IdPersona }
-            };
-            context.Ventas.AddRange(ventas);
-            await context.SaveChangesAsync(); 
-
-
-            var lineasVenta = new List<LineaVenta>();
-            int nroLineaCounter = 1;
-            foreach (var venta in ventas)
+                Console.WriteLine("⚠️ No hay personas cargadas, se omite creación de ventas.");
+            }
+            else
             {
-                var productosParaVenta = productos.OrderBy(x => random.Next()).Take(random.Next(2, 4));
-                foreach (var producto in productosParaVenta)
+                var ventas = new List<Venta>();
+                ventas.Add(new Venta
                 {
-                    var precioVigente = producto.PreciosVenta
-                        .Where(pv => pv.FechaDesde <= venta.Fecha)
-                        .OrderByDescending(pv => pv.FechaDesde)
-                        .FirstOrDefault();
+                    Fecha = DateTime.UtcNow.AddDays(-10),
+                    Estado = "Finalizada",
+                    IdPersona = personas[0].IdPersona
+                });
 
-
-                    if (precioVigente != null) 
+                if (personas.Count > 1)
+                {
+                    ventas.Add(new Venta
                     {
-                        lineasVenta.Add(new LineaVenta
+                        Fecha = DateTime.UtcNow.AddDays(-5),
+                        Estado = "Pendiente",
+                        IdPersona = personas[1].IdPersona
+                    });
+                }
+
+                context.Ventas.AddRange(ventas);
+                await context.SaveChangesAsync();
+
+                var lineasVenta = new List<LineaVenta>();
+                int nroLineaCounter = 1;
+
+                foreach (var venta in ventas)
+                {
+                    var productosParaVenta = productos.OrderBy(x => random.Next()).Take(random.Next(2, 4));
+                    foreach (var producto in productosParaVenta)
+                    {
+                        var precioVigente = producto.PreciosVenta
+                            .Where(pv => pv.FechaDesde <= venta.Fecha)
+                            .OrderByDescending(pv => pv.FechaDesde)
+                            .FirstOrDefault();
+
+                        if (precioVigente != null)
                         {
-                            IdVenta = venta.IdVenta,
-                            NroLineaVenta = nroLineaCounter++,
-                            IdProducto = producto.IdProducto,
-                            Cantidad = random.Next(1, 4), 
-                            PrecioUnitario = precioVigente.Monto 
-                        });
+                            lineasVenta.Add(new LineaVenta
+                            {
+                                IdVenta = venta.IdVenta,
+                                NroLineaVenta = nroLineaCounter++,
+                                IdProducto = producto.IdProducto,
+                                Cantidad = random.Next(1, 4),
+                                PrecioUnitario = precioVigente.Monto
+                            });
+                        }
                     }
                 }
+
+                context.LineaVentas.AddRange(lineasVenta);
+                await context.SaveChangesAsync();
+
+                Console.WriteLine("Ventas y líneas de venta generadas correctamente.");
             }
-            context.LineaVentas.AddRange(lineasVenta);
-            await context.SaveChangesAsync();
         }
+
 
 
         if (!context.Pedidos.Any())
@@ -427,12 +433,24 @@ public static class DbSeeder
                 .OrderBy(p => p.IdProducto)
                 .ToList();
 
-            var pedidos = new List<Pedido>
+            Console.WriteLine($"Cantidad de proveedores: {proveedores.Count}");
+
+            if (!proveedores.Any())
             {
-                new Pedido { Fecha = new DateTime(2025, 9, 8), Estado = "Recibido", IdProveedor = proveedores[0].IdProveedor },
-                new Pedido { Fecha = new DateTime(2025, 9, 22), Estado = "Recibido", IdProveedor = proveedores[1].IdProveedor },
-                new Pedido { Fecha = new DateTime(2025, 9, 30), Estado = "Pendiente", IdProveedor = proveedores[2].IdProveedor }
-            };
+                Console.WriteLine("⚠️ No hay proveedores cargados. Se omite creación de pedidos.");
+                return;
+            }
+
+            var pedidos = new List<Pedido>();
+            for (int i = 0; i < Math.Min(proveedores.Count, 3); i++)
+            {
+                pedidos.Add(new Pedido
+                {
+                    Fecha = DateTime.UtcNow.AddDays(-i * 7),
+                    Estado = i % 2 == 0 ? "Recibido" : "Pendiente",
+                    IdProveedor = proveedores[i].IdProveedor
+                });
+            }
 
             context.Pedidos.AddRange(pedidos);
             await context.SaveChangesAsync();
@@ -459,9 +477,7 @@ public static class DbSeeder
                         NroLineaPedido = nroLineaPedido,
                         IdProducto = producto.IdProducto,
                         Cantidad = nroLineaPedido % 2 == 0 ? 10 : 5,
-                        PrecioUnitario = precioDiferente,
-                        IdPedidoNavigation = pedido,
-                        IdProductoNavigation = producto
+                        PrecioUnitario = precioDiferente
                     });
 
                     nroLineaPedido++;
@@ -470,6 +486,8 @@ public static class DbSeeder
 
             context.LineaPedidos.AddRange(lineasPedido);
             await context.SaveChangesAsync();
+
+            Console.WriteLine("Pedidos y líneas de pedido generadas correctamente.");
         }
 
 

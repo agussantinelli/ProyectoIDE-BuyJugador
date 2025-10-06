@@ -19,8 +19,6 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-
-        // # Método para llamar al nuevo endpoint de precio vigente.
         public async Task<PrecioVentaDTO> GetPrecioVigenteAsync(int idProducto)
         {
             try
@@ -29,7 +27,7 @@ namespace ApiClient
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                return null; // Devuelve null si no hay precio, para que el UI lo maneje.
+                return null;
             }
         }
 

@@ -28,24 +28,37 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            menuStrip1 = new MenuStrip();
+            SuspendLayout();
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(800, 24);
+            menuStrip1.TabIndex = 1;
+            menuStrip1.Text = "menuStrip1";
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.IsMdiContainer = true;
-            this.Name = "MainForm";
-            this.Text = "Sistema de Gestión - BuyJugador";
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.MainForm_Load);
-            // Agregamos el manejador para el evento Resize.
-            this.Resize += new System.EventHandler(this.MainForm_Resize);
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 510);
+            Controls.Add(menuStrip1);
+            IsMdiContainer = true;
+            MainMenuStrip = menuStrip1;
+            Name = "MainForm";
+            Text = "Sistema de Gestión - BuyJugador";
+            WindowState = FormWindowState.Maximized;
+            Load += MainForm_Load;
+            Resize += MainForm_Resize;
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
         #endregion
+
+        private MenuStrip menuStrip1;
     }
 }
