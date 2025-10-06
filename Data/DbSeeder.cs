@@ -271,6 +271,7 @@ public static class DbSeeder
             if (locs.Any())
             {
                 context.Personas.AddRange(
+                    new Persona { NombreCompleto = "Tomas Levrand", Dni = 46191695, Email = "tomylevrand@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("tomy"), Telefono = "3416668877", Direccion = "Mendoza 2138", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, FechaIngreso = new DateOnly(2025, 9, 23), Estado = true },
                     new Persona { NombreCompleto = "Martin Ratti", Dni = 12345678, Email = "marto@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("admin"), Telefono = "34115559101", Direccion = "Falsa 123", IdLocalidad = locs.First(l => l.Nombre == "Rosario").IdLocalidad, Estado = true },
                     new Persona { NombreCompleto = "Frank Fabra", Dni = 41111111, Email = "fabra@email.com", Password = BCrypt.Net.BCrypt.HashPassword("boca123"), Telefono = "3411111111", Direccion = "Verdadera 456", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, Estado = true },
                     new Persona { NombreCompleto = "Joaquin Peralta", Dni = 44444444, Email = "joaquin@buyjugador.com", Password = BCrypt.Net.BCrypt.HashPassword("empleado1"), Telefono = "115550202", Direccion = "Avenida Imaginaria 2", IdLocalidad = locs.First(l => l.Nombre == "Córdoba").IdLocalidad, FechaIngreso = new DateOnly(2022, 5, 10), Estado = true },
@@ -441,6 +442,7 @@ public static class DbSeeder
         context.Localidades.AddRange(todasLasLocalidades);
         await context.SaveChangesAsync();
         Console.WriteLine("Localidades seeded.");
+        await Task.Delay(200);
     }
 
     private class ApiResponseProvincias { public List<ProvinciaAPI> Provincias { get; set; } }
