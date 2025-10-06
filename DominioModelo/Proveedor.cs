@@ -10,7 +10,6 @@ namespace DominioModelo
         public Proveedor()
         {
             Pedidos = new HashSet<Pedido>();
-            // --- LÍNEA AÑADIDA ---
             ProductoProveedores = new HashSet<ProductoProveedor>();
         }
 
@@ -40,7 +39,6 @@ namespace DominioModelo
         public virtual Localidad IdLocalidadNavigation { get; set; }
         public virtual ICollection<Pedido> Pedidos { get; set; }
 
-        // --- PROPIEDAD DE NAVEGACIÓN AÑADIDA ---
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
     }
 }

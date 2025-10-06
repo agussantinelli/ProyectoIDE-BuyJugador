@@ -31,8 +31,6 @@ namespace DominioServicios
                     Stock = p.Stock,
                     PrecioActual = p.Precios.OrderByDescending(pr => pr.FechaDesde).FirstOrDefault().Monto,
                     IdTipoProducto = p.IdTipoProducto,
-                    // --- CORRECCIÓN APLICADA ---
-                    // Se utiliza el nombre de propiedad correcto del DTO.
                     TipoProductoDescripcion = p.IdTipoProductoNavigation.Descripcion
                 })
                 .ToListAsync();

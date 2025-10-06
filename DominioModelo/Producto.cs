@@ -12,7 +12,6 @@ namespace DominioModelo
             LineaPedido = new HashSet<LineaPedido>();
             LineaVenta = new HashSet<LineaVenta>();
             Precios = new HashSet<Precio>();
-            // --- INICIALIZACIÓN AÑADIDA ---
             ProductoProveedores = new HashSet<ProductoProveedor>();
         }
 
@@ -37,7 +36,6 @@ namespace DominioModelo
         public virtual ICollection<Precio> Precios { get; set; }
         public virtual ICollection<LineaPedido> LineaPedido { get; set; }
 
-        // --- PROPIEDAD DE NAVEGACIÓN AÑADIDA ---
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
     }
 }

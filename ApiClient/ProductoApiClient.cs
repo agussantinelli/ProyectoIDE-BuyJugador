@@ -20,12 +20,10 @@ namespace ApiClient
             return await GetAllAsync();
         }
 
-        // --- MÉTODO AÑADIDO PARA LA NUEVA FUNCIONALIDAD ---
         public async Task<List<ProductoDTO>?> GetProductosByProveedorIdAsync(int idProveedor)
         {
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/producto-proveedor/{idProveedor}");
         }
-        // ---------------------------------------------
 
         public async Task<List<ProductoDTO>?> GetAllAsync()
         {
