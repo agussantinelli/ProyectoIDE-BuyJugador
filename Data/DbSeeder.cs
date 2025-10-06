@@ -75,31 +75,31 @@ public static class DbSeeder
                 {
                     Nombre = "MotherBoard Ryzen 5.0", Descripcion = "Mother Asus", Stock = 150, IdTipoProducto = tipos.First(t => t.Descripcion == "Componentes").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
                 },
                 new Producto
                 {
                     Nombre = "Monitor Curvo TLC", Descripcion = "Monitor Curvo 20°", Stock = 200, IdTipoProducto = tipos.First(t => t.Descripcion == "Monitores").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
                 },
                 new Producto
                 {
                     Nombre = "Parlante Huge HBL", Descripcion = "Sonido Envolvente", Stock = 100, IdTipoProducto = tipos.First(t => t.Descripcion == "Parlantes").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
                 },
                 new Producto
                 {
                     Nombre = "Teclado Mecánico RGB", Descripcion = "Teclado gaming mecánico", Stock = 80, IdTipoProducto = tipos.First(t => t.Descripcion == "Teclados").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
                 },
                 new Producto
                 {
                     Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, IdTipoProducto = tipos.First(t => t.Descripcion == "Mouse").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } }
                 },
                 new Producto
                 {
@@ -108,7 +108,7 @@ public static class DbSeeder
                     Stock = 50,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Laptops").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(3000, 5001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(3000, 5001) * 10 } }
                 },
                 new Producto
                 {
@@ -117,7 +117,7 @@ public static class DbSeeder
                     Stock = 90,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Redes").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(200, 1001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(200, 1001) * 10 } }
                 },
                 new Producto
                 {
@@ -126,7 +126,7 @@ public static class DbSeeder
                     Stock = 75,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Tabletas").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
                 },
                 new Producto
                 {
@@ -135,7 +135,7 @@ public static class DbSeeder
                     Stock = 60,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Impresoras").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3001) * 10 } }
                 },
                 new Producto
                 {
@@ -144,7 +144,7 @@ public static class DbSeeder
                     Stock = 200,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Almacenamiento").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(500, 1201) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(500, 1201) * 10 } }
                 },
                 new Producto
                 {
@@ -153,7 +153,7 @@ public static class DbSeeder
                     Stock = 150,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Cámaras").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(300, 701) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(300, 701) * 10 } }
                 },
                 new Producto
                 {
@@ -162,7 +162,7 @@ public static class DbSeeder
                     Stock = 40,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Audio Profesional").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } }
                 },
                 new Producto
                 {
@@ -171,7 +171,7 @@ public static class DbSeeder
                     Stock = 30,
                     IdTipoProducto = tipos.First(t => t.Descripcion == "Proyectores").IdTipoProducto,
                     Activo = true,
-                    Precios = new List<Precio> { new Precio { FechaDesde = DateTime.Today, Monto = random.Next(2000, 4001) * 10 } }
+                    Precios = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(2000, 4001) * 10 } }
                 }
 
             };

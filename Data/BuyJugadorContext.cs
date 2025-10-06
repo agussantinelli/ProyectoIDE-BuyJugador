@@ -16,13 +16,15 @@ namespace Data
         public virtual DbSet<Localidad> Localidades { get; set; }
         public virtual DbSet<Pedido> Pedidos { get; set; }
         public virtual DbSet<Persona> Personas { get; set; }
-        public virtual DbSet<Precio> Precios { get; set; }
         public virtual DbSet<Producto> Productos { get; set; }
         public virtual DbSet<Proveedor> Proveedores { get; set; }
         public virtual DbSet<Provincia> Provincias { get; set; }
         public virtual DbSet<TipoProducto> TiposProductos { get; set; }
         public virtual DbSet<Venta> Ventas { get; set; }
         public virtual DbSet<ProductoProveedor> ProductoProveedores { get; set; }
+        public virtual DbSet<PrecioCompra> PreciosCompra { get; set; }   
+        public virtual DbSet<PrecioVenta> PreciosVenta { get; set; }     
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -107,17 +109,34 @@ namespace Data
                     .HasForeignKey(d => d.IdLocalidad);
             });
 
-            modelBuilder.Entity<Precio>(entity =>
+            modelBuilder.Entity<PrecioCompra>(entity =>
+            {
+                entity.HasKey(e => new { e.IdProducto, e.IdProveedor });
+                entity.Property(e => e.Monto).HasColumnType("decimal(18,2)");
+
+                entity.HasOne(e => e.Producto)
+                      .WithMany(p => p.PreciosCompra)
+                      .HasForeignKey(e => e.IdProducto)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Proveedor)
+                      .WithMany(p => p.PreciosCompra)
+                      .HasForeignKey(e => e.IdProveedor)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<PrecioVenta>(entity =>
             {
                 entity.HasKey(e => new { e.IdProducto, e.FechaDesde });
+                entity.Property(e => e.Monto).HasColumnType("decimal(18,2)");
                 entity.Property(e => e.FechaDesde).HasColumnType("datetime");
-                entity.Property(e => e.Monto).HasColumnType("decimal(18, 2)");
-                entity.HasOne(d => d.IdProductoNavigation)
-                    .WithMany(p => p.Precios)
-                    .HasForeignKey(d => d.IdProducto)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-                entity.HasQueryFilter(p => p.IdProductoNavigation.Activo);
+
+                entity.HasOne(e => e.Producto)
+                      .WithMany(p => p.PreciosVenta)
+                      .HasForeignKey(e => e.IdProducto)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
+
 
             modelBuilder.Entity<Producto>(entity =>
             {

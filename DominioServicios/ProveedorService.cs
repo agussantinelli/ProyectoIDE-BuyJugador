@@ -19,7 +19,6 @@ namespace DominioServicios
 
         public async Task<List<ProveedorDTO>> GetAllAsync()
         {
-            // Este método, debido al filtro global, solo traerá proveedores activos.
             return await _context.Proveedores
                 .Select(p => new ProveedorDTO
                 {
@@ -37,7 +36,7 @@ namespace DominioServicios
         public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
             return await _context.Proveedores
-                .IgnoreQueryFilters() // Ignora el filtro global para buscar entre TODOS los proveedores.
+                .IgnoreQueryFilters() 
                 .Where(p => !p.Activo)
                 .Select(p => new ProveedorDTO
                 {
@@ -54,16 +53,13 @@ namespace DominioServicios
 
         public async Task<ProveedorDTO?> GetByIdAsync(int id)
         {
-            // Este método solo encontrará proveedores activos por el filtro global.
             var p = await _context.Proveedores.FirstOrDefaultAsync(p => p.IdProveedor == id);
             if (p == null) return null;
 
             return ProveedorDTO.FromDominio(p);
         }
 
-        // --- MÉTODO NUEVO AÑADIDO ---
-        // Este método es necesario para poder buscar un proveedor para editarlo o reactivarlo,
-        // sin importar si está activo o no.
+
         private async Task<Proveedor?> FindProveedorByIdAsync(int id)
         {
             return await _context.Proveedores
@@ -93,12 +89,10 @@ namespace DominioServicios
 
         public async Task<bool> UpdateAsync(int id, ProveedorDTO dto)
         {
-            // --- CORRECCIÓN APLICADA ---
-            // Usamos el nuevo método para asegurarnos de encontrar el proveedor aunque esté inactivo.
             var proveedor = await FindProveedorByIdAsync(id);
             if (proveedor == null)
             {
-                return false; // Indica que no se encontró el proveedor.
+                return false; 
             }
 
             proveedor.RazonSocial = dto.RazonSocial;
@@ -114,7 +108,6 @@ namespace DominioServicios
 
         public async Task<bool> DeleteAsync(int id)
         {
-            // Para dar de baja, solo tiene sentido buscar entre los activos.
             var proveedor = await _context.Proveedores.FindAsync(id);
             if (proveedor == null)
             {
@@ -128,7 +121,6 @@ namespace DominioServicios
 
         public async Task<bool> ReactivarAsync(int id)
         {
-            // Tu lógica original era correcta, la mantenemos.
             var proveedor = await _context.Proveedores
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.IdProveedor == id);

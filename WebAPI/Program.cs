@@ -30,7 +30,7 @@ builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<LocalidadService>();
 builder.Services.AddScoped<PedidoService>();
-builder.Services.AddScoped<PrecioService>();
+builder.Services.AddScoped<PrecioVentaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
 builder.Services.AddScoped<ProvinciaService>();

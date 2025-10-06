@@ -11,8 +11,9 @@ namespace DominioModelo
         {
             LineaPedido = new HashSet<LineaPedido>();
             LineaVenta = new HashSet<LineaVenta>();
-            Precios = new HashSet<Precio>();
             ProductoProveedores = new HashSet<ProductoProveedor>();
+            PreciosCompra = new HashSet<PrecioCompra>();
+            PreciosVenta = new HashSet<PrecioVenta>();
         }
 
         [Key]
@@ -33,10 +34,10 @@ namespace DominioModelo
         public virtual TipoProducto IdTipoProductoNavigation { get; set; }
 
         public virtual ICollection<LineaVenta> LineaVenta { get; set; }
-        public virtual ICollection<Precio> Precios { get; set; }
         public virtual ICollection<LineaPedido> LineaPedido { get; set; }
-
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
+        public virtual ICollection<PrecioCompra> PreciosCompra { get; set; } 
+        public virtual ICollection<PrecioVenta> PreciosVenta { get; set; }
     }
 }
 

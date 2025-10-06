@@ -55,7 +55,7 @@ namespace WinForms
             // Si el precio cambió, se agrega uno nuevo con la fecha actual.
             if (numPrecio.Value != _producto.PrecioActual)
             {
-                var nuevoPrecio = new PrecioDTO
+                var nuevoPrecio = new PrecioVentaDTO
                 {
                     Monto = numPrecio.Value,
                     FechaDesde = DateTime.Now
@@ -63,7 +63,7 @@ namespace WinForms
                 // Aseguramos que la lista de precios no sea nula
                 if (_producto.Precios == null)
                 {
-                    _producto.Precios = new List<PrecioDTO>();
+                    _producto.Precios = new List<PrecioVentaDTO>();
                 }
                 _producto.Precios.Add(nuevoPrecio);
             }

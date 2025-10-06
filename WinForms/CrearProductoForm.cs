@@ -47,10 +47,10 @@ namespace WinForms
                     Descripcion = txtDescripcion.Text,
                     Stock = (int)numStock.Value,
                     IdTipoProducto = (int)cmbTipoProducto.SelectedValue,
-                    Precios = new List<PrecioDTO>()
+                    Precios = new List<PrecioVentaDTO>()
                 };
 
-                var precioDto = new PrecioDTO
+                var precioDto = new PrecioVentaDTO
                 {
                     Monto = numPrecio.Value,
                     FechaDesde = DateTime.Now

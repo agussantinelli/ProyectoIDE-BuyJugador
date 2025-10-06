@@ -11,6 +11,7 @@ namespace DominioModelo
         {
             Pedidos = new HashSet<Pedido>();
             ProductoProveedores = new HashSet<ProductoProveedor>();
+            PreciosCompra = new HashSet<PrecioCompra>();
         }
 
         [Key]
@@ -38,7 +39,7 @@ namespace DominioModelo
         [ForeignKey("IdLocalidad")]
         public virtual Localidad IdLocalidadNavigation { get; set; }
         public virtual ICollection<Pedido> Pedidos { get; set; }
-
+        public virtual ICollection<PrecioCompra> PreciosCompra { get; set; }
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
     }
 }

@@ -226,7 +226,7 @@ namespace WinForms
             if (producto == null) return;
 
             using var hist = new HistorialPreciosForm(
-                _serviceProvider.GetRequiredService<PrecioApiClient>(),
+                _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
                 producto.IdProducto,
                 producto.Nombre);
             hist.ShowDialog(this);
@@ -239,7 +239,7 @@ namespace WinForms
             if (producto == null) return;
 
             using var edit = new EditarPrecioForm(
-                _serviceProvider.GetRequiredService<PrecioApiClient>(),
+                _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
                 producto.IdProducto,
                 producto.Nombre,
                 producto.PrecioActual);

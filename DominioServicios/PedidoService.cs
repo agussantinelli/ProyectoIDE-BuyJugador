@@ -25,7 +25,7 @@ namespace DominioServicios
                 .Include(p => p.IdProveedorNavigation)
                 .Include(p => p.LineasPedido)
                     .ThenInclude(lp => lp.IdProductoNavigation)
-                        .ThenInclude(prod => prod.Precios)
+                        .ThenInclude(prod => prod.PreciosVenta)
                 .OrderByDescending(p => p.Fecha)
                 .ToListAsync();
 
@@ -37,7 +37,7 @@ namespace DominioServicios
                 IdProveedor = p.IdProveedor.GetValueOrDefault(),
                 ProveedorRazonSocial = p.IdProveedorNavigation?.RazonSocial ?? "N/A",
                 Total = p.LineasPedido.Sum(lp => {
-                    var precio = lp.IdProductoNavigation?.Precios?
+                    var precio = lp.IdProductoNavigation?.PreciosVenta?
                                    .OrderByDescending(pr => pr.FechaDesde)
                                    .FirstOrDefault(pr => pr.FechaDesde <= p.Fecha)?.Monto ?? 0;
                     return lp.Cantidad * precio;
@@ -116,7 +116,6 @@ namespace DominioServicios
                 var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
                 if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
 
-                // Solo revertir stock si el pedido no fue recibido
                 if (pedido.Estado == "Pendiente")
                 {
                     foreach (var linea in pedido.LineasPedido)
@@ -125,12 +124,12 @@ namespace DominioServicios
                         if (producto != null)
                         {
                             producto.Stock -= linea.Cantidad;
-                            if (producto.Stock < 0) producto.Stock = 0; // Evitar stock negativo
+                            if (producto.Stock < 0) producto.Stock = 0; 
                         }
                     }
                 }
 
-                _context.Pedidos.Remove(pedido); // Esto eliminará en cascada las líneas de pedido
+                _context.Pedidos.Remove(pedido); 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }

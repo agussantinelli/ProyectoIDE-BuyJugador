@@ -22,16 +22,15 @@ namespace DominioServicios
             var lineas = await _context.LineaVentas
                 .Where(l => l.IdVenta == idVenta)
                 .Include(l => l.IdProductoNavigation)
-                    .ThenInclude(p => p.Precios)
+                    .ThenInclude(p => p.PreciosVenta)
                 .AsNoTracking()
                 .ToListAsync();
 
-            // La API calcula el subtotal y asigna el nombre del producto.
             return lineas.Select(l => {
                 var lineaDto = LineaVentaDTO.FromDominio(l);
                 if (l.IdProductoNavigation != null)
                 {
-                    var precio = l.IdProductoNavigation.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
+                    var precio = l.IdProductoNavigation.PreciosVenta?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
                     lineaDto.Subtotal = l.Cantidad * precio;
                 }
                 return lineaDto;

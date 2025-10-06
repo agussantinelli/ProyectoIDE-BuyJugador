@@ -13,7 +13,7 @@ namespace DTOs
         public int? IdTipoProducto { get; set; }
         public string TipoProductoDescripcion { get; set; }
         public decimal PrecioActual { get; set; }
-        public List<PrecioDTO> Precios { get; set; } = new List<PrecioDTO>();
+        public List<PrecioVentaDTO> Precios { get; set; } = new List<PrecioVentaDTO>();
 
         public static ProductoDTO FromDominio(DominioModelo.Producto entidad)
         {
@@ -28,7 +28,7 @@ namespace DTOs
                 IdTipoProducto = entidad.IdTipoProducto,
                 TipoProductoDescripcion = entidad.IdTipoProductoNavigation?.Descripcion,
                 PrecioActual = entidad.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0,
-                Precios = entidad.Precios?.Select(PrecioDTO.FromDominio).ToList() ?? new List<PrecioDTO>()
+                Precios = entidad.Precios?.Select(PrecioVentaDTO.FromDominio).ToList() ?? new List<PrecioVentaDTO>()
             };
         }
 
@@ -50,7 +50,7 @@ namespace DTOs
                 {
                     if (precioDto != null)
                     {
-                        productoDominio.Precios.Add(new DominioModelo.Precio
+                        productoDominio.Precios.Add(new DominioModelo.PrecioVenta
                         {
                             Monto = precioDto.Monto,
                             FechaDesde = precioDto.FechaDesde

@@ -8,12 +8,12 @@ namespace WinForms
 {
     public partial class EditarPrecioForm : BaseForm
     {
-        private readonly PrecioApiClient _precioApiClient;
+        private readonly PrecioVentaApiClient _precioApiClient;
         private readonly int _idProducto;
         private readonly string _nombreProducto;
         private readonly decimal? _precioActual;
 
-        public EditarPrecioForm(PrecioApiClient precioApiClient, int idProducto, string nombreProducto, decimal? precioActual)
+        public EditarPrecioForm(PrecioVentaApiClient precioApiClient, int idProducto, string nombreProducto, decimal? precioActual)
         {
             InitializeComponent();
             _precioApiClient = precioApiClient;
@@ -45,7 +45,7 @@ namespace WinForms
                 return;
             }
 
-            var dto = new PrecioDTO
+            var dto = new PrecioVentaDTO
             {
                 IdProducto = _idProducto,
                 FechaDesde = DateTime.Now,
