@@ -18,7 +18,7 @@ namespace WinForms
         private readonly LocalidadApiClient _localidadApiClient;
         private readonly ProductoApiClient _productoApiClient;
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
-
+        private readonly PrecioCompraApiClient _precioCompraApiClient; // Añadido
 
         private BindingList<ProveedorRow> _activosBindingList;
         private BindingList<ProveedorRow> _inactivosBindingList;
@@ -37,6 +37,7 @@ namespace WinForms
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _productoProveedorApiClient = serviceProvider.GetRequiredService<ProductoProveedorApiClient>();
+            _precioCompraApiClient = serviceProvider.GetRequiredService<PrecioCompraApiClient>(); // Añadido
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -164,7 +165,8 @@ namespace WinForms
                 seleccionado.IdProveedor,
                 seleccionado.RazonSocial,
                 _productoApiClient,
-                _productoProveedorApiClient
+                _productoProveedorApiClient,
+                _precioCompraApiClient // <-- Argumento añadido aquí
             );
             form.ShowDialog();
         }

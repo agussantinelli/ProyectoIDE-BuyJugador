@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace DTOs
+﻿namespace DTOs
 {
     public class ProductoProveedorDTO
     {
+        public int IdProducto { get; set; }
         public int IdProveedor { get; set; }
-        public List<int> IdsProducto { get; set; } = new List<int>();
     }
 }
+

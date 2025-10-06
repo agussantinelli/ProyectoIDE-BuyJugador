@@ -1,8 +1,6 @@
 ﻿using Data;
-using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,70 +16,71 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<ProductoDTO>> GetProductosByProveedorIdAsync(int idProveedor)
+        public async Task<List<ProductoAsignadoDTO>> GetProductosByProveedorIdAsync(int idProveedor)
         {
-            var productos = await _context.ProductoProveedores
+            var productosAsignados = await _context.ProductoProveedores
                 .Where(pp => pp.IdProveedor == idProveedor)
-                .Select(pp => pp.Producto)
-                .Select(p => new ProductoDTO
+                .Select(pp => new ProductoAsignadoDTO
                 {
-                    IdProducto = p.IdProducto,
-                    Nombre = p.Nombre,
-                    Descripcion = p.Descripcion,
-                    Stock = p.Stock,
-                    IdTipoProducto = p.IdTipoProducto,
-                    TipoProductoDescripcion = p.IdTipoProductoNavigation.Descripcion,
-                    PrecioActual = p.PreciosVenta
-                        .OrderByDescending(pr => pr.FechaDesde)
-                        .FirstOrDefault().Monto
+                    IdProducto = pp.Producto.IdProducto,
+                    Nombre = pp.Producto.Nombre,
+                    Descripcion = pp.Producto.Descripcion,
+                    PrecioCompra = pp.Producto.PreciosCompra
+                                      .Where(pc => pc.IdProveedor == idProveedor)
+                                      .Select(pc => pc.Monto)
+                                      .FirstOrDefault()
                 })
                 .ToListAsync();
 
-            return productos;
+            return productosAsignados;
         }
 
-        public async Task UpdateProductosProveedorAsync(int idProveedor, List<int> idProductos)
+        public async Task CreateAsync(ProductoProveedorDTO dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var newRelation = new DominioModelo.ProductoProveedor
             {
-                var existing = await _context.ProductoProveedores
-                    .Where(pp => pp.IdProveedor == idProveedor)
-                    .ToListAsync();
-
-                _context.ProductoProveedores.RemoveRange(existing);
-                await _context.SaveChangesAsync(); 
-
-                if (idProductos != null && idProductos.Any())
-                {
-                    var newRelations = idProductos.Select(idProducto => new DominioModelo.ProductoProveedor
-                    {
-                        IdProveedor = idProveedor,
-                        IdProducto = idProducto
-                    });
-                    await _context.ProductoProveedores.AddRangeAsync(newRelations);
-                }
-
-                await _context.SaveChangesAsync(); 
-                await transaction.CommitAsync(); 
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync(); 
-                throw;
-            }
+                IdProducto = dto.IdProducto,
+                IdProveedor = dto.IdProveedor
+            };
+            await _context.ProductoProveedores.AddAsync(newRelation);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(int idProducto, int idProveedor)
         {
-            var pp = await _context.ProductoProveedores
-                .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (pp == null) return false;
+            try
+            {
+                var precioCompra = await _context.PreciosCompra
+                    .FirstOrDefaultAsync(pc => pc.IdProducto == idProducto && pc.IdProveedor == idProveedor);
 
-            _context.ProductoProveedores.Remove(pp);
-            await _context.SaveChangesAsync();
-            return true;
+                if (precioCompra != null)
+                {
+                    _context.PreciosCompra.Remove(precioCompra);
+                }
+
+                var pp = await _context.ProductoProveedores
+                    .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
+
+                if (pp == null)
+                {
+                    await transaction.RollbackAsync();
+                    return false;
+                }
+
+                _context.ProductoProveedores.Remove(pp);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }

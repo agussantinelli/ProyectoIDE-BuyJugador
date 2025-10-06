@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace WebAPI.Endpoints
 {
     public static class PrecioCompraEndpoints
@@ -12,7 +11,6 @@ namespace WebAPI.Endpoints
         public static void MapPrecioCompraEndpoints(this WebApplication app)
         {
             var group = app.MapGroup("/api/preciocompra");
-
 
             group.MapGet("/", async (PrecioCompraService service) => Results.Ok(await service.GetAllAsync()));
 
@@ -22,20 +20,17 @@ namespace WebAPI.Endpoints
                 return precio is not null ? Results.Ok(precio) : Results.NotFound();
             });
 
-
             group.MapPost("/", async (PrecioCompraService service, [FromBody] PrecioCompraDTO dto) =>
             {
                 var created = await service.CreateAsync(dto);
                 return Results.Created($"/api/preciocompra/{created.IdProducto}/{created.IdProveedor}", created);
             });
 
-
             group.MapPut("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, [FromBody] PrecioCompraDTO dto, PrecioCompraService service) =>
             {
                 await service.UpdateAsync(idProducto, idProveedor, dto);
                 return Results.NoContent();
             });
-
 
             group.MapDelete("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
@@ -45,3 +40,4 @@ namespace WebAPI.Endpoints
         }
     }
 }
+

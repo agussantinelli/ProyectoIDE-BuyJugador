@@ -1,10 +1,7 @@
 ﻿using DominioServicios;
+using DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
 
 namespace WebAPI.Endpoints
 {
@@ -19,17 +16,16 @@ namespace WebAPI.Endpoints
                 return Results.Ok(await service.GetProductosByProveedorIdAsync(idProveedor));
             });
 
-            group.MapPut("/{idProveedor}", async (int idProveedor, [FromBody] List<int> idProductos, ProductoProveedorService service) =>
+            group.MapPost("/", async (ProductoProveedorDTO dto, ProductoProveedorService service) =>
             {
-                try
-                {
-                    await service.UpdateProductosProveedorAsync(idProveedor, idProductos);
-                    return Results.Ok();
-                }
-                catch (Exception ex)
-                {
-                    return Results.Problem($"Ocurrió un error: {ex.Message}");
-                }
+                await service.CreateAsync(dto);
+                return Results.Ok();
+            });
+
+            group.MapDelete("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, ProductoProveedorService service) =>
+            {
+                var result = await service.DeleteAsync(idProducto, idProveedor);
+                return result ? Results.Ok() : Results.NotFound();
             });
         }
     }

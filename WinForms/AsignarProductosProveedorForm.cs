@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -14,23 +15,46 @@ namespace WinForms
         private readonly string _razonSocial;
         private readonly ProductoApiClient _productoApiClient;
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
+        private readonly PrecioCompraApiClient _precioCompraApiClient;
 
-        private BindingList<ProductoDTO> _disponiblesBindingList = new();
-        private BindingList<ProductoDTO> _asignadosBindingList = new();
+        // Clases internas para manejar las grillas de forma separada
+        private class ProductoDisponibleRow
+        {
+            public int IdProducto { get; set; }
+            public string Nombre { get; set; }
+            public string Descripcion { get; set; }
+        }
+
+        private class ProductoAsignadoRow
+        {
+            public int IdProducto { get; set; }
+            public string Nombre { get; set; }
+            public string Descripcion { get; set; }
+            public decimal PrecioCompra { get; set; }
+        }
+
+        private BindingList<ProductoDisponibleRow> _disponiblesBindingList = new();
+        private BindingList<ProductoAsignadoRow> _asignadosBindingList = new();
+
+        private HashSet<int> _initialAssignedIds;
 
         public AsignarProductosProveedorForm(
             int idProveedor,
             string razonSocial,
             ProductoApiClient productoApiClient,
-            ProductoProveedorApiClient productoProveedorApiClient)
+            ProductoProveedorApiClient productoProveedorApiClient,
+            PrecioCompraApiClient precioCompraApiClient)
         {
             InitializeComponent();
             _idProveedor = idProveedor;
             _razonSocial = razonSocial;
             _productoApiClient = productoApiClient;
             _productoProveedorApiClient = productoProveedorApiClient;
+            _precioCompraApiClient = precioCompraApiClient;
 
-            // Aplicar estilos a los controles
+            this.Text = $"Asignar Productos a {_razonSocial}";
+            this.StartPosition = FormStartPosition.CenterScreen;
+
             StyleManager.ApplyDataGridViewStyle(dgvDisponibles);
             StyleManager.ApplyDataGridViewStyle(dgvAsignados);
             StyleManager.ApplyButtonStyle(btnAsignar);
@@ -41,26 +65,35 @@ namespace WinForms
 
         private async void AsignarProductosProveedorForm_Load(object sender, EventArgs e)
         {
-            this.Text = $"Asignar Productos a {_razonSocial}";
-
-            // Configurar las columnas de los DataGridViews
-            ConfigurarDataGridView(dgvDisponibles);
-            ConfigurarDataGridView(dgvAsignados);
-
             try
             {
-                // Cargar todos los productos y los ya asignados
-                var todosLosProductos = await _productoApiClient.GetAllAsync();
-                var productosAsignados = await _productoProveedorApiClient.GetByProveedorIdAsync(_idProveedor);
-                var idsAsignados = productosAsignados.Select(p => p.IdProducto).ToHashSet();
+                var todosLosProductosTask = _productoApiClient.GetAllAsync();
+                var productosAsignadosTask = _productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(_idProveedor);
 
-                var productosDisponibles = todosLosProductos.Where(p => !idsAsignados.Contains(p.IdProducto)).ToList();
+                await Task.WhenAll(todosLosProductosTask, productosAsignadosTask);
 
-                _disponiblesBindingList = new BindingList<ProductoDTO>(productosDisponibles);
-                _asignadosBindingList = new BindingList<ProductoDTO>(productosAsignados);
+                var todosLosProductos = todosLosProductosTask.Result;
+                var productosAsignadosConPrecio = productosAsignadosTask.Result;
+
+                _initialAssignedIds = new HashSet<int>(productosAsignadosConPrecio.Select(p => p.IdProducto));
+
+                var productosDisponibles = todosLosProductos
+                    .Where(p => !_initialAssignedIds.Contains(p.IdProducto))
+                    .Select(p => new ProductoDisponibleRow { IdProducto = p.IdProducto, Nombre = p.Nombre, Descripcion = p.Descripcion })
+                    .ToList();
+
+                var productosAsignados = productosAsignadosConPrecio
+                    .Select(p => new ProductoAsignadoRow { IdProducto = p.IdProducto, Nombre = p.Nombre, Descripcion = p.Descripcion, PrecioCompra = p.PrecioCompra })
+                    .ToList();
+
+                _disponiblesBindingList = new BindingList<ProductoDisponibleRow>(productosDisponibles);
+                _asignadosBindingList = new BindingList<ProductoAsignadoRow>(productosAsignados);
 
                 dgvDisponibles.DataSource = _disponiblesBindingList;
                 dgvAsignados.DataSource = _asignadosBindingList;
+
+                ConfigurarColumnasDisponibles();
+                ConfigurarColumnasAsignados();
             }
             catch (Exception ex)
             {
@@ -68,109 +101,102 @@ namespace WinForms
             }
         }
 
-        private void ConfigurarDataGridView(DataGridView dgv)
+        private void ConfigurarColumnasDisponibles()
         {
-            dgv.AutoGenerateColumns = false;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect = true; // Permitir selección múltiple
-
-            dgv.Columns.Clear();
-
-            // Añadir columna de CheckBox para selección
-            var checkColumn = new DataGridViewCheckBoxColumn
+            dgvDisponibles.AutoGenerateColumns = false;
+            dgvDisponibles.Columns.Clear();
+            dgvDisponibles.Columns.AddRange(new DataGridViewColumn[]
             {
-                Name = "Seleccionar",
-                HeaderText = "",
-                Width = 30
-            };
-            dgv.Columns.Add(checkColumn);
-
-            // Columnas visibles
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "IdProducto",
-                HeaderText = "ID",
-                Name = "IdProducto",
-                ReadOnly = true,
-                Width = 50
-            });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "Nombre",
-                HeaderText = "Nombre",
-                Name = "Nombre",
-                ReadOnly = true,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "Descripcion",
-                HeaderText = "Descripción",
-                Name = "Descripcion",
-                ReadOnly = true,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoDisponibleRow.IdProducto), HeaderText = "ID" },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoDisponibleRow.Nombre), HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoDisponibleRow.Descripcion), HeaderText = "Descripción", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill }
             });
         }
 
-        // Mueve los productos seleccionados (con checkbox) de disponibles a asignados
+        private void ConfigurarColumnasAsignados()
+        {
+            dgvAsignados.AutoGenerateColumns = false;
+            dgvAsignados.Columns.Clear();
+            dgvAsignados.Columns.AddRange(new DataGridViewColumn[]
+            {
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoAsignadoRow.IdProducto), HeaderText = "ID" },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoAsignadoRow.Nombre), HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoAsignadoRow.Descripcion), HeaderText = "Descripción", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill },
+                new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProductoAsignadoRow.PrecioCompra), HeaderText = "Precio", DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" } }
+            });
+        }
+
         private void btnAsignar_Click(object sender, EventArgs e)
         {
-            var seleccionados = new List<ProductoDTO>();
-            foreach (DataGridViewRow row in dgvDisponibles.Rows)
+            if (dgvDisponibles.CurrentRow?.DataBoundItem is ProductoDisponibleRow productoSeleccionado)
             {
-                if (Convert.ToBoolean(row.Cells["Seleccionar"].Value))
-                {
-                    seleccionados.Add(row.DataBoundItem as ProductoDTO);
-                }
-            }
+                using var formPrecio = new AsignarPrecioProductoProveedorForm(
+                    _precioCompraApiClient,
+                    _productoProveedorApiClient,
+                    productoSeleccionado.IdProducto,
+                    _idProveedor,
+                    productoSeleccionado.Nombre,
+                    _razonSocial);
 
-            foreach (var producto in seleccionados)
-            {
-                _disponiblesBindingList.Remove(producto);
-                _asignadosBindingList.Add(producto);
+                if (formPrecio.ShowDialog() == DialogResult.OK)
+                {
+                    _disponiblesBindingList.Remove(productoSeleccionado);
+                    _asignadosBindingList.Add(new ProductoAsignadoRow
+                    {
+                        IdProducto = productoSeleccionado.IdProducto,
+                        Nombre = productoSeleccionado.Nombre,
+                        Descripcion = productoSeleccionado.Descripcion,
+                        PrecioCompra = formPrecio.Precio
+                    });
+                }
             }
         }
 
-        // Mueve los productos seleccionados (con checkbox) de asignados a disponibles
         private void btnQuitar_Click(object sender, EventArgs e)
         {
-            var seleccionados = new List<ProductoDTO>();
-            foreach (DataGridViewRow row in dgvAsignados.Rows)
+            if (dgvAsignados.CurrentRow?.DataBoundItem is ProductoAsignadoRow productoSeleccionado)
             {
-                if (Convert.ToBoolean(row.Cells["Seleccionar"].Value))
+                _asignadosBindingList.Remove(productoSeleccionado);
+                _disponiblesBindingList.Add(new ProductoDisponibleRow
                 {
-                    seleccionados.Add(row.DataBoundItem as ProductoDTO);
-                }
-            }
-
-            foreach (var producto in seleccionados)
-            {
-                _asignadosBindingList.Remove(producto);
-                _disponiblesBindingList.Add(producto);
+                    IdProducto = productoSeleccionado.IdProducto,
+                    Nombre = productoSeleccionado.Nombre,
+                    Descripcion = productoSeleccionado.Descripcion
+                });
             }
         }
-
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            var idsProductoAsignados = _asignadosBindingList.Select(p => p.IdProducto).ToList();
             try
             {
-                var response = await _productoProveedorApiClient.UpdateProductosProveedorAsync(_idProveedor, idsProductoAsignados);
-                if (response.IsSuccessStatusCode)
+                var finalAssignedIds = new HashSet<int>(_asignadosBindingList.Select(p => p.IdProducto));
+
+                var idsToRemove = _initialAssignedIds.Except(finalAssignedIds).ToList();
+                foreach (var idProducto in idsToRemove)
                 {
-                    MessageBox.Show("Asignación de productos guardada.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
+                    await _productoProveedorApiClient.DeleteAsync(idProducto, _idProveedor);
                 }
-                else
+
+                var idsToAdd = finalAssignedIds.Except(_initialAssignedIds).ToList();
+                foreach (var idProducto in idsToAdd)
                 {
-                    MessageBox.Show($"Error al guardar. Código: {response.StatusCode}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    var productoAsignado = _asignadosBindingList.First(p => p.IdProducto == idProducto);
+
+                    var ppDto = new ProductoProveedorDTO { IdProducto = idProducto, IdProveedor = _idProveedor };
+                    await _productoProveedorApiClient.CreateAsync(ppDto);
+
+                    var pcDto = new PrecioCompraDTO { IdProducto = idProducto, IdProveedor = _idProveedor, Monto = productoAsignado.PrecioCompra };
+                    await _precioCompraApiClient.CreateAsync(pcDto);
                 }
+
+                MessageBox.Show("Cambios guardados exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocurrió un error al guardar los cambios: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
