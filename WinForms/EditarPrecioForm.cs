@@ -1,6 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
+using System.Drawing;
 using System.Net.Http;
 using System.Windows.Forms;
 
@@ -29,8 +30,15 @@ namespace WinForms
 
         private void EditarPrecioForm_Load(object sender, EventArgs e)
         {
-            lblProductoValor.Text = $"{_nombreProducto} (ID: {_idProducto})";
+            txtProductoId.Text = _idProducto.ToString();
+            txtProductoNombre.Text = _nombreProducto;
             lblPrecioActualValor.Text = _precioActual.HasValue ? _precioActual.Value.ToString("C2") : "-";
+
+            txtProductoId.ReadOnly = true;
+            txtProductoId.BackColor = Color.LightGray;
+            txtProductoNombre.ReadOnly = true;
+            txtProductoNombre.BackColor = Color.LightGray;
+
             if (_precioActual.HasValue) nudNuevoPrecio.Value = _precioActual.Value > nudNuevoPrecio.Maximum ? nudNuevoPrecio.Maximum : _precioActual.Value;
             nudNuevoPrecio.Select(0, nudNuevoPrecio.Text.Length);
             nudNuevoPrecio.Focus();
@@ -38,8 +46,7 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            var monto = nudNuevoPrecio.Value;
-            if (monto <= 0)
+            if (!decimal.TryParse(nudNuevoPrecio.Text, out decimal monto) || monto <= 0)
             {
                 MessageBox.Show("El monto debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -78,4 +85,3 @@ namespace WinForms
         private void btnCancelar_Click(object sender, EventArgs e) => DialogResult = DialogResult.Cancel;
     }
 }
-

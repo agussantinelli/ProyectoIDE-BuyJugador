@@ -1,6 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
 using System;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,6 +35,20 @@ namespace WinForms
 
         private async void EditarPersonaForm_Load(object sender, EventArgs e)
         {
+            // Cargar datos no editables
+            txtId.Text = _persona.IdPersona.ToString();
+            txtNombreCompleto.Text = _persona.NombreCompleto; // Corregido: Usar NombreCompleto
+            txtDni.Text = _persona.Dni.ToString(); // Corregido: Usar Dni
+
+            // Configurar campos como solo lectura
+            txtId.ReadOnly = true;
+            txtId.BackColor = Color.LightGray;
+            txtNombreCompleto.ReadOnly = true;
+            txtNombreCompleto.BackColor = Color.LightGray;
+            txtDni.ReadOnly = true;
+            txtDni.BackColor = Color.LightGray;
+
+            // Cargar datos editables
             txtEmail.Text = _persona.Email;
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
@@ -49,19 +64,29 @@ namespace WinForms
                 if (localidadActual != null && localidadActual.IdProvincia.HasValue)
                 {
                     cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
-
+                    // Corregido: se accede a .Value para el tipo no nulable
                     await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
-
                     cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
             }
         }
 
+        private async Task CargarLocalidadesAsync(int idProvincia)
+        {
+            var localidades = await _localidadApiClient.GetAllOrderedAsync();
+            var filtradas = localidades?
+                .Where(l => l.IdProvincia == idProvincia)
+                .ToList();
+
+            cmbLocalidad.DataSource = filtradas;
+            cmbLocalidad.DisplayMember = "Nombre";
+            cmbLocalidad.ValueMember = "IdLocalidad";
+        }
+
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "Se modificarán los datos de la persona. " +
-                "¿Querés continuar?",
+                "⚠️ Se modificarán los datos de la persona.\\n¿Desea continuar?",
                 "Confirmar edición",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -93,19 +118,6 @@ namespace WinForms
                 await CargarLocalidadesAsync(idProvincia);
             }
         }
-
-        private async Task CargarLocalidadesAsync(int idProvincia)
-        {
-            var localidades = await _localidadApiClient.GetAllOrderedAsync();
-            var filtradas = localidades?
-                .Where(l => l.IdProvincia == idProvincia)
-                .ToList();
-
-            cmbLocalidad.DataSource = filtradas;
-            cmbLocalidad.DisplayMember = "Nombre";
-            cmbLocalidad.ValueMember = "IdLocalidad";
-        }
-
     }
 }
 

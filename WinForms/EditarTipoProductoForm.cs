@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using DTOs;
 using ApiClient;
@@ -24,7 +25,13 @@ namespace WinForms
 
         private void EditarTipoProductoForm_Load(object sender, EventArgs e)
         {
+            // Cargar datos
+            txtId.Text = _tipo.IdTipoProducto.ToString();
             txtDescripcion.Text = _tipo.Descripcion;
+
+            // Configurar campo ID como solo lectura
+            txtId.ReadOnly = true;
+            txtId.BackColor = Color.LightGray;
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
@@ -37,8 +44,8 @@ namespace WinForms
             }
 
             var confirm = MessageBox.Show(
-                "⚠️ Estás a punto de modificar este tipo de producto.\n\n" +
-                "Este cambio se aplicará automáticamente en todos los productos que lo usen.\n\n" +
+                "⚠️ Estás a punto de modificar este tipo de producto.\\n\\n" +
+                "Este cambio se aplicará automáticamente en todos los productos que lo usen.\\n\\n" +
                 "¿Estás seguro de que querés continuar?",
                 "Confirmar edición",
                 MessageBoxButtons.YesNo,
@@ -55,11 +62,9 @@ namespace WinForms
             DialogResult = DialogResult.OK;
         }
 
-
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
         }
     }
 }
-
