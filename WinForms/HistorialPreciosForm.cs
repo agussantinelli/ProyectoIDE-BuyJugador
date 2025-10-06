@@ -11,13 +11,13 @@ namespace WinForms
 {
     public partial class HistorialPreciosForm : BaseForm
     {
-        private readonly PrecioApiClient _precioApiClient;
+        private readonly PrecioVentaApiClient _precioApiClient;
         private readonly int _idProducto;
         private readonly string _nombreProducto;
 
-        private List<PrecioDTO> _cache = new();
+        private List<PrecioVentaDTO> _cache = new();
 
-        public HistorialPreciosForm(PrecioApiClient precioApiClient, int idProducto, string nombreProducto)
+        public HistorialPreciosForm(PrecioVentaApiClient precioApiClient, int idProducto, string nombreProducto)
         {
             InitializeComponent();
             _precioApiClient = precioApiClient;
@@ -41,7 +41,7 @@ namespace WinForms
         {
             try
             {
-                var todos = await _precioApiClient.GetAllAsync() ?? new List<PrecioDTO>();
+                var todos = await _precioApiClient.GetAllAsync() ?? new List<PrecioVentaDTO>();
                 _cache = todos
                     .Where(p => p.IdProducto == _idProducto)
                     .OrderByDescending(p => p.FechaDesde)

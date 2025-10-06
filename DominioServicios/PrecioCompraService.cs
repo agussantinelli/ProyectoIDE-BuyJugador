@@ -1,8 +1,8 @@
 ﻿using Data;
+using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DominioServicios
@@ -28,83 +28,66 @@ namespace DominioServicios
                     Monto = pc.Monto,
                     NombreProducto = pc.Producto.Nombre,
                     RazonSocialProveedor = pc.Proveedor.RazonSocial
-                }).ToListAsync();
-        }
-
-        public async Task<List<PrecioCompraDTO>> GetByProductoAsync(int idProducto)
-        {
-            return await _context.PreciosCompra
-                .Include(pc => pc.Producto)
-                .Include(pc => pc.Proveedor)
-                .Where(pc => pc.IdProducto == idProducto)
-                .Select(pc => new PrecioCompraDTO
-                {
-                    IdProducto = pc.IdProducto,
-                    IdProveedor = pc.IdProveedor,
-                    Monto = pc.Monto,
-                    NombreProducto = pc.Producto.Nombre,
-                    RazonSocialProveedor = pc.Proveedor.RazonSocial
-                }).ToListAsync();
-        }
-
-        public async Task<List<PrecioCompraDTO>> GetByProveedorAsync(int idProveedor)
-        {
-            return await _context.PreciosCompra
-                .Include(pc => pc.Producto)
-                .Include(pc => pc.Proveedor)
-                .Where(pc => pc.IdProveedor == idProveedor)
-                .Select(pc => new PrecioCompraDTO
-                {
-                    IdProducto = pc.IdProducto,
-                    IdProveedor = pc.IdProveedor,
-                    Monto = pc.Monto,
-                    NombreProducto = pc.Producto.Nombre,
-                    RazonSocialProveedor = pc.Proveedor.RazonSocial
-                }).ToListAsync();
+                })
+                .ToListAsync();
         }
 
         public async Task<PrecioCompraDTO?> GetByIdAsync(int idProducto, int idProveedor)
         {
-            var e = await _context.PreciosCompra
-                .Include(pc => pc.Producto)
-                .Include(pc => pc.Proveedor)
-                .FirstOrDefaultAsync(pc => pc.IdProducto == idProducto && pc.IdProveedor == idProveedor);
+            var pc = await _context.PreciosCompra
+                .Include(p => p.Producto)
+                .Include(p => p.Proveedor)
+                .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
 
-            return PrecioCompraDTO.FromDominio(e);
+            if (pc == null) return null;
+
+            return new PrecioCompraDTO
+            {
+                IdProducto = pc.IdProducto,
+                IdProveedor = pc.IdProveedor,
+                Monto = pc.Monto,
+                NombreProducto = pc.Producto.Nombre,
+                RazonSocialProveedor = pc.Proveedor.RazonSocial
+            };
         }
 
-        // upsert (sin historial)
-        public async Task<PrecioCompraDTO> CreateOrUpdateAsync(PrecioCompraDTO dto)
+        public async Task<PrecioCompraDTO> CreateAsync(PrecioCompraDTO dto)
         {
-            var e = await _context.PreciosCompra.FindAsync(dto.IdProducto, dto.IdProveedor);
-            if (e == null)
+            var entity = new PrecioCompra
             {
-                e = dto.ToDominio();
-                _context.PreciosCompra.Add(e);
-            }
-            else
-            {
-                e.Monto = dto.Monto;
-            }
+                IdProducto = dto.IdProducto,
+                IdProveedor = dto.IdProveedor,
+                Monto = dto.Monto
+            };
 
+            _context.PreciosCompra.Add(entity);
             await _context.SaveChangesAsync();
 
-            var full = await _context.PreciosCompra
-                .Include(pc => pc.Producto)
-                .Include(pc => pc.Proveedor)
-                .FirstAsync(pc => pc.IdProducto == dto.IdProducto && pc.IdProveedor == dto.IdProveedor);
-
-            return PrecioCompraDTO.FromDominio(full)!;
+            return dto;
         }
 
-        public async Task<bool> DeleteAsync(int idProducto, int idProveedor)
+        public async Task UpdateAsync(int idProducto, int idProveedor, PrecioCompraDTO dto)
         {
-            var e = await _context.PreciosCompra.FindAsync(idProducto, idProveedor);
-            if (e == null) return false;
+            var entity = await _context.PreciosCompra
+                .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
 
-            _context.PreciosCompra.Remove(e);
-            await _context.SaveChangesAsync();
-            return true;
+            if (entity != null)
+            {
+                entity.Monto = dto.Monto;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task DeleteAsync(int idProducto, int idProveedor)
+        {
+            var entity = await _context.PreciosCompra
+                .FirstOrDefaultAsync(p => p.IdProducto == idProducto && p.IdProveedor == idProveedor);
+
+            if (entity != null)
+            {
+                _context.PreciosCompra.Remove(entity);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

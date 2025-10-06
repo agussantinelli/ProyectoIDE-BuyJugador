@@ -24,7 +24,7 @@ namespace DominioServicios
             var lineas = await _context.LineaPedidos
                 .Where(l => l.IdPedido == idPedido)
                 .Include(l => l.IdProductoNavigation)
-                    .ThenInclude(p => p.Precios)
+                    .ThenInclude(p => p.PreciosVenta)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -32,7 +32,7 @@ namespace DominioServicios
                 var lineaDto = LineaPedidoDTO.FromDominio(l);
                 if (l.IdProductoNavigation != null)
                 {
-                    var precio = l.IdProductoNavigation.Precios?
+                    var precio = l.IdProductoNavigation.PreciosVenta?
                                   .OrderByDescending(p => p.FechaDesde)
                                   .FirstOrDefault(p => p.FechaDesde <= pedido.Fecha)?.Monto ?? 0;
                     lineaDto.PrecioUnitario = precio;

@@ -14,21 +14,26 @@ public static class VentaEndpoints
 
         group.MapGet("/", async (VentaService ventaService) =>
         {
-            var ventas = await ventaService.GetVentas().Select(v => VentaDTO.FromDominio(v)).ToListAsync();
+            var ventas = await ventaService.GetVentas()
+                .Select(v => VentaDTO.FromDominio(v))
+                .ToListAsync();
+
             foreach (var venta in ventas)
             {
                 var ventaConDetalles = await ventaService.GetVentaByIdAsync(venta.IdVenta);
 
-                // --- CORRECCIÓN ---
-                // Se usa FirstOrDefault() para manejar productos sin precios.
-                // Si no hay precio, se asume 0.
                 if (ventaConDetalles?.LineaVenta != null)
                 {
                     venta.Total = ventaConDetalles.LineaVenta.Sum(l =>
-                        l.Cantidad * (l.IdProductoNavigation?.Precios.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0)
+                        l.Cantidad * (
+                            l.IdProductoNavigation?.PreciosVenta
+                                .OrderByDescending(p => p.FechaDesde)
+                                .FirstOrDefault()?.Monto ?? 0
+                        )
                     );
                 }
             }
+
             return Results.Ok(ventas);
         });
 
@@ -43,15 +48,18 @@ public static class VentaEndpoints
             foreach (var linea in ventaDto.Lineas)
             {
                 var producto = venta.LineaVenta
-                   .First(l => l.NroLineaVenta == linea.NroLineaVenta).IdProductoNavigation;
+                    .First(l => l.NroLineaVenta == linea.NroLineaVenta)
+                    .IdProductoNavigation;
 
-                // --- CORRECCIÓN ---
-                // Se usa FirstOrDefault() también aquí para evitar el mismo error.
-                linea.PrecioUnitario = producto.Precios?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
+                var precioActual = producto.PreciosVenta?
+                    .OrderByDescending(p => p.FechaDesde)
+                    .FirstOrDefault()?.Monto ?? 0;
+
+                linea.PrecioUnitario = precioActual;
                 linea.Subtotal = linea.Cantidad * linea.PrecioUnitario;
             }
-            ventaDto.Total = ventaDto.Lineas.Sum(l => l.Subtotal);
 
+            ventaDto.Total = ventaDto.Lineas.Sum(l => l.Subtotal);
             return Results.Ok(ventaDto);
         });
 
@@ -64,15 +72,14 @@ public static class VentaEndpoints
         group.MapPut("/completa/{id:int}", async (int id, CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
         {
             if (id != ventaDto.IdVenta)
-            {
                 return Results.BadRequest("El ID de la URL no coincide con el ID de la venta.");
-            }
+
             try
             {
                 await ventaService.UpdateVentaCompletaAsync(ventaDto);
                 return Results.Ok();
             }
-            catch (System.Collections.Generic.KeyNotFoundException e)
+            catch (KeyNotFoundException e)
             {
                 return Results.NotFound(e.Message);
             }
@@ -81,9 +88,7 @@ public static class VentaEndpoints
         group.MapDelete("/{id:int}", async (int id, VentaService ventaService) =>
         {
             var result = await ventaService.DeleteVentaAsync(id);
-            if (!result) return Results.NotFound();
-            return Results.Ok();
+            return result ? Results.Ok() : Results.NotFound();
         });
     }
 }
-

@@ -9,7 +9,6 @@ namespace WebAPI.Endpoints
         {
             var group = app.MapGroup("/api/lineapedidos");
 
-            // Endpoint para obtener todas las líneas de un pedido específico
             group.MapGet("/porpedido/{idPedido}", async (int idPedido, LineaPedidoService service) =>
             {
                 var lineas = await service.GetLineasByPedidoIdAsync(idPedido);

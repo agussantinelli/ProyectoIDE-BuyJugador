@@ -39,8 +39,6 @@ namespace DominioServicios
             {
                 IdPersona = dto.IdPersona,
                 Fecha = DateTime.UtcNow,
-                // --- CORRECCIÓN ---
-                // Se usa la nueva propiedad para determinar el estado inicial.
                 Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
                 LineaVenta = dto.Lineas.Select((l, index) => new LineaVenta
                 {
@@ -72,8 +70,6 @@ namespace DominioServicios
                 Cantidad = l.Cantidad
             }).ToList();
 
-            // --- CORRECCIÓN ---
-            // Se usa la propiedad para actualizar el estado si se está finalizando.
             if (dto.Finalizada)
             {
                 ventaExistente.Estado = "Finalizada";
