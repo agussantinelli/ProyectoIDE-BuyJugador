@@ -8,13 +8,11 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-
 public static class DbSeeder
 {
-
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        //context.Database.EnsureDeleted(); // Descomentar solo en desarrollo para reiniciar la DB.
+        //context.Database.EnsureDeleted();  //Descomentar para resetear la base de datos
         context.Database.EnsureCreated();
 
         await SeedProvinciasYLocalidadesAsync(context);
@@ -110,7 +108,7 @@ public static class DbSeeder
 
     private static async Task SeedProductosConPreciosVentaAsync(BuyJugadorContext context)
     {
-        if (context.Productos.Any()) return;
+        if (context.Productos.IgnoreQueryFilters().Any()) return;
         Console.WriteLine("Seeding Productos y Precios de Venta...");
         var tipos = await context.TiposProductos.ToListAsync();
         context.Productos.AddRange(GetProductosConPreciosVenta(tipos));
@@ -250,8 +248,10 @@ public static class DbSeeder
         context.LineaPedidos.AddRange(lineasPedido);
         await context.SaveChangesAsync();
     }
+
     private static IEnumerable<TipoProducto> GetTiposProducto() => new List<TipoProducto>
     {
+        // # RESTAURADO: Se eliminó la propiedad 'Activo' ya que no existe en el modelo.
         new TipoProducto { Descripcion = "Componentes" }, new TipoProducto { Descripcion = "Monitores" }, new TipoProducto { Descripcion = "Parlantes" },
         new TipoProducto { Descripcion = "Teclados" }, new TipoProducto { Descripcion = "Mouse" }, new TipoProducto { Descripcion = "Impresoras" },
         new TipoProducto { Descripcion = "Scanners" }, new TipoProducto { Descripcion = "Tabletas" }, new TipoProducto { Descripcion = "Laptops" },
@@ -313,32 +313,32 @@ public static class DbSeeder
         var random = new Random();
         return new List<Producto>
         {
-            new Producto { Nombre = "MotherBoard Ryzen 5.0", Descripcion = "Mother Asus", Stock = 150, IdTipoProducto = tipos.First(t => t.Descripcion == "Componentes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Monitor Curvo TLC", Descripcion = "Monitor Curvo 20°", Stock = 200, IdTipoProducto = tipos.First(t => t.Descripcion == "Monitores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Parlante Huge HBL", Descripcion = "Sonido Envolvente", Stock = 100, IdTipoProducto = tipos.First(t => t.Descripcion == "Parlantes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Teclado Mecánico RGB", Descripcion = "Teclado gaming mecánico", Stock = 80, IdTipoProducto = tipos.First(t => t.Descripcion == "Teclados").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, IdTipoProducto = tipos.First(t => t.Descripcion == "Mouse").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Laptop Gamer Xtreme", Descripcion = "Laptop con GPU RTX 4060 y 32GB RAM", Stock = 50, IdTipoProducto = tipos.First(t => t.Descripcion == "Laptops").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(3000, 5001) * 10 } } },
-            new Producto { Nombre = "Router Wi-Fi 6 Mesh", Descripcion = "Sistema de red inalámbrica de alto rendimiento", Stock = 90, IdTipoProducto = tipos.First(t => t.Descripcion == "Redes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(200, 1001) * 10 } } },
-            new Producto { Nombre = "Tablet Android 10\"", Descripcion = "Pantalla FHD y batería de larga duración", Stock = 75, IdTipoProducto = tipos.First(t => t.Descripcion == "Tabletas").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } } },
-            new Producto { Nombre = "Impresora Láser HP", Descripcion = "Impresora monocromática rápida", Stock = 60, IdTipoProducto = tipos.First(t => t.Descripcion == "Impresoras").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3001) * 10 } } },
-            new Producto { Nombre = "Disco SSD 1TB", Descripcion = "Almacenamiento rápido NVMe", Stock = 200, IdTipoProducto = tipos.First(t => t.Descripcion == "Almacenamiento").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(500, 1201) * 10 } } },
-            new Producto { Nombre = "Cámara Web Full HD", Descripcion = "Con micrófono incorporado y autofoco", Stock = 150, IdTipoProducto = tipos.First(t => t.Descripcion == "Cámaras").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(300, 701) * 10 } } },
-            new Producto { Nombre = "Auriculares Pro Studio", Descripcion = "Audio profesional para edición y mezcla", Stock = 40, IdTipoProducto = tipos.First(t => t.Descripcion == "Audio Profesional").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } } },
-            new Producto { Nombre = "Proyector HD LED", Descripcion = "Ideal para presentaciones y cine en casa", Stock = 30, IdTipoProducto = tipos.First(t => t.Descripcion == "Proyectores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(2000, 4001) * 10 } } },
-            new Producto { Nombre = "Scanner Documental Pro", Descripcion = "Scanner de alta velocidad para documentos", Stock = 25, IdTipoProducto = tipos.First(t => t.Descripcion == "Scanners").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(800, 2001) * 10 } } },
-            new Producto { Nombre = "Desktop Workstation", Descripcion = "Computadora de escritorio para trabajo intensivo", Stock = 35, IdTipoProducto = tipos.First(t => t.Descripcion == "Desktop").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(2500, 6001) * 10 } } },
-            new Producto { Nombre = "Servidor Rack 2U", Descripcion = "Servidor empresarial para centro de datos", Stock = 15, IdTipoProducto = tipos.First(t => t.Descripcion == "Servidores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(5000, 12001) * 10 } } },
-            new Producto { Nombre = "Software Suite Office", Descripcion = "Suite de oficina profesional", Stock = 500, IdTipoProducto = tipos.First(t => t.Descripcion == "Software").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(100, 501) * 10 } } },
-            new Producto { Nombre = "Funda Laptop Universal", Descripcion = "Funda protectora para laptops", Stock = 300, IdTipoProducto = tipos.First(t => t.Descripcion == "Accesorios").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(50, 201) * 10 } } },
-            new Producto { Nombre = "Kit Gaming RGB", Descripcion = "Kit completo para gaming con iluminación RGB", Stock = 45, IdTipoProducto = tipos.First(t => t.Descripcion == "Gaming").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3501) * 10 } } },
-            new Producto { Nombre = "Smartphone Android 5G", Descripcion = "Teléfono inteligente con conectividad 5G", Stock = 180, IdTipoProducto = tipos.First(t => t.Descripcion == "Smartphones").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(800, 2001) * 10 } } }
+            new Producto { Nombre = "MotherBoard Ryzen 5.0", Descripcion = "Mother Asus", Stock = 150, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Componentes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
+            new Producto { Nombre = "Monitor Curvo TLC", Descripcion = "Monitor Curvo 20°", Stock = 200, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Monitores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
+            new Producto { Nombre = "Parlante Huge HBL", Descripcion = "Sonido Envolvente", Stock = 100, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Parlantes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
+            new Producto { Nombre = "Teclado Mecánico RGB", Descripcion = "Teclado gaming mecánico", Stock = 80, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Teclados").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
+            new Producto { Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Mouse").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 15001) * 10 } } },
+            new Producto { Nombre = "Laptop Gamer Xtreme", Descripcion = "Laptop con GPU RTX 4060 y 32GB RAM", Stock = 50, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Laptops").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(3000, 5001) * 10 } } },
+            new Producto { Nombre = "Router Wi-Fi 6 Mesh", Descripcion = "Sistema de red inalámbrica de alto rendimiento", Stock = 90, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Redes").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(200, 1001) * 10 } } },
+            new Producto { Nombre = "Tablet Android 10\"", Descripcion = "Pantalla FHD y batería de larga duración", Stock = 75, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Tabletas").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } } },
+            new Producto { Nombre = "Impresora Láser HP", Descripcion = "Impresora monocromática rápida", Stock = 60, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Impresoras").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3001) * 10 } } },
+            new Producto { Nombre = "Disco SSD 1TB", Descripcion = "Almacenamiento rápido NVMe", Stock = 200, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Almacenamiento").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(500, 1201) * 10 } } },
+            new Producto { Nombre = "Cámara Web Full HD", Descripcion = "Con micrófono incorporado y autofoco", Stock = 150, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Cámaras").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(300, 701) * 10 } } },
+            new Producto { Nombre = "Auriculares Pro Studio", Descripcion = "Audio profesional para edición y mezcla", Stock = 40, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Audio Profesional").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1000, 2501) * 10 } } },
+            new Producto { Nombre = "Proyector HD LED", Descripcion = "Ideal para presentaciones y cine en casa", Stock = 30, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Proyectores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(2000, 4001) * 10 } } },
+            new Producto { Nombre = "Scanner Documental Pro", Descripcion = "Scanner de alta velocidad para documentos", Stock = 25, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Scanners").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(800, 2001) * 10 } } },
+            new Producto { Nombre = "Desktop Workstation", Descripcion = "Computadora de escritorio para trabajo intensivo", Stock = 35, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Desktop").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(2500, 6001) * 10 } } },
+            new Producto { Nombre = "Servidor Rack 2U", Descripcion = "Servidor empresarial para centro de datos", Stock = 15, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Servidores").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(5000, 12001) * 10 } } },
+            new Producto { Nombre = "Software Suite Office", Descripcion = "Suite de oficina profesional", Stock = 500, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Software").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(100, 501) * 10 } } },
+            new Producto { Nombre = "Funda Laptop Universal", Descripcion = "Funda protectora para laptops", Stock = 300, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Accesorios").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(50, 201) * 10 } } },
+            new Producto { Nombre = "Kit Gaming RGB", Descripcion = "Kit completo para gaming con iluminación RGB", Stock = 45, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Gaming").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(1500, 3501) * 10 } } },
+            new Producto { Nombre = "Smartphone Android 5G", Descripcion = "Teléfono inteligente con conectividad 5G", Stock = 180, Activo = true, IdTipoProducto = tipos.First(t => t.Descripcion == "Smartphones").IdTipoProducto, PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = DateTime.Today, Monto = random.Next(800, 2001) * 10 } } }
         };
     }
 
     private static decimal CalcularPrecioCompra(Producto producto, Proveedor proveedor, decimal precioVenta)
     {
-        decimal multiplicadorCompra = 0.70m; // Base
+        decimal multiplicadorCompra = 0.70m;
         if (producto.Nombre.Contains("Software", StringComparison.OrdinalIgnoreCase)) multiplicadorCompra = 0.85m;
         else if (producto.Nombre.Contains("Servidor", StringComparison.OrdinalIgnoreCase)) multiplicadorCompra = 0.75m;
         else if (producto.Nombre.Contains("Accesorio", StringComparison.OrdinalIgnoreCase) || producto.Nombre.Contains("Kit", StringComparison.OrdinalIgnoreCase)) multiplicadorCompra = 0.60m;
@@ -356,6 +356,7 @@ public static class DbSeeder
 
         return Math.Round(precioVenta * multiplicadorCompra * ajusteProveedor, 2);
     }
+
     private static async Task<string> GetWithRetryAsync(HttpClient client, string url, int maxRetries = 5)
     {
         for (int i = 0; i < maxRetries; i++)
