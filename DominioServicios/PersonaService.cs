@@ -1,7 +1,9 @@
-﻿using Data;
+﻿// DominioServicios/PersonaService.cs
+using Data;
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net;
 
 namespace DominioServicios
 {
@@ -14,57 +16,118 @@ namespace DominioServicios
             _context = context;
         }
 
-        public async Task<List<PersonaDTO>> GetAllAsync()
+        // # Obtiene todas las personas activas con su localidad y provincia.
+        public async Task<IEnumerable<PersonaDTO>> GetAllAsync()
         {
-            var entidades = await _context.Personas
+            return await _context.Personas
                 .Include(p => p.IdLocalidadNavigation)
                     .ThenInclude(l => l.IdProvinciaNavigation)
+                .Select(p => PersonaDTO.FromDominio(p))
                 .ToListAsync();
-
-            return entidades.Select(PersonaDTO.FromDominio).ToList();
         }
 
+        // # Obtiene todas las personas inactivas (borrado lógico).
+        public async Task<IEnumerable<PersonaDTO>> GetInactivosAsync()
+        {
+            return await _context.Personas
+                .IgnoreQueryFilters() // # Ignora el filtro global para buscar también los inactivos.
+                .Where(p => !p.Estado)
+                .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                .Select(p => PersonaDTO.FromDominio(p))
+                .ToListAsync();
+        }
 
+        // # Obtiene una persona por su ID, incluyendo inactivos.
         public async Task<PersonaDTO?> GetByIdAsync(int id)
         {
-            var entidad = await _context.Personas.FindAsync(id);
-            return PersonaDTO.FromDominio(entidad);
+            var persona = await _context.Personas
+                .IgnoreQueryFilters()
+                .Include(p => p.IdLocalidadNavigation)
+                    .ThenInclude(l => l.IdProvinciaNavigation)
+                .FirstOrDefaultAsync(p => p.IdPersona == id);
+
+            return persona != null ? PersonaDTO.FromDominio(persona) : null;
         }
 
-        public async Task<PersonaDTO> CreateAsync(PersonaDTO dto)
+        // # Crea una nueva persona, aplicando hash a la contraseña.
+        public async Task<PersonaDTO> CreateAsync(PersonaDTO personaDto)
         {
-            var entidad = dto.ToDominio();
-            _context.Personas.Add(entidad);
+            var persona = new Persona
+            {
+                NombreCompleto = personaDto.NombreCompleto,
+                Dni = personaDto.Dni,
+                Email = personaDto.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
+                Telefono = personaDto.Telefono,
+                Direccion = personaDto.Direccion,
+                IdLocalidad = personaDto.IdLocalidad,
+                FechaIngreso = personaDto.FechaIngreso,
+                Estado = true
+            };
+
+            _context.Personas.Add(persona);
             await _context.SaveChangesAsync();
-            return PersonaDTO.FromDominio(entidad);
+            var dtoCreado = PersonaDTO.FromDominio(persona);
+            dtoCreado.Password = null;
+            return dtoCreado;
         }
 
-        public async Task UpdateAsync(int id, PersonaDTO dto)
+        // Actualiza los datos de contacto de una persona.
+        public async Task<bool> UpdateAsync(int id, PersonaDTO personaDto)
         {
-            var entidad = await _context.Personas.FindAsync(id);
-            if (entidad != null)
-            {
-                entidad.NombreCompleto = dto.NombreCompleto;
-                entidad.Dni = dto.Dni;
-                entidad.Email = dto.Email;
-                entidad.Password = dto.Password;
-                entidad.Telefono = dto.Telefono;
-                entidad.Direccion = dto.Direccion;
-                entidad.IdLocalidad = dto.IdLocalidad;
-                entidad.FechaIngreso = dto.FechaIngreso;
+            var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
+            if (persona == null) return false;
 
-                await _context.SaveChangesAsync();
-            }
+            persona.Email = personaDto.Email;
+            persona.Telefono = personaDto.Telefono;
+            persona.Direccion = personaDto.Direccion;
+            persona.IdLocalidad = personaDto.IdLocalidad;
+
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task DeleteAsync(int id)
+        // Realiza un borrado lógico de la persona.
+        public async Task<bool> DeleteAsync(int id)
         {
-            var entidad = await _context.Personas.FindAsync(id);
-            if (entidad != null)
+            var persona = await _context.Personas.FindAsync(id);
+            if (persona == null) return false;
+
+            // Implementamos el borrado lógico.
+            persona.Estado = false;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Reactiva una persona que fue borrada lógicamente.
+        public async Task<bool> ReactivarAsync(int id)
+        {
+            var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
+            if (persona == null) return false;
+
+            persona.Estado = true;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Valida las credenciales del usuario.
+        public async Task<PersonaDTO?> LoginAsync(int dni, string password)
+        {
+            var persona = await _context.Personas
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Dni == dni);
+
+            if (persona == null || !persona.Estado || !BCrypt.Net.BCrypt.Verify(password, persona.Password))
             {
-                _context.Personas.Remove(entidad);
-                await _context.SaveChangesAsync();
+                return null; 
             }
+
+            var personaDto = PersonaDTO.FromDominio(persona);
+            personaDto.Password = null; 
+
+            return personaDto;
         }
     }
 }

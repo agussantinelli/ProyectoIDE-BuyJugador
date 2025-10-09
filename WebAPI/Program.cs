@@ -44,14 +44,16 @@ var app = builder.Build();
 
 #region Application Pipeline Configuration
 
+// # Configura el pipeline de solicitudes HTTP.
 if (app.Environment.IsDevelopment())
 {
+    // # En desarrollo, habilita Swagger para documentar y probar la API.
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-if (!app.Environment.IsDevelopment())
+else
 {
+    // # En producción, usa un manejador de excepciones y HSTS.
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
@@ -67,6 +69,9 @@ app.MapRazorPages();
 
 #endregion
 
+#region Database Seeding
+
+// # Ejecuta el seeder para poblar la base de datos con datos iniciales.
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -74,6 +79,7 @@ using (var scope = app.Services.CreateScope())
     var logger = services.GetRequiredService<ILogger<Program>>();
     try
     {
+        // # Es una buena práctica ejecutar tareas asíncronas de inicialización aquí.
         await DbSeeder.SeedAsync(context);
     }
     catch (Exception ex)
@@ -82,8 +88,11 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+#endregion
+
 #region API Endpoints Registration
 
+// # Mapea todos los grupos de endpoints de la API.
 app.MapProductoEndpoints();
 app.MapProveedorEndpoints();
 app.MapPersonaEndpoints();

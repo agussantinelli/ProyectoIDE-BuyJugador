@@ -1,9 +1,6 @@
-﻿using Data;
-using DominioModelo;
+﻿// WebAPI/Endpoints/PersonaEndpoints.cs
+using DominioServicios; 
 using DTOs;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using BCrypt.Net;
 
 namespace WebAPI.Endpoints
 {
@@ -11,112 +8,52 @@ namespace WebAPI.Endpoints
     {
         public static void MapPersonaEndpoints(this WebApplication app)
         {
-            app.MapGet("/api/personas", async (BuyJugadorContext db) =>
+            app.MapGet("/api/personas", async (PersonaService service) =>
             {
-                var personas = await db.Personas
-                    .Include(p => p.IdLocalidadNavigation)
-                        .ThenInclude(l => l.IdProvinciaNavigation)
-                    .Select(p => PersonaDTO.FromDominio(p))
-                    .ToListAsync();
+                var personas = await service.GetAllAsync();
                 return Results.Ok(personas);
             });
 
-            app.MapGet("/api/personas/inactivos", async (BuyJugadorContext db) =>
+            app.MapGet("/api/personas/inactivos", async (PersonaService service) =>
             {
-                var personas = await db.Personas
-                    .IgnoreQueryFilters() 
-                    .Where(p => !p.Estado)
-                    .Include(p => p.IdLocalidadNavigation)
-                        .ThenInclude(l => l.IdProvinciaNavigation)
-                    .Select(p => PersonaDTO.FromDominio(p))
-                    .ToListAsync();
+                var personas = await service.GetInactivosAsync();
                 return Results.Ok(personas);
             });
 
-            app.MapGet("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
+            app.MapGet("/api/personas/{id}", async (PersonaService service, int id) =>
             {
-                var persona = await db.Personas
-                    .IgnoreQueryFilters()
-                    .Include(p => p.IdLocalidadNavigation)
-                        .ThenInclude(l => l.IdProvinciaNavigation)
-                    .FirstOrDefaultAsync(p => p.IdPersona == id);
-
-                if (persona == null) return Results.NotFound();
-                return Results.Ok(PersonaDTO.FromDominio(persona));
+                var persona = await service.GetByIdAsync(id);
+                return persona != null ? Results.Ok(persona) : Results.NotFound();
             });
 
-            app.MapPost("/api/personas", async (BuyJugadorContext db, PersonaDTO personaDto) =>
+            app.MapPost("/api/personas", async (PersonaService service, PersonaDTO personaDto) =>
             {
-                var persona = new Persona
-                {
-                    NombreCompleto = personaDto.NombreCompleto,
-                    Dni = personaDto.Dni,
-                    Email = personaDto.Email,
-                    Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
-                    Telefono = personaDto.Telefono,
-                    Direccion = personaDto.Direccion,
-                    IdLocalidad = personaDto.IdLocalidad,
-                    FechaIngreso = personaDto.FechaIngreso,
-                    Estado = true 
-                };
-                db.Personas.Add(persona);
-                await db.SaveChangesAsync();
-
-                var dtoCreado = PersonaDTO.FromDominio(persona);
-                dtoCreado.Password = null;
-                return Results.Created($"/api/personas/{persona.IdPersona}", dtoCreado);
+                var dtoCreado = await service.CreateAsync(personaDto);
+                return Results.Created($"/api/personas/{dtoCreado.IdPersona}", dtoCreado);
             });
 
-            app.MapPut("/api/personas/{id}", async (BuyJugadorContext db, int id, PersonaDTO personaDto) =>
+            app.MapPut("/api/personas/{id}", async (PersonaService service, int id, PersonaDTO personaDto) =>
             {
-                var persona = await db.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
-                if (persona == null) return Results.NotFound();
-
-                persona.Email = personaDto.Email;
-                persona.Telefono = personaDto.Telefono;
-                persona.Direccion = personaDto.Direccion;
-                persona.IdLocalidad = personaDto.IdLocalidad;
-
-                await db.SaveChangesAsync();
-                return Results.NoContent();
+                var actualizado = await service.UpdateAsync(id, personaDto);
+                return actualizado ? Results.NoContent() : Results.NotFound();
             });
 
-            app.MapPut("/api/personas/reactivar/{id}", async (BuyJugadorContext db, int id) =>
+            app.MapPut("/api/personas/reactivar/{id}", async (PersonaService service, int id) =>
             {
-                var persona = await db.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
-                if (persona == null) return Results.NotFound();
-
-                persona.Estado = true;
-                await db.SaveChangesAsync();
-                return Results.NoContent();
+                var reactivado = await service.ReactivarAsync(id);
+                return reactivado ? Results.NoContent() : Results.NotFound();
             });
 
-            app.MapDelete("/api/personas/{id}", async (BuyJugadorContext db, int id) =>
+            app.MapDelete("/api/personas/{id}", async (PersonaService service, int id) =>
             {
-                var persona = await db.Personas.FindAsync(id);
-                if (persona == null) return Results.NotFound();
-
-                persona.Estado = false;
-                await db.SaveChangesAsync();
-                return Results.NoContent();
+                var borrado = await service.DeleteAsync(id);
+                return borrado ? Results.NoContent() : Results.NotFound();
             });
 
-            app.MapPost("/api/personas/login", async (BuyJugadorContext db, LoginRequestDto loginRequest) =>
+            app.MapPost("/api/personas/login", async (PersonaService service, LoginRequestDto loginRequest) =>
             {
-                var persona = await db.Personas
-                                      .IgnoreQueryFilters() 
-                                      .AsNoTracking()
-                                      .FirstOrDefaultAsync(p => p.Dni == loginRequest.Dni);
-
-                if (persona == null || !persona.Estado || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, persona.Password))
-                {
-                    return Results.Unauthorized();
-                }
-
-                var personaDto = PersonaDTO.FromDominio(persona);
-                personaDto.Password = null;
-
-                return Results.Ok(personaDto);
+                var personaDto = await service.LoginAsync(loginRequest.Dni, loginRequest.Password);
+                return personaDto != null ? Results.Ok(personaDto) : Results.Unauthorized();
             }).AllowAnonymous();
         }
 
@@ -127,4 +64,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-

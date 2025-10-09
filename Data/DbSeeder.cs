@@ -14,7 +14,7 @@ public static class DbSeeder
 
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        // context.Database.EnsureDeleted(); // Descomentar solo en desarrollo para reiniciar la DB.
+        //context.Database.EnsureDeleted(); // Descomentar solo en desarrollo para reiniciar la DB.
         context.Database.EnsureCreated();
 
         await SeedProvinciasYLocalidadesAsync(context);
