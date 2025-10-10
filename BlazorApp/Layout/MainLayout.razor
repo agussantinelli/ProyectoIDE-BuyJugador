@@ -1,25 +1,39 @@
 ﻿@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
 
 <header>
     <div class="header-left">
         <h1>BuyJugador Admin</h1>
     </div>
-    <div class="header-right">
-        <span class="user-label">Usuario: @Usuario</span>
-        <button @onclick="CerrarSesion">Cerrar sesión</button>
-    </div>
 </header>
 
 <main>
-    @Body
+    <div class="top-row px-4">
+        <AuthorizeView>
+            <Authorized>
+                <span>Hola, @context.User.Identity.Name</span>
+                <button class="btn btn-link" @onclick="Logout">Logout</button>
+            </Authorized>
+            <NotAuthorized>
+                <a href="/login">Login</a>
+            </NotAuthorized>
+        </AuthorizeView>
+    </div>
+
+    <article class="content px-4">
+        @Body
+    </article>
 </main>
 
 @code {
     private string Usuario => "Administrador";
 
-    private void CerrarSesion()
+        private async Task Logout()
     {
-        Console.WriteLine("Cerrar sesión");
+        await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
+        NavigationManager.NavigateTo("/login");
     }
+
 }
 

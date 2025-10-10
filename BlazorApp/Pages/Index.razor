@@ -1,42 +1,99 @@
 ﻿@page "/"
-@inject NavigationManager NavManager
+@layout EmptyLayout
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
-<div class="menu-panel">
-    <h2>@Titulo</h2>
-
-    <div class="button-grid">
-        @foreach (var boton in Botones)
-        {
-            <button class="menu-btn" @onclick="@(() => Navegar(boton.Link))">
-                @boton.Text
-            </button>
-        }
-    </div>
-</div>
+<AuthorizeView>
+    <NotAuthorized>
+        <div class="login-container">
+            <h3>Iniciar Sesión</h3>
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input class="form-control" @bind="loginModel.Email" />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label>Contraseña</label>
+                        <input type="password" class="form-control" @bind="loginModel.Password" />
+                    </div>
+                    <button class="btn btn-primary mt-3" @onclick="HandleLogin">Login</button>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-2">@errorMessage</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </NotAuthorized>
+    <Authorized>
+        <p>Verificando sesión...</p>
+    </Authorized>
+</AuthorizeView>
 
 @code {
-    private string Titulo => EsAdmin ? "Panel de Administrador" : "Panel de Empleado";
-    private bool EsAdmin => true;
-
-    private List<(string Text, string Link)> Botones =>
-        EsAdmin
-        ? new() {
-            ("Ventas", "/ventas"),
-            ("Pedidos", "/pedidos"),
-            ("Personas", "/personas"),
-            ("Tipos de Productos", "/tipos-producto"),
-            ("Productos", "/productos"),
-            ("Proveedores", "/proveedores")
-          }
-        : new() {
-            ("Ventas", "/ventas"),
-            ("Proveedores", "/proveedores"),
-            ("Pedidos", "/pedidos"),
-            ("Productos", "/productos")
-          };
-
-    private void Navegar(string link)
+    private class LoginModel
     {
-        NavManager.NavigateTo(link);
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+
+    private LoginModel loginModel = new();
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Esta lógica se ejecuta cuando el componente carga.
+        // Si el usuario ya está autenticado, lo redirige.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            if (user.IsInRole("Dueño"))
+            {
+                NavigationManager.NavigateTo("/dashboard-dueño");
+            }
+            else if (user.IsInRole("Empleado"))
+            {
+                NavigationManager.NavigateTo("/dashboard-empleado");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/productos"); // Ruta por defecto
+            }
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var result = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+
+            if (result.IsSuccessStatusCode)
+            {
+                var response = await result.Content.ReadFromJsonAsync<AuthResponse>();
+                await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Token);
+
+                // Forzamos la recarga de la página para que OnInitializedAsync se vuelva a ejecutar
+                // y se encargue de la redirección por rol.
+                NavigationManager.NavigateTo("/", forceLoad: true);
+            }
+            else
+            {
+                errorMessage = "Credenciales inválidas.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Ocurrió un error al intentar iniciar sesión.";
+        }
+    }
+
+    private class AuthResponse
+    {
+        public string Token { get; set; }
     }
 }

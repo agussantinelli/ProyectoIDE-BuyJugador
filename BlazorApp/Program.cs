@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using ApiClient;
+using Microsoft.AspNetCore.Components.Authorization;
+
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -25,5 +27,8 @@ builder.Services.AddScoped<PrecioVentaApiClient>();
 builder.Services.AddScoped<ProductoProveedorApiClient>();
 builder.Services.AddScoped<ProvinciaApiClient>();
 builder.Services.AddScoped<TipoProductoApiClient>();
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
 
 await builder.Build().RunAsync();
