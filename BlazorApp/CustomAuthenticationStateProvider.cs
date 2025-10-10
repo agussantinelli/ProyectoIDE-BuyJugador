@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.JSInterop;
 using System.Security.Claims;
 using System.Text.Json;
-using Microsoft.JSInterop;
 using System.Threading.Tasks;
+using DTOs; // Necesitamos acceso a PersonaDTO
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly IJSRuntime _jsRuntime;
-    private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+    private readonly ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
     public CustomAuthenticationStateProvider(IJSRuntime jsRuntime)
     {
@@ -16,61 +17,52 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _jsRuntime.InvokeAsync<string>("localStorageHelper.getItem", "authToken");
+        // En lugar de un token, ahora buscamos los datos del usuario en localStorage
+        var userSessionJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "userSession");
 
-        if (string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(userSessionJson))
         {
             return new AuthenticationState(_anonymous);
         }
 
-        var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
+        // Deserializamos los datos del usuario
+        var userSession = JsonSerializer.Deserialize<PersonaDTO>(userSessionJson);
+        var claimsPrincipal = CreateClaimsPrincipalFromUser(userSession);
         return new AuthenticationState(claimsPrincipal);
     }
 
-    public async Task MarkUserAsAuthenticated(string token)
+    // Este método es llamado desde la página de login con el PersonaDTO
+    public async Task MarkUserAsAuthenticated(PersonaDTO user)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorageHelper.setItem", "authToken", token);
-        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt"));
-        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-        NotifyAuthenticationStateChanged(authState);
+        var userSessionJson = JsonSerializer.Serialize(user);
+        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "userSession", userSessionJson);
+
+        var claimsPrincipal = CreateClaimsPrincipalFromUser(user);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
     }
 
     public async Task MarkUserAsLoggedOut()
     {
-        await _jsRuntime.InvokeVoidAsync("localStorageHelper.removeItem", "authToken");
-        var authState = Task.FromResult(new AuthenticationState(_anonymous));
-        NotifyAuthenticationStateChanged(authState);
+        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "userSession");
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
     }
 
-    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    // Método de ayuda para crear la identidad del usuario a partir del DTO
+    private ClaimsPrincipal CreateClaimsPrincipalFromUser(PersonaDTO user)
     {
-        var claims = new List<Claim>();
-        var payload = jwt.Split('.')[1];
-        var jsonBytes = ParseBase64WithoutPadding(payload);
-        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+        if (user == null)
+            return _anonymous;
 
-        if (keyValuePairs.TryGetValue(ClaimTypes.Name, out var name))
+        var claims = new List<Claim>
         {
-            claims.Add(new Claim(ClaimTypes.Name, name.ToString()));
-        }
+            new Claim(ClaimTypes.NameIdentifier, user.IdPersona.ToString()),
+            // ***** CORRECCIÓN APLICADA AQUÍ *****
+            new Claim(ClaimTypes.Name, user.NombreCompleto),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Rol) // Usamos el rol que viene en el DTO
+        };
 
-        // AÑADIR ESTA PARTE PARA LEER EL ROL
-        // Asegúrate de que tu API de Node.js añada el rol al token con la clave "role"
-        if (keyValuePairs.TryGetValue("role", out var role))
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role.ToString()));
-        }
-
-        return claims;
-    }
-
-    private byte[] ParseBase64WithoutPadding(string base64)
-    {
-        switch (base64.Length % 4)
-        {
-            case 2: base64 += "=="; break;
-            case 3: base64 += "="; break;
-        }
-        return Convert.FromBase64String(base64);
+        var identity = new ClaimsIdentity(claims, "apiauth");
+        return new ClaimsPrincipal(identity);
     }
 }

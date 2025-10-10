@@ -6,6 +6,21 @@ using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          // Aquí pones la dirección de tu app Blazor
+                          policy.WithOrigins("https://localhost:7035")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                      });
+});
+
+
 #region Builder Configuration
 
 var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
@@ -41,7 +56,6 @@ builder.Services.AddScoped<ProductoProveedorService>();
 
 var app = builder.Build();
 
-
 #region Application Pipeline Configuration
 
 // # Configura el pipeline de solicitudes HTTP.
@@ -62,6 +76,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// ***** UBICACIÓN CORRECTA PARA CORS *****
+// Debe ir después de UseRouting() y antes de UseAuthorization().
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
@@ -110,4 +128,3 @@ app.MapProductoProveedorEndpoints();
 #endregion
 
 app.Run();
-

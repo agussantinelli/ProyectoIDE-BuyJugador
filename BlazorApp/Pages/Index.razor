@@ -3,6 +3,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthStateProvider
+@using DTOs
 
 <AuthorizeView>
     <NotAuthorized>
@@ -11,8 +12,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-group">
-                        <label>Email</label>
-                        <input class="form-control" @bind="loginModel.Email" />
+                        <label>DNI</label>
+                        <input type="number" class="form-control" @bind="loginModel.Dni" />
                     </div>
                     <div class="form-group mt-2">
                         <label>Contraseña</label>
@@ -33,9 +34,10 @@
 </AuthorizeView>
 
 @code {
+    // Usaremos un DTO que coincida con lo que espera la API
     private class LoginModel
     {
-        public string Email { get; set; } = "";
+        public int Dni { get; set; }
         public string Password { get; set; } = "";
     }
 
@@ -44,8 +46,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Esta lógica se ejecuta cuando el componente carga.
-        // Si el usuario ya está autenticado, lo redirige.
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -61,7 +61,7 @@
             }
             else
             {
-                NavigationManager.NavigateTo("/productos"); // Ruta por defecto
+                NavigationManager.NavigateTo("/productos");
             }
         }
     }
@@ -70,30 +70,28 @@
     {
         try
         {
-            var result = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+            // LLAMAMOS AL ENDPOINT CORRECTO: "api/personas/login"
+            var response = await Http.PostAsJsonAsync("api/personas/login", loginModel);
 
-            if (result.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode)
             {
-                var response = await result.Content.ReadFromJsonAsync<AuthResponse>();
-                await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsAuthenticated(response.Token);
+                // La API nos devuelve el usuario completo (PersonaDTO)
+                var loggedInUser = await response.Content.ReadFromJsonAsync<PersonaDTO>();
 
-                // Forzamos la recarga de la página para que OnInitializedAsync se vuelva a ejecutar
-                // y se encargue de la redirección por rol.
+                // Le pasamos el DTO al proveedor de autenticación para que guarde los datos
+                await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsAuthenticated(loggedInUser);
+
+                // Recargamos para que OnInitializedAsync haga la redirección
                 NavigationManager.NavigateTo("/", forceLoad: true);
             }
             else
             {
-                errorMessage = "Credenciales inválidas.";
+                errorMessage = "DNI o contraseña incorrectos.";
             }
         }
         catch (Exception ex)
         {
             errorMessage = "Ocurrió un error al intentar iniciar sesión.";
         }
-    }
-
-    private class AuthResponse
-    {
-        public string Token { get; set; }
     }
 }
