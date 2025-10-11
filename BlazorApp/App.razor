@@ -1,19 +1,32 @@
-﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(App).Assembly">
-        <Found Context="routeData">
-            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
-                <Authorizing>
-                    <div class="p-4">Autorizando...</div>
-                </Authorizing>
-                <NotAuthorized>
-                    <Shared.RedirectToLogin />
-                </NotAuthorized>
-            </AuthorizeRouteView>
-        </Found>
-        <NotFound>
-            <LayoutView Layout="@typeof(Layout.MainLayout)">
-                <p class="p-4">Página no encontrada.</p>
-            </LayoutView>
-        </NotFound>
-    </Router>
-</CascadingAuthenticationState>
+﻿<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        @*
+            AuthorizeRouteView se encarga de verificar si el usuario tiene acceso a la ruta.
+            Si no lo tiene, renderiza el contenido de la sección <NotAuthorized>.
+        *@
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                @*
+                    Si el usuario no está autenticado, no mostramos un error.
+                    En su lugar, lo redirigimos a la página de login.
+                    El componente RedirectToLogin ya existe en tu proyecto.
+                *@
+                <RedirectToLogin />
+            </NotAuthorized>
+            <Authorizing>
+                @*
+                    Mientras se comprueba el estado de autenticación (es una operación asíncrona),
+                    mostramos un mensaje al usuario.
+                *@
+                <p>Verificando autorización...</p>
+            </Authorizing>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>No encontrado</PageTitle>
+        <LayoutView Layout="@typeof(Layout.MainLayout)">
+            <p role="alert">Lo sentimos, no hay nada en esta dirección.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

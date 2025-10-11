@@ -1,20 +1,26 @@
-﻿using System.Net.Http.Headers;
+﻿using Blazored.LocalStorage; // 1. Usar ILocalStorageService
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BlazorApp.Auth
 {
     public class TokenMessageHandler : DelegatingHandler
     {
-        private readonly CustomAuthenticationStateProvider _auth;
+        // 2. Inyectar ILocalStorageService en lugar del AuthProvider
+        private readonly ILocalStorageService _localStorage;
 
-        public TokenMessageHandler(CustomAuthenticationStateProvider auth)
+        public TokenMessageHandler(ILocalStorageService localStorage)
         {
-            _auth = auth;
+            _localStorage = localStorage;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = await _auth.GetTokenAsync();
+            // 3. Obtener el token directamente desde el Local Storage
+            var token = await _localStorage.GetItemAsync<string>("authToken", cancellationToken);
+
             if (!string.IsNullOrWhiteSpace(token))
             {
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

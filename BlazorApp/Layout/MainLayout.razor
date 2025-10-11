@@ -1,6 +1,6 @@
 ﻿@using BlazorApp.Auth
 @inherits LayoutComponentBase
-@inject CustomAuthenticationStateProvider Auth        
+@inject AuthenticationStateProvider AuthStateProvider // 1. Inyectar la abstracción
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
@@ -12,7 +12,7 @@
         </div>
 
         <nav>
-            <NavLink class="nav-item" href="/inicio" Match="NavLinkMatch.All">
+            <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door" aria-hidden="true"></span><span class="label">Inicio</span>
             </NavLink>
             <NavLink class="nav-item" href="/productos">
@@ -37,11 +37,11 @@
                 <span class="bi bi-list" aria-hidden="true"></span>
             </button>
 
-            <AuthorizeView Context="authCtx">
+            <AuthorizeView>
                 <Authorized>
                     <div class="user-area" role="group" aria-label="Área de usuario">
                         <span class="text-muted">Hola,</span>
-                        <strong>@(authCtx?.User?.Identity?.Name ?? "Usuario")</strong>
+                        <strong>@(context.User.Identity?.Name ?? "Usuario")</strong>
                         <button class="btn btn-link" type="button" @onclick="Logout">Logout</button>
                     </div>
                 </Authorized>
@@ -83,24 +83,29 @@
             await TrySetLocalStorage("sidebarCollapsed", isCollapsed.ToString().ToLowerInvariant());
         }
         catch { /* ignore */ }
-        StateHasChanged();
     }
 
     private async Task Logout()
     {
-        await Auth.MarkUserAsLoggedOut();            
-        Nav.NavigateTo("/login", forceLoad: true);
+        // 2. Hacer un cast al tipo concreto para llamar el método específico.
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+        
+        // 3. Llamar al método con el nombre correcto "MarkUserAsLoggedOutAsync"
+        await customAuthStateProvider.MarkUserAsLoggedOutAsync();
+        
+        Nav.NavigateTo("/login"); // No es necesario forzar la recarga aquí.
     }
 
+    // --- Métodos de JS Interop para LocalStorage (pueden ser eliminados si no se usan en otro lado) ---
     private async Task<string?> TryGetLocalStorage(string key)
     {
-        try { return await JS.InvokeAsync<string?>("localStorageHelper.getItem", key); }
-        catch { return await JS.InvokeAsync<string?>("localStorage.getItem", key); }
+        try { return await JS.InvokeAsync<string?>("localStorage.getItem", key); }
+        catch { return null; }
     }
 
     private async Task TrySetLocalStorage(string key, string value)
     {
-        try { await JS.InvokeVoidAsync("localStorageHelper.setItem", key, value); }
-        catch { await JS.InvokeVoidAsync("localStorage.setItem", key, value); }
+        try { await JS.InvokeVoidAsync("localStorage.setItem", key, value); }
+        catch { /* ignore */ }
     }
 }

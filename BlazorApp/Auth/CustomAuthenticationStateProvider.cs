@@ -1,86 +1,81 @@
-﻿using System.Security.Claims;
+﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BlazorApp.Auth
 {
     public sealed class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly IJSRuntime _js;
+        private readonly ILocalStorageService _localStorage;
         private static readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
 
-        private const string TokenKey = "authToken";
-        private const string NameKey = "authName";
-
-        public CustomAuthenticationStateProvider(IJSRuntime js)
+        public CustomAuthenticationStateProvider(ILocalStorageService localStorage)
         {
-            _js = js;
+            _localStorage = localStorage;
         }
 
+        // Este método es llamado por Blazor al inicio y cuando se notifica un cambio.
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                var token = await GetItem(TokenKey);
-                var name = await GetItem(NameKey);
+                var token = await _localStorage.GetItemAsync<string>("authToken");
 
-                if (!string.IsNullOrWhiteSpace(token))
+                if (string.IsNullOrWhiteSpace(token))
                 {
-                    var identity = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.Name, string.IsNullOrWhiteSpace(name) ? "Usuario" : name),
-                        new Claim("access_token", token)
-                    }, authenticationType: "jwt");
-
-                    return new AuthenticationState(new ClaimsPrincipal(identity));
+                    return new AuthenticationState(_anonymous);
                 }
+
+                // Si hay token, lo parseamos para crear la identidad del usuario
+                return new AuthenticationState(CreateClaimsPrincipalFromToken(token));
             }
-            catch { /* ignorar */ }
-
-            return new AuthenticationState(_anonymous);
+            catch
+            {
+                // Si el token es inválido o hay algún error, el usuario es anónimo.
+                return new AuthenticationState(_anonymous);
+            }
         }
 
-        // ---- LOGIN (el que ya usábamos) ----
-        public async Task MarkUserAsLoggedInAsync(string token, string? displayName = null)
+        // Llamado desde Login.razor después de un inicio de sesión exitoso.
+        public async Task MarkUserAsLoggedInAsync(string token)
         {
-            await SetItem(TokenKey, token);
-            await SetItem(NameKey, displayName ?? "Usuario");
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+            await _localStorage.SetItemAsync("authToken", token);
+            var authenticatedUser = CreateClaimsPrincipalFromToken(token);
+            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+
+            // Notifica a Blazor que el estado de autenticación cambió.
+            // Esto dispara la actualización de la UI.
+            NotifyAuthenticationStateChanged(authState);
         }
 
-        // ---- LOGOUT ----
-        public async Task MarkUserAsLoggedOut()
+        // Llamado para cerrar sesión.
+        public async Task MarkUserAsLoggedOutAsync()
         {
-            await RemoveItem(TokenKey);
-            await RemoveItem(NameKey);
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
+            await _localStorage.RemoveItemAsync("authToken");
+            var authState = Task.FromResult(new AuthenticationState(_anonymous));
+
+            // Notifica que el usuario ya no está autenticado.
+            NotifyAuthenticationStateChanged(authState);
         }
 
-        // ==== WRAPPERS para compatibilidad con tu código existente ====
-        // Login usado por Login.razor
-        public Task MarkUserAsAuthenticatedAsync(string token, string? displayName = null)
-            => MarkUserAsLoggedInAsync(token, displayName);
-
-        // Token usado por TokenMessageHandler.cs (y donde lo necesites)
-        public async Task<string?> GetTokenAsync()
-            => await GetItem(TokenKey);
-
-        private async Task<string?> GetItem(string key)
+        // Método privado para parsear el token y crear el ClaimsPrincipal
+        private static ClaimsPrincipal CreateClaimsPrincipalFromToken(string token)
         {
-            try { return await _js.InvokeAsync<string?>("localStorageHelper.getItem", key); }
-            catch { return await _js.InvokeAsync<string?>("localStorage.getItem", key); }
-        }
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var identity = new ClaimsIdentity();
 
-        private async Task SetItem(string key, string value)
-        {
-            try { await _js.InvokeVoidAsync("localStorageHelper.setItem", key, value); }
-            catch { await _js.InvokeVoidAsync("localStorage.setItem", key, value); }
-        }
+            if (tokenHandler.CanReadToken(token))
+            {
+                var jwtSecurityToken = tokenHandler.ReadJwtToken(token);
+                // Usamos los claims del token para construir la identidad
+                identity = new ClaimsIdentity(jwtSecurityToken.Claims, "jwtAuth");
+            }
 
-        private async Task RemoveItem(string key)
-        {
-            try { await _js.InvokeVoidAsync("localStorageHelper.removeItem", key); }
-            catch { await _js.InvokeVoidAsync("localStorage.removeItem", key); }
+            return new ClaimsPrincipal(identity);
         }
     }
 }
