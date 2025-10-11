@@ -1,0 +1,80 @@
+﻿.home-wrap {
+    display: grid;
+    gap: 1rem;
+}
+
+.welcome-panel {
+    background: linear-gradient(180deg, rgba(17,26,47,.72), rgba(17,26,47,.58));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: .95rem 1rem;
+}
+
+.welcome-head {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    justify-content: space-between;
+}
+
+    .welcome-head > .bi {
+        font-size: 1.2rem;
+        color: var(--accent);
+    }
+
+.icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+}
+
+    .icon-btn:hover {
+        background: rgba(59,130,246,.12);
+    }
+
+.muted {
+    color: var(--text-muted);
+}
+
+.quick-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: .75rem;
+}
+
+.qcard {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .9rem;
+    background: #111a2f;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    text-decoration: none;
+}
+
+    .qcard:hover {
+        background: #15233f;
+        border-color: #2f4371;
+    }
+
+    .qcard .bi {
+        font-size: 1.4rem;
+        color: var(--accent);
+    }
+
+    .qcard h4 {
+        margin: 0;
+        font-size: 1.05rem;
+    }
+
+    .qcard p {
+        margin: .1rem 0 0;
+    }

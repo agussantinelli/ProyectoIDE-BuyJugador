@@ -1,14 +1,15 @@
 ﻿@page "/login"
 @layout EmptyLayout
+@attribute [AllowAnonymous]
 
 @using DTOs
 @using System.Net.Http.Json
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
-@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Nav
+@inject AuthenticationStateProvider Auth
 
-<AuthorizeView>
-    <NotAuthorized Context="authCtx">
+<AuthorizeView Context="auth"> 
+    <NotAuthorized>
         <div class="login-container">
             <div class="card">
                 <div class="card-body">
@@ -17,18 +18,13 @@
                     <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
                         <div class="form-group">
                             <label for="dni">DNI</label>
-                            <InputNumber id="dni"
-                                         class="form-control"
-                                         @bind-Value="loginModel.Dni" />
+                            <InputNumber id="dni" class="form-control" @bind-Value="loginModel.Dni" />
                         </div>
 
                         <div class="form-group mt-2">
                             <label for="pwd">Contraseña</label>
-                            <InputText id="pwd"
-                                       class="form-control"
-                                       type="password"
-                                       autocomplete="current-password"
-                                       @bind-Value="loginModel.Password" />
+                            <InputText id="pwd" class="form-control" type="password"
+                                       autocomplete="current-password" @bind-Value="loginModel.Password" />
                         </div>
 
                         <button type="submit" class="btn btn-primary mt-3">Login</button>
@@ -43,8 +39,8 @@
         </div>
     </NotAuthorized>
 
-    <Authorized Context="authCtx">
-        <p>Verificando sesión...</p>
+    <Authorized>
+        <RedirectTo Url="/" />
     </Authorized>
 </AuthorizeView>
 
@@ -58,22 +54,6 @@
     private LoginModel loginModel = new();
     private string? errorMessage;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            if (user.IsInRole("Dueño"))
-                NavigationManager.NavigateTo("/dashboard-dueño");
-            else if (user.IsInRole("Empleado"))
-                NavigationManager.NavigateTo("/dashboard-empleado");
-            else
-                NavigationManager.NavigateTo("/productos");
-        }
-    }
-
     private async Task HandleLogin()
     {
         try
@@ -81,14 +61,11 @@
             errorMessage = null;
 
             var response = await Http.PostAsJsonAsync("api/personas/login", loginModel);
-
             if (response.IsSuccessStatusCode)
             {
-                var loggedInUser = await response.Content.ReadFromJsonAsync<PersonaDTO>();
-                await ((CustomAuthenticationStateProvider)AuthStateProvider)
-                    .MarkUserAsAuthenticated(loggedInUser!);
-
-                NavigationManager.NavigateTo("/", forceLoad: true);
+                var user = await response.Content.ReadFromJsonAsync<PersonaDTO>();
+                await ((CustomAuthenticationStateProvider)Auth).MarkUserAsAuthenticated(user!);
+                Nav.NavigateTo("/", forceLoad: true);
             }
             else
             {

@@ -1,35 +1,116 @@
 ﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthStateProvider
-@inject NavigationManager NavigationManager
+@inject NavigationManager Nav
+@inject IJSRuntime JS
 
-<header>
-    <div class="header-left">
-        <h1>BuyJugador Admin</h1>
-    </div>
-</header>
+<div class="app-shell">
+    <aside class="sidebar @(isCollapsed ? "collapsed" : "")" role="navigation" aria-label="Menú lateral">
+        <div class="brand">
+            <span class="bi bi-box-seam" aria-hidden="true"></span>
+            <strong class="brand-name">Inventario</strong>
+        </div>
 
-<main>
-    <div class="top-row px-4">
-        <AuthorizeView Context="authCtx">
-            <Authorized>
-                <span>Hola, @authCtx.User.Identity.Name</span>
-                <button class="btn btn-link" @onclick="Logout">Logout</button>
-            </Authorized>
-            <NotAuthorized>
-                <a href="/login">Login</a>
-            </NotAuthorized>
-        </AuthorizeView>
-    </div>
+        <nav>
+            <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door" aria-hidden="true"></span><span class="label">Inicio</span>
+            </NavLink>
 
-    <article class="content px-4">
-        @Body
-    </article>
-</main>
+            <NavLink class="nav-item" href="/productos">
+                <span class="bi bi-bag" aria-hidden="true"></span><span class="label">Productos</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/ventas">
+                <span class="bi bi-receipt" aria-hidden="true"></span><span class="label">Ventas</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/pedidos">
+                <span class="bi bi-truck" aria-hidden="true"></span><span class="label">Pedidos</span>
+            </NavLink>
+
+            <NavLink class="nav-item" href="/tipos-producto">
+                <span class="bi bi-tags" aria-hidden="true"></span><span class="label">Tipos de producto</span>
+            </NavLink>
+        </nav>
+    </aside>
+
+    <section class="main">
+        <header class="topbar">
+            <button class="icon-btn" type="button" title="Abrir/cerrar menú"
+                    aria-label="Abrir/cerrar menú" @onclick="Toggle">
+                <span class="bi bi-list" aria-hidden="true"></span>
+            </button>
+
+            <AuthorizeView Context="authCtx">
+                <Authorized>
+                    <div class="user-area" role="group" aria-label="Área de usuario">
+                        <span class="text-muted">Hola,</span>
+                        <strong>@authCtx.User.Identity!.Name</strong>
+                        <button class="btn btn-link" type="button" @onclick="Logout">Logout</button>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <a class="btn btn-link" href="/login">Login</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </header>
+
+        <main class="content">
+            @Body
+        </main>
+    </section>
+</div>
 
 @code {
+    private bool isCollapsed = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var saved = await TryGetLocalStorage("sidebarCollapsed");
+            if (bool.TryParse(saved, out var parsed))
+                isCollapsed = parsed;
+        }
+        catch { /* ignore */ }
+    }
+
+    private async Task Toggle()
+    {
+        isCollapsed = !isCollapsed;
+        try
+        {
+            await TrySetLocalStorage("sidebarCollapsed", isCollapsed.ToString().ToLowerInvariant());
+        }
+        catch { /* ignore */ }
+        StateHasChanged();
+    }
+
     private async Task Logout()
     {
         await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        NavigationManager.NavigateTo("/login");
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    private async Task<string?> TryGetLocalStorage(string key)
+    {
+        try
+        {
+            return await JS.InvokeAsync<string?>("localStorageHelper.getItem", key);
+        }
+        catch
+        {
+            return await JS.InvokeAsync<string?>("localStorage.getItem", key);
+        }
+    }
+    private async Task TrySetLocalStorage(string key, string value)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("localStorageHelper.setItem", key, value);
+        }
+        catch
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", key, value);
+        }
     }
 }

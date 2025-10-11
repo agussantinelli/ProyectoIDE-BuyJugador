@@ -5,15 +5,12 @@
                 <Authorizing>
                     <p>Verificando autorización...</p>
                 </Authorizing>
-
                 <NotAuthorized>
                     <RedirectToLogin />
                 </NotAuthorized>
             </AuthorizeRouteView>
-
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
-
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(Layout.MainLayout)">

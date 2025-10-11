@@ -1,40 +1,9 @@
 ﻿header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: .9rem 1.4rem;
-    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75));
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 4px 14px rgba(0,0,0,.35);
-}
-
-    header h1 {
-        font-size: 1.15rem;
-        margin: 0;
-        letter-spacing: .2px;
-        font-weight: 700;
-        color: #f1f5ff;
-    }
-
-.user-label {
-    margin-right: .75rem;
-    color: var(--text-muted);
-    font-size: .95rem;
+    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75)) !important;
+    color: var(--text) !important;
+    border-bottom: 1px solid var(--border) !important;
 }
 
 main {
-    min-height: calc(100vh - 64px);
-    padding: 2rem 1rem 3rem;
-    display: grid;
-    place-items: start center;
-}
-
-.container {
-    width: min(1200px, 100%);
-    padding: 0 .25rem;
+    background: transparent !important;
 }

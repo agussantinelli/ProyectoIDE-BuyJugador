@@ -1,0 +1,67 @@
+﻿@page "/"
+@inject AuthenticationStateProvider Auth
+@inject NavigationManager Nav
+
+<PageTitle>Inicio</PageTitle>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <RedirectTo Url="/login" />
+    </NotAuthorized>
+
+    <Authorized Context="authCtx">
+        <div class="home-wrap">
+            @if (showWelcome)
+            {
+                <section class="welcome-panel">
+                    <div class="welcome-head">
+                        <span class="bi bi-stars"></span>
+                        <strong>¡Bienvenido, @authCtx.User.Identity!.Name!</strong>
+                        <button class="icon-btn" title="Cerrar" @onclick="() => showWelcome = false">
+                            <span class="bi bi-x-lg"></span>
+                        </button>
+                    </div>
+                    <p class="muted">
+                        Este es el panel de administración de <b>Inventario</b>.
+                        Gestioná productos, ventas, pedidos y tipos de producto desde el menú de la izquierda.
+                    </p>
+                </section>
+            }
+
+            <section class="quick-cards">
+                <a class="qcard" href="/productos">
+                    <span class="bi bi-bag"></span>
+                    <div>
+                        <h4>Productos</h4>
+                        <p class="muted">Alta, edición y stock.</p>
+                    </div>
+                </a>
+                <a class="qcard" href="/ventas">
+                    <span class="bi bi-receipt"></span>
+                    <div>
+                        <h4>Ventas</h4>
+                        <p class="muted">Registrar y consultar ventas.</p>
+                    </div>
+                </a>
+                <a class="qcard" href="/pedidos">
+                    <span class="bi bi-truck"></span>
+                    <div>
+                        <h4>Pedidos</h4>
+                        <p class="muted">Gestión de pedidos a proveedores.</p>
+                    </div>
+                </a>
+                <a class="qcard" href="/tipos-producto">
+                    <span class="bi bi-tags"></span>
+                    <div>
+                        <h4>Tipos de producto</h4>
+                        <p class="muted">Clasificación de artículos.</p>
+                    </div>
+                </a>
+            </section>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private bool showWelcome = true;
+}

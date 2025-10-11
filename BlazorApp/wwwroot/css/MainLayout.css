@@ -1,0 +1,116 @@
+﻿.app-shell {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+    background: transparent; 
+}
+
+.sidebar {
+    background: var(--surface-2, #111a2f);
+    border-right: 1px solid var(--border, #253046);
+    transition: width .15s ease;
+    width: 240px;
+    overflow-x: hidden;
+}
+
+    .sidebar.collapsed {
+        width: 72px;
+    }
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: 1rem .9rem;
+    color: var(--text);
+}
+
+    .brand .bi {
+        font-size: 1.2rem;
+    }
+
+.brand-name {
+    white-space: nowrap;
+}
+
+.sidebar nav {
+    display: flex;
+    flex-direction: column;
+    padding: .25rem;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    color: var(--text);
+    padding: .6rem .9rem;
+    border-radius: 10px;
+    margin: .15rem .5rem;
+    text-decoration: none;
+}
+
+    .nav-item:hover {
+        background: rgba(59,130,246,.12);
+    }
+
+    .nav-item.active {
+        background: rgba(59,130,246,.18);
+        border: 1px solid var(--border);
+    }
+
+.sidebar.collapsed .label {
+    display: none;
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75));
+    border-bottom: 1px solid var(--border);
+    padding: .6rem .8rem;
+}
+
+.icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+}
+
+    .icon-btn:hover {
+        background: rgba(59,130,246,.12);
+    }
+
+.user-area {
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+}
+
+.content {
+    padding: 1.2rem;
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .app-shell {
+        grid-template-columns: 72px 1fr;
+    }
+
+    .sidebar {
+        width: 72px;
+    }
+}
