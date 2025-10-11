@@ -15,7 +15,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            // 👇 ACEPTA NULL del localStorage
             var json = await _js.InvokeAsync<string?>("localStorage.getItem", "userSession");
 
             if (string.IsNullOrWhiteSpace(json))

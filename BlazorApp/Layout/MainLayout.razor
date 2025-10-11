@@ -57,18 +57,26 @@
     </section>
 </div>
 
+
 @code {
     private bool isCollapsed = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
+
         try
         {
             var saved = await TryGetLocalStorage("sidebarCollapsed");
             if (bool.TryParse(saved, out var parsed))
                 isCollapsed = parsed;
+
+            StateHasChanged();
         }
-        catch { /* ignore */ }
+        catch
+        {
+            // ignore
+        }
     }
 
     private async Task Toggle()
@@ -111,3 +119,4 @@
         }
     }
 }
+
