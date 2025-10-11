@@ -15,6 +15,7 @@ var apiBase = builder.Configuration["ApiBaseUrl"]
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBase) });
 
+
 builder.Services.AddScoped<ProductoApiClient>();
 builder.Services.AddScoped<ProveedorApiClient>();
 builder.Services.AddScoped<PedidoApiClient>();

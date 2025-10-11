@@ -32,11 +32,32 @@
 
 @code {
     private bool showWelcome = true;
-    protected override async Task OnInitializedAsync()
-        => showWelcome = (await JS.InvokeAsync<string?>("localStorage.getItem","hideWelcome")) != "1";
+    private bool _loadedWelcome = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || _loadedWelcome) return;
+
+        try
+        {
+            var val = await JS.InvokeAsync<string?>("localStorage.getItem", "hideWelcome");
+            showWelcome = val != "1";
+            _loadedWelcome = true;
+            StateHasChanged();
+        }
+        catch
+        {
+            _loadedWelcome = true;
+        }
+    }
+
     private async Task CloseWelcome()
     {
         showWelcome = false;
-        await JS.InvokeVoidAsync("localStorage.setItem","hideWelcome","1");
+        try
+        {
+            await JS.InvokeVoidAsync("localStorage.setItem", "hideWelcome", "1");
+        }
+        catch { /* ignore */ }
     }
 }

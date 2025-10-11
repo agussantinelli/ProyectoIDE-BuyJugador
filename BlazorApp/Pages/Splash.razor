@@ -1,0 +1,29 @@
+﻿@page "/"
+@layout EmptyLayout
+@attribute [AllowAnonymous]
+@inject NavigationManager Nav
+
+<div class="splash">
+    <div class="splash-card">
+        <div class="splash-logo">
+            <span class="bi bi-box-seam" aria-hidden="true"></span>
+        </div>
+        <h3>Cargando panel</h3>
+        <p class="muted">Preparando todo para iniciar sesión…</p>
+
+        <div class="spinner">
+            <div></div><div></div><div></div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        await Task.Delay(10000);
+
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+}
