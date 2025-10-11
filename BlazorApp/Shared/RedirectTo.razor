@@ -3,6 +3,9 @@
     [Parameter, EditorRequired] public string Url { get; set; } = "/";
     [Parameter] public bool ForceLoad { get; set; } = true;
 
-    protected override void OnInitialized()
-        => Nav.NavigateTo(Url, ForceLoad);
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+            Nav.NavigateTo(Url, ForceLoad);
+    }
 }

@@ -2,62 +2,73 @@
 using Microsoft.JSInterop;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
-using DTOs; 
+using DTOs;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    private readonly IJSRuntime _jsRuntime;
-    private readonly ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+    private readonly IJSRuntime _js;
+    private static readonly ClaimsPrincipal Anonymous = new(new ClaimsIdentity());
 
-    public CustomAuthenticationStateProvider(IJSRuntime jsRuntime)
-    {
-        _jsRuntime = jsRuntime;
-    }
+    public CustomAuthenticationStateProvider(IJSRuntime js) => _js = js;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var userSessionJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "userSession");
-
-        if (string.IsNullOrWhiteSpace(userSessionJson))
+        try
         {
-            return new AuthenticationState(_anonymous);
-        }
+            // 👇 ACEPTA NULL del localStorage
+            var json = await _js.InvokeAsync<string?>("localStorage.getItem", "userSession");
 
-        var userSession = JsonSerializer.Deserialize<PersonaDTO>(userSessionJson);
-        var claimsPrincipal = CreateClaimsPrincipalFromUser(userSession);
-        return new AuthenticationState(claimsPrincipal);
+            if (string.IsNullOrWhiteSpace(json))
+                return new AuthenticationState(Anonymous);
+
+            PersonaDTO? user = null;
+            try
+            {
+                user = JsonSerializer.Deserialize<PersonaDTO>(json);
+            }
+            catch
+            {
+                await _js.InvokeVoidAsync("localStorage.removeItem", "userSession");
+                return new AuthenticationState(Anonymous);
+            }
+
+            var principal = CreatePrincipal(user);
+            return new AuthenticationState(principal);
+        }
+        catch
+        {
+            return new AuthenticationState(Anonymous);
+        }
     }
 
     public async Task MarkUserAsAuthenticated(PersonaDTO user)
     {
-        var userSessionJson = JsonSerializer.Serialize(user);
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "userSession", userSessionJson);
-
-        var claimsPrincipal = CreateClaimsPrincipalFromUser(user);
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+        var json = JsonSerializer.Serialize(user);
+        await _js.InvokeVoidAsync("localStorage.setItem", "userSession", json);
+        var principal = CreatePrincipal(user);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
     }
 
     public async Task MarkUserAsLoggedOut()
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "userSession");
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
+        await _js.InvokeVoidAsync("localStorage.removeItem", "userSession");
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(Anonymous)));
     }
 
-    private ClaimsPrincipal CreateClaimsPrincipalFromUser(PersonaDTO user)
+    private static ClaimsPrincipal CreatePrincipal(PersonaDTO? user)
     {
-        if (user == null)
-            return _anonymous;
+        if (user is null)
+            return Anonymous;
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.IdPersona.ToString()),
-            new Claim(ClaimTypes.Name, user.NombreCompleto),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Rol) 
+            new(ClaimTypes.NameIdentifier, user.IdPersona.ToString()),
+            new(ClaimTypes.Name, user.NombreCompleto ?? string.Empty),
+            new(ClaimTypes.Email, user.Email ?? string.Empty),
+            new(ClaimTypes.Role, user.Rol ?? string.Empty)
         };
 
-        var identity = new ClaimsIdentity(claims, "apiauth");
+        var identity = new ClaimsIdentity(claims, authenticationType: "apiauth");
         return new ClaimsPrincipal(identity);
     }
 }

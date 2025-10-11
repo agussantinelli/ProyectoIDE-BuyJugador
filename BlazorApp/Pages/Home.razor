@@ -1,24 +1,20 @@
-﻿@page "/"
-@inject AuthenticationStateProvider Auth
-@inject NavigationManager Nav
+﻿@page "/inicio"
+@attribute [Authorize]
+@inject IJSRuntime JS
 
 <PageTitle>Inicio</PageTitle>
 
-<AuthorizeView>
-    <NotAuthorized>
-        <RedirectTo Url="/login" />
-    </NotAuthorized>
-
-    <Authorized Context="authCtx">
+<AuthorizeView Context="auth">
+    <Authorized>
         <div class="home-wrap">
             @if (showWelcome)
             {
                 <section class="welcome-panel">
                     <div class="welcome-head">
-                        <span class="bi bi-stars"></span>
-                        <strong>¡Bienvenido, @authCtx.User.Identity!.Name!</strong>
-                        <button class="icon-btn" title="Cerrar" @onclick="() => showWelcome = false">
-                            <span class="bi bi-x-lg"></span>
+                        <span class="bi bi-stars" aria-hidden="true"></span>
+                        <strong>¡Bienvenido, @auth.User.Identity!.Name!</strong>
+                        <button class="icon-btn" type="button" title="Cerrar" @onclick="CloseWelcome">
+                            <span class="bi bi-x-lg" aria-hidden="true"></span>
                         </button>
                     </div>
                     <p class="muted">
@@ -27,41 +23,20 @@
                     </p>
                 </section>
             }
-
-            <section class="quick-cards">
-                <a class="qcard" href="/productos">
-                    <span class="bi bi-bag"></span>
-                    <div>
-                        <h4>Productos</h4>
-                        <p class="muted">Alta, edición y stock.</p>
-                    </div>
-                </a>
-                <a class="qcard" href="/ventas">
-                    <span class="bi bi-receipt"></span>
-                    <div>
-                        <h4>Ventas</h4>
-                        <p class="muted">Registrar y consultar ventas.</p>
-                    </div>
-                </a>
-                <a class="qcard" href="/pedidos">
-                    <span class="bi bi-truck"></span>
-                    <div>
-                        <h4>Pedidos</h4>
-                        <p class="muted">Gestión de pedidos a proveedores.</p>
-                    </div>
-                </a>
-                <a class="qcard" href="/tipos-producto">
-                    <span class="bi bi-tags"></span>
-                    <div>
-                        <h4>Tipos de producto</h4>
-                        <p class="muted">Clasificación de artículos.</p>
-                    </div>
-                </a>
-            </section>
         </div>
     </Authorized>
+    <NotAuthorized>
+        <RedirectTo Url="/login" />
+    </NotAuthorized>
 </AuthorizeView>
 
 @code {
     private bool showWelcome = true;
+    protected override async Task OnInitializedAsync()
+        => showWelcome = (await JS.InvokeAsync<string?>("localStorage.getItem","hideWelcome")) != "1";
+    private async Task CloseWelcome()
+    {
+        showWelcome = false;
+        await JS.InvokeVoidAsync("localStorage.setItem","hideWelcome","1");
+    }
 }

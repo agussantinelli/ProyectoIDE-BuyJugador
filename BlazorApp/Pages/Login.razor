@@ -8,7 +8,7 @@
 @inject NavigationManager Nav
 @inject AuthenticationStateProvider Auth
 
-<AuthorizeView Context="auth"> 
+<AuthorizeView Context="auth">
     <NotAuthorized>
         <div class="login-container">
             <div class="card">
@@ -40,17 +40,12 @@
     </NotAuthorized>
 
     <Authorized>
-        <RedirectTo Url="/" />
+        <RedirectTo Url="/inicio" />
     </Authorized>
 </AuthorizeView>
 
 @code {
-    private class LoginModel
-    {
-        public int Dni { get; set; }
-        public string Password { get; set; } = "";
-    }
-
+    private class LoginModel { public int Dni { get; set; } public string Password { get; set; } = ""; }
     private LoginModel loginModel = new();
     private string? errorMessage;
 
@@ -59,22 +54,15 @@
         try
         {
             errorMessage = null;
-
-            var response = await Http.PostAsJsonAsync("api/personas/login", loginModel);
-            if (response.IsSuccessStatusCode)
+            var resp = await Http.PostAsJsonAsync("api/personas/login", loginModel);
+            if (resp.IsSuccessStatusCode)
             {
-                var user = await response.Content.ReadFromJsonAsync<PersonaDTO>();
+                var user = await resp.Content.ReadFromJsonAsync<PersonaDTO>();
                 await ((CustomAuthenticationStateProvider)Auth).MarkUserAsAuthenticated(user!);
-                Nav.NavigateTo("/", forceLoad: true);
+                Nav.NavigateTo("/inicio", forceLoad: true); 
             }
-            else
-            {
-                errorMessage = "DNI o contraseña incorrectos.";
-            }
+            else errorMessage = "DNI o contraseña incorrectos.";
         }
-        catch
-        {
-            errorMessage = "Ocurrió un error al intentar iniciar sesión.";
-        }
+        catch { errorMessage = "Ocurrió un error al intentar iniciar sesión."; }
     }
 }
