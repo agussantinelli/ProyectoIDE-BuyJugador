@@ -10,9 +10,9 @@
 
 <main>
     <div class="top-row px-4">
-        <AuthorizeView>
+        <AuthorizeView Context="authCtx">
             <Authorized>
-                <span>Hola, @context.User.Identity.Name</span>
+                <span>Hola, @authCtx.User.Identity.Name</span>
                 <button class="btn btn-link" @onclick="Logout">Logout</button>
             </Authorized>
             <NotAuthorized>
@@ -27,13 +27,9 @@
 </main>
 
 @code {
-    private string Usuario => "Administrador";
-
-        private async Task Logout()
+    private async Task Logout()
     {
         await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
         NavigationManager.NavigateTo("/login");
     }
-
 }
-

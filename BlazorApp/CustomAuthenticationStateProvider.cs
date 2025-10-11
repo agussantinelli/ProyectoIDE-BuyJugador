@@ -17,7 +17,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        // En lugar de un token, ahora buscamos los datos del usuario en localStorage
         var userSessionJson = await _jsRuntime.InvokeAsync<string>("localStorage.getItem", "userSession");
 
         if (string.IsNullOrWhiteSpace(userSessionJson))
@@ -25,13 +24,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             return new AuthenticationState(_anonymous);
         }
 
-        // Deserializamos los datos del usuario
         var userSession = JsonSerializer.Deserialize<PersonaDTO>(userSessionJson);
         var claimsPrincipal = CreateClaimsPrincipalFromUser(userSession);
         return new AuthenticationState(claimsPrincipal);
     }
 
-    // Este método es llamado desde la página de login con el PersonaDTO
     public async Task MarkUserAsAuthenticated(PersonaDTO user)
     {
         var userSessionJson = JsonSerializer.Serialize(user);
@@ -47,7 +44,6 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
     }
 
-    // Método de ayuda para crear la identidad del usuario a partir del DTO
     private ClaimsPrincipal CreateClaimsPrincipalFromUser(PersonaDTO user)
     {
         if (user == null)

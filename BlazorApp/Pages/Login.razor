@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/login"
 @layout EmptyLayout
 
 @using DTOs
@@ -8,7 +8,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 
 <AuthorizeView>
-    <NotAuthorized>
+    <NotAuthorized Context="authCtx">
         <div class="login-container">
             <div class="card">
                 <div class="card-body">
@@ -19,8 +19,7 @@
                             <label for="dni">DNI</label>
                             <InputNumber id="dni"
                                          class="form-control"
-                                         @bind-Value="loginModel.Dni"
-                                         ValueExpression="() => loginModel.Dni" />
+                                         @bind-Value="loginModel.Dni" />
                         </div>
 
                         <div class="form-group mt-2">
@@ -29,8 +28,7 @@
                                        class="form-control"
                                        type="password"
                                        autocomplete="current-password"
-                                       @bind-Value="loginModel.Password"
-                                       ValueExpression="() => loginModel.Password" />
+                                       @bind-Value="loginModel.Password" />
                         </div>
 
                         <button type="submit" class="btn btn-primary mt-3">Login</button>
@@ -45,7 +43,7 @@
         </div>
     </NotAuthorized>
 
-    <Authorized>
+    <Authorized Context="authCtx">
         <p>Verificando sesión...</p>
     </Authorized>
 </AuthorizeView>
@@ -87,7 +85,6 @@
             if (response.IsSuccessStatusCode)
             {
                 var loggedInUser = await response.Content.ReadFromJsonAsync<PersonaDTO>();
-
                 await ((CustomAuthenticationStateProvider)AuthStateProvider)
                     .MarkUserAsAuthenticated(loggedInUser!);
 
