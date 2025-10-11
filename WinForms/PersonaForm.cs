@@ -14,8 +14,8 @@ namespace WinForms
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
+        private readonly IServiceProvider _serviceProvider; // # Añadido para MDI
 
-        // # Se usan listas para cachear los datos y agilizar el filtrado en la UI.
         private List<PersonaDTO> _activosCache = new();
         private List<PersonaDTO> _inactivosCache = new();
         private string _filtroActual = string.Empty;
@@ -23,15 +23,11 @@ namespace WinForms
         public PersonaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-
-            // # Inyección de dependencias para los clientes de la API.
+            _serviceProvider = serviceProvider; // # Guardamos el IServiceProvider
             _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
-            // # Aplicación de estilos consistentes a los controles.
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
@@ -40,7 +36,6 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
 
-            // # Configuración inicial de las grillas.
             PrepararGrid(dgvActivos);
             PrepararGrid(dgvInactivos);
         }
@@ -53,7 +48,6 @@ namespace WinForms
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
 
-            // # Definición manual de las columnas para un control total sobre la visualización.
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreCompleto", HeaderText = "Nombre", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Dni", HeaderText = "DNI", Width = 100 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Email", HeaderText = "Email", Width = 200 });
@@ -69,12 +63,10 @@ namespace WinForms
             await CargarYMostrarDatos();
         }
 
-        // # Método centralizado para cargar datos y refrescar la UI.
         private async Task CargarYMostrarDatos()
         {
             try
             {
-                // # OPTIMIZACIÓN: Se llama a los endpoints específicos en lugar de traer todos los datos.
                 _activosCache = await _personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
                 _inactivosCache = await _personaApiClient.GetInactivosAsync() ?? new List<PersonaDTO>();
 
@@ -100,7 +92,6 @@ namespace WinForms
             var dgvActual = esTabActivos ? dgvActivos : dgvInactivos;
             var cacheActual = esTabActivos ? _activosCache : _inactivosCache;
 
-            // # FIX: Limpiar el DataSource para forzar la actualización correcta del grid.
             dgvActual.DataSource = null;
 
             List<PersonaDTO> datosFiltrados;
@@ -116,9 +107,7 @@ namespace WinForms
                     .ToList();
             }
 
-            // # Usar BindingSource es una buena práctica para enlazar datos a la grilla.
-            var bindingSource = new BindingSource();
-            bindingSource.DataSource = datosFiltrados;
+            var bindingSource = new BindingSource { DataSource = datosFiltrados };
             dgvActual.DataSource = bindingSource;
         }
 
@@ -129,24 +118,53 @@ namespace WinForms
                 : null;
         }
 
-        private async void btnNuevo_Click(object sender, EventArgs e)
+        // # REFACTORIZADO para MDI
+        private void btnNuevo_Click(object sender, EventArgs e)
         {
-            using var form = new CrearPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient);
-            if (form.ShowDialog(this) == DialogResult.OK)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearPersonaForm>().FirstOrDefault();
+            if (existingForm != null)
             {
-                await CargarYMostrarDatos(); // # Recargar datos después de crear.
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new CrearPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient);
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarYMostrarDatos();
+                    }
+                };
+                form.Show();
             }
         }
 
-        private async void btnEditar_Click(object sender, EventArgs e)
+        // # REFACTORIZADO para MDI
+        private void btnEditar_Click(object sender, EventArgs e)
         {
             var persona = ObtenerSeleccionado(dgvActivos);
             if (persona == null) return;
 
-            using var form = new EditarPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient, persona);
-            if (form.ShowDialog(this) == DialogResult.OK)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<EditarPersonaForm>()
+                .FirstOrDefault(f => f.Tag is int personaId && personaId == persona.IdPersona);
+
+            if (existingForm != null)
             {
-                await CargarYMostrarDatos(); // # Recargar datos después de editar.
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new EditarPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient, persona);
+                form.Tag = persona.IdPersona;
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarYMostrarDatos();
+                    }
+                };
+                form.Show();
             }
         }
 
@@ -164,7 +182,7 @@ namespace WinForms
                 if (resp.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Persona dada de baja correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    await CargarYMostrarDatos(); // # Recargar datos.
+                    await CargarYMostrarDatos();
                 }
                 else
                 {
@@ -191,7 +209,7 @@ namespace WinForms
                 if (resp.IsSuccessStatusCode)
                 {
                     MessageBox.Show("Persona reactivada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    await CargarYMostrarDatos(); // # Recargar datos.
+                    await CargarYMostrarDatos();
                 }
                 else
                 {
@@ -227,4 +245,3 @@ namespace WinForms
         }
     }
 }
-

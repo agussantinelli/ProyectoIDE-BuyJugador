@@ -16,7 +16,6 @@ namespace WinForms
 
         private List<ProductoDTO> _productosActivos = new();
         private List<ProductoDTO> _productosInactivos = new();
-
         private string _filtroActual = string.Empty;
 
         public ProductoForm(IServiceProvider serviceProvider)
@@ -24,8 +23,6 @@ namespace WinForms
             InitializeComponent();
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _serviceProvider = serviceProvider;
-
-
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -36,8 +33,6 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVerHistorialPrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
             StyleManager.ApplyButtonStyle(btnVolver);
-            this.StartPosition = FormStartPosition.CenterScreen;
-
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
@@ -82,15 +77,14 @@ namespace WinForms
             {
                 var lista = _productosActivos
                     .Where(p => (string.IsNullOrWhiteSpace(f)
-                                || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
-                                || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                                 || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
+                                 || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
                                 &&
                                 (filtroStock == "Todos"
                                  || (filtroStock == "Con stock" && p.Stock > 0)
                                  || (filtroStock == "Sin stock" && p.Stock == 0)
                                  || (filtroStock == "Stock < 10" && p.Stock < 10)))
                     .ToList();
-
                 ConfigurarColumnas(dgvActivos);
                 dgvActivos.DataSource = lista;
             }
@@ -98,15 +92,14 @@ namespace WinForms
             {
                 var lista = _productosInactivos
                     .Where(p => (string.IsNullOrWhiteSpace(f)
-                                || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
-                                || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
+                                 || (p.Nombre != null && p.Nombre.ToLower().Contains(f))
+                                 || (p.Descripcion != null && p.Descripcion.ToLower().Contains(f)))
                                 &&
                                 (filtroStock == "Todos"
                                  || (filtroStock == "Con stock" && p.Stock > 0)
                                  || (filtroStock == "Sin stock" && p.Stock == 0)
                                  || (filtroStock == "Stock < 10" && p.Stock < 10)))
                     .ToList();
-
                 ConfigurarColumnas(dgvInactivos);
                 dgvInactivos.DataSource = lista;
             }
@@ -132,62 +125,60 @@ namespace WinForms
             return null;
         }
 
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        private void btnNuevo_Click(object sender, EventArgs e)
         {
-            AplicarFiltro();
-        }
-
-        private void dgvProductos_SelectionChanged(object sender, EventArgs e)
-        {
-            bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
-            bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
-
-            btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
-            btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
-            btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
-
-            btnVerHistorialPrecios.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos)
-                                             || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
-            btnEditarPrecio.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos)
-                                       || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
-        }
-
-        private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearProductoForm>().FirstOrDefault();
+            if (existingForm != null)
             {
-                DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
-                dgv.ClearSelection();
-                dgv.Rows[e.RowIndex].Selected = true;
-                cmOpciones.Show(dgv, e.Location);
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = _serviceProvider.GetRequiredService<CrearProductoForm>();
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarTodosProductos();
+                        AplicarFiltro();
+                    }
+                };
+                form.Show();
             }
         }
 
-        private async void btnNuevo_Click(object sender, EventArgs e)
-        {
-            using var form = _serviceProvider.GetRequiredService<CrearProductoForm>();
-            form.ShowDialog(this);
-            await CargarTodosProductos();
-            AplicarFiltro();
-        }
-
-        private async void btnEditar_Click(object sender, EventArgs e)
+        private void btnEditar_Click(object sender, EventArgs e)
         {
             if (tabControl.SelectedTab != tabActivos) return;
-
             var producto = ObtenerSeleccionado(dgvActivos);
             if (producto == null) return;
 
-            using var form = new EditarProductoForm(producto.IdProducto, _productoApiClient, _serviceProvider.GetRequiredService<TipoProductoApiClient>());
-            form.ShowDialog(this);
-            await CargarTodosProductos();
-            AplicarFiltro();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<EditarProductoForm>()
+                .FirstOrDefault(f => f.Tag is int prodId && prodId == producto.IdProducto);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new EditarProductoForm(producto.IdProducto, _productoApiClient, _serviceProvider.GetRequiredService<TipoProductoApiClient>());
+                form.Tag = producto.IdProducto;
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarTodosProductos();
+                        AplicarFiltro();
+                    }
+                };
+                form.Show();
+            }
         }
 
         private async void btnDarBaja_Click(object sender, EventArgs e)
         {
             if (tabControl.SelectedTab != tabActivos) return;
-
             var producto = ObtenerSeleccionado(dgvActivos);
             if (producto == null) return;
 
@@ -202,7 +193,6 @@ namespace WinForms
         private async void btnReactivar_Click(object sender, EventArgs e)
         {
             if (tabControl.SelectedTab != tabInactivos) return;
-
             var producto = ObtenerSeleccionado(dgvInactivos);
             if (producto == null) return;
 
@@ -214,10 +204,7 @@ namespace WinForms
             AplicarFiltro();
         }
 
-        private void btnVolver_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
+        private void btnVolver_Click(object sender, EventArgs e) => Close();
 
         private void btnVerHistorialPrecios_Click(object sender, EventArgs e)
         {
@@ -225,11 +212,12 @@ namespace WinForms
             var producto = ObtenerSeleccionado(dgv);
             if (producto == null) return;
 
-            using var hist = new HistorialPreciosForm(
+            var form = new HistorialPreciosForm(
                 _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
                 producto.IdProducto,
                 producto.Nombre);
-            hist.ShowDialog(this);
+            form.MdiParent = this.MdiParent;
+            form.Show();
         }
 
         private async void btnEditarPrecio_Click(object sender, EventArgs e)
@@ -238,16 +226,32 @@ namespace WinForms
             var producto = ObtenerSeleccionado(dgv);
             if (producto == null) return;
 
-            using var edit = new EditarPrecioForm(
+            var edit = new EditarPrecioForm(
                 _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
                 producto.IdProducto,
                 producto.Nombre,
                 producto.PrecioActual);
 
-            if (edit.ShowDialog(this) == DialogResult.OK)
+            edit.MdiParent = this.MdiParent;
+            edit.FormClosed += async (s, args) => {
+                if (edit.DialogResult == DialogResult.OK)
+                {
+                    await CargarTodosProductos();
+                    AplicarFiltro();
+                }
+            };
+            edit.Show();
+        }
+
+        // # INICIO DE MÉTODOS RESTAURADOS
+        private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && e.RowIndex >= 0)
             {
-                await CargarTodosProductos();
-                AplicarFiltro();
+                DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+                dgv.ClearSelection();
+                dgv.Rows[e.RowIndex].Selected = true;
+                cmOpciones.Show(dgv, e.Location);
             }
         }
 
@@ -260,5 +264,21 @@ namespace WinForms
         {
             btnEditarPrecio_Click(sender, e);
         }
+        // # FIN DE MÉTODOS RESTAURADOS
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e) => AplicarFiltro();
+        private void dgvProductos_SelectionChanged(object sender, EventArgs e)
+        {
+            bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
+            bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
+
+            btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
+            btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
+            btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
+
+            btnVerHistorialPrecios.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos) || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
+            btnEditarPrecio.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos) || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
+        }
     }
 }
+

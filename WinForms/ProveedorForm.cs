@@ -18,7 +18,7 @@ namespace WinForms
         private readonly LocalidadApiClient _localidadApiClient;
         private readonly ProductoApiClient _productoApiClient;
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
-        private readonly PrecioCompraApiClient _precioCompraApiClient; // Añadido
+        private readonly PrecioCompraApiClient _precioCompraApiClient;
 
         private BindingList<ProveedorRow> _activosBindingList;
         private BindingList<ProveedorRow> _inactivosBindingList;
@@ -37,7 +37,7 @@ namespace WinForms
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _productoProveedorApiClient = serviceProvider.GetRequiredService<ProductoProveedorApiClient>();
-            _precioCompraApiClient = serviceProvider.GetRequiredService<PrecioCompraApiClient>(); // Añadido
+            _precioCompraApiClient = serviceProvider.GetRequiredService<PrecioCompraApiClient>();
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -47,7 +47,6 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnAsignarProductos);
-            this.StartPosition = FormStartPosition.CenterScreen;
         }
 
         private async void ProveedorForm_Load(object sender, EventArgs e)
@@ -79,20 +78,22 @@ namespace WinForms
             }
         }
 
+        // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            using var form = new CrearProveedorForm(
-                _proveedorApiClient,
-                _provinciaApiClient,
-                _localidadApiClient
-            );
-
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                ProveedorForm_Load(this, EventArgs.Empty);
-            }
+            var form = new CrearProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient);
+            form.MdiParent = this.MdiParent;
+            form.FormClosed += async (s, args) => {
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarDatosIniciales();
+                    AplicarFiltro();
+                }
+            };
+            form.Show();
         }
 
+        // # REFACTORIZADO para MDI
         private void btnEditar_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado(dgvActivos);
@@ -101,17 +102,33 @@ namespace WinForms
             var proveedorDto = _activosCache.FirstOrDefault(p => p.IdProveedor == seleccionado.IdProveedor);
             if (proveedorDto == null) return;
 
-            using var form = new EditarProveedorForm(
-                _proveedorApiClient,
-                _provinciaApiClient,
-                _localidadApiClient,
-                proveedorDto
-            );
+            var form = new EditarProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient, proveedorDto);
+            form.MdiParent = this.MdiParent;
+            form.FormClosed += async (s, args) => {
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarDatosIniciales();
+                    AplicarFiltro();
+                }
+            };
+            form.Show();
+        }
 
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                ProveedorForm_Load(this, EventArgs.Empty);
-            }
+        // # REFACTORIZADO para MDI
+        private void btnAsignarProductos_Click(object sender, EventArgs e)
+        {
+            var seleccionado = ObtenerSeleccionado(dgvActivos);
+            if (seleccionado == null) return;
+
+            var form = new AsignarProductosProveedorForm(
+                seleccionado.IdProveedor,
+                seleccionado.RazonSocial,
+                _productoApiClient,
+                _productoProveedorApiClient,
+                _precioCompraApiClient
+            );
+            form.MdiParent = this.MdiParent;
+            form.Show();
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
@@ -126,7 +143,8 @@ namespace WinForms
                 {
                     await _proveedorApiClient.DeleteAsync(seleccionado.IdProveedor);
                     MessageBox.Show("Proveedor dado de baja correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    ProveedorForm_Load(this, EventArgs.Empty);
+                    await CargarDatosIniciales();
+                    AplicarFiltro();
                 }
                 catch (Exception ex)
                 {
@@ -147,7 +165,8 @@ namespace WinForms
                 {
                     await _proveedorApiClient.ReactivarAsync(seleccionado.IdProveedor);
                     MessageBox.Show("Proveedor reactivado correctamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    ProveedorForm_Load(this, EventArgs.Empty);
+                    await CargarDatosIniciales();
+                    AplicarFiltro();
                 }
                 catch (Exception ex)
                 {
@@ -156,22 +175,8 @@ namespace WinForms
             }
         }
 
-        private void btnAsignarProductos_Click(object sender, EventArgs e)
-        {
-            var seleccionado = ObtenerSeleccionado(dgvActivos);
-            if (seleccionado == null) return;
-
-            using var form = new AsignarProductosProveedorForm(
-                seleccionado.IdProveedor,
-                seleccionado.RazonSocial,
-                _productoApiClient,
-                _productoProveedorApiClient,
-                _precioCompraApiClient // <-- Argumento añadido aquí
-            );
-            form.ShowDialog();
-        }
-
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
+
         private void txtBuscar_TextChanged(object sender, EventArgs e)
         {
             _filtroActual = txtBuscar.Text;
@@ -184,10 +189,7 @@ namespace WinForms
             ActualizarBotones();
         }
 
-        private void dgv_SelectionChanged(object sender, EventArgs e)
-        {
-            ActualizarBotones();
-        }
+        private void dgv_SelectionChanged(object sender, EventArgs e) => ActualizarBotones();
 
         private ProveedorRow? ObtenerSeleccionado(DataGridView dgv)
         {
@@ -195,7 +197,6 @@ namespace WinForms
             {
                 return proveedor;
             }
-            MessageBox.Show("Por favor, seleccione un proveedor.", "Selección requerida", MessageBoxButtons.OK, MessageBoxIcon.Information);
             return null;
         }
 
@@ -209,7 +210,6 @@ namespace WinForms
                     .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
                     .Select(p => ProveedorRow.From(p, _localidades, _provincias))
                     .ToList();
-
                 _activosBindingList = new BindingList<ProveedorRow>(filtrados);
                 dgvActivos.DataSource = _activosBindingList;
                 ConfigurarColumnas(dgvActivos);
@@ -220,7 +220,6 @@ namespace WinForms
                     .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
                     .Select(p => ProveedorRow.From(p, _localidades, _provincias))
                     .ToList();
-
                 _inactivosBindingList = new BindingList<ProveedorRow>(filtrados);
                 dgvInactivos.DataSource = _inactivosBindingList;
                 ConfigurarColumnas(dgvInactivos);
@@ -231,56 +230,13 @@ namespace WinForms
         {
             dgv.AutoGenerateColumns = false;
             dgv.Columns.Clear();
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.RazonSocial),
-                HeaderText = "Razón Social",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.Cuit),
-                HeaderText = "CUIT",
-                Width = 120
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.Email),
-                HeaderText = "Email",
-                Width = 180
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.Telefono),
-                HeaderText = "Teléfono",
-                Width = 120
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.Direccion),
-                HeaderText = "Dirección",
-                Width = 200
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.LocalidadNombre),
-                HeaderText = "Localidad",
-                Width = 150
-            });
-
-            dgv.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = nameof(ProveedorRow.ProvinciaNombre),
-                HeaderText = "Provincia",
-                Width = 150
-            });
-
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.RazonSocial), HeaderText = "Razón Social", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.Cuit), HeaderText = "CUIT", Width = 120 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.Email), HeaderText = "Email", Width = 180 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.Telefono), HeaderText = "Teléfono", Width = 120 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.Direccion), HeaderText = "Dirección", Width = 200 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.LocalidadNombre), HeaderText = "Localidad", Width = 150 });
+            dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.ProvinciaNombre), HeaderText = "Provincia", Width = 150 });
             dgv.ReadOnly = true;
             dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgv.MultiSelect = false;
@@ -288,7 +244,6 @@ namespace WinForms
             dgv.AllowUserToAddRows = false;
             dgv.AllowUserToDeleteRows = false;
         }
-
 
         private void ActualizarBotones()
         {
@@ -329,4 +284,3 @@ namespace WinForms
         }
     }
 }
-

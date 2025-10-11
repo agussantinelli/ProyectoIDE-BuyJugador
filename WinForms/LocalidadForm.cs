@@ -1,4 +1,5 @@
-﻿using ApiClient;
+﻿// # No se requieren cambios MDI en este formulario ya que no abre otras ventanas.
+using ApiClient;
 using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -14,7 +15,6 @@ namespace WinForms
         private readonly LocalidadApiClient _localidadApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
 
-        // Listas para almacenar los datos cargados desde la API
         private List<LocalidadDTO> _todasLasLocalidades;
         private List<ProvinciaDTO> _todasLasProvincias;
 
@@ -23,8 +23,6 @@ namespace WinForms
             InitializeComponent();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
-
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyDataGridViewStyle(dgvLocalidades);
             StyleManager.ApplyButtonStyle(btnOrdenarAZ);
@@ -81,7 +79,7 @@ namespace WinForms
             if (cboProvincias.SelectedValue is int provinciaId)
             {
                 IEnumerable<LocalidadDTO> localidadesFiltradas;
-                if (provinciaId == 0) // "Todas las provincias"
+                if (provinciaId == 0)
                 {
                     localidadesFiltradas = _todasLasLocalidades;
                 }
@@ -89,33 +87,28 @@ namespace WinForms
                 {
                     localidadesFiltradas = _todasLasLocalidades.Where(l => l.IdProvincia == provinciaId);
                 }
-
-                CargarGrilla(localidadesFiltradas.OrderBy(l => l.Nombre)); // Cargamos y ordenamos por defecto A-Z
+                CargarGrilla(localidadesFiltradas.OrderBy(l => l.Nombre));
             }
         }
 
         private void btnOrdenar_Click(object sender, EventArgs e)
         {
-            // Este método único maneja ambos ordenamientos
             if (!(cboProvincias.SelectedValue is int provinciaId)) return;
 
-            // 1. Obtenemos la lista de localidades actualmente filtrada
             var localidadesParaOrdenar = (provinciaId == 0)
                 ? _todasLasLocalidades
                 : _todasLasLocalidades.Where(l => l.IdProvincia == provinciaId);
 
-            // 2. Determinamos el orden basado en qué botón se presionó
             IEnumerable<LocalidadDTO> localidadesOrdenadas;
             if (sender == btnOrdenarAZ)
             {
                 localidadesOrdenadas = localidadesParaOrdenar.OrderBy(l => l.Nombre);
             }
-            else // (sender == btnOrdenarZA)
+            else
             {
                 localidadesOrdenadas = localidadesParaOrdenar.OrderByDescending(l => l.Nombre);
             }
 
-            // 3. Recargamos la grilla con los datos ordenados
             CargarGrilla(localidadesOrdenadas);
         }
 
@@ -125,4 +118,3 @@ namespace WinForms
         }
     }
 }
-

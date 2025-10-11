@@ -27,8 +27,6 @@ namespace WinForms
             _userSessionService = userSessionService;
             _todasLasVentas = new List<VentaDTO>();
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyDataGridViewStyle(dataGridVentas);
             StyleManager.ApplyButtonStyle(btnNuevaVenta);
             StyleManager.ApplyButtonStyle(btnVerDetalle);
@@ -43,13 +41,12 @@ namespace WinForms
             {
                 cmbFiltroGasto.Items.AddRange(new object[]
                 {
-            "Todos",
-            "Hasta $10.000",
-            "$10.001 a $50.000",
-            "Más de $50.000"
+                    "Todos",
+                    "Hasta $10.000",
+                    "$10.001 a $50.000",
+                    "Más de $50.000"
                 });
             }
-
             cmbFiltroGasto.SelectedIndex = 0;
 
             await CargarVentas();
@@ -71,12 +68,22 @@ namespace WinForms
             try
             {
                 var ventas = await _ventaApiClient.GetAllAsync();
+
+                if (ventas != null)
+                {
+                    foreach (var venta in ventas)
+                    {
+                        // # Recalculamos el total en el cliente por si la API devuelve 0
+                        venta.Total = venta.Lineas?.Sum(l => l.Subtotal) ?? 0;
+                    }
+                }
+
                 _todasLasVentas = ventas?.OrderByDescending(v => v.Fecha).ToList() ?? new List<VentaDTO>();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar las ventas: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                _todasLasVentas = new List<VentaDTO>(); 
+                _todasLasVentas = new List<VentaDTO>();
             }
             finally
             {
@@ -126,30 +133,25 @@ namespace WinForms
                 dataGridVentas.Columns["IdVenta"].HeaderText = "ID Venta";
                 dataGridVentas.Columns["IdVenta"].Width = 80;
             }
-
             if (dataGridVentas.Columns.Contains("Fecha"))
             {
                 dataGridVentas.Columns["Fecha"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm";
                 dataGridVentas.Columns["Fecha"].Width = 120;
             }
-
             if (dataGridVentas.Columns.Contains("NombreVendedor"))
             {
                 dataGridVentas.Columns["NombreVendedor"].HeaderText = "Vendedor";
                 dataGridVentas.Columns["NombreVendedor"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
-
             if (dataGridVentas.Columns.Contains("Total"))
             {
                 dataGridVentas.Columns["Total"].DefaultCellStyle.Format = "C2";
                 dataGridVentas.Columns["Total"].Width = 100;
             }
-
             if (dataGridVentas.Columns.Contains("Estado"))
             {
                 dataGridVentas.Columns["Estado"].Width = 100;
             }
-
             if (dataGridVentas.Columns.Contains("IdPersona"))
                 dataGridVentas.Columns["IdPersona"].Visible = false;
             if (dataGridVentas.Columns.Contains("Lineas"))
@@ -161,16 +163,31 @@ namespace WinForms
             AplicarFiltros();
         }
 
-        private async void btnNuevaVenta_Click(object sender, EventArgs e)
+        private void btnNuevaVenta_Click(object sender, EventArgs e)
         {
-            using var form = _serviceProvider.GetRequiredService<CrearVentaForm>();
-            if (form.ShowDialog() == DialogResult.OK)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearVentaForm>().FirstOrDefault();
+            if (existingForm != null)
             {
-                await CargarVentas();
+                existingForm.BringToFront();
+                return;
             }
+
+            var form = _serviceProvider.GetRequiredService<CrearVentaForm>();
+            form.MdiParent = this.MdiParent; // # Asigna el MDI Parent
+
+            // # Nos suscribimos al evento FormClosed para saber si debemos recargar la grilla.
+            form.FormClosed += async (s, args) => {
+                // # El DialogResult se sigue asignando dentro del CrearVentaForm antes de cerrarse.
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarVentas();
+                }
+            };
+
+            form.Show(); // # Usa Show() en lugar de ShowDialog()
         }
 
-        private async void btnVerDetalle_Click(object sender, EventArgs e)
+        private void btnVerDetalle_Click(object sender, EventArgs e)
         {
             if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
             {
@@ -178,34 +195,31 @@ namespace WinForms
                 return;
             }
 
-            this.Cursor = Cursors.WaitCursor;
-            try
+            var existingForm = this.MdiParent?.MdiChildren
+                .OfType<DetalleVentaForm>()
+                .FirstOrDefault(f => f.Tag is int ventaId && ventaId == selectedVenta.IdVenta);
+
+            if (existingForm != null)
             {
-                using var detalleForm = _serviceProvider.GetRequiredService<DetalleVentaForm>();
-                var ventaCompleta = await _ventaApiClient.GetByIdAsync(selectedVenta.IdVenta);
-
-                if (ventaCompleta == null)
-                {
-                    MessageBox.Show("No se pudo obtener el detalle completo de la venta.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                detalleForm.Venta = ventaCompleta;
-
-                detalleForm.EsAdmin = _userSessionService.EsAdmin;
-
-                if (detalleForm.ShowDialog() == DialogResult.OK)
-                {
-                    await CargarVentas();
-                }
+                existingForm.BringToFront();
             }
-            catch (Exception ex)
+            else
             {
-                MessageBox.Show($"Error al abrir el detalle de la venta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                this.Cursor = Cursors.Default;
+                var ventaApiClient = _serviceProvider.GetRequiredService<VentaApiClient>();
+                var lineaVentaApiClient = _serviceProvider.GetRequiredService<LineaVentaApiClient>();
+                var productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
+
+                var detalleForm = new DetalleVentaForm(
+                    selectedVenta.IdVenta,
+                    _userSessionService.EsAdmin,
+                    ventaApiClient,
+                    lineaVentaApiClient,
+                    productoApiClient,
+                    _serviceProvider);
+
+                detalleForm.Tag = selectedVenta.IdVenta;
+                detalleForm.MdiParent = this.MdiParent; // # Asigna el MDI Parent
+                detalleForm.Show(); // # Usa Show() en lugar de ShowDialog()
             }
         }
 
@@ -302,7 +316,7 @@ namespace WinForms
             else
             {
                 btnFinalizarVenta.Enabled = false;
-                btnFinalizarVenta.Visible = _userSessionService.EsAdmin; 
+                btnFinalizarVenta.Visible = _userSessionService.EsAdmin;
             }
         }
 

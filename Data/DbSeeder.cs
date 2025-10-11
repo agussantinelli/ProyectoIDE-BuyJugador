@@ -12,7 +12,7 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        context.Database.EnsureDeleted();  //Descomentar para resetear la base de datos
+        //context.Database.EnsureDeleted();  //Descomentar para resetear la base de datos
         context.Database.EnsureCreated();
 
         await SeedProvinciasYLocalidadesAsync(context);

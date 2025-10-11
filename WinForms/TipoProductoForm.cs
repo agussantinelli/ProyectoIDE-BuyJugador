@@ -16,13 +16,11 @@ namespace WinForms
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
 
-
+        // # REFACTORIZADO: Un solo constructor que usa IServiceProvider.
         public TipoProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
-
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
             StyleManager.ApplyButtonStyle(btnNuevo);
@@ -30,13 +28,6 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnEliminar);
             StyleManager.ApplyButtonStyle(btnVolver);
         }
-
-        public TipoProductoForm()
-        {
-            InitializeComponent();
-        }
-
-
 
         private async void TipoProductoForm_Load(object sender, EventArgs e)
         {
@@ -58,8 +49,7 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar tipos: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar tipos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -92,7 +82,6 @@ namespace WinForms
                 dgvTiposProducto.DataSource = _tiposCache
                     .Where(t => t.Descripcion != null && t.Descripcion.ToLower().Contains(f))
                     .ToList();
-
             ConfigurarColumnas();
         }
 
@@ -101,45 +90,48 @@ namespace WinForms
             var row = dgvTiposProducto.SelectedRows.Count > 0
                 ? dgvTiposProducto.SelectedRows[0]
                 : dgvTiposProducto.CurrentRow;
-
             return row?.DataBoundItem as TipoProductoDTO;
         }
 
-        private async void btnNuevo_Click(object sender, EventArgs e)
+        // # REFACTORIZADO para MDI
+        private void btnNuevo_Click(object sender, EventArgs e)
         {
-            using var form = new CrearTipoProductoForm(_tipoProductoApiClient);
-            if (form.ShowDialog(this) == DialogResult.OK)
-            {
-                await CargarTipos();
-                AplicarFiltro();
-            }
+            var form = new CrearTipoProductoForm(_tipoProductoApiClient);
+            form.MdiParent = this.MdiParent;
+            form.FormClosed += async (s, args) => {
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarTipos();
+                    AplicarFiltro();
+                }
+            };
+            form.Show();
         }
 
-        private async void btnEditar_Click(object sender, EventArgs e)
+        // # REFACTORIZADO para MDI
+        private void btnEditar_Click(object sender, EventArgs e)
         {
             var tipo = ObtenerSeleccionado();
             if (tipo == null) return;
 
-            using var form = new EditarTipoProductoForm(_tipoProductoApiClient, tipo);
-            if (form.ShowDialog(this) == DialogResult.OK)
-            {
-                await CargarTipos();
-                AplicarFiltro();
-            }
+            var form = new EditarTipoProductoForm(_tipoProductoApiClient, tipo);
+            form.MdiParent = this.MdiParent;
+            form.FormClosed += async (s, args) => {
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarTipos();
+                    AplicarFiltro();
+                }
+            };
+            form.Show();
         }
-
 
         private async void btnEliminar_Click(object sender, EventArgs e)
         {
             var tipo = ObtenerSeleccionado();
             if (tipo == null) return;
 
-            var confirm = MessageBox.Show(
-                $"¿Está seguro que desea eliminar el tipo \"{tipo.Descripcion}\"?",
-                "Confirmar Eliminación",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
-
+            var confirm = MessageBox.Show($"¿Está seguro que desea eliminar el tipo \"{tipo.Descripcion}\"?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (confirm != DialogResult.Yes) return;
 
             try
@@ -147,13 +139,7 @@ namespace WinForms
                 await _tipoProductoApiClient.DeleteAsync(tipo.IdTipoProducto);
                 _tiposCache.RemoveAll(t => t.IdTipoProducto == tipo.IdTipoProducto);
                 AplicarFiltro();
-
-                MessageBox.Show("Tipo de producto eliminado exitosamente.",
-                    "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (HttpRequestException ex)
-            {
-                MessageBox.Show($"Error de red: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Tipo de producto eliminado exitosamente.", "Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -171,4 +157,3 @@ namespace WinForms
         }
     }
 }
-

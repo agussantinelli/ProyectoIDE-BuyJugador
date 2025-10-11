@@ -1,4 +1,5 @@
-﻿using ApiClient;
+﻿// # No se requieren cambios MDI en este formulario ya que no abre otras ventanas.
+using ApiClient;
 using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -15,13 +16,10 @@ namespace WinForms
         {
             InitializeComponent();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
-            this.StartPosition = FormStartPosition.CenterParent;
 
             StyleManager.ApplyDataGridViewStyle(dgvProvincias);
             StyleManager.ApplyButtonStyle(btnVolver);
         }
-
-
 
         private async void Provincia_Load(object sender, EventArgs e)
         {
@@ -31,13 +29,11 @@ namespace WinForms
                 if (provincias != null)
                 {
                     dgvProvincias.DataSource = provincias;
-
                     if (dgvProvincias.Columns.Contains("IdProvincia"))
                     {
                         dgvProvincias.Columns["IdProvincia"].HeaderText = "Código";
                         dgvProvincias.Columns["IdProvincia"].Width = 100;
                     }
-
                     if (dgvProvincias.Columns.Contains("Nombre"))
                     {
                         dgvProvincias.Columns["Nombre"].HeaderText = "Provincia";
@@ -47,12 +43,10 @@ namespace WinForms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar provincias: {ex.Message}",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar provincias: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
     }
 }
-

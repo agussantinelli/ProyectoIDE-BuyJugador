@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -11,10 +12,6 @@ namespace WinForms
         private readonly IServiceProvider _serviceProvider;
         private readonly UserSessionService _userSessionService;
         private Panel? menuPanel;
-
-        private ToolStripMenuItem verMenuItem;
-        private ToolStripMenuItem provinciasMenuItem;
-        private ToolStripMenuItem localidadesMenuItem;
         private ToolStripLabel usuarioLabel;
 
         public MainForm(IServiceProvider serviceProvider, UserSessionService userSessionService)
@@ -35,40 +32,88 @@ namespace WinForms
                     break;
                 }
             }
+
+            this.MdiChildActivate += MainForm_MdiChildActivate;
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // Volvemos a tu estructura original que funcionaba bien.
             InitializeMenuBar();
             InitializeMainMenu();
             CenterMenuPanel();
+            if (menuPanel != null)
+            {
+                menuPanel.Visible = true;
+            }
+        }
+
+        // # CAMBIO CLAVE Y DEFINITIVO
+        private void MainForm_MdiChildActivate(object sender, EventArgs e)
+        {
+            // # Usamos BeginInvoke para asegurarnos de que nuestro código se ejecute DESPUÉS
+            // # de que WinForms termine de procesar el evento actual (como el cierre de una ventana).
+            // # Esto gana la "carrera de condiciones" y evita que el MdiClient tape nuestro panel.
+            this.BeginInvoke(new Action(() =>
+            {
+                if (menuPanel != null)
+                {
+                    bool showPanel = this.MdiChildren.Length == 0;
+                    menuPanel.Visible = showPanel;
+
+                    if (showPanel)
+                    {
+                        menuPanel.BringToFront();
+                    }
+                }
+            }));
         }
 
         private void InitializeMenuBar()
         {
-            // Usamos 'menuStrip1', que viene del archivo Designer, en lugar de crear uno nuevo.
             menuStrip1.BackColor = Color.FromArgb(26, 32, 40);
             menuStrip1.ForeColor = Color.White;
             menuStrip1.Font = new Font("Century Gothic", 10F, FontStyle.Bold);
             menuStrip1.Renderer = new DarkMenuRenderer();
 
-            // --- Menú "Ver" ---
-            verMenuItem = new ToolStripMenuItem("Ver");
-            provinciasMenuItem = new ToolStripMenuItem("Provincias");
-            localidadesMenuItem = new ToolStripMenuItem("Localidades");
+            menuStrip1.Items.Clear();
+
+            var verMenuItem = new ToolStripMenuItem("Ver");
+            var provinciasMenuItem = new ToolStripMenuItem("Provincias");
+            var localidadesMenuItem = new ToolStripMenuItem("Localidades");
             provinciasMenuItem.Click += (s, e) => AbrirFormulario<ProvinciaForm>();
             localidadesMenuItem.Click += (s, e) => AbrirFormulario<LocalidadForm>();
             verMenuItem.DropDownItems.AddRange(new ToolStripItem[] { provinciasMenuItem, localidadesMenuItem });
 
-            // --- Botón "Cerrar Sesión" ---
+            var windowsMenu = new ToolStripMenuItem("Ventanas");
+            var cascadeMenuItem = new ToolStripMenuItem("Cascada");
+            var tileVerticalMenuItem = new ToolStripMenuItem("Mosaico Vertical");
+            var tileHorizontalMenuItem = new ToolStripMenuItem("Mosaico Horizontal");
+            var closeAllMenuItem = new ToolStripMenuItem("Cerrar Todas");
+
+            cascadeMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.Cascade);
+            tileVerticalMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.TileVertical);
+            tileHorizontalMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.TileHorizontal);
+            closeAllMenuItem.Click += (s, e) => {
+                foreach (Form childForm in this.MdiChildren.ToArray())
+                {
+                    childForm.Close();
+                }
+            };
+
+            windowsMenu.DropDownItems.AddRange(new ToolStripItem[] {
+                cascadeMenuItem,
+                tileVerticalMenuItem,
+                tileHorizontalMenuItem,
+                new ToolStripSeparator(),
+                closeAllMenuItem
+            });
+
             var btnCerrarSesion = new ToolStripMenuItem("Cerrar Sesión")
             {
-                Alignment = ToolStripItemAlignment.Right // Alineado a la derecha
+                Alignment = ToolStripItemAlignment.Right
             };
-            btnCerrarSesion.Click += btnCerrarSesion_Click; // Asignamos el evento
+            btnCerrarSesion.Click += btnCerrarSesion_Click;
 
-            // --- Etiqueta de Usuario ---
             usuarioLabel = new ToolStripLabel($"Usuario: {_userSessionService.CurrentUser?.NombreCompleto ?? "N/A"}")
             {
                 Alignment = ToolStripItemAlignment.Right,
@@ -77,14 +122,12 @@ namespace WinForms
                 Padding = new Padding(0, 0, 20, 0)
             };
 
-            // Limpiamos items por si acaso y añadimos los nuestros en el orden correcto
-            menuStrip1.Items.Clear();
             menuStrip1.Items.Add(verMenuItem);
+            menuStrip1.Items.Add(windowsMenu);
             menuStrip1.Items.Add(btnCerrarSesion);
             menuStrip1.Items.Add(usuarioLabel);
         }
 
-        // Este método se mantiene exactamente como lo tenías, porque funcionaba bien.
         private void InitializeMainMenu()
         {
             menuPanel = new Panel
@@ -130,13 +173,12 @@ namespace WinForms
             else
             {
                 buttonGrid.ColumnCount = 2;
-                buttonGrid.RowCount = 2; // Especificamos 2 filas
+                buttonGrid.RowCount = 2;
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Fila 1
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F)); // Fila 2
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
                 CreateEmpleadoButtons(buttonGrid);
-
             }
         }
 
@@ -145,7 +187,6 @@ namespace WinForms
             if (menuPanel != null)
             {
                 int x = (this.ClientSize.Width - menuPanel.Width) / 2;
-                // Corregimos el cálculo de 'y' para que use 'menuStrip1'
                 int y = ((this.ClientSize.Height - menuStrip1.Height) - menuPanel.Height) / 2 + menuStrip1.Height;
                 menuPanel.Location = new Point(x, y);
             }
@@ -169,7 +210,7 @@ namespace WinForms
         private void CreateEmpleadoButtons(TableLayoutPanel grid)
         {
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
-            grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 0); // Botón nuevo
+            grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 0);
             grid.Controls.Add(CreateMenuButton("btnPedidos", "Pedidos"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 1, 1);
         }
@@ -213,24 +254,20 @@ namespace WinForms
 
         private void AbrirFormulario<T>() where T : Form
         {
-            if (menuPanel != null)
-            {
-                menuPanel.Visible = false;
-            }
+            var form = this.MdiChildren.OfType<T>().FirstOrDefault();
 
-            var form = _serviceProvider.GetRequiredService<T>();
-            form.MdiParent = this;
-            form.FormClosed += (s, args) =>
+            if (form != null)
             {
-                if (this.MdiChildren.Length <= 1 && menuPanel != null)
-                {
-                    menuPanel.Visible = true;
-                }
-            };
-            form.Show();
+                form.BringToFront();
+            }
+            else
+            {
+                form = _serviceProvider.GetRequiredService<T>();
+                form.MdiParent = this;
+                form.Show();
+            }
         }
 
-        // Lógica de Cerrar Sesión (la que ya funcionaba bien)
         private void btnCerrarSesion_Click(object sender, EventArgs e)
         {
             _userSessionService.Logout();
@@ -254,3 +291,4 @@ namespace WinForms
         }
     }
 }
+

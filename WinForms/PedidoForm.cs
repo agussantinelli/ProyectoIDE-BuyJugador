@@ -113,27 +113,58 @@ namespace WinForms
             ActualizarEstadoBotones();
         }
 
-        private async void btnVerDetalle_Click(object sender, EventArgs e)
+        // # REFACTORIZADO para MDI
+        private void btnVerDetalle_Click(object sender, EventArgs e)
         {
-            if (dataGridPedidos.CurrentRow?.DataBoundItem is PedidoDTO pedidoSeleccionado)
+            if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedidoSeleccionado) return;
+
+            var existingForm = this.MdiParent?.MdiChildren.OfType<DetallePedidoForm>()
+                .FirstOrDefault(f => f.Tag is int pedidoId && pedidoId == pedidoSeleccionado.IdPedido);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
             {
                 var detalleForm = _serviceProvider.GetRequiredService<DetallePedidoForm>();
                 detalleForm.Pedido = pedidoSeleccionado;
                 detalleForm.EsAdmin = _userSessionService.EsAdmin;
+                detalleForm.Tag = pedidoSeleccionado.IdPedido; // Guardamos el ID
+                detalleForm.MdiParent = this.MdiParent; // Asignamos el padre
 
-                if (detalleForm.ShowDialog() == DialogResult.OK)
-                {
-                    await CargarPedidos();
-                }
+                detalleForm.FormClosed += async (s, args) => {
+                    if (detalleForm.DialogResult == DialogResult.OK)
+                    {
+                        await CargarPedidos();
+                    }
+                };
+
+                detalleForm.Show(); // Usamos Show()
             }
         }
 
+        // # REFACTORIZADO para MDI
         private void btnNuevoPedido_Click(object sender, EventArgs e)
         {
-            var crearPedidoForm = _serviceProvider.GetRequiredService<CrearPedidoForm>();
-            if (crearPedidoForm.ShowDialog() == DialogResult.OK)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearPedidoForm>().FirstOrDefault();
+            if (existingForm != null)
             {
-                _ = CargarPedidos();
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var crearPedidoForm = _serviceProvider.GetRequiredService<CrearPedidoForm>();
+                crearPedidoForm.MdiParent = this.MdiParent;
+
+                crearPedidoForm.FormClosed += async (s, args) => {
+                    if (crearPedidoForm.DialogResult == DialogResult.OK)
+                    {
+                        await CargarPedidos();
+                    }
+                };
+
+                crearPedidoForm.Show();
             }
         }
 
@@ -142,7 +173,7 @@ namespace WinForms
             if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedido) return;
 
             var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar el pedido #{pedido.IdPedido}?\nEsta acción no se puede deshacer.",
-                                     "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                                              "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirmResult == DialogResult.Yes)
             {
@@ -178,7 +209,7 @@ namespace WinForms
             }
 
             var confirmResult = MessageBox.Show($"¿Desea marcar el pedido #{pedido.IdPedido} como 'Recibido'?",
-                                     "Confirmar Recepción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                              "Confirmar Recepción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (confirmResult == DialogResult.Yes)
             {
