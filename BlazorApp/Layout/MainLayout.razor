@@ -27,7 +27,6 @@
                 <span class="bi bi-tags" aria-hidden="true"></span><span class="label">Tipos de producto</span>
             </NavLink>
         </nav>
-
     </aside>
 
     <section class="main">
@@ -57,7 +56,6 @@
     </section>
 </div>
 
-
 @code {
     private bool isCollapsed = true;
 
@@ -86,14 +84,14 @@
         {
             await TrySetLocalStorage("sidebarCollapsed", isCollapsed.ToString().ToLowerInvariant());
         }
-        catch { /* ignore */ }
+        catch { }
         StateHasChanged();
     }
 
     private async Task Logout()
     {
         await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        Nav.NavigateTo("/login", forceLoad: true);
+        Nav.NavigateTo("/login");
     }
 
     private async Task<string?> TryGetLocalStorage(string key)
@@ -119,4 +117,3 @@
         }
     }
 }
-

@@ -15,7 +15,22 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            var json = await _js.InvokeAsync<string?>("localStorage.getItem", "userSession");
+            string? json = null;
+
+            try
+            {
+                json = await _js.InvokeAsync<string?>("localStorageHelper.getItem", "userSession");
+                if (string.IsNullOrEmpty(json))
+                    json = await _js.InvokeAsync<string?>("localStorage.getItem", "userSession");
+            }
+            catch (JSException)
+            {
+                return new AuthenticationState(Anonymous);
+            }
+            catch (JSDisconnectedException)
+            {
+                return new AuthenticationState(Anonymous);
+            }
 
             if (string.IsNullOrWhiteSpace(json))
                 return new AuthenticationState(Anonymous);
@@ -56,8 +71,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
     private static ClaimsPrincipal CreatePrincipal(PersonaDTO? user)
     {
-        if (user is null)
-            return Anonymous;
+        if (user is null) return Anonymous;
 
         var claims = new List<Claim>
         {

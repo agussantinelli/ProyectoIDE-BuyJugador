@@ -11,10 +11,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBase = builder.Configuration["ApiBaseUrl"]
            ?? Environment.GetEnvironmentVariable("API_BASE_URL")
-           ?? "https://localhost:7145/"; 
+           ?? "https://localhost:7145/";
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBase) });
-
 
 builder.Services.AddScoped<ProductoApiClient>();
 builder.Services.AddScoped<ProveedorApiClient>();
@@ -33,6 +32,7 @@ builder.Services.AddScoped<TipoProductoApiClient>();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
-builder.Logging.SetMinimumLevel(LogLevel.Warning);
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 await builder.Build().RunAsync();
+

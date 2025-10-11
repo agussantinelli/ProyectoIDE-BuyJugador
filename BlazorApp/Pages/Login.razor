@@ -59,10 +59,13 @@
             {
                 var user = await resp.Content.ReadFromJsonAsync<PersonaDTO>();
                 await ((CustomAuthenticationStateProvider)Auth).MarkUserAsAuthenticated(user!);
-                Nav.NavigateTo("/inicio", forceLoad: true); 
+                Nav.NavigateTo("/inicio");
             }
             else errorMessage = "DNI o contraseña incorrectos.";
         }
-        catch { errorMessage = "Ocurrió un error al intentar iniciar sesión."; }
+        catch
+        {
+            errorMessage = "Ocurrió un error al intentar iniciar sesión.";
+        }
     }
 }

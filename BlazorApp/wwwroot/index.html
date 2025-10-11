@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BlazorApp</title>
     <base href="/" />
+    <meta http-equiv="Cache-Control" content="no-store" />
     <link rel="icon" type="image/png" href="inventario.png" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="BlazorApp.styles.css" />
@@ -17,15 +17,12 @@
     <link rel="stylesheet" href="css/Splash.css" />
     <link rel="stylesheet" href="css/Home.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-
 </head>
-
 <body>
     <div id="app">
         <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%"></circle>
+            <circle r="40%" cx="50%" cy="50%"></circle>
         </svg>
         <div class="loading-progress-text"></div>
     </div>
@@ -36,22 +33,21 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="_framework/blazor.webassembly.js"></script>
-
+    <!-- Helpers y guard de errores ANTES del runtime -->
     <script>
+        // Guard global para ver errores de arranque en consola
+        window.addEventListener('error', e => console.error('JS startup error:', e.error || e.message || e));
+        window.addEventListener('unhandledrejection', e => console.error('Unhandled promise rejection:', e.reason || e));
+
+        // Helper seguro para localStorage
         window.localStorageHelper = {
-            setItem: function (key, value) {
-                window.localStorage.setItem(key, value);
-            },
-            getItem: function (key) {
-                return window.localStorage.getItem(key);
-            },
-            removeItem: function (key) {
-                window.localStorage.removeItem(key);
-            }
+            setItem: (k, v) => window.localStorage.setItem(k, v),
+            getItem: (k) => window.localStorage.getItem(k),
+            removeItem: (k) => window.localStorage.removeItem(k)
         };
     </script>
 
+    <!-- Runtime Blazor -->
+    <script src="_framework/blazor.webassembly.js"></script>
 </body>
-
 </html>

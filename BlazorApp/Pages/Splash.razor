@@ -5,25 +5,34 @@
 
 <div class="splash">
     <div class="splash-card">
-        <div class="splash-logo">
-            <span class="bi bi-box-seam" aria-hidden="true"></span>
-        </div>
+        <div class="splash-logo"><span class="bi bi-box-seam" aria-hidden="true"></span></div>
         <h3>Cargando panel</h3>
         <p class="muted">Preparando todo para iniciar sesión…</p>
-
-        <div class="spinner">
-            <div></div><div></div><div></div>
-        </div>
+        <div class="spinner"><div></div><div></div><div></div></div>
     </div>
 </div>
 
 @code {
+    private readonly CancellationTokenSource _cts = new();
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        await Task.Delay(10000);
+        try
+        {
+            await Task.Delay(1500, _cts.Token);
+            Nav.NavigateTo("/login"); 
+        }
+        catch (TaskCanceledException)
+        {
+            // ignorar: el componente fue descartado antes de que termine el delay
+        }
+    }
 
-        Nav.NavigateTo("/login", forceLoad: true);
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
     }
 }
