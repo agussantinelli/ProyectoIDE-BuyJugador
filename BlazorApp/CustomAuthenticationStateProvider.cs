@@ -3,7 +3,7 @@ using Microsoft.JSInterop;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DTOs; // Necesitamos acceso a PersonaDTO
+using DTOs; 
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
@@ -56,10 +56,9 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.IdPersona.ToString()),
-            // ***** CORRECCIÓN APLICADA AQUÍ *****
             new Claim(ClaimTypes.Name, user.NombreCompleto),
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Rol) // Usamos el rol que viene en el DTO
+            new Claim(ClaimTypes.Role, user.Rol) 
         };
 
         var identity = new ClaimsIdentity(claims, "apiauth");
