@@ -1,5 +1,23 @@
+:root {
+    --bg-page: #0b1220;
+    --text: #e6edf6;
+    --text-muted: #a8b3cf;
+    --accent: #3b82f6;
+    --accent-600: #2563eb;
+    --accent-700: #1d4ed8;
+    --border: #253046;
+    --surface-1: #0f172a;
+    --surface-2: #111a2f;
+    --radius: 10px;
+    --shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    margin: 0;
+    height: 100%;
+    background: radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.15), transparent 60%), radial-gradient(1000px 500px at 90% 10%, rgba(99,102,241,.12), transparent 60%), var(--bg-page);
+    color: var(--text);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 }
 
 h1:focus {
@@ -7,23 +25,78 @@ h1:focus {
 }
 
 a, .btn-link {
-    color: #0071c1;
+    color: var(--accent);
+    text-decoration: none;
 }
+
+    a:hover, .btn-link:hover {
+        color: var(--accent-600);
+        text-decoration: underline;
+    }
+
+/* Botones globales */
+button, .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    padding: .5rem .9rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background .15s, border .15s, transform .05s;
+    font-weight: 600;
+}
+
+    button:hover, .btn:hover {
+        background: rgba(59,130,246,.12);
+        border-color: var(--accent);
+    }
+
+    button:active, .btn:active {
+        transform: translateY(1px);
+    }
 
 .btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background: var(--accent);
+    border-color: var(--accent-600);
+    color: white;
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    .btn-primary:hover {
+        background: var(--accent-600);
+    }
+
+.btn-danger {
+    border-color: #E74C3C;
+    color: #E74C3C;
 }
 
-.content {
-    padding-top: 1.1rem;
+    .btn-danger:hover {
+        background: #E74C3C;
+        color: white;
+    }
+
+/* Inputs globales */
+input[type="text"], input[type="number"], input[type="password"], select, textarea, .form-control {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1a2742;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: .55rem .7rem;
+    font-size: .95rem;
 }
 
+    input:focus, select:focus, textarea:focus, .form-control:focus {
+        border-color: var(--accent);
+        outline: none;
+        box-shadow: 0 0 0 .18rem rgba(59,130,246,.25);
+    }
+
+/* Validación */
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -36,23 +109,54 @@ a, .btn-link {
     color: red;
 }
 
+/* Utilidades globales */
+.text-end {
+    text-align: right;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.mt-2 {
+    margin-top: .5rem;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mb-2 {
+    margin-bottom: .5rem;
+}
+
+.mb-3 {
+    margin-bottom: 1rem;
+}
+
+/* Loader y error UI (Blazor default, pero con colores del tema) */
 #blazor-error-ui {
-    background: lightyellow;
+    background: #fff3cd;
+    color: #111;
     bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
     left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
     width: 100%;
+    display: none;
+    position: fixed;
     z-index: 1000;
+    padding: .6rem 1.25rem .7rem 3.7rem;
+    box-shadow: 0 -1px 2px rgba(0,0,0,.2);
 }
 
     #blazor-error-ui .dismiss {
         cursor: pointer;
         position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
+        right: .75rem;
+        top: .5rem;
     }
 
 .blazor-error-boundary {
@@ -62,7 +166,7 @@ a, .btn-link {
 }
 
     .blazor-error-boundary::after {
-        content: "An error has occurred."
+        content: "An error has occurred.";
     }
 
 .loading-progress {
@@ -76,22 +180,22 @@ a, .btn-link {
     .loading-progress circle {
         fill: none;
         stroke: #e0e0e0;
-        stroke-width: 0.6rem;
+        stroke-width: .6rem;
         transform-origin: 50% 50%;
         transform: rotate(-90deg);
     }
 
         .loading-progress circle:last-child {
-            stroke: #1b6ec2;
+            stroke: var(--accent-600);
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
-            transition: stroke-dasharray 0.05s ease-in-out;
+            transition: stroke-dasharray .05s ease-in-out;
         }
 
 .loading-progress-text {
     position: absolute;
     text-align: center;
     font-weight: bold;
-    inset: calc(20vh + 3.25rem) 0 auto 0.2rem;
+    inset: calc(20vh + 3.25rem) 0 auto .2rem;
 }
 
     .loading-progress-text:after {
@@ -99,5 +203,5 @@ a, .btn-link {
     }
 
 code {
-    color: #c02d76;
+    color: #ff79c6;
 }

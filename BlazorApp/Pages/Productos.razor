@@ -3,56 +3,77 @@
 @using DTOs
 @inject ProductoApiClient productoApiClient
 
-<div class="productos-container">
-    <div class="productos-header">
-        <h2>Gestión de Productos</h2>
-        <div class="buscar-box">
-            <input type="text" placeholder="Buscar producto..." @bind="textoBusqueda" @bind:event="oninput" />
-            <button @onclick="NuevoProducto">Nuevo</button>
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Gestión de Productos</h2>
+
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
+            <input class="tbl-input" type="text" placeholder="Buscar producto..."
+                   @bind="textoBusqueda" @bind:event="oninput" />
+            <button class="btn btn-primary" @onclick="NuevoProducto">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nuevo</span>
+            </button>
         </div>
     </div>
 
     @if (productosFiltrados == null)
     {
-        <p>Cargando productos...</p>
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando productos...
+        </div>
     }
     else if (!productosFiltrados.Any())
     {
-        <p>No se encontraron productos.</p>
+        <div class="tbl-state">
+            <i class="bi bi-inbox"></i> No se encontraron productos.
+        </div>
     }
     else
     {
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Tipo</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var p in productosFiltrados)
-                {
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
+                <thead>
                     <tr>
-                        <td>@p.Nombre</td>
-                        <td>@p.Descripcion</td>
-                        <td>@p.TipoProductoDescripcion</td>
-                        <td>@(p.PrecioActual?.ToString("C") ?? "-")</td>
-                        <td>@p.Stock</td>
-                        <td class="text-end table-actions">
-                            <button @onclick="() => VerDetalle(p)">👁</button>
-                            <button @onclick="() => Editar(p)">✏</button>
-                            <button class="btn-danger" @onclick="() => Eliminar(p)">🗑</button>
-                        </td>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Tipo</th>
+                        <th class="tbl-text-end">Precio</th>
+                        <th class="tbl-text-end">Stock</th>
+                        <th class="tbl-text-end">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var p in productosFiltrados)
+                    {
+                        <tr>
+                            <td class="tbl-truncate">@p.Nombre</td>
+                            <td class="tbl-muted tbl-truncate">@p.Descripcion</td>
+                            <td class="tbl-truncate">@p.TipoProductoDescripcion</td>
+                            <td class="tbl-text-end">@((p.PrecioActual ?? 0m).ToString("C"))</td>
+                            <td class="tbl-text-end">@p.Stock</td>
+                            <td class="tbl-text-end">
+                                <div class="tbl-actions">
+                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
+
 
 @code {
     private List<ProductoDTO>? productos;
@@ -76,13 +97,16 @@
             productosFiltrados = productos;
         else
             productosFiltrados = productos?
-                .Where(p => p.Nombre.Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
+                .Where(p => (p.Nombre ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                         || (p.Descripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
+                         || (p.TipoProductoDescripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
                 .ToList();
     }
 
     private void NuevoProducto() => Console.WriteLine("Nuevo producto");
     private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
     private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
+
     private async Task Eliminar(ProductoDTO p)
     {
         var response = await productoApiClient.DeleteAsync(p.IdProducto);
