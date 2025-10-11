@@ -1,71 +1,86 @@
 ﻿@page "/login"
-@layout EmptyLayout
-@attribute [AllowAnonymous]
-
-@using DTOs
+@layout Layout.EmptyLayout
 @using System.Net.Http.Json
-@inject HttpClient Http
+@using BlazorApp.Auth
+@inject IHttpClientFactory HttpFactory
+@inject CustomAuthenticationStateProvider Auth
+
 @inject NavigationManager Nav
-@inject AuthenticationStateProvider Auth
 
-<AuthorizeView Context="auth">
-    <NotAuthorized>
-        <div class="login-container">
-            <div class="card">
-                <div class="card-body">
-                    <h3>Iniciar Sesión</h3>
+<h3>Iniciar Sesión</h3>
 
-                    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
-                        <div class="form-group">
-                            <label for="dni">DNI</label>
-                            <InputNumber id="dni" class="form-control" @bind-Value="loginModel.Dni" />
-                        </div>
+<EditForm Model="_model" OnValidSubmit="OnSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-                        <div class="form-group mt-2">
-                            <label for="pwd">Contraseña</label>
-                            <InputText id="pwd" class="form-control" type="password"
-                                       autocomplete="current-password" @bind-Value="loginModel.Password" />
-                        </div>
+    <div class="mb-3">
+        <label>DNI</label>
+        <InputText class="form-control" @bind-Value="_model.Dni" />
+    </div>
+    <div class="mb-3">
+        <label>Contraseña</label>
+        <InputText class="form-control" @bind-Value="_model.Password" type="password" />
+    </div>
 
-                        <button type="submit" class="btn btn-primary mt-3">Login</button>
-
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            <div class="alert alert-danger mt-2">@errorMessage</div>
-                        }
-                    </EditForm>
-                </div>
-            </div>
-        </div>
-    </NotAuthorized>
-
-    <Authorized>
-        <RedirectTo Url="/inicio" />
-    </Authorized>
-</AuthorizeView>
+    <button class="btn btn-primary" disabled="@_loading">Login</button>
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <div class="text-danger mt-2">@_error</div>
+    }
+</EditForm>
 
 @code {
-    private class LoginModel { public int Dni { get; set; } public string Password { get; set; } = ""; }
-    private LoginModel loginModel = new();
-    private string? errorMessage;
+    private readonly LoginRequest _model = new();
+    private bool _loading;
+    private string? _error;
 
-    private async Task HandleLogin()
+    private async Task OnSubmit()
     {
+        _error = null;
+        _loading = true;
         try
         {
-            errorMessage = null;
-            var resp = await Http.PostAsJsonAsync("api/personas/login", loginModel);
-            if (resp.IsSuccessStatusCode)
+            var client = HttpFactory.CreateClient("NoAuth");
+
+            // ⚠️ Ajustá esta URL a tu endpoint real si difiere
+            var resp = await client.PostAsJsonAsync("auth/login", _model);
+
+            if (!resp.IsSuccessStatusCode)
             {
-                var user = await resp.Content.ReadFromJsonAsync<PersonaDTO>();
-                await ((CustomAuthenticationStateProvider)Auth).MarkUserAsAuthenticated(user!);
-                Nav.NavigateTo("/inicio");
+                _error = "Credenciales inválidas.";
+                return;
             }
-            else errorMessage = "DNI o contraseña incorrectos.";
+
+            // Suponemos que devuelve un string con el JWT. Si tu API devuelve { token: "..." } cambia esto.
+            var token = await resp.Content.ReadFromJsonAsync<string>();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _error = "La API no devolvió token.";
+                return;
+            }
+
+            await Auth.MarkUserAsAuthenticatedAsync(token);
+
+            var uri = new Uri(Nav.Uri);
+            var returnUrl = System.Web.HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
+            Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
         }
-        catch
+        catch (Exception ex)
         {
-            errorMessage = "Ocurrió un error al intentar iniciar sesión.";
+            _error = "Error al iniciar sesión: " + ex.Message;
         }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    public class LoginRequest
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Dni { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Password { get; set; } = string.Empty;
     }
 }

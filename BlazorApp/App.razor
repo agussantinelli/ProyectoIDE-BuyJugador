@@ -3,17 +3,16 @@
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <Authorizing>
-                    <p>Verificando autorización...</p>
+                    <div class="p-4">Autorizando...</div>
                 </Authorizing>
                 <NotAuthorized>
-                    <RedirectTo Url="/login" />
+                    <Shared.RedirectToLogin />
                 </NotAuthorized>
             </AuthorizeRouteView>
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
             <LayoutView Layout="@typeof(Layout.MainLayout)">
-                <p role="alert">Lo sentimos, no hay nada en esta dirección.</p>
+                <p class="p-4">Página no encontrada.</p>
             </LayoutView>
         </NotFound>
     </Router>

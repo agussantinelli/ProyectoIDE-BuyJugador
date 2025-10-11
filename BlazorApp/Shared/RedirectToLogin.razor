@@ -1,0 +1,16 @@
+﻿@inject NavigationManager Nav
+
+@code {
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Redirige al login y guarda la URL actual para volver luego si lo necesitás
+            Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Nav.Uri)}", forceLoad: false);
+        }
+    }
+}
+
+<div class="p-3">
+    Necesitás iniciar sesión. Redirigiendo…
+</div>

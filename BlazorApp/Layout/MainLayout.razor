@@ -1,5 +1,6 @@
-﻿@inherits LayoutComponentBase
-@inject AuthenticationStateProvider AuthStateProvider
+﻿@using BlazorApp.Auth
+@inherits LayoutComponentBase
+@inject CustomAuthenticationStateProvider Auth        
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
@@ -40,7 +41,7 @@
                 <Authorized>
                     <div class="user-area" role="group" aria-label="Área de usuario">
                         <span class="text-muted">Hola,</span>
-                        <strong>@authCtx.User.Identity!.Name</strong>
+                        <strong>@(authCtx?.User?.Identity?.Name ?? "Usuario")</strong>
                         <button class="btn btn-link" type="button" @onclick="Logout">Logout</button>
                     </div>
                 </Authorized>
@@ -71,10 +72,7 @@
 
             StateHasChanged();
         }
-        catch
-        {
-            // ignore
-        }
+        catch { /* ignore */ }
     }
 
     private async Task Toggle()
@@ -84,36 +82,25 @@
         {
             await TrySetLocalStorage("sidebarCollapsed", isCollapsed.ToString().ToLowerInvariant());
         }
-        catch { }
+        catch { /* ignore */ }
         StateHasChanged();
     }
 
     private async Task Logout()
     {
-        await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        Nav.NavigateTo("/login");
+        await Auth.MarkUserAsLoggedOut();            
+        Nav.NavigateTo("/login", forceLoad: true);
     }
 
     private async Task<string?> TryGetLocalStorage(string key)
     {
-        try
-        {
-            return await JS.InvokeAsync<string?>("localStorageHelper.getItem", key);
-        }
-        catch
-        {
-            return await JS.InvokeAsync<string?>("localStorage.getItem", key);
-        }
+        try { return await JS.InvokeAsync<string?>("localStorageHelper.getItem", key); }
+        catch { return await JS.InvokeAsync<string?>("localStorage.getItem", key); }
     }
+
     private async Task TrySetLocalStorage(string key, string value)
     {
-        try
-        {
-            await JS.InvokeVoidAsync("localStorageHelper.setItem", key, value);
-        }
-        catch
-        {
-            await JS.InvokeVoidAsync("localStorage.setItem", key, value);
-        }
+        try { await JS.InvokeVoidAsync("localStorageHelper.setItem", key, value); }
+        catch { await JS.InvokeVoidAsync("localStorage.setItem", key, value); }
     }
 }
