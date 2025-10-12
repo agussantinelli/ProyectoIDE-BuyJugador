@@ -5,6 +5,7 @@ using ApiClient;
 
 namespace WinForms
 {
+    // # Este formulario se mantiene como modal (usa ShowDialog).
     public partial class AsignarPrecioProductoProveedorForm : BaseForm
     {
         private readonly PrecioCompraApiClient _precioCompraApiClient;
@@ -29,11 +30,8 @@ namespace WinForms
             _idProveedor = idProveedor;
 
             this.Text = $"Asignar Precio a {nombreProducto}";
-
-            // --- TEXTO DIVIDIDO EN DOS ETIQUETAS ---
             lblProductoInfo.Text = $"Producto: '{nombreProducto}'";
             lblProveedorInfo.Text = $"Proveedor: '{razonSocial}'";
-
 
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
@@ -59,4 +57,3 @@ namespace WinForms
         }
     }
 }
-

@@ -22,8 +22,6 @@ namespace WinForms
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
@@ -45,17 +43,11 @@ namespace WinForms
             {
                 var localidades = await _localidadApiClient.GetAllOrderedAsync() ?? new();
                 var filtradas = localidades.Where(l => l.IdProvincia == idProvincia).ToList();
-                filtradas.Insert(0, new LocalidadDTO
-                {
-                    IdLocalidad = 0,
-                    Nombre = "-- Seleccione una localidad --"
-                });
-
+                filtradas.Insert(0, new LocalidadDTO { IdLocalidad = 0, Nombre = "-- Seleccione una localidad --" });
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
                 cmbLocalidad.SelectedIndex = 0;
-
             }
             else
             {
@@ -65,11 +57,9 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtRazonSocial.Text)
-                || string.IsNullOrWhiteSpace(txtCuit.Text))
+            if (string.IsNullOrWhiteSpace(txtRazonSocial.Text) || string.IsNullOrWhiteSpace(txtCuit.Text))
             {
-                MessageBox.Show("Ingrese Razón Social y CUIT.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Ingrese Razón Social y CUIT.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -86,19 +76,20 @@ namespace WinForms
             var resp = await _proveedorApiClient.CreateAsync(dto);
             if (resp.IsSuccessStatusCode)
             {
-                MessageBox.Show("Proveedor creado.", "Éxito",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Proveedor creado.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
+                this.Close(); // # REFACTORIZADO para MDI
             }
             else
             {
-                MessageBox.Show("No se pudo crear el proveedor.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("No se pudo crear el proveedor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
-            => DialogResult = DialogResult.Cancel;
+        {
+            DialogResult = DialogResult.Cancel;
+            this.Close(); // # REFACTORIZADO para MDI
+        }
     }
 }
-

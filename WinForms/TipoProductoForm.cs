@@ -13,13 +13,14 @@ namespace WinForms
     public partial class TipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
+        private readonly IServiceProvider _serviceProvider; // # Añadido para MDI
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
 
-        // # REFACTORIZADO: Un solo constructor que usa IServiceProvider.
         public TipoProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
+            _serviceProvider = serviceProvider; // # Añadido para MDI
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
 
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
@@ -82,30 +83,37 @@ namespace WinForms
                 dgvTiposProducto.DataSource = _tiposCache
                     .Where(t => t.Descripcion != null && t.Descripcion.ToLower().Contains(f))
                     .ToList();
+
             ConfigurarColumnas();
         }
 
         private TipoProductoDTO? ObtenerSeleccionado()
         {
-            var row = dgvTiposProducto.SelectedRows.Count > 0
-                ? dgvTiposProducto.SelectedRows[0]
-                : dgvTiposProducto.CurrentRow;
+            var row = dgvTiposProducto.SelectedRows.Count > 0 ? dgvTiposProducto.SelectedRows[0] : dgvTiposProducto.CurrentRow;
             return row?.DataBoundItem as TipoProductoDTO;
         }
 
         // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            var form = new CrearTipoProductoForm(_tipoProductoApiClient);
-            form.MdiParent = this.MdiParent;
-            form.FormClosed += async (s, args) => {
-                if (form.DialogResult == DialogResult.OK)
-                {
-                    await CargarTipos();
-                    AplicarFiltro();
-                }
-            };
-            form.Show();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearTipoProductoForm>().FirstOrDefault();
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new CrearTipoProductoForm(_tipoProductoApiClient);
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarTipos();
+                        AplicarFiltro();
+                    }
+                };
+                form.Show();
+            }
         }
 
         // # REFACTORIZADO para MDI
@@ -114,16 +122,27 @@ namespace WinForms
             var tipo = ObtenerSeleccionado();
             if (tipo == null) return;
 
-            var form = new EditarTipoProductoForm(_tipoProductoApiClient, tipo);
-            form.MdiParent = this.MdiParent;
-            form.FormClosed += async (s, args) => {
-                if (form.DialogResult == DialogResult.OK)
-                {
-                    await CargarTipos();
-                    AplicarFiltro();
-                }
-            };
-            form.Show();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<EditarTipoProductoForm>()
+                .FirstOrDefault(f => f.Tag is int tipoId && tipoId == tipo.IdTipoProducto);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new EditarTipoProductoForm(_tipoProductoApiClient, tipo);
+                form.Tag = tipo.IdTipoProducto;
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += async (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        await CargarTipos();
+                        AplicarFiltro();
+                    }
+                };
+                form.Show();
+            }
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
@@ -157,3 +176,4 @@ namespace WinForms
         }
     }
 }
+

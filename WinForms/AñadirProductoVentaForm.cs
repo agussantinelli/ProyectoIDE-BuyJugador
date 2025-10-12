@@ -5,7 +5,9 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class AñadirProductoVentaForm : Form
+    // # Este formulario se mantiene como modal (usa ShowDialog).
+    // # Se le hace heredar de BaseForm para consistencia de estilo.
+    public partial class AñadirProductoVentaForm : BaseForm
     {
         public ProductoDTO ProductoSeleccionado { get; private set; }
         public int CantidadSeleccionada { get; private set; }
@@ -34,7 +36,6 @@ namespace WinForms
                 dgvProductos.Columns["PrecioActual"].HeaderText = "Precio";
                 dgvProductos.Columns["PrecioActual"].DefaultCellStyle.Format = "C2";
 
-                // Ocultar columnas no relevantes
                 dgvProductos.Columns["IdProducto"].Visible = false;
                 dgvProductos.Columns["IdTipoProducto"].Visible = false;
                 dgvProductos.Columns["Activo"].Visible = false;
@@ -79,4 +80,3 @@ namespace WinForms
         }
     }
 }
-

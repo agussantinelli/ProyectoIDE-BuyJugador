@@ -27,20 +27,16 @@ namespace WinForms
             _localidadApiClient = localidadApiClient;
             _persona = persona;
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void EditarPersonaForm_Load(object sender, EventArgs e)
         {
-            // Cargar datos no editables
             txtId.Text = _persona.IdPersona.ToString();
-            txtNombreCompleto.Text = _persona.NombreCompleto; // Corregido: Usar NombreCompleto
-            txtDni.Text = _persona.Dni.ToString(); // Corregido: Usar Dni
+            txtNombreCompleto.Text = _persona.NombreCompleto;
+            txtDni.Text = _persona.Dni.ToString();
 
-            // Configurar campos como solo lectura
             txtId.ReadOnly = true;
             txtId.BackColor = Color.LightGray;
             txtNombreCompleto.ReadOnly = true;
@@ -48,7 +44,6 @@ namespace WinForms
             txtDni.ReadOnly = true;
             txtDni.BackColor = Color.LightGray;
 
-            // Cargar datos editables
             txtEmail.Text = _persona.Email;
             txtTelefono.Text = _persona.Telefono;
             txtDireccion.Text = _persona.Direccion;
@@ -64,7 +59,6 @@ namespace WinForms
                 if (localidadActual != null && localidadActual.IdProvincia.HasValue)
                 {
                     cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
-                    // Corregido: se accede a .Value para el tipo no nulable
                     await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
                     cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
@@ -85,12 +79,7 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            var confirm = MessageBox.Show(
-                "⚠️ Se modificarán los datos de la persona.\\n¿Desea continuar?",
-                "Confirmar edición",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
+            var confirm = MessageBox.Show("⚠️ Se modificarán los datos de la persona.\n¿Desea continuar?", "Confirmar edición", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
             _persona.Email = txtEmail.Text.Trim();
@@ -100,15 +89,15 @@ namespace WinForms
 
             await _personaApiClient.UpdateAsync(_persona.IdPersona, _persona);
 
-            MessageBox.Show("Persona actualizada exitosamente.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            MessageBox.Show("Persona actualizada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
+            this.Close(); // # REFACTORIZADO para MDI
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+            this.Close(); // # REFACTORIZADO para MDI
         }
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
@@ -120,4 +109,3 @@ namespace WinForms
         }
     }
 }
-

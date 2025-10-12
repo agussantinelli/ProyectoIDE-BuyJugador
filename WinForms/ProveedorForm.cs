@@ -81,16 +81,23 @@ namespace WinForms
         // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
-            var form = new CrearProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient);
-            form.MdiParent = this.MdiParent;
-            form.FormClosed += async (s, args) => {
-                if (form.DialogResult == DialogResult.OK)
-                {
-                    await CargarDatosIniciales();
-                    AplicarFiltro();
-                }
-            };
-            form.Show();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<CrearProveedorForm>().FirstOrDefault();
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new CrearProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient);
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        ProveedorForm_Load(this, EventArgs.Empty);
+                    }
+                };
+                form.Show();
+            }
         }
 
         // # REFACTORIZADO para MDI
@@ -98,20 +105,29 @@ namespace WinForms
         {
             var seleccionado = ObtenerSeleccionado(dgvActivos);
             if (seleccionado == null) return;
-
             var proveedorDto = _activosCache.FirstOrDefault(p => p.IdProveedor == seleccionado.IdProveedor);
             if (proveedorDto == null) return;
 
-            var form = new EditarProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient, proveedorDto);
-            form.MdiParent = this.MdiParent;
-            form.FormClosed += async (s, args) => {
-                if (form.DialogResult == DialogResult.OK)
-                {
-                    await CargarDatosIniciales();
-                    AplicarFiltro();
-                }
-            };
-            form.Show();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<EditarProveedorForm>()
+                .FirstOrDefault(f => f.Tag is int provId && provId == proveedorDto.IdProveedor);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new EditarProveedorForm(_proveedorApiClient, _provinciaApiClient, _localidadApiClient, proveedorDto);
+                form.Tag = proveedorDto.IdProveedor;
+                form.MdiParent = this.MdiParent;
+                form.FormClosed += (s, args) => {
+                    if (form.DialogResult == DialogResult.OK)
+                    {
+                        ProveedorForm_Load(this, EventArgs.Empty);
+                    }
+                };
+                form.Show();
+            }
         }
 
         // # REFACTORIZADO para MDI
@@ -120,15 +136,25 @@ namespace WinForms
             var seleccionado = ObtenerSeleccionado(dgvActivos);
             if (seleccionado == null) return;
 
-            var form = new AsignarProductosProveedorForm(
-                seleccionado.IdProveedor,
-                seleccionado.RazonSocial,
-                _productoApiClient,
-                _productoProveedorApiClient,
-                _precioCompraApiClient
-            );
-            form.MdiParent = this.MdiParent;
-            form.Show();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<AsignarProductosProveedorForm>()
+                .FirstOrDefault(f => f.Tag is int provId && provId == seleccionado.IdProveedor);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new AsignarProductosProveedorForm(
+                    seleccionado.IdProveedor,
+                    seleccionado.RazonSocial,
+                    _productoApiClient,
+                    _productoProveedorApiClient,
+                    _precioCompraApiClient);
+                form.Tag = seleccionado.IdProveedor;
+                form.MdiParent = this.MdiParent;
+                form.Show();
+            }
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
@@ -189,7 +215,10 @@ namespace WinForms
             ActualizarBotones();
         }
 
-        private void dgv_SelectionChanged(object sender, EventArgs e) => ActualizarBotones();
+        private void dgv_SelectionChanged(object sender, EventArgs e)
+        {
+            ActualizarBotones();
+        }
 
         private ProveedorRow? ObtenerSeleccionado(DataGridView dgv)
         {
@@ -245,6 +274,7 @@ namespace WinForms
             dgv.AllowUserToDeleteRows = false;
         }
 
+
         private void ActualizarBotones()
         {
             bool esActivos = tabControlProveedores.SelectedTab == tabPageActivos;
@@ -262,8 +292,8 @@ namespace WinForms
             public string Email { get; set; }
             public string Telefono { get; set; }
             public string Direccion { get; set; }
-            public string LocalidadNombre { get; set; }
-            public string ProvinciaNombre { get; set; }
+            public string? LocalidadNombre { get; set; }
+            public string? ProvinciaNombre { get; set; }
 
             public static ProveedorRow From(ProveedorDTO p, List<LocalidadDTO> locs, List<ProvinciaDTO> provs)
             {
@@ -284,3 +314,4 @@ namespace WinForms
         }
     }
 }
+

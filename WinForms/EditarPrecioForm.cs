@@ -7,6 +7,8 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
+    // # REFACTORIZADO: Este formulario se mantiene como un diálogo modal, 
+    // # pero ahora hereda de BaseForm para consistencia de estilo.
     public partial class EditarPrecioForm : BaseForm
     {
         private readonly PrecioVentaApiClient _precioApiClient;
@@ -21,8 +23,6 @@ namespace WinForms
             _idProducto = idProducto;
             _nombreProducto = nombreProducto ?? "";
             _precioActual = precioActual;
-
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
@@ -72,13 +72,9 @@ namespace WinForms
                     MessageBox.Show($"No se pudo guardar el precio. Código: {(int)resp.StatusCode}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-            catch (HttpRequestException ex)
-            {
-                MessageBox.Show($"Error de red: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error inesperado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

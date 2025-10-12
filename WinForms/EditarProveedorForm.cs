@@ -27,20 +27,16 @@ namespace WinForms
             _localidadApiClient = localidadApiClient;
             _proveedor = proveedor;
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
         private async void EditarProveedorForm_Load(object sender, EventArgs e)
         {
-            // Cargar datos no editables
             txtId.Text = _proveedor.IdProveedor.ToString();
             txtRazonSocial.Text = _proveedor.RazonSocial;
             txtCuit.Text = _proveedor.Cuit;
 
-            // Configurar campos como solo lectura
             txtId.ReadOnly = true;
             txtId.BackColor = Color.LightGray;
             txtRazonSocial.ReadOnly = true;
@@ -48,7 +44,6 @@ namespace WinForms
             txtCuit.ReadOnly = true;
             txtCuit.BackColor = Color.LightGray;
 
-            // Cargar datos editables
             txtEmail.Text = _proveedor.Email;
             txtTelefono.Text = _proveedor.Telefono;
             txtDireccion.Text = _proveedor.Direccion;
@@ -64,7 +59,6 @@ namespace WinForms
                 if (localidadActual != null && localidadActual.IdProvincia.HasValue)
                 {
                     cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
-                    // Corregido: se accede a .Value para el tipo no nulable
                     await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
                     cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
                 }
@@ -89,15 +83,9 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            var confirm = MessageBox.Show(
-                "⚠️ Se modificarán los datos del proveedor.\\n¿Desea continuar?",
-                "Confirmar edición",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
+            var confirm = MessageBox.Show("⚠️ Se modificarán los datos del proveedor.\n¿Desea continuar?", "Confirmar edición", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
-            // Actualizar solo los campos editables del DTO
             _proveedor.Email = txtEmail.Text.Trim();
             _proveedor.Telefono = txtTelefono.Text.Trim();
             _proveedor.Direccion = txtDireccion.Text.Trim();
@@ -106,19 +94,20 @@ namespace WinForms
             var resp = await _proveedorApiClient.UpdateAsync(_proveedor.IdProveedor, _proveedor);
             if (resp.IsSuccessStatusCode)
             {
-                MessageBox.Show("Proveedor actualizado.", "Éxito",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Proveedor actualizado.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
+                this.Close(); // # REFACTORIZADO para MDI
             }
             else
             {
-                MessageBox.Show("No se pudo actualizar el proveedor.", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("No se pudo actualizar el proveedor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
-            => DialogResult = DialogResult.Cancel;
+        {
+            DialogResult = DialogResult.Cancel;
+            this.Close(); // # REFACTORIZADO para MDI
+        }
     }
 }
-

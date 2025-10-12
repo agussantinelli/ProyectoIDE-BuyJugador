@@ -14,8 +14,6 @@ namespace WinForms
             InitializeComponent();
             _tipoProductoApiClient = tipoProductoApiClient;
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
@@ -29,8 +27,7 @@ namespace WinForms
         {
             if (string.IsNullOrWhiteSpace(txtDescripcion.Text))
             {
-                MessageBox.Show("Debe ingresar una descripción.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe ingresar una descripción.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -41,16 +38,15 @@ namespace WinForms
 
             await _tipoProductoApiClient.CreateAsync(dto);
 
-            MessageBox.Show("Tipo de producto creado exitosamente.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            MessageBox.Show("Tipo de producto creado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
+            this.Close(); // # REFACTORIZADO para MDI
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
+            this.Close(); // # REFACTORIZADO para MDI
         }
     }
 }
-

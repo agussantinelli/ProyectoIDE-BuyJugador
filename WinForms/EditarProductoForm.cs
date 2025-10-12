@@ -20,8 +20,6 @@ namespace WinForms
             _productoApiClient = productoApiClient;
             _tipoProductoApiClient = tipoProductoApiClient;
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
@@ -35,12 +33,10 @@ namespace WinForms
             cmbTipoProducto.DisplayMember = "Descripcion";
             cmbTipoProducto.ValueMember = "IdTipoProducto";
 
-            // Cargar datos no editables
             txtId.Text = _producto.IdProducto.ToString();
             txtNombre.Text = _producto.Nombre;
             txtPrecio.Text = _producto.PrecioActual?.ToString("C2") ?? "N/A";
 
-            // Configurar campos como solo lectura
             txtId.ReadOnly = true;
             txtId.BackColor = Color.LightGray;
             txtNombre.ReadOnly = true;
@@ -48,7 +44,6 @@ namespace WinForms
             txtPrecio.ReadOnly = true;
             txtPrecio.BackColor = Color.LightGray;
 
-            // Cargar datos editables
             txtDescripcion.Text = _producto.Descripcion;
             numStock.Value = _producto.Stock;
             if (_producto.IdTipoProducto.HasValue)
@@ -59,7 +54,6 @@ namespace WinForms
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
-            // Actualizar solo los datos pertinentes del producto
             _producto.Descripcion = txtDescripcion.Text;
             _producto.Stock = (int)numStock.Value;
             _producto.IdTipoProducto = (int)cmbTipoProducto.SelectedValue;
@@ -76,4 +70,3 @@ namespace WinForms
         }
     }
 }
-

@@ -23,7 +23,7 @@ namespace WinForms
         public PersonaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider; // # Guardamos el IServiceProvider
+            _serviceProvider = serviceProvider; // # Añadido para MDI
             _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
@@ -113,9 +113,7 @@ namespace WinForms
 
         private PersonaDTO? ObtenerSeleccionado(DataGridView dgv)
         {
-            return dgv.SelectedRows.Count > 0
-                ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO
-                : null;
+            return dgv.SelectedRows.Count > 0 ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO : null;
         }
 
         // # REFACTORIZADO para MDI
@@ -245,3 +243,4 @@ namespace WinForms
         }
     }
 }
+

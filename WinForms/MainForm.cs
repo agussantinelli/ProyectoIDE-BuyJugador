@@ -47,12 +47,8 @@ namespace WinForms
             }
         }
 
-        // # CAMBIO CLAVE Y DEFINITIVO
         private void MainForm_MdiChildActivate(object sender, EventArgs e)
         {
-            // # Usamos BeginInvoke para asegurarnos de que nuestro código se ejecute DESPUÉS
-            // # de que WinForms termine de procesar el evento actual (como el cierre de una ventana).
-            // # Esto gana la "carrera de condiciones" y evita que el MdiClient tape nuestro panel.
             this.BeginInvoke(new Action(() =>
             {
                 if (menuPanel != null)
@@ -84,29 +80,7 @@ namespace WinForms
             localidadesMenuItem.Click += (s, e) => AbrirFormulario<LocalidadForm>();
             verMenuItem.DropDownItems.AddRange(new ToolStripItem[] { provinciasMenuItem, localidadesMenuItem });
 
-            var windowsMenu = new ToolStripMenuItem("Ventanas");
-            var cascadeMenuItem = new ToolStripMenuItem("Cascada");
-            var tileVerticalMenuItem = new ToolStripMenuItem("Mosaico Vertical");
-            var tileHorizontalMenuItem = new ToolStripMenuItem("Mosaico Horizontal");
-            var closeAllMenuItem = new ToolStripMenuItem("Cerrar Todas");
-
-            cascadeMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.Cascade);
-            tileVerticalMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.TileVertical);
-            tileHorizontalMenuItem.Click += (s, e) => this.LayoutMdi(MdiLayout.TileHorizontal);
-            closeAllMenuItem.Click += (s, e) => {
-                foreach (Form childForm in this.MdiChildren.ToArray())
-                {
-                    childForm.Close();
-                }
-            };
-
-            windowsMenu.DropDownItems.AddRange(new ToolStripItem[] {
-                cascadeMenuItem,
-                tileVerticalMenuItem,
-                tileHorizontalMenuItem,
-                new ToolStripSeparator(),
-                closeAllMenuItem
-            });
+            // # Menú "Ventanas" eliminado como se solicitó.
 
             var btnCerrarSesion = new ToolStripMenuItem("Cerrar Sesión")
             {
@@ -123,7 +97,6 @@ namespace WinForms
             };
 
             menuStrip1.Items.Add(verMenuItem);
-            menuStrip1.Items.Add(windowsMenu);
             menuStrip1.Items.Add(btnCerrarSesion);
             menuStrip1.Items.Add(usuarioLabel);
         }

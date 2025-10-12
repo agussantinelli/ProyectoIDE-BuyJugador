@@ -17,25 +17,11 @@ namespace WinForms
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
         private readonly PrecioCompraApiClient _precioCompraApiClient;
 
-        // Clases internas para manejar las grillas de forma separada
-        private class ProductoDisponibleRow
-        {
-            public int IdProducto { get; set; }
-            public string Nombre { get; set; }
-            public string Descripcion { get; set; }
-        }
-
-        private class ProductoAsignadoRow
-        {
-            public int IdProducto { get; set; }
-            public string Nombre { get; set; }
-            public string Descripcion { get; set; }
-            public decimal PrecioCompra { get; set; }
-        }
+        private class ProductoDisponibleRow { public int IdProducto { get; set; } public string Nombre { get; set; } public string Descripcion { get; set; } }
+        private class ProductoAsignadoRow { public int IdProducto { get; set; } public string Nombre { get; set; } public string Descripcion { get; set; } public decimal PrecioCompra { get; set; } }
 
         private BindingList<ProductoDisponibleRow> _disponiblesBindingList = new();
         private BindingList<ProductoAsignadoRow> _asignadosBindingList = new();
-
         private HashSet<int> _initialAssignedIds;
 
         public AsignarProductosProveedorForm(
@@ -53,7 +39,6 @@ namespace WinForms
             _precioCompraApiClient = precioCompraApiClient;
 
             this.Text = $"Asignar Productos a {_razonSocial}";
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyDataGridViewStyle(dgvDisponibles);
             StyleManager.ApplyDataGridViewStyle(dgvAsignados);
@@ -69,12 +54,10 @@ namespace WinForms
             {
                 var todosLosProductosTask = _productoApiClient.GetAllAsync();
                 var productosAsignadosTask = _productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(_idProveedor);
-
                 await Task.WhenAll(todosLosProductosTask, productosAsignadosTask);
 
                 var todosLosProductos = todosLosProductosTask.Result;
                 var productosAsignadosConPrecio = productosAsignadosTask.Result;
-
                 _initialAssignedIds = new HashSet<int>(productosAsignadosConPrecio.Select(p => p.IdProducto));
 
                 var productosDisponibles = todosLosProductos
@@ -126,6 +109,7 @@ namespace WinForms
             });
         }
 
+        // # REFACTORIZADO: Se mantiene modal, es un formulario de ayuda.
         private void btnAsignar_Click(object sender, EventArgs e)
         {
             if (dgvDisponibles.CurrentRow?.DataBoundItem is ProductoDisponibleRow productoSeleccionado)
@@ -171,7 +155,6 @@ namespace WinForms
             try
             {
                 var finalAssignedIds = new HashSet<int>(_asignadosBindingList.Select(p => p.IdProducto));
-
                 var idsToRemove = _initialAssignedIds.Except(finalAssignedIds).ToList();
                 foreach (var idProducto in idsToRemove)
                 {
@@ -182,10 +165,8 @@ namespace WinForms
                 foreach (var idProducto in idsToAdd)
                 {
                     var productoAsignado = _asignadosBindingList.First(p => p.IdProducto == idProducto);
-
                     var ppDto = new ProductoProveedorDTO { IdProducto = idProducto, IdProveedor = _idProveedor };
                     await _productoProveedorApiClient.CreateAsync(ppDto);
-
                     var pcDto = new PrecioCompraDTO { IdProducto = idProducto, IdProveedor = _idProveedor, Monto = productoAsignado.PrecioCompra };
                     await _precioCompraApiClient.CreateAsync(pcDto);
                 }
@@ -207,4 +188,3 @@ namespace WinForms
         }
     }
 }
-

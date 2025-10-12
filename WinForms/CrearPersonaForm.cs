@@ -22,7 +22,6 @@ namespace WinForms
             _personaApiClient = personaApiClient;
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
@@ -32,12 +31,10 @@ namespace WinForms
         {
             cmbRol.Items.Add("Dueño");
             cmbRol.Items.Add("Empleado");
-            cmbRol.SelectedIndex = 1; 
+            cmbRol.SelectedIndex = 1;
 
             var provincias = await _provinciaApiClient.GetAllAsync();
-
             provincias.Insert(0, new ProvinciaDTO { IdProvincia = 0, Nombre = "-- Seleccionar provincia --" });
-
             cmbProvincia.DataSource = provincias;
             cmbProvincia.DisplayMember = "Nombre";
             cmbProvincia.ValueMember = "IdProvincia";
@@ -52,18 +49,11 @@ namespace WinForms
                 var filtradas = localidades?
                     .Where(l => l.IdProvincia == idProvincia)
                     .ToList();
-
-                filtradas.Insert(0, new LocalidadDTO
-                {
-                    IdLocalidad = 0,
-                    Nombre = "-- Seleccione una localidad --"
-                });
-
+                filtradas.Insert(0, new LocalidadDTO { IdLocalidad = 0, Nombre = "-- Seleccione una localidad --" });
                 cmbLocalidad.DataSource = filtradas;
                 cmbLocalidad.DisplayMember = "Nombre";
                 cmbLocalidad.ValueMember = "IdLocalidad";
                 cmbLocalidad.SelectedIndex = 0;
-
             }
             else
             {
@@ -71,13 +61,11 @@ namespace WinForms
             }
         }
 
-
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtNombreCompleto.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
             {
-                MessageBox.Show("Debe ingresar nombre completo y email.", "Atención",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe ingresar nombre completo y email.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -90,22 +78,20 @@ namespace WinForms
                 Telefono = txtTelefono.Text.Trim(),
                 Direccion = txtDireccion.Text.Trim(),
                 IdLocalidad = ((LocalidadDTO)cmbLocalidad.SelectedItem)?.IdLocalidad,
-                FechaIngreso = cmbRol.SelectedItem?.ToString() == "Empleado"
-                ? DateOnly.FromDateTime(DateTime.Today)
-                : null
-
+                FechaIngreso = cmbRol.SelectedItem?.ToString() == "Empleado" ? DateOnly.FromDateTime(DateTime.Today) : null
             };
 
             await _personaApiClient.CreateAsync(persona);
 
-            MessageBox.Show("Persona creada exitosamente.", "Éxito",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            MessageBox.Show("Persona creada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
+            this.Close();
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e) =>
+        private void btnCancelar_Click(object sender, EventArgs e)
+        {
             DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
     }
 }
-

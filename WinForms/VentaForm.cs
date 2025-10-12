@@ -54,7 +54,6 @@ namespace WinForms
             ActualizarEstadoBotones();
         }
 
-
         private void ConfigurarVisibilidadControles()
         {
             bool esAdmin = _userSessionService.EsAdmin;
@@ -73,7 +72,6 @@ namespace WinForms
                 {
                     foreach (var venta in ventas)
                     {
-                        // # Recalculamos el total en el cliente por si la API devuelve 0
                         venta.Total = venta.Lineas?.Sum(l => l.Subtotal) ?? 0;
                     }
                 }
@@ -173,20 +171,18 @@ namespace WinForms
             }
 
             var form = _serviceProvider.GetRequiredService<CrearVentaForm>();
-            form.MdiParent = this.MdiParent; // # Asigna el MDI Parent
-
-            // # Nos suscribimos al evento FormClosed para saber si debemos recargar la grilla.
+            form.MdiParent = this.MdiParent;
             form.FormClosed += async (s, args) => {
-                // # El DialogResult se sigue asignando dentro del CrearVentaForm antes de cerrarse.
                 if (form.DialogResult == DialogResult.OK)
                 {
                     await CargarVentas();
                 }
             };
-
-            form.Show(); // # Usa Show() en lugar de ShowDialog()
+            form.Show();
         }
 
+        // # REFACTORIZADO para MDI:
+        // # Aplica el patrón de abrir formulario hijo, pasando solo el ID y suscribiéndose a FormClosed.
         private void btnVerDetalle_Click(object sender, EventArgs e)
         {
             if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
@@ -218,8 +214,16 @@ namespace WinForms
                     _serviceProvider);
 
                 detalleForm.Tag = selectedVenta.IdVenta;
-                detalleForm.MdiParent = this.MdiParent; // # Asigna el MDI Parent
-                detalleForm.Show(); // # Usa Show() en lugar de ShowDialog()
+                detalleForm.MdiParent = this.MdiParent;
+
+                // # Se suscribe al evento FormClosed para refrescar si hubo cambios.
+                detalleForm.FormClosed += async (s, args) => {
+                    if (detalleForm.DialogResult == DialogResult.OK)
+                    {
+                        await CargarVentas();
+                    }
+                };
+                detalleForm.Show();
             }
         }
 

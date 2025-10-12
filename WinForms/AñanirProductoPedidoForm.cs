@@ -4,7 +4,9 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class AñanirProductoPedidoForm : Form
+    // # Este formulario se mantiene como modal (usa ShowDialog).
+    // # Se le hace heredar de BaseForm para consistencia de estilo.
+    public partial class AñanirProductoPedidoForm : BaseForm
     {
         public LineaPedidoDTO LineaPedido { get; private set; }
         private readonly ProductoDTO _producto;
@@ -46,4 +48,3 @@ namespace WinForms
         }
     }
 }
-

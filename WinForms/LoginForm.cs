@@ -4,6 +4,7 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
+    // # El Login DEBE ser modal. Su lógica no cambia.
     public partial class LoginForm : BaseForm
     {
         private readonly PersonaApiClient _personaApiClient;
@@ -15,7 +16,6 @@ namespace WinForms
             _personaApiClient = personaApiClient;
             _userSessionService = userSessionService;
 
-            // Aplicar estilos
             StyleManager.ApplyButtonStyle(btnLogin);
         }
 

@@ -113,12 +113,16 @@ namespace WinForms
             ActualizarEstadoBotones();
         }
 
-        // # REFACTORIZADO para MDI
         private void btnVerDetalle_Click(object sender, EventArgs e)
         {
-            if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedidoSeleccionado) return;
+            if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedidoSeleccionado)
+            {
+                MessageBox.Show("Por favor, seleccione un pedido para ver su detalle.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
 
-            var existingForm = this.MdiParent?.MdiChildren.OfType<DetallePedidoForm>()
+            var existingForm = this.MdiParent?.MdiChildren
+                .OfType<DetallePedidoForm>()
                 .FirstOrDefault(f => f.Tag is int pedidoId && pedidoId == pedidoSeleccionado.IdPedido);
 
             if (existingForm != null)
@@ -127,11 +131,21 @@ namespace WinForms
             }
             else
             {
-                var detalleForm = _serviceProvider.GetRequiredService<DetallePedidoForm>();
-                detalleForm.Pedido = pedidoSeleccionado;
-                detalleForm.EsAdmin = _userSessionService.EsAdmin;
-                detalleForm.Tag = pedidoSeleccionado.IdPedido; // Guardamos el ID
-                detalleForm.MdiParent = this.MdiParent; // Asignamos el padre
+                // # CORRECCIÓN: Se resuelve cada dependencia necesaria del ServiceProvider
+                // # y se pasa al nuevo constructor del formulario de detalle.
+                var pedidoApiClient = _serviceProvider.GetRequiredService<PedidoApiClient>();
+                var productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
+
+                var detalleForm = new DetallePedidoForm(
+                    pedidoSeleccionado.IdPedido,
+                    _userSessionService.EsAdmin,
+                    pedidoApiClient,
+                    productoApiClient,
+                    _serviceProvider
+                );
+
+                detalleForm.Tag = pedidoSeleccionado.IdPedido;
+                detalleForm.MdiParent = this.MdiParent;
 
                 detalleForm.FormClosed += async (s, args) => {
                     if (detalleForm.DialogResult == DialogResult.OK)
@@ -140,32 +154,29 @@ namespace WinForms
                     }
                 };
 
-                detalleForm.Show(); // Usamos Show()
+                detalleForm.Show();
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnNuevoPedido_Click(object sender, EventArgs e)
         {
             var existingForm = this.MdiParent?.MdiChildren.OfType<CrearPedidoForm>().FirstOrDefault();
             if (existingForm != null)
             {
                 existingForm.BringToFront();
+                return;
             }
-            else
-            {
-                var crearPedidoForm = _serviceProvider.GetRequiredService<CrearPedidoForm>();
-                crearPedidoForm.MdiParent = this.MdiParent;
 
-                crearPedidoForm.FormClosed += async (s, args) => {
-                    if (crearPedidoForm.DialogResult == DialogResult.OK)
-                    {
-                        await CargarPedidos();
-                    }
-                };
+            var form = _serviceProvider.GetRequiredService<CrearPedidoForm>();
+            form.MdiParent = this.MdiParent;
 
-                crearPedidoForm.Show();
-            }
+            form.FormClosed += async (s, args) => {
+                if (form.DialogResult == DialogResult.OK)
+                {
+                    await CargarPedidos();
+                }
+            };
+            form.Show();
         }
 
         private async void btnEliminar_Click(object sender, EventArgs e)
@@ -261,3 +272,4 @@ namespace WinForms
         private void FiltrosChanged(object sender, EventArgs e) => AplicarFiltros();
     }
 }
+

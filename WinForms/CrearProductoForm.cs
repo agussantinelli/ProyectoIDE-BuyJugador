@@ -2,12 +2,6 @@
 using DTOs;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -22,8 +16,6 @@ namespace WinForms
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _tipoProductoApiClient = tipoProductoApiClient;
-
-            this.StartPosition = FormStartPosition.CenterScreen;
 
             StyleManager.ApplyButtonStyle(btnCrear);
             StyleManager.ApplyButtonStyle(btnCancelar);
@@ -58,6 +50,7 @@ namespace WinForms
                 productoDto.Precios.Add(precioDto);
 
                 await _productoApiClient.CreateAsync(productoDto);
+                this.DialogResult = DialogResult.OK; // # REFACTORIZADO para MDI
                 this.Close();
             }
             else
@@ -68,8 +61,8 @@ namespace WinForms
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
+            this.DialogResult = DialogResult.Cancel; // # REFACTORIZADO para MDI
             this.Close();
         }
     }
 }
-

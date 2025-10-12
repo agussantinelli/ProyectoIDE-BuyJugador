@@ -24,8 +24,6 @@ namespace WinForms
             _idProducto = idProducto;
             _nombreProducto = nombreProducto ?? "";
 
-            this.StartPosition = FormStartPosition.CenterScreen;
-
             StyleManager.ApplyDataGridViewStyle(dgvHistorial);
             StyleManager.ApplyButtonStyle(btnCerrar);
             StyleManager.ApplyButtonStyle(btnRefrescar);
@@ -49,10 +47,6 @@ namespace WinForms
 
                 dgvHistorial.DataSource = _cache;
                 ConfigurarColumnas();
-            }
-            catch (HttpRequestException ex)
-            {
-                MessageBox.Show($"Error de red: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {

@@ -8,7 +8,6 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-
 namespace WinForms
 {
     public partial class CrearVentaForm : BaseForm
@@ -18,11 +17,9 @@ namespace WinForms
         private readonly UserSessionService _userSessionService;
         private readonly PrecioVentaApiClient _precioVentaApiClient;
 
-
         private List<ProductoDTO> _productosDisponibles;
         private BindingList<LineaVentaDTO> _lineasVentaActual;
         private int _nroLineaCounter = 1;
-
 
         public CrearVentaForm(ProductoApiClient productoApiClient, VentaApiClient ventaApiClient, UserSessionService userSessionService, PrecioVentaApiClient precioVentaApiClient)
         {
@@ -32,13 +29,8 @@ namespace WinForms
             _userSessionService = userSessionService;
             _precioVentaApiClient = precioVentaApiClient;
 
-
             _productosDisponibles = new List<ProductoDTO>();
             _lineasVentaActual = new BindingList<LineaVentaDTO>();
-
-
-            this.StartPosition = FormStartPosition.CenterScreen;
-
 
             StyleManager.ApplyDataGridViewStyle(dataGridLineasVenta);
             StyleManager.ApplyButtonStyle(btnAgregarProducto);
@@ -47,14 +39,12 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
-
         private async void CrearVentaForm_Load(object sender, EventArgs e)
         {
             await CargarProductos();
             ConfigurarGrilla();
             dataGridLineasVenta.DataSource = _lineasVentaActual;
         }
-
 
         private async Task CargarProductos()
         {
@@ -75,22 +65,16 @@ namespace WinForms
             }
         }
 
-
         private void ConfigurarGrilla()
         {
             dataGridLineasVenta.AutoGenerateColumns = false;
             dataGridLineasVenta.Columns.Clear();
-
-
             dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
             dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = false });
             dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = { Format = "C2" }, ReadOnly = true });
             dataGridLineasVenta.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = { Format = "C2" }, ReadOnly = true });
-
-
             dataGridLineasVenta.CellEndEdit += DataGridLineasVenta_CellEndEdit;
         }
-
 
         private async void btnAgregarProducto_Click(object sender, EventArgs e)
         {
@@ -100,14 +84,12 @@ namespace WinForms
                 return;
             }
 
-
             var cantidadDeseada = (int)numCantidad.Value;
             if (cantidadDeseada <= 0)
             {
                 MessageBox.Show("La cantidad debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
 
             try
             {
@@ -118,17 +100,14 @@ namespace WinForms
                     return;
                 }
 
-
                 var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
                 var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
-
 
                 if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
                 {
                     MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'.", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
-
 
                 if (lineaExistente != null)
                 {
@@ -146,7 +125,6 @@ namespace WinForms
                     });
                 }
 
-
                 _lineasVentaActual.ResetBindings();
                 ActualizarTotal();
                 cmbProductos.SelectedIndex = -1;
@@ -160,11 +138,9 @@ namespace WinForms
             }
         }
 
-
         private void DataGridLineasVenta_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.ColumnIndex != dataGridLineasVenta.Columns["Cantidad"].Index) return;
-
 
             if (dataGridLineasVenta.Rows[e.RowIndex].DataBoundItem is LineaVentaDTO linea)
             {
@@ -192,7 +168,6 @@ namespace WinForms
             }
         }
 
-
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
             if (dataGridLineasVenta.CurrentRow?.DataBoundItem is LineaVentaDTO lineaSeleccionada)
@@ -202,13 +177,11 @@ namespace WinForms
             }
         }
 
-
         private void ActualizarTotal()
         {
             decimal total = _lineasVentaActual.Sum(l => l.Subtotal);
             lblTotalVenta.Text = $"Total: {total:C}";
         }
-
 
         private async void btnFinalizarVenta_Click(object sender, EventArgs e)
         {
@@ -223,14 +196,12 @@ namespace WinForms
                 return;
             }
 
-
             var ventaCompletaDto = new CrearVentaCompletaDTO
             {
                 IdPersona = _userSessionService.CurrentUser.IdPersona,
                 Lineas = _lineasVentaActual.ToList(),
                 Finalizada = chkMarcarFinalizada.Checked
             };
-
 
             try
             {
@@ -246,8 +217,10 @@ namespace WinForms
             }
         }
 
-
-        private void btnCancelar_Click(object sender, EventArgs e) => this.Close();
+        private void btnCancelar_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
     }
 }
-
