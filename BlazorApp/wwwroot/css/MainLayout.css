@@ -2,7 +2,7 @@
     display: grid;
     grid-template-columns: 240px 1fr;
     min-height: 100vh;
-    background: transparent; 
+    background: transparent;
 }
 
 .sidebar {
@@ -10,27 +10,28 @@
     border-right: 1px solid var(--border, #253046);
     transition: width .15s ease;
     width: 240px;
-    overflow-x: hidden;
-}
-
-    .sidebar.collapsed {
-        width: 72px;
-    }
-
-.brand {
     display: flex;
-    align-items: center;
-    gap: .5rem;
-    padding: 1rem .9rem;
-    color: var(--text);
+    flex-direction: column;
+    align-items: stretch;
 }
 
-    .brand .bi {
-        font-size: 1.2rem;
-    }
+.sidebar-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 64px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.4rem;
+}
 
-.brand-name {
-    white-space: nowrap;
+.menu-toggle {
+    width: 2.4rem;
+    height: 2.4rem;
+    font-size: 1.2rem;
+}
+
+.sidebar.collapsed {
+    width: 72px;
 }
 
 .sidebar nav {
@@ -63,12 +64,6 @@
     display: none;
 }
 
-.main {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
 .topbar {
     display: flex;
     align-items: center;
@@ -76,23 +71,34 @@
     gap: 1rem;
     background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75));
     border-bottom: 1px solid var(--border);
-    padding: .6rem .8rem;
+    padding: .6rem 1rem;
 }
 
-.icon-btn {
-    display: inline-grid;
-    place-items: center;
-    width: 2.2rem;
-    height: 2.2rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: transparent;
-    color: var(--text);
+.brand-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    flex: 1;
+    cursor: pointer;
+    transition: transform .2s ease, text-shadow .3s ease;
 }
 
-    .icon-btn:hover {
-        background: rgba(59,130,246,.12);
+    .brand-centered:hover {
+        transform: scale(1.05);
+        text-shadow: 0 0 10px rgba(59,130,246,.6);
     }
+
+    .brand-centered .bi {
+        font-size: 1.5rem;
+        color: var(--accent, #3b82f6);
+    }
+
+.brand-title {
+    font-size: 1.2rem;
+    color: var(--text, #fff);
+    user-select: none;
+}
 
 .user-area {
     display: flex;
@@ -112,5 +118,9 @@
 
     .sidebar {
         width: 72px;
+    }
+
+    .sidebar-top {
+        justify-content: center;
     }
 }

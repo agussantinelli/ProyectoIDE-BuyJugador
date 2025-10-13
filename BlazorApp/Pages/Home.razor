@@ -26,8 +26,7 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        @* Esto no debería renderizarse nunca gracias a App.razor, pero es una buena práctica tenerlo. *@
-        <RedirectToLogin />
+        <RedirectTo Url="/login" />
     </NotAuthorized>
 </AuthorizeView>
 
@@ -59,6 +58,6 @@
         {
             await JS.InvokeVoidAsync("localStorage.setItem", "hideWelcome", "1");
         }
-        catch { /* Ignorar errores de JS si el prerendering está deshabilitado */ }
+        catch { }
     }
 }
