@@ -3,6 +3,7 @@ using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,8 +13,8 @@ namespace WinForms
     public partial class VentaForm : BaseForm
     {
         private readonly VentaApiClient _ventaApiClient;
-        private readonly IServiceProvider _serviceProvider;
         private readonly UserSessionService _userSessionService;
+        private readonly IServiceProvider _serviceProvider;
         private List<VentaDTO> _todasLasVentas;
 
         public VentaForm(
@@ -67,15 +68,6 @@ namespace WinForms
             try
             {
                 var ventas = await _ventaApiClient.GetAllAsync();
-
-                if (ventas != null)
-                {
-                    foreach (var venta in ventas)
-                    {
-                        venta.Total = venta.Lineas?.Sum(l => l.Subtotal) ?? 0;
-                    }
-                }
-
                 _todasLasVentas = ventas?.OrderByDescending(v => v.Fecha).ToList() ?? new List<VentaDTO>();
             }
             catch (Exception ex)
@@ -181,8 +173,6 @@ namespace WinForms
             form.Show();
         }
 
-        // # REFACTORIZADO para MDI:
-        // # Aplica el patrón de abrir formulario hijo, pasando solo el ID y suscribiéndose a FormClosed.
         private void btnVerDetalle_Click(object sender, EventArgs e)
         {
             if (dataGridVentas.CurrentRow?.DataBoundItem is not VentaDTO selectedVenta)
@@ -201,22 +191,18 @@ namespace WinForms
             }
             else
             {
-                var ventaApiClient = _serviceProvider.GetRequiredService<VentaApiClient>();
-                var lineaVentaApiClient = _serviceProvider.GetRequiredService<LineaVentaApiClient>();
-                var productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
-
+                // # CORRECCIÓN: Se crea la instancia de DetalleVentaForm con los 5 argumentos correctos.
                 var detalleForm = new DetalleVentaForm(
                     selectedVenta.IdVenta,
                     _userSessionService.EsAdmin,
-                    ventaApiClient,
-                    lineaVentaApiClient,
-                    productoApiClient,
-                    _serviceProvider);
+                    _serviceProvider.GetRequiredService<VentaApiClient>(),
+                    _serviceProvider.GetRequiredService<ProductoApiClient>(),
+                    _serviceProvider
+                );
 
                 detalleForm.Tag = selectedVenta.IdVenta;
                 detalleForm.MdiParent = this.MdiParent;
 
-                // # Se suscribe al evento FormClosed para refrescar si hubo cambios.
                 detalleForm.FormClosed += async (s, args) => {
                     if (detalleForm.DialogResult == DialogResult.OK)
                     {

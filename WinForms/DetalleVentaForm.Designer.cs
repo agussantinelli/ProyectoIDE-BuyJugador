@@ -17,150 +17,152 @@
 
         private void InitializeComponent()
         {
-            dataGridDetalle = new DataGridView();
-            lblIdVenta = new Label();
-            lblFecha = new Label();
-            lblVendedor = new Label();
-            lblTotal = new Label();
-            btnCerrar = new Button();
-            btnAgregarLinea = new Button();
-            btnEliminarLinea = new Button();
-            btnEditarCantidad = new Button();
-            btnConfirmarCambios = new Button();
-            ((System.ComponentModel.ISupportInitialize)dataGridDetalle).BeginInit();
-            SuspendLayout();
+            dataGridDetalle = new System.Windows.Forms.DataGridView();
+            lblIdVenta = new System.Windows.Forms.Label();
+            lblFecha = new System.Windows.Forms.Label();
+            lblVendedor = new System.Windows.Forms.Label();
+            lblTotal = new System.Windows.Forms.Label();
+            btnCerrar = new System.Windows.Forms.Button();
+            btnAgregarLinea = new System.Windows.Forms.Button();
+            btnEliminarLinea = new System.Windows.Forms.Button();
+            btnEditarCantidad = new System.Windows.Forms.Button();
+            btnConfirmarCambios = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(dataGridDetalle)).BeginInit();
+            this.SuspendLayout();
             // 
             // dataGridDetalle
             // 
-            dataGridDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dataGridDetalle.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridDetalle.Location = new Point(12, 77);
+            dataGridDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            dataGridDetalle.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridDetalle.Location = new System.Drawing.Point(12, 77);
             dataGridDetalle.MultiSelect = false;
             dataGridDetalle.Name = "dataGridDetalle";
-            dataGridDetalle.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridDetalle.Size = new Size(760, 329);
+            dataGridDetalle.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            dataGridDetalle.Size = new System.Drawing.Size(760, 329);
             dataGridDetalle.TabIndex = 0;
-            dataGridDetalle.CellEndEdit += dataGridDetalle_CellEndEdit;
-            dataGridDetalle.SelectionChanged += dataGridDetalle_SelectionChanged;
+            dataGridDetalle.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridDetalle_CellEndEdit);
+            dataGridDetalle.SelectionChanged += new System.EventHandler(this.dataGridDetalle_SelectionChanged);
             // 
             // lblIdVenta
             // 
             lblIdVenta.AutoSize = true;
-            lblIdVenta.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblIdVenta.Location = new Point(12, 10);
+            lblIdVenta.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            lblIdVenta.Location = new System.Drawing.Point(12, 10);
             lblIdVenta.Name = "lblIdVenta";
-            lblIdVenta.Size = new Size(95, 21);
+            lblIdVenta.Size = new System.Drawing.Size(95, 21);
             lblIdVenta.TabIndex = 1;
             lblIdVenta.Text = "ID Venta: ...";
             // 
             // lblFecha
             // 
             lblFecha.AutoSize = true;
-            lblFecha.Location = new Point(12, 44);
+            lblFecha.Location = new System.Drawing.Point(12, 44);
             lblFecha.Name = "lblFecha";
-            lblFecha.Size = new Size(75, 20);
+            lblFecha.Size = new System.Drawing.Size(75, 20);
             lblFecha.TabIndex = 2;
             lblFecha.Text = "Fecha: ...";
             // 
             // lblVendedor
             // 
             lblVendedor.AutoSize = true;
-            lblVendedor.Location = new Point(200, 44);
+            lblVendedor.Location = new System.Drawing.Point(200, 44);
             lblVendedor.Name = "lblVendedor";
-            lblVendedor.Size = new Size(104, 20);
+            lblVendedor.Size = new System.Drawing.Size(104, 20);
             lblVendedor.TabIndex = 3;
             lblVendedor.Text = "Vendedor: ...";
             // 
             // lblTotal
             // 
-            lblTotal.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            lblTotal.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            lblTotal.Location = new Point(572, 419);
+            lblTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            lblTotal.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            lblTotal.Location = new System.Drawing.Point(572, 9);
             lblTotal.Name = "lblTotal";
-            lblTotal.Size = new Size(200, 28);
+            lblTotal.Size = new System.Drawing.Size(200, 28);
             lblTotal.TabIndex = 4;
             lblTotal.Text = "Total: $0.00";
-            lblTotal.TextAlign = ContentAlignment.MiddleRight;
+            lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnCerrar
             // 
-            btnCerrar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnCerrar.Location = new Point(697, 464);
+            btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            btnCerrar.Location = new System.Drawing.Point(697, 464);
             btnCerrar.Name = "btnCerrar";
-            btnCerrar.Size = new Size(75, 34);
+            btnCerrar.Size = new System.Drawing.Size(75, 34);
             btnCerrar.TabIndex = 5;
             btnCerrar.Text = "Cerrar";
             btnCerrar.UseVisualStyleBackColor = true;
-            btnCerrar.Click += btnCerrar_Click;
+            btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
             // 
             // btnAgregarLinea
             // 
-            btnAgregarLinea.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnAgregarLinea.Location = new Point(12, 464);
+            btnAgregarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            btnAgregarLinea.Location = new System.Drawing.Point(12, 464);
             btnAgregarLinea.Name = "btnAgregarLinea";
-            btnAgregarLinea.Size = new Size(120, 34);
+            btnAgregarLinea.Size = new System.Drawing.Size(120, 34);
             btnAgregarLinea.TabIndex = 6;
             btnAgregarLinea.Text = "Agregar Producto";
             btnAgregarLinea.UseVisualStyleBackColor = true;
-            btnAgregarLinea.Click += btnAgregarLinea_Click;
+            btnAgregarLinea.Click += new System.EventHandler(this.btnAgregarLinea_Click);
             // 
             // btnEliminarLinea
             // 
-            btnEliminarLinea.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEliminarLinea.Location = new Point(138, 464);
+            btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            btnEliminarLinea.Location = new System.Drawing.Point(138, 464);
             btnEliminarLinea.Name = "btnEliminarLinea";
-            btnEliminarLinea.Size = new Size(120, 34);
+            btnEliminarLinea.Size = new System.Drawing.Size(120, 34);
             btnEliminarLinea.TabIndex = 7;
             btnEliminarLinea.Text = "Eliminar Producto";
             btnEliminarLinea.UseVisualStyleBackColor = true;
-            btnEliminarLinea.Click += btnEliminarLinea_Click;
+            btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
             // 
             // btnEditarCantidad
             // 
-            btnEditarCantidad.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEditarCantidad.Location = new Point(264, 464);
+            btnEditarCantidad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            btnEditarCantidad.Location = new System.Drawing.Point(264, 464);
             btnEditarCantidad.Name = "btnEditarCantidad";
-            btnEditarCantidad.Size = new Size(120, 34);
+            btnEditarCantidad.Size = new System.Drawing.Size(120, 34);
             btnEditarCantidad.TabIndex = 8;
             btnEditarCantidad.Text = "Editar Cantidad";
             btnEditarCantidad.UseVisualStyleBackColor = true;
-            btnEditarCantidad.Click += btnEditarCantidad_Click;
+            btnEditarCantidad.Click += new System.EventHandler(this.btnEditarCantidad_Click);
             // 
             // btnConfirmarCambios
             // 
-            btnConfirmarCambios.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnConfirmarCambios.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             btnConfirmarCambios.Enabled = false;
-            btnConfirmarCambios.Location = new Point(551, 464);
+            btnConfirmarCambios.Location = new System.Drawing.Point(551, 464);
             btnConfirmarCambios.Name = "btnConfirmarCambios";
-            btnConfirmarCambios.Size = new Size(140, 34);
+            btnConfirmarCambios.Size = new System.Drawing.Size(140, 34);
             btnConfirmarCambios.TabIndex = 9;
             btnConfirmarCambios.Text = "Confirmar Cambios";
             btnConfirmarCambios.UseVisualStyleBackColor = true;
-            btnConfirmarCambios.Click += btnConfirmarCambios_Click;
+            btnConfirmarCambios.Click += new System.EventHandler(this.btnConfirmarCambios_Click);
             // 
             // DetalleVentaForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 511);
-            Controls.Add(btnConfirmarCambios);
-            Controls.Add(btnEditarCantidad);
-            Controls.Add(btnEliminarLinea);
-            Controls.Add(btnAgregarLinea);
-            Controls.Add(btnCerrar);
-            Controls.Add(lblTotal);
-            Controls.Add(lblVendedor);
-            Controls.Add(lblFecha);
-            Controls.Add(lblIdVenta);
-            Controls.Add(dataGridDetalle);
-            MinimumSize = new Size(800, 550);
-            Name = "DetalleVentaForm";
-            StartPosition = FormStartPosition.CenterParent;
-            Text = "Detalle de Venta";
-            Load += DetalleVentaForm_Load;
-            ((System.ComponentModel.ISupportInitialize)dataGridDetalle).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(784, 511);
+            this.Controls.Add(btnConfirmarCambios);
+            this.Controls.Add(btnEditarCantidad);
+            this.Controls.Add(btnEliminarLinea);
+            this.Controls.Add(btnAgregarLinea);
+            this.Controls.Add(btnCerrar);
+            this.Controls.Add(lblTotal);
+            this.Controls.Add(lblVendedor);
+            this.Controls.Add(lblFecha);
+            this.Controls.Add(lblIdVenta);
+            this.Controls.Add(dataGridDetalle);
+            this.MinimumSize = new System.Drawing.Size(800, 550);
+            this.Name = "DetalleVentaForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Detalle de Venta";
+            this.Load += new System.EventHandler(this.DetalleVentaForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(dataGridDetalle)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

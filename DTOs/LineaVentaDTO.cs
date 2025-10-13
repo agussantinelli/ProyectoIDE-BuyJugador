@@ -8,10 +8,12 @@
         public int NroLineaVenta { get; set; }
         public string NombreProducto { get; set; } = "N/A";
         public decimal PrecioUnitario { get; set; }
-        public decimal Subtotal { get; set; } = 0;
+
+        // # CORRECCIÓN: Subtotal ahora es una propiedad calculada de solo lectura.
+        public decimal Subtotal => Cantidad * PrecioUnitario;
         public bool EsNueva { get; set; } = false;
 
-        public static LineaVentaDTO FromDominio(DominioModelo.LineaVenta entidad)
+        public static LineaVentaDTO? FromDominio(DominioModelo.LineaVenta entidad)
         {
             if (entidad == null) return null;
 
@@ -21,6 +23,7 @@
                 IdVenta = entidad.IdVenta,
                 IdProducto = entidad.IdProducto,
                 NroLineaVenta = entidad.NroLineaVenta,
+                PrecioUnitario = entidad.PrecioUnitario,
                 NombreProducto = entidad.IdProductoNavigation?.Nombre ?? "Producto no encontrado"
             };
         }
@@ -32,7 +35,8 @@
                 Cantidad = this.Cantidad,
                 IdVenta = this.IdVenta,
                 IdProducto = this.IdProducto,
-                NroLineaVenta = this.NroLineaVenta
+                NroLineaVenta = this.NroLineaVenta,
+                PrecioUnitario = this.PrecioUnitario
             };
         }
     }

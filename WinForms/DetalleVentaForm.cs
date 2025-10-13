@@ -5,46 +5,34 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
     public partial class DetalleVentaForm : BaseForm
     {
-        // # Campos privados para manejar el estado interno del formulario.
         private readonly int _ventaId;
         private VentaDTO _venta;
         private readonly bool _esAdmin;
-
         private BindingList<LineaVentaDTO> _lineasDeVenta;
-
-        // # Inyección de todos los ApiClients que este formulario necesita para ser autónomo.
         private readonly VentaApiClient _ventaApiClient;
-        private readonly LineaVentaApiClient _lineaVentaApiClient;
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
-
         private List<ProductoDTO> _todosLosProductos;
         private bool _datosModificados = false;
 
-        // # CONSTRUCTOR REFACTORIZADO:
-        // # Ahora recibe el ID de la venta y todos los servicios que necesita para funcionar por sí mismo.
+        // # CORRECCIÓN: Se elimina LineaVentaApiClient del constructor
         public DetalleVentaForm(
             int ventaId,
             bool esAdmin,
             VentaApiClient ventaApiClient,
-            LineaVentaApiClient lineaVentaApiClient,
             ProductoApiClient productoApiClient,
             IServiceProvider serviceProvider)
         {
             InitializeComponent();
-
-            // # Asignación de valores en el constructor para asegurar que estén disponibles desde el inicio.
             _ventaId = ventaId;
             _esAdmin = esAdmin;
             _ventaApiClient = ventaApiClient;
-            _lineaVentaApiClient = lineaVentaApiClient;
             _productoApiClient = productoApiClient;
             _serviceProvider = serviceProvider;
 
@@ -53,7 +41,6 @@ namespace WinForms
 
             this.StartPosition = FormStartPosition.CenterScreen;
 
-            // # Configuración de estilos (sin cambios).
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
             StyleManager.ApplyButtonStyle(btnEditarCantidad);
@@ -62,14 +49,11 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnConfirmarCambios);
         }
 
-        // # MÉTODO LOAD REFACTORIZADO:
-        // # Orquesta la carga de TODOS los datos necesarios para este formulario.
         private async void DetalleVentaForm_Load(object sender, EventArgs e)
         {
             this.Cursor = Cursors.WaitCursor;
             try
             {
-                // # 1. Cargar los datos de la cabecera de la venta usando el ID.
                 _venta = await _ventaApiClient.GetByIdAsync(_ventaId);
                 if (_venta == null)
                 {
@@ -78,23 +62,20 @@ namespace WinForms
                     return;
                 }
 
-                // # 2. Cargar la lista completa de productos para usarla al agregar nuevas líneas.
                 _todosLosProductos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
 
-                // # 3. Cargar las líneas de detalle específicas de ESTA venta.
-                var lineas = await _lineaVentaApiClient.GetLineasByVentaIdAsync(_ventaId);
-                _lineasDeVenta = new BindingList<LineaVentaDTO>(lineas ?? new List<LineaVentaDTO>());
+                // # CORRECCIÓN: Las líneas vienen dentro del VentaDTO.
+                _lineasDeVenta = new BindingList<LineaVentaDTO>(_venta.Lineas ?? new List<LineaVentaDTO>());
 
-                // # 4. Poblar la interfaz de usuario con los datos cargados.
                 lblIdVenta.Text = $"ID Venta: {_venta.IdVenta}";
                 lblFecha.Text = $"Fecha: {_venta.Fecha:dd/MM/yyyy HH:mm}";
                 lblVendedor.Text = $"Vendedor: {_venta.NombreVendedor}";
 
                 ConfigurarVisibilidadControles();
-                RefrescarGrid();
+                dataGridDetalle.DataSource = _lineasDeVenta;
+                ConfigurarColumnas();
                 ActualizarTotal();
 
-                btnEditarCantidad.Enabled = false;
                 btnConfirmarCambios.Enabled = false;
             }
             catch (Exception ex)
@@ -110,16 +91,17 @@ namespace WinForms
         private void ConfigurarVisibilidadControles()
         {
             bool ventaPendiente = "Pendiente".Equals(_venta.Estado, StringComparison.OrdinalIgnoreCase);
+            bool puedeEditar = _esAdmin && ventaPendiente;
 
-            btnAgregarLinea.Visible = _esAdmin && ventaPendiente;
-            btnEliminarLinea.Visible = _esAdmin && ventaPendiente;
-            btnConfirmarCambios.Visible = _esAdmin && ventaPendiente;
-            btnEditarCantidad.Visible = _esAdmin && ventaPendiente;
-            dataGridDetalle.ReadOnly = !_esAdmin || !ventaPendiente;
+            btnAgregarLinea.Visible = puedeEditar;
+            btnEliminarLinea.Visible = puedeEditar;
+            btnConfirmarCambios.Visible = puedeEditar;
+            btnEditarCantidad.Visible = puedeEditar;
+            dataGridDetalle.ReadOnly = !puedeEditar;
 
-            if (!dataGridDetalle.ReadOnly && dataGridDetalle.Columns.Contains("Cantidad"))
+            if (dataGridDetalle.Columns.Contains("Cantidad"))
             {
-                dataGridDetalle.Columns["Cantidad"].ReadOnly = false;
+                dataGridDetalle.Columns["Cantidad"].ReadOnly = !puedeEditar;
             }
         }
 
@@ -127,22 +109,10 @@ namespace WinForms
         {
             dataGridDetalle.AutoGenerateColumns = false;
             dataGridDetalle.Columns.Clear();
-
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", HeaderText = "Producto", DataPropertyName = "NombreProducto", ReadOnly = true, AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad", ReadOnly = !(_esAdmin && "Pendiente".Equals(_venta.Estado, StringComparison.OrdinalIgnoreCase)) });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad" });
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "PrecioUnitario", HeaderText = "Precio Unit.", DataPropertyName = "PrecioUnitario", ReadOnly = true, DefaultCellStyle = { Format = "C2" } });
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subtotal", HeaderText = "Subtotal", DataPropertyName = "Subtotal", ReadOnly = true, DefaultCellStyle = { Format = "C2" } });
-        }
-
-        private void RefrescarGrid()
-        {
-            dataGridDetalle.DataSource = null;
-            if (_lineasDeVenta.Any())
-            {
-                // # El DTO ya trae el Subtotal calculado desde el backend, por lo que podemos enlazarlo directamente.
-                dataGridDetalle.DataSource = _lineasDeVenta;
-                ConfigurarColumnas();
-            }
         }
 
         private void ActualizarTotal()
@@ -187,11 +157,9 @@ namespace WinForms
                     PrecioUnitario = (decimal)productoSeleccionado.PrecioActual,
                     EsNueva = true
                 };
-                nuevaLinea.Subtotal = nuevaLinea.Cantidad * nuevaLinea.PrecioUnitario;
 
                 _lineasDeVenta.Add(nuevaLinea);
                 MarcarComoModificado();
-                RefrescarGrid();
                 ActualizarTotal();
             }
         }
@@ -209,17 +177,17 @@ namespace WinForms
             {
                 _lineasDeVenta.Remove(lineaSeleccionada);
                 MarcarComoModificado();
-                RefrescarGrid();
                 ActualizarTotal();
             }
         }
 
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
-            if (dataGridDetalle.CurrentRow == null) return;
-
-            dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
-            dataGridDetalle.BeginEdit(true);
+            if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
+            {
+                dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
+                dataGridDetalle.BeginEdit(true);
+            }
         }
 
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
@@ -227,11 +195,6 @@ namespace WinForms
             this.Cursor = Cursors.WaitCursor;
             try
             {
-                for (int i = 0; i < _lineasDeVenta.Count; i++)
-                {
-                    _lineasDeVenta[i].NroLineaVenta = i + 1;
-                }
-
                 var dto = new CrearVentaCompletaDTO
                 {
                     IdVenta = _venta.IdVenta,
@@ -296,7 +259,8 @@ namespace WinForms
             var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaEditada.IdProducto);
             if (producto == null) return;
 
-            int cantidadOriginalEnVenta = _venta.Lineas.FirstOrDefault(l => l.IdProducto == lineaEditada.IdProducto)?.Cantidad ?? 0;
+            // # CORRECCIÓN: Usamos la propiedad correcta 'Lineas' del DTO '_venta'.
+            int cantidadOriginalEnVenta = _venta.Lineas.FirstOrDefault(l => l.NroLineaVenta == lineaEditada.NroLineaVenta)?.Cantidad ?? 0;
             int stockDisponible = producto.Stock + cantidadOriginalEnVenta;
 
             if (nuevaCantidad > stockDisponible)
@@ -308,7 +272,6 @@ namespace WinForms
             }
 
             lineaEditada.Cantidad = nuevaCantidad;
-            lineaEditada.Subtotal = nuevaCantidad * lineaEditada.PrecioUnitario;
 
             MarcarComoModificado();
             _lineasDeVenta.ResetItem(e.RowIndex);
@@ -318,8 +281,8 @@ namespace WinForms
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
             bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            btnEliminarLinea.Enabled = hayFilaSeleccionada && _esAdmin;
-            btnEditarCantidad.Enabled = hayFilaSeleccionada && _esAdmin;
+            btnEliminarLinea.Enabled = hayFilaSeleccionada;
+            btnEditarCantidad.Enabled = hayFilaSeleccionada;
         }
     }
 }

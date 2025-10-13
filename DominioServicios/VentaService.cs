@@ -12,132 +12,155 @@ namespace DominioServicios
     public class VentaService
     {
         private readonly BuyJugadorContext _context;
-        private readonly PrecioVentaService _precioVentaService;
 
-        public VentaService(BuyJugadorContext context, PrecioVentaService precioVentaService)
+        public VentaService(BuyJugadorContext context)
         {
             _context = context;
-            _precioVentaService = precioVentaService;
         }
 
+        // # REFACTORIZADO: Lógica optimizada para evitar errores de EF Core y mejorar el rendimiento.
         public async Task<Venta> CrearVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var strategy = _context.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
             {
-                var nuevaVenta = new Venta
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    IdPersona = dto.IdPersona,
-                    Fecha = DateTime.UtcNow,
-                    Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
-                };
-                _context.Ventas.Add(nuevaVenta);
-                await _context.SaveChangesAsync();
-
-                foreach (var (lineaDto, index) in dto.Lineas.Select((value, i) => (value, i)))
-                {
-                    if (!lineaDto.IdProducto.HasValue)
-                        throw new InvalidOperationException("Se intentó agregar un producto sin ID.");
-
-                    var precioVigente = await _precioVentaService.GetPrecioVigenteAsync(lineaDto.IdProducto.Value);
-                    if (precioVigente == null)
-                        throw new InvalidOperationException($"El producto ID {lineaDto.IdProducto} no tiene un precio de venta vigente.");
-
-                    var producto = await _context.Productos.FindAsync(lineaDto.IdProducto.Value);
-                    if (producto == null || producto.Stock < lineaDto.Cantidad)
-                        throw new InvalidOperationException($"Stock insuficiente para el producto ID {lineaDto.IdProducto}.");
-
-                    var nuevaLinea = new LineaVenta
+                    var nuevaVenta = new Venta
                     {
-                        IdVenta = nuevaVenta.IdVenta,
-                        NroLineaVenta = index + 1,
-                        IdProducto = lineaDto.IdProducto,
-                        Cantidad = lineaDto.Cantidad,
-                        PrecioUnitario = precioVigente.Monto
+                        IdPersona = dto.IdPersona,
+                        Fecha = DateTime.UtcNow,
+                        Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
                     };
-                    _context.LineaVentas.Add(nuevaLinea);
+                    _context.Ventas.Add(nuevaVenta);
+                    await _context.SaveChangesAsync(); // Guardar para obtener el ID de la venta
 
-                    producto.Stock -= lineaDto.Cantidad;
+                    var idsProductos = dto.Lineas.Where(l => l.IdProducto.HasValue).Select(l => l.IdProducto!.Value).Distinct().ToList();
+                    var productosAfectados = await _context.Productos
+                        .Include(p => p.PreciosVenta)
+                        .Where(p => idsProductos.Contains(p.IdProducto) && p.Activo)
+                        .ToDictionaryAsync(p => p.IdProducto);
+
+                    int nroLineaCounter = 1;
+                    foreach (var lineaDto in dto.Lineas)
+                    {
+                        if (!lineaDto.IdProducto.HasValue || !productosAfectados.TryGetValue(lineaDto.IdProducto.Value, out var producto))
+                        {
+                            throw new InvalidOperationException($"El producto ID {lineaDto.IdProducto} no es válido o no está activo.");
+                        }
+
+                        if (producto.Stock < lineaDto.Cantidad)
+                        {
+                            throw new InvalidOperationException($"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Stock}, Solicitado: {lineaDto.Cantidad}.");
+                        }
+
+                        var precioVigente = producto.PreciosVenta
+                            .OrderByDescending(p => p.FechaDesde)
+                            .FirstOrDefault()?.Monto;
+
+                        if (!precioVigente.HasValue)
+                        {
+                            throw new InvalidOperationException($"El producto '{producto.Nombre}' no tiene un precio de venta vigente.");
+                        }
+
+                        _context.LineaVentas.Add(new LineaVenta
+                        {
+                            IdVenta = nuevaVenta.IdVenta,
+                            NroLineaVenta = nroLineaCounter++,
+                            IdProducto = lineaDto.IdProducto,
+                            Cantidad = lineaDto.Cantidad,
+                            PrecioUnitario = precioVigente.Value
+                        });
+
+                        producto.Stock -= lineaDto.Cantidad;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return nuevaVenta;
                 }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-                return nuevaVenta;
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            });
         }
 
+        // # REFACTORIZADO: Lógica optimizada para manejar el stock en una sola transacción.
         public async Task UpdateVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var strategy = _context.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
-                var ventaExistente = await _context.Ventas
-                    .Include(v => v.LineaVenta)
-                    .FirstOrDefaultAsync(v => v.IdVenta == dto.IdVenta);
-
-                if (ventaExistente == null)
-                    throw new KeyNotFoundException("La venta que intenta modificar no existe.");
-
-                if (ventaExistente.Estado.Equals("Finalizada", StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("No se puede modificar una venta que ya ha sido finalizada.");
-
-                foreach (var lineaOriginal in ventaExistente.LineaVenta)
+                using var transaction = await _context.Database.BeginTransactionAsync();
+                try
                 {
-                    var producto = await _context.Productos.FindAsync(lineaOriginal.IdProducto);
-                    if (producto != null)
+                    var ventaExistente = await _context.Ventas
+                        .Include(v => v.LineaVenta)
+                        .FirstOrDefaultAsync(v => v.IdVenta == dto.IdVenta);
+
+                    if (ventaExistente == null)
+                        throw new KeyNotFoundException("La venta que intenta modificar no existe.");
+
+                    if (ventaExistente.Estado.Equals("Finalizada", StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidOperationException("No se puede modificar una venta que ya ha sido finalizada.");
+
+                    var cantidadesOriginales = ventaExistente.LineaVenta.ToDictionary(l => l.IdProducto.Value, l => l.Cantidad);
+                    var cantidadesNuevas = dto.Lineas.ToDictionary(l => l.IdProducto.Value, l => l.Cantidad);
+                    var idsProductosAfectados = cantidadesOriginales.Keys.Union(cantidadesNuevas.Keys).ToList();
+
+                    var productosAfectados = await _context.Productos
+                        .Where(p => idsProductosAfectados.Contains(p.IdProducto))
+                        .ToDictionaryAsync(p => p.IdProducto);
+
+                    foreach (var idProducto in idsProductosAfectados)
                     {
-                        producto.Stock += lineaOriginal.Cantidad;
+                        if (!productosAfectados.TryGetValue(idProducto, out var producto)) continue;
+
+                        var cantidadOriginal = cantidadesOriginales.GetValueOrDefault(idProducto, 0);
+                        var cantidadNueva = cantidadesNuevas.GetValueOrDefault(idProducto, 0);
+                        var diferencia = cantidadNueva - cantidadOriginal;
+
+                        var stockDisponible = producto.Stock + cantidadOriginal;
+                        if (stockDisponible < cantidadNueva)
+                        {
+                            throw new InvalidOperationException($"Stock insuficiente para '{producto.Nombre}'. Disponible: {stockDisponible}, Solicitado: {cantidadNueva}.");
+                        }
+                        producto.Stock -= diferencia;
                     }
-                }
 
-                _context.LineaVentas.RemoveRange(ventaExistente.LineaVenta);
-                await _context.SaveChangesAsync();
+                    _context.LineaVentas.RemoveRange(ventaExistente.LineaVenta);
+                    await _context.SaveChangesAsync();
 
-                int nroLineaCounter = 1;
-                foreach (var lineaDto in dto.Lineas)
-                {
-                    if (!lineaDto.IdProducto.HasValue)
-                        throw new InvalidOperationException("Se intentó agregar un producto sin ID.");
-
-                    var precioVigente = await _precioVentaService.GetPrecioVigenteAsync(lineaDto.IdProducto.Value);
-                    if (precioVigente == null)
-                        throw new InvalidOperationException($"El producto ID {lineaDto.IdProducto} no tiene un precio vigente.");
-
-                    var producto = await _context.Productos.FindAsync(lineaDto.IdProducto.Value);
-                    if (producto == null || producto.Stock < lineaDto.Cantidad)
-                        throw new InvalidOperationException($"Stock insuficiente para el producto ID {lineaDto.IdProducto}.");
-
-                    var nuevaLinea = new LineaVenta
+                    int nroLineaCounter = 1;
+                    foreach (var lineaDto in dto.Lineas)
                     {
-                        IdVenta = ventaExistente.IdVenta,
-                        NroLineaVenta = nroLineaCounter++,
-                        IdProducto = lineaDto.IdProducto,
-                        Cantidad = lineaDto.Cantidad,
-                        PrecioUnitario = precioVigente.Monto
-                    };
-                    _context.LineaVentas.Add(nuevaLinea);
+                        _context.LineaVentas.Add(new LineaVenta
+                        {
+                            IdVenta = ventaExistente.IdVenta,
+                            NroLineaVenta = nroLineaCounter++,
+                            IdProducto = lineaDto.IdProducto,
+                            Cantidad = lineaDto.Cantidad,
+                            PrecioUnitario = lineaDto.PrecioUnitario
+                        });
+                    }
 
-                    producto.Stock -= lineaDto.Cantidad;
+                    if (dto.Finalizada)
+                    {
+                        ventaExistente.Estado = "Finalizada";
+                    }
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
                 }
-
-                if (dto.Finalizada)
+                catch
                 {
-                    ventaExistente.Estado = "Finalizada";
+                    await transaction.RollbackAsync();
+                    throw;
                 }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            });
         }
 
         public IQueryable<Venta> GetVentas()
@@ -151,6 +174,7 @@ namespace DominioServicios
                 .Include(v => v.IdPersonaNavigation)
                 .Include(v => v.LineaVenta)
                     .ThenInclude(lv => lv.IdProductoNavigation)
+                        .ThenInclude(p => p.PreciosVenta)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.IdVenta == id);
         }
@@ -166,3 +190,4 @@ namespace DominioServicios
         }
     }
 }
+
