@@ -1,47 +1,69 @@
 ﻿@page "/tipos-producto"
-@inject ApiClient.TipoProductoApiClient tipoProductoApiClient
-@inject NavigationManager NavigationManager
+@attribute [Authorize]
 
-<div class="table-container">
-    <div class="table-header">
-        <h1>Tipos de Producto</h1>
-        <button class="create-button" @onclick="CrearTipoProducto">Crear Tipo de Producto</button>
-    </div>
+@using ApiClient
+@using DTOs
+@inject TipoProductoApiClient tipoProductoApiClient
 
-    <div class="search-bar-container">
-        <input type="text" class="search-input" placeholder="Buscar por nombre o descripción..." @bind="searchString" @bind:event="oninput" />
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Gestión de Tipos de Producto</h2>
+
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
+            <input class="tbl-input" type="text" placeholder="Buscar tipo de producto..."
+                   @bind="searchString" @bind:event="oninput" />
+            <button class="btn btn-primary" @onclick="CrearTipoProducto">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nuevo</span>
+            </button>
+        </div>
     </div>
 
     @if (filteredTiposProducto == null)
     {
-        <p><em>Cargando...</em></p>
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando tipos de producto...
+        </div>
+    }
+    else if (!filteredTiposProducto.Any())
+    {
+        <div class="tbl-state">
+            <i class="bi bi-inbox"></i> No se encontraron tipos de producto.
+        </div>
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var tipoProducto in filteredTiposProducto)
-                {
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
+                <thead>
                     <tr>
-                        <td>@tipoProducto.Descripcion</td>
-                        <td>@tipoProducto.Descripcion</td>
-                        <td>
-                            <div class="actions">
-                                <button class="edit-button" @onclick="() => EditarTipoProducto(tipoProducto.IdTipoProducto)">Editar</button>
-                                <button class="delete-button" @onclick="() => EliminarTipoProducto(tipoProducto.IdTipoProducto)">Eliminar</button>
-                            </div>
-                        </td>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th class="tbl-text-end">Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var tipoProducto in filteredTiposProducto)
+                    {
+                        <tr>
+                            <td class="tbl-truncate">@tipoProducto.Descripcion</td>
+                            <td class="tbl-muted tbl-truncate">@tipoProducto.Descripcion</td>
+                            <td class="tbl-text-end">
+                                <div class="tbl-actions">
+                                    <button class="tbl-icon-btn" title="Editar" @onclick="() => EditarTipoProducto(tipoProducto.IdTipoProducto)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarTipoProducto(tipoProducto.IdTipoProducto)">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
 
@@ -71,17 +93,17 @@
         {
             filteredTiposProducto = tiposProducto
                 .Where(tp =>
-                    tp.Descripcion.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                    tp.Descripcion.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                    (tp.Descripcion ?? string.Empty).Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                    (tp.Descripcion ?? string.Empty).Contains(searchString, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
-        StateHasChanged(); // Notifica a Blazor que la UI debe re-renderizarse
     }
 
     private void OnSearchInput(ChangeEventArgs e)
     {
         searchString = e.Value.ToString();
         FiltrarTiposProducto();
+        StateHasChanged();
     }
 
     void CrearTipoProducto()
