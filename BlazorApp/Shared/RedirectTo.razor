@@ -2,7 +2,7 @@
 
 @code {
     [Parameter, EditorRequired] public string Url { get; set; } = "/";
-    [Parameter] public bool ForceLoad { get; set; } = false; 
+    [Parameter] public bool ForceLoad { get; set; } = false;
 
     protected override void OnAfterRender(bool firstRender)
     {
