@@ -115,3 +115,57 @@ button, .btn {
     stroke: var(--accent-600) !important;
 }
 
+/* Logo en topbar */
+.brand-logo {
+    height: 32px;
+    width: 32px;
+    object-fit: contain;
+    margin-right: 0.5rem;
+}
+
+/* Mensaje de bienvenida */
+.home-wrap {
+    display: grid;
+    gap: 1rem;
+}
+
+.welcome-panel {
+    background: linear-gradient(180deg, rgba(17,26,47,.72), rgba(17,26,47,.58));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: .95rem 1rem;
+}
+
+.welcome-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    font-size: 1.1rem;
+    color: var(--accent);
+}
+
+    .welcome-head > .bi {
+        font-size: 1.3rem;
+    }
+
+.icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--text);
+}
+
+    .icon-btn:hover {
+        background: rgba(59,130,246,.12);
+    }
+
+.muted {
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+}

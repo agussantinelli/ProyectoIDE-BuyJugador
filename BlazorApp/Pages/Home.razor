@@ -11,15 +11,15 @@
             {
                 <section class="welcome-panel">
                     <div class="welcome-head">
-                        <span class="bi bi-stars"></span>
-                        <strong>¡Bienvenido, @auth.User.Identity?.Name!</strong>
+                        <span class="bi bi-person-badge-fill"></span>
+                        <strong>¡Bienvenido administrador, @auth.User.Identity?.Name!</strong>
                         <button class="icon-btn" title="Cerrar" @onclick="CloseWelcome">
                             <span class="bi bi-x-lg"></span>
                         </button>
                     </div>
                     <p class="muted">
-                        Este es el panel de administración de <b>Inventario</b>. <br />
-                        Desde el menú lateral podés gestionar productos, ventas, pedidos y tipos de producto.
+                        Desde aquí podés administrar productos, ventas, pedidos y tipos de producto.
+                        Usá el menú lateral para navegar entre las secciones del sistema.
                     </p>
                 </section>
             }
@@ -61,4 +61,3 @@
         catch { }
     }
 }
-

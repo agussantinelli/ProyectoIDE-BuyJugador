@@ -9,7 +9,7 @@
             <button class="icon-btn menu-toggle" @onclick="ToggleSidebar" title="Menú">
                 <span class="bi bi-list"></span>
             </button>
-            <div class="brand-mini" @onclick="@(() => Nav.NavigateTo("/"))" title="Inicio">
+            <div class="brand-mini" @onclick="@(() => Nav.NavigateTo("/"))">
                 <span class="bi bi-box-seam"></span>
             </div>
         </div>
@@ -41,7 +41,7 @@
     <section class="main">
         <header class="topbar">
             <div class="brand-centered" @onclick="@(() => Nav.NavigateTo("/"))">
-                <span class="bi bi-box-seam"></span>
+                <img src="logo.svg" alt="Logo" class="brand-logo" />
                 <strong class="brand-title">Inventario</strong>
             </div>
 

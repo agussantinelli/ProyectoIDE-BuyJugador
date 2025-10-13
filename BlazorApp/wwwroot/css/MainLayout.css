@@ -108,20 +108,22 @@
 }
 
 .topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 0 2rem;
     background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75));
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border);
-    padding: 1rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    width: 100%;
-    box-sizing: border-box;
-    transition: margin-left 0.3s ease;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
 }
+
 
 .sidebar:not(.collapsed) ~ .main .topbar {
     margin-left: -220px;
@@ -174,12 +176,13 @@
         }
 
 .content {
-    padding: 2rem;
-    min-width: 0;
+    padding: 6rem 2rem 2rem; 
     background: radial-gradient(1600px 600px at 30% 0%, rgba(59,130,246,.05), transparent 60%), radial-gradient(1200px 400px at 90% 0%, rgba(99,102,241,.04), transparent 70%), var(--bg-page);
     min-height: 100vh;
-    transition: background 0.4s ease;
+    box-sizing: border-box;
+    width: 100%;
 }
+
 
 @media (max-width: 900px) {
     .app-shell {
