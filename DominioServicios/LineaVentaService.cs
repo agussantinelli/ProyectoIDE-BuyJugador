@@ -17,24 +17,17 @@ namespace DominioServicios
             _context = context;
         }
 
+        // # CORRECCIÓN: La lógica de cálculo del subtotal ahora reside en el DTO.
+        // Este método solo se encarga de obtener los datos crudos.
         public async Task<List<LineaVentaDTO>> GetLineasByVentaIdAsync(int idVenta)
         {
             var lineas = await _context.LineaVentas
                 .Where(l => l.IdVenta == idVenta)
                 .Include(l => l.IdProductoNavigation)
-                    .ThenInclude(p => p.PreciosVenta)
                 .AsNoTracking()
                 .ToListAsync();
 
-            return lineas.Select(l => {
-                var lineaDto = LineaVentaDTO.FromDominio(l);
-                if (l.IdProductoNavigation != null)
-                {
-                    var precio = l.IdProductoNavigation.PreciosVenta?.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 0;
-                    lineaDto.Subtotal = l.Cantidad * precio;
-                }
-                return lineaDto;
-            }).ToList();
+            return lineas.Select(LineaVentaDTO.FromDominio).ToList();
         }
 
 
@@ -126,4 +119,3 @@ namespace DominioServicios
         }
     }
 }
-

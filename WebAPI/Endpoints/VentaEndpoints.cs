@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using System;
 
 public static class VentaEndpoints
 {
@@ -14,25 +15,19 @@ public static class VentaEndpoints
 
         group.MapGet("/", async (VentaService ventaService) =>
         {
+            // # REFACTORIZADO: Se simplifica la obtención del total.
             var ventas = await ventaService.GetVentas()
-                .Select(v => VentaDTO.FromDominio(v))
-                .ToListAsync();
-
-            foreach (var venta in ventas)
-            {
-                var ventaConDetalles = await ventaService.GetVentaByIdAsync(venta.IdVenta);
-
-                if (ventaConDetalles?.LineaVenta != null)
+                .Include(v => v.LineaVenta)
+                .Select(v => new VentaDTO
                 {
-                    venta.Total = ventaConDetalles.LineaVenta.Sum(l =>
-                        l.Cantidad * (
-                            l.IdProductoNavigation?.PreciosVenta
-                                .OrderByDescending(p => p.FechaDesde)
-                                .FirstOrDefault()?.Monto ?? 0
-                        )
-                    );
-                }
-            }
+                    IdVenta = v.IdVenta,
+                    Fecha = v.Fecha,
+                    Estado = v.Estado,
+                    IdPersona = v.IdPersona,
+                    NombreVendedor = v.IdPersonaNavigation.NombreCompleto,
+                    Total = v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario)
+                })
+                .ToListAsync();
 
             return Results.Ok(ventas);
         });
@@ -43,30 +38,25 @@ public static class VentaEndpoints
             if (venta == null) return Results.NotFound();
 
             var ventaDto = VentaDTO.FromDominio(venta);
-            ventaDto.Lineas = venta.LineaVenta.Select(LineaVentaDTO.FromDominio).ToList();
 
-            foreach (var linea in ventaDto.Lineas)
-            {
-                var producto = venta.LineaVenta
-                    .First(l => l.NroLineaVenta == linea.NroLineaVenta)
-                    .IdProductoNavigation;
-
-                var precioActual = producto.PreciosVenta?
-                    .OrderByDescending(p => p.FechaDesde)
-                    .FirstOrDefault()?.Monto ?? 0;
-
-                linea.PrecioUnitario = precioActual;
-                linea.Subtotal = linea.Cantidad * linea.PrecioUnitario;
-            }
-
+            // # REFACTORIZADO: El mapeo a DTO ahora es más directo.
+            ventaDto.Lineas = venta.LineaVenta.Select(l => LineaVentaDTO.FromDominio(l)).ToList();
             ventaDto.Total = ventaDto.Lineas.Sum(l => l.Subtotal);
+
             return Results.Ok(ventaDto);
         });
 
         group.MapPost("/completa", async (CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
         {
-            var nuevaVenta = await ventaService.CrearVentaCompletaAsync(ventaDto);
-            return Results.Created($"/api/ventas/{nuevaVenta.IdVenta}", VentaDTO.FromDominio(nuevaVenta));
+            try
+            {
+                var nuevaVenta = await ventaService.CrearVentaCompletaAsync(ventaDto);
+                return Results.Created($"/api/ventas/{nuevaVenta.IdVenta}", VentaDTO.FromDominio(nuevaVenta));
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { message = $"Error al crear la venta: {ex.Message}" });
+            }
         });
 
         group.MapPut("/completa/{id:int}", async (int id, CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
@@ -77,18 +67,26 @@ public static class VentaEndpoints
             try
             {
                 await ventaService.UpdateVentaCompletaAsync(ventaDto);
-                return Results.Ok();
+                return Results.NoContent();
             }
             catch (KeyNotFoundException e)
             {
-                return Results.NotFound(e.Message);
+                return Results.NotFound(new { message = e.Message });
+            }
+            catch (InvalidOperationException e)
+            {
+                return Results.BadRequest(new { message = e.Message });
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem($"Ocurrió un error inesperado: {ex.Message}");
             }
         });
 
         group.MapDelete("/{id:int}", async (int id, VentaService ventaService) =>
         {
             var result = await ventaService.DeleteVentaAsync(id);
-            return result ? Results.Ok() : Results.NotFound();
+            return result ? Results.NoContent() : Results.NotFound();
         });
     }
 }
