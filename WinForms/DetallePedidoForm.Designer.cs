@@ -2,15 +2,8 @@
 {
     partial class DetallePedidoForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -22,10 +15,6 @@
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
             this.lblIdPedido = new System.Windows.Forms.Label();
@@ -37,57 +26,65 @@
             this.btnEliminarLinea = new System.Windows.Forms.Button();
             this.btnConfirmarCambios = new System.Windows.Forms.Button();
             this.btnCerrar = new System.Windows.Forms.Button();
+            this.btnEditarCantidad = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridDetalle)).BeginInit();
             this.SuspendLayout();
             // 
             // lblIdPedido
             // 
             this.lblIdPedido.AutoSize = true;
+            this.lblIdPedido.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.lblIdPedido.Location = new System.Drawing.Point(12, 9);
             this.lblIdPedido.Name = "lblIdPedido";
-            this.lblIdPedido.Size = new System.Drawing.Size(68, 17);
+            this.lblIdPedido.Size = new System.Drawing.Size(109, 21);
             this.lblIdPedido.TabIndex = 0;
-            this.lblIdPedido.Text = "ID Pedido:";
+            this.lblIdPedido.Text = "ID Pedido: ...";
             // 
             // lblFecha
             // 
             this.lblFecha.AutoSize = true;
-            this.lblFecha.Location = new System.Drawing.Point(12, 35);
+            this.lblFecha.Location = new System.Drawing.Point(12, 40);
             this.lblFecha.Name = "lblFecha";
-            this.lblFecha.Size = new System.Drawing.Size(49, 17);
+            this.lblFecha.Size = new System.Drawing.Size(50, 17);
             this.lblFecha.TabIndex = 1;
-            this.lblFecha.Text = "Fecha:";
+            this.lblFecha.Text = "Fecha: ...";
             // 
             // lblProveedor
             // 
             this.lblProveedor.AutoSize = true;
-            this.lblProveedor.Location = new System.Drawing.Point(12, 61);
+            this.lblProveedor.Location = new System.Drawing.Point(200, 40);
             this.lblProveedor.Name = "lblProveedor";
-            this.lblProveedor.Size = new System.Drawing.Size(78, 17);
+            this.lblProveedor.Size = new System.Drawing.Size(81, 17);
             this.lblProveedor.TabIndex = 2;
-            this.lblProveedor.Text = "Proveedor:";
+            this.lblProveedor.Text = "Proveedor: ...";
             // 
             // dataGridDetalle
             // 
+            this.dataGridDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.dataGridDetalle.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridDetalle.Location = new System.Drawing.Point(15, 90);
+            this.dataGridDetalle.Location = new System.Drawing.Point(15, 70);
+            this.dataGridDetalle.MultiSelect = false;
             this.dataGridDetalle.Name = "dataGridDetalle";
-            this.dataGridDetalle.Size = new System.Drawing.Size(1153, 424);
+            this.dataGridDetalle.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dataGridDetalle.Size = new System.Drawing.Size(1153, 444);
             this.dataGridDetalle.TabIndex = 3;
             // 
             // lblTotal
             // 
-            this.lblTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTotal.Font = new System.Drawing.Font("Century Gothic", 12F, System.Drawing.FontStyle.Bold);
-            this.lblTotal.Location = new System.Drawing.Point(968, 520);
+            this.lblTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotal.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblTotal.Location = new System.Drawing.Point(968, 9);
             this.lblTotal.Name = "lblTotal";
-            this.lblTotal.Size = new System.Drawing.Size(200, 30);
+            this.lblTotal.Size = new System.Drawing.Size(200, 28);
             this.lblTotal.TabIndex = 4;
             this.lblTotal.Text = "Total: $0.00";
             this.lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnAgregarLinea
             // 
+            this.btnAgregarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnAgregarLinea.Location = new System.Drawing.Point(15, 520);
             this.btnAgregarLinea.Name = "btnAgregarLinea";
             this.btnAgregarLinea.Size = new System.Drawing.Size(120, 30);
@@ -98,6 +95,7 @@
             // 
             // btnEliminarLinea
             // 
+            this.btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnEliminarLinea.Location = new System.Drawing.Point(141, 520);
             this.btnEliminarLinea.Name = "btnEliminarLinea";
             this.btnEliminarLinea.Size = new System.Drawing.Size(120, 30);
@@ -108,8 +106,9 @@
             // 
             // btnConfirmarCambios
             // 
+            this.btnConfirmarCambios.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnConfirmarCambios.Enabled = false;
-            this.btnConfirmarCambios.Location = new System.Drawing.Point(267, 520);
+            this.btnConfirmarCambios.Location = new System.Drawing.Point(902, 520);
             this.btnConfirmarCambios.Name = "btnConfirmarCambios";
             this.btnConfirmarCambios.Size = new System.Drawing.Size(150, 30);
             this.btnConfirmarCambios.TabIndex = 8;
@@ -128,11 +127,23 @@
             this.btnCerrar.UseVisualStyleBackColor = true;
             this.btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
             // 
+            // btnEditarCantidad
+            // 
+            this.btnEditarCantidad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnEditarCantidad.Location = new System.Drawing.Point(267, 520);
+            this.btnEditarCantidad.Name = "btnEditarCantidad";
+            this.btnEditarCantidad.Size = new System.Drawing.Size(120, 30);
+            this.btnEditarCantidad.TabIndex = 9;
+            this.btnEditarCantidad.Text = "Editar Cantidad";
+            this.btnEditarCantidad.UseVisualStyleBackColor = true;
+            this.btnEditarCantidad.Click += new System.EventHandler(this.btnEditarCantidad_Click);
+            // 
             // DetallePedidoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1180, 562);
+            this.Controls.Add(this.btnEditarCantidad);
             this.Controls.Add(this.btnConfirmarCambios);
             this.Controls.Add(this.btnCerrar);
             this.Controls.Add(this.btnEliminarLinea);
@@ -162,6 +173,7 @@
         private System.Windows.Forms.Button btnEliminarLinea;
         private System.Windows.Forms.Button btnCerrar;
         private System.Windows.Forms.Button btnConfirmarCambios;
+        private System.Windows.Forms.Button btnEditarCantidad;
     }
 }
 

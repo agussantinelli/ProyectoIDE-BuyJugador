@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 
 namespace WebAPI.Endpoints
 {
@@ -28,15 +29,14 @@ namespace WebAPI.Endpoints
 
             group.MapPost("/completo", async (PedidoService pedidoService, [FromBody] CrearPedidoCompletoDTO pedidoDto) =>
             {
-                try
+                var nuevoPedido = await pedidoService.CrearPedidoCompletoAsync(pedidoDto);
+
+                if (nuevoPedido != null)
                 {
-                    var nuevoPedido = await pedidoService.CrearPedidoCompletoAsync(pedidoDto);
                     return Results.Created($"/api/pedidos/{nuevoPedido.IdPedido}", nuevoPedido);
                 }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = $"Error al crear el pedido: {ex.Message}" });
-                }
+
+                return Results.BadRequest(new { message = "Error al crear el pedido. Verifique que todos los productos y precios de compra existan." });
             });
 
             group.MapDelete("/{id}", async (int id, PedidoService service) =>
@@ -84,3 +84,4 @@ namespace WebAPI.Endpoints
         }
     }
 }
+

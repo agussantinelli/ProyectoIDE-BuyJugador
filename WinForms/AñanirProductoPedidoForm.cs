@@ -1,50 +1,58 @@
 ﻿using DTOs;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace WinForms
 {
-    // # Este formulario se mantiene como modal (usa ShowDialog).
-    // # Se le hace heredar de BaseForm para consistencia de estilo.
     public partial class AñanirProductoPedidoForm : BaseForm
     {
-        public LineaPedidoDTO LineaPedido { get; private set; }
-        private readonly ProductoDTO _producto;
+        public LineaPedidoDTO? LineaPedido { get; private set; }
+        public ProductoDTO? ProductoSeleccionado => cmbProductos.SelectedItem as ProductoDTO;
+        public int CantidadSeleccionada => (int)numCantidad.Value;
 
-        public AñanirProductoPedidoForm(ProductoDTO producto)
+        // Constructor vacío para permitir la inyección de dependencias.
+        public AñanirProductoPedidoForm()
         {
             InitializeComponent();
-            _producto = producto;
-            lblProductoNombre.Text = producto.Nombre;
-            numCantidad.Value = 1;
-
             StyleManager.ApplyButtonStyle(btnConfirmar);
             StyleManager.ApplyButtonStyle(btnCancelar);
         }
 
-        private void btnConfirmar_Click(object sender, EventArgs e)
+        // # NUEVO: Método para cargar la lista de productos disponibles en el ComboBox.
+        public void CargarProductosDisponibles(List<ProductoDTO> productos)
         {
-            int cantidad = (int)numCantidad.Value;
-            if (cantidad > 0)
-            {
-                LineaPedido = new LineaPedidoDTO
-                {
-                    IdProducto = _producto.IdProducto,
-                    NombreProducto = _producto.Nombre,
-                    Cantidad = cantidad,
-                    PrecioUnitario = (decimal)_producto.PrecioActual
-                };
-                DialogResult = DialogResult.OK;
-            }
-            else
-            {
-                MessageBox.Show("La cantidad debe ser mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
+            cmbProductos.DataSource = productos;
+            cmbProductos.DisplayMember = "Nombre";
+            cmbProductos.ValueMember = "IdProducto";
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e)
+        private void btnConfirmar_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
+            if (ProductoSeleccionado == null)
+            {
+                MessageBox.Show("Debe seleccionar un producto.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (CantidadSeleccionada <= 0)
+            {
+                MessageBox.Show("La cantidad debe ser mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // # CORRECCIÓN: Usamos la propiedad `PrecioCompra` que ahora existe en `ProductoDTO`.
+            LineaPedido = new LineaPedidoDTO
+            {
+                IdProducto = ProductoSeleccionado.IdProducto,
+                NombreProducto = ProductoSeleccionado.Nombre,
+                Cantidad = CantidadSeleccionada,
+                PrecioUnitario = ProductoSeleccionado.PrecioCompra
+            };
+
+            this.DialogResult = DialogResult.OK;
+            this.Close();
         }
     }
 }
+
