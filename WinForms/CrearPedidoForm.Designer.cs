@@ -17,181 +17,170 @@
 
         private void InitializeComponent()
         {
-            this.cmbProveedores = new System.Windows.Forms.ComboBox();
-            this.btnAgregarProducto = new System.Windows.Forms.Button();
-            this.dataGridLineasPedido = new System.Windows.Forms.DataGridView();
-            this.btnEliminarLinea = new System.Windows.Forms.Button();
-            this.btnConfirmarPedido = new System.Windows.Forms.Button();
-            this.btnCancelar = new System.Windows.Forms.Button();
-            this.lblProveedor = new System.Windows.Forms.Label();
-            this.lblTotalPedido = new System.Windows.Forms.Label();
-            this.lblProducto = new System.Windows.Forms.Label();
-            this.cmbProductos = new System.Windows.Forms.ComboBox();
-            this.lblCantidad = new System.Windows.Forms.Label();
-            this.numCantidad = new System.Windows.Forms.NumericUpDown();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasPedido)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
-            this.SuspendLayout();
+            cmbProveedores = new ComboBox();
+            btnAgregarProducto = new Button();
+            dataGridLineasPedido = new DataGridView();
+            btnEliminarLinea = new Button();
+            btnConfirmarPedido = new Button();
+            btnCancelar = new Button();
+            lblProveedor = new Label();
+            lblTotalPedido = new Label();
+            lblProducto = new Label();
+            cmbProductos = new ComboBox();
+            lblCantidad = new Label();
+            numCantidad = new NumericUpDown();
+            ((System.ComponentModel.ISupportInitialize)dataGridLineasPedido).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
+            SuspendLayout();
             // 
             // cmbProveedores
             // 
-            this.cmbProveedores.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbProveedores.FormattingEnabled = true;
-            this.cmbProveedores.Location = new System.Drawing.Point(90, 24);
-            this.cmbProveedores.Name = "cmbProveedores";
-            this.cmbProveedores.Size = new System.Drawing.Size(278, 23);
-            this.cmbProveedores.TabIndex = 0;
-            this.cmbProveedores.SelectedIndexChanged += new System.EventHandler(this.cmbProveedores_SelectedIndexChanged);
+            cmbProveedores.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProveedores.FormattingEnabled = true;
+            cmbProveedores.Location = new Point(121, 28);
+            cmbProveedores.Name = "cmbProveedores";
+            cmbProveedores.Size = new Size(278, 28);
+            cmbProveedores.TabIndex = 0;
+            cmbProveedores.SelectedIndexChanged += cmbProveedores_SelectedIndexChanged;
             // 
             // btnAgregarProducto
             // 
-            this.btnAgregarProducto.Location = new System.Drawing.Point(452, 65);
-            this.btnAgregarProducto.Name = "btnAgregarProducto";
-            this.btnAgregarProducto.Size = new System.Drawing.Size(120, 30);
-            this.btnAgregarProducto.TabIndex = 4;
-            this.btnAgregarProducto.Text = "Agregar Producto";
-            this.btnAgregarProducto.UseVisualStyleBackColor = true;
-            this.btnAgregarProducto.Click += new System.EventHandler(this.btnAgregarProducto_Click);
+            btnAgregarProducto.Location = new Point(509, 75);
+            btnAgregarProducto.Name = "btnAgregarProducto";
+            btnAgregarProducto.Size = new Size(120, 34);
+            btnAgregarProducto.TabIndex = 4;
+            btnAgregarProducto.Text = "Agregar Producto";
+            btnAgregarProducto.UseVisualStyleBackColor = true;
+            btnAgregarProducto.Click += btnAgregarProducto_Click;
             // 
             // dataGridLineasPedido
             // 
-            this.dataGridLineasPedido.AllowUserToAddRows = false;
-            this.dataGridLineasPedido.AllowUserToDeleteRows = false;
-            this.dataGridLineasPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridLineasPedido.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridLineasPedido.Location = new System.Drawing.Point(15, 110);
-            this.dataGridLineasPedido.Name = "dataGridLineasPedido";
-            this.dataGridLineasPedido.ReadOnly = true;
-            this.dataGridLineasPedido.RowTemplate.Height = 25;
-            this.dataGridLineasPedido.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridLineasPedido.Size = new System.Drawing.Size(557, 194);
-            this.dataGridLineasPedido.TabIndex = 6;
+            dataGridLineasPedido.AllowUserToAddRows = false;
+            dataGridLineasPedido.AllowUserToDeleteRows = false;
+            dataGridLineasPedido.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridLineasPedido.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridLineasPedido.Location = new Point(15, 125);
+            dataGridLineasPedido.Name = "dataGridLineasPedido";
+            dataGridLineasPedido.ReadOnly = true;
+            dataGridLineasPedido.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridLineasPedido.Size = new Size(603, 220);
+            dataGridLineasPedido.TabIndex = 6;
             // 
             // btnEliminarLinea
             // 
-            this.btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnEliminarLinea.Location = new System.Drawing.Point(121, 319);
-            this.btnEliminarLinea.Name = "btnEliminarLinea";
-            this.btnEliminarLinea.Size = new System.Drawing.Size(120, 30);
-            this.btnEliminarLinea.TabIndex = 8;
-            this.btnEliminarLinea.Text = "Eliminar Producto";
-            this.btnEliminarLinea.UseVisualStyleBackColor = true;
-            this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
+            btnEliminarLinea.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnEliminarLinea.Location = new Point(121, 362);
+            btnEliminarLinea.Name = "btnEliminarLinea";
+            btnEliminarLinea.Size = new Size(120, 34);
+            btnEliminarLinea.TabIndex = 8;
+            btnEliminarLinea.Text = "Eliminar Producto";
+            btnEliminarLinea.UseVisualStyleBackColor = true;
+            btnEliminarLinea.Click += btnEliminarLinea_Click;
             // 
             // btnConfirmarPedido
             // 
-            this.btnConfirmarPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnConfirmarPedido.Location = new System.Drawing.Point(452, 319);
-            this.btnConfirmarPedido.Name = "btnConfirmarPedido";
-            this.btnConfirmarPedido.Size = new System.Drawing.Size(120, 30);
-            this.btnConfirmarPedido.TabIndex = 9;
-            this.btnConfirmarPedido.Text = "Confirmar Pedido";
-            this.btnConfirmarPedido.UseVisualStyleBackColor = true;
-            this.btnConfirmarPedido.Click += new System.EventHandler(this.btnConfirmarPedido_Click);
+            btnConfirmarPedido.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnConfirmarPedido.Location = new Point(498, 362);
+            btnConfirmarPedido.Name = "btnConfirmarPedido";
+            btnConfirmarPedido.Size = new Size(120, 34);
+            btnConfirmarPedido.TabIndex = 9;
+            btnConfirmarPedido.Text = "Confirmar Pedido";
+            btnConfirmarPedido.UseVisualStyleBackColor = true;
+            btnConfirmarPedido.Click += btnConfirmarPedido_Click;
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnCancelar.Location = new System.Drawing.Point(15, 319);
-            this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(100, 30);
-            this.btnCancelar.TabIndex = 7;
-            this.btnCancelar.Text = "Cancelar";
-            this.btnCancelar.UseVisualStyleBackColor = true;
-            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnCancelar.Location = new Point(15, 362);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(100, 34);
+            btnCancelar.TabIndex = 7;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += btnCancelar_Click;
             // 
             // lblProveedor
             // 
-            this.lblProveedor.AutoSize = true;
-            this.lblProveedor.Location = new System.Drawing.Point(15, 27);
-            this.lblProveedor.Name = "lblProveedor";
-            this.lblProveedor.Size = new System.Drawing.Size(64, 15);
-            this.lblProveedor.TabIndex = 11;
-            this.lblProveedor.Text = "Proveedor:";
+            lblProveedor.AutoSize = true;
+            lblProveedor.Location = new Point(15, 31);
+            lblProveedor.Name = "lblProveedor";
+            lblProveedor.Size = new Size(92, 20);
+            lblProveedor.TabIndex = 11;
+            lblProveedor.Text = "Proveedor:";
             // 
             // lblTotalPedido
             // 
-            this.lblTotalPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblTotalPedido.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTotalPedido.Location = new System.Drawing.Point(308, 319);
-            this.lblTotalPedido.Name = "lblTotalPedido";
-            this.lblTotalPedido.Size = new System.Drawing.Size(138, 30);
-            this.lblTotalPedido.TabIndex = 10;
-            this.lblTotalPedido.Text = "Total: $0.00";
-            this.lblTotalPedido.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            lblTotalPedido.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            lblTotalPedido.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
+            lblTotalPedido.Location = new Point(354, 362);
+            lblTotalPedido.Name = "lblTotalPedido";
+            lblTotalPedido.Size = new Size(138, 34);
+            lblTotalPedido.TabIndex = 10;
+            lblTotalPedido.Text = "Total: $0.00";
+            lblTotalPedido.TextAlign = ContentAlignment.MiddleRight;
             // 
             // lblProducto
             // 
-            this.lblProducto.AutoSize = true;
-            this.lblProducto.Location = new System.Drawing.Point(15, 72);
-            this.lblProducto.Name = "lblProducto";
-            this.lblProducto.Size = new System.Drawing.Size(60, 15);
-            this.lblProducto.TabIndex = 12;
-            this.lblProducto.Text = "Producto:";
+            lblProducto.AutoSize = true;
+            lblProducto.Location = new Point(15, 82);
+            lblProducto.Name = "lblProducto";
+            lblProducto.Size = new Size(81, 20);
+            lblProducto.TabIndex = 12;
+            lblProducto.Text = "Producto:";
             // 
             // cmbProductos
             // 
-            this.cmbProductos.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
-            this.cmbProductos.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
-            this.cmbProductos.FormattingEnabled = true;
-            this.cmbProductos.Location = new System.Drawing.Point(90, 69);
-            this.cmbProductos.Name = "cmbProductos";
-            this.cmbProductos.Size = new System.Drawing.Size(236, 23);
-            this.cmbProductos.TabIndex = 1;
+            cmbProductos.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            cmbProductos.AutoCompleteSource = AutoCompleteSource.ListItems;
+            cmbProductos.FormattingEnabled = true;
+            cmbProductos.Location = new Point(102, 78);
+            cmbProductos.Name = "cmbProductos";
+            cmbProductos.Size = new Size(236, 28);
+            cmbProductos.TabIndex = 1;
             // 
             // lblCantidad
             // 
-            this.lblCantidad.AutoSize = true;
-            this.lblCantidad.Location = new System.Drawing.Point(332, 72);
-            this.lblCantidad.Name = "lblCantidad";
-            this.lblCantidad.Size = new System.Drawing.Size(32, 15);
-            this.lblCantidad.TabIndex = 13;
-            this.lblCantidad.Text = "Cant:";
+            lblCantidad.AutoSize = true;
+            lblCantidad.Location = new Point(354, 82);
+            lblCantidad.Name = "lblCantidad";
+            lblCantidad.Size = new Size(49, 20);
+            lblCantidad.TabIndex = 13;
+            lblCantidad.Text = "Cant:";
             // 
             // numCantidad
             // 
-            this.numCantidad.Location = new System.Drawing.Point(370, 70);
-            this.numCantidad.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numCantidad.Name = "numCantidad";
-            this.numCantidad.Size = new System.Drawing.Size(67, 23);
-            this.numCantidad.TabIndex = 3;
-            this.numCantidad.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            numCantidad.Location = new Point(425, 79);
+            numCantidad.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numCantidad.Name = "numCantidad";
+            numCantidad.Size = new Size(67, 25);
+            numCantidad.TabIndex = 3;
+            numCantidad.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // CrearPedidoForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(584, 361);
-            this.Controls.Add(this.numCantidad);
-            this.Controls.Add(this.lblCantidad);
-            this.Controls.Add(this.cmbProductos);
-            this.Controls.Add(this.lblProducto);
-            this.Controls.Add(this.lblTotalPedido);
-            this.Controls.Add(this.lblProveedor);
-            this.Controls.Add(this.btnCancelar);
-            this.Controls.Add(this.btnConfirmarPedido);
-            this.Controls.Add(this.btnEliminarLinea);
-            this.Controls.Add(this.dataGridLineasPedido);
-            this.Controls.Add(this.btnAgregarProducto);
-            this.Controls.Add(this.cmbProveedores);
-            this.MinimumSize = new System.Drawing.Size(600, 400);
-            this.Name = "CrearPedidoForm";
-            this.Text = "Crear Nuevo Pedido";
-            this.Load += new System.EventHandler(this.CrearPedidoForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasPedido)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(630, 409);
+            Controls.Add(numCantidad);
+            Controls.Add(lblCantidad);
+            Controls.Add(cmbProductos);
+            Controls.Add(lblProducto);
+            Controls.Add(lblTotalPedido);
+            Controls.Add(lblProveedor);
+            Controls.Add(btnCancelar);
+            Controls.Add(btnConfirmarPedido);
+            Controls.Add(btnEliminarLinea);
+            Controls.Add(dataGridLineasPedido);
+            Controls.Add(btnAgregarProducto);
+            Controls.Add(cmbProveedores);
+            MinimumSize = new Size(600, 448);
+            Name = "CrearPedidoForm";
+            Text = "Crear Nuevo Pedido";
+            Load += CrearPedidoForm_Load;
+            ((System.ComponentModel.ISupportInitialize)dataGridLineasPedido).EndInit();
+            ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

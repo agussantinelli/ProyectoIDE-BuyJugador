@@ -17,179 +17,162 @@
 
         private void InitializeComponent()
         {
-            this.cmbProductos = new System.Windows.Forms.ComboBox();
-            this.numCantidad = new System.Windows.Forms.NumericUpDown();
-            this.btnAgregarProducto = new System.Windows.Forms.Button();
-            this.dataGridLineasVenta = new System.Windows.Forms.DataGridView();
-            this.btnEliminarLinea = new System.Windows.Forms.Button();
-            this.btnFinalizarVenta = new System.Windows.Forms.Button();
-            this.btnCancelar = new System.Windows.Forms.Button();
-            this.lblProducto = new System.Windows.Forms.Label();
-            this.lblCantidad = new System.Windows.Forms.Label();
-            this.lblTotalVenta = new System.Windows.Forms.Label();
-            this.chkMarcarFinalizada = new System.Windows.Forms.CheckBox();
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasVenta)).BeginInit();
-            this.SuspendLayout();
+            cmbProductos = new ComboBox();
+            numCantidad = new NumericUpDown();
+            btnAgregarProducto = new Button();
+            dataGridLineasVenta = new DataGridView();
+            btnEliminarLinea = new Button();
+            btnFinalizarVenta = new Button();
+            btnCancelar = new Button();
+            lblProducto = new Label();
+            lblCantidad = new Label();
+            lblTotalVenta = new Label();
+            chkMarcarFinalizada = new CheckBox();
+            ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridLineasVenta).BeginInit();
+            SuspendLayout();
             // 
             // cmbProductos
             // 
-            this.cmbProductos.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
-            this.cmbProductos.FormattingEnabled = true;
-            this.cmbProductos.Location = new System.Drawing.Point(15, 30);
-            this.cmbProductos.Name = "cmbProductos";
-            this.cmbProductos.Size = new System.Drawing.Size(250, 23);
-            this.cmbProductos.TabIndex = 0;
+            cmbProductos.FormattingEnabled = true;
+            cmbProductos.Location = new Point(15, 34);
+            cmbProductos.Name = "cmbProductos";
+            cmbProductos.Size = new Size(250, 28);
+            cmbProductos.TabIndex = 0;
             // 
             // numCantidad
             // 
-            this.numCantidad.Location = new System.Drawing.Point(271, 30);
-            this.numCantidad.Maximum = new decimal(new int[] {
-            9999,
-            0,
-            0,
-            0});
-            this.numCantidad.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numCantidad.Name = "numCantidad";
-            this.numCantidad.Size = new System.Drawing.Size(80, 23);
-            this.numCantidad.TabIndex = 1;
-            this.numCantidad.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            numCantidad.Location = new Point(271, 34);
+            numCantidad.Maximum = new decimal(new int[] { 9999, 0, 0, 0 });
+            numCantidad.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            numCantidad.Name = "numCantidad";
+            numCantidad.Size = new Size(80, 25);
+            numCantidad.TabIndex = 1;
+            numCantidad.Value = new decimal(new int[] { 1, 0, 0, 0 });
             // 
             // btnAgregarProducto
             // 
-            this.btnAgregarProducto.Location = new System.Drawing.Point(357, 29);
-            this.btnAgregarProducto.Name = "btnAgregarProducto";
-            this.btnAgregarProducto.Size = new System.Drawing.Size(120, 25);
-            this.btnAgregarProducto.TabIndex = 2;
-            this.btnAgregarProducto.Text = "Agregar Producto";
-            this.btnAgregarProducto.UseVisualStyleBackColor = true;
-            this.btnAgregarProducto.Click += new System.EventHandler(this.btnAgregarProducto_Click);
+            btnAgregarProducto.Location = new Point(357, 33);
+            btnAgregarProducto.Name = "btnAgregarProducto";
+            btnAgregarProducto.Size = new Size(120, 28);
+            btnAgregarProducto.TabIndex = 2;
+            btnAgregarProducto.Text = "Agregar Producto";
+            btnAgregarProducto.UseVisualStyleBackColor = true;
+            btnAgregarProducto.Click += btnAgregarProducto_Click;
             // 
             // dataGridLineasVenta
             // 
-            this.dataGridLineasVenta.AllowUserToAddRows = false;
-            this.dataGridLineasVenta.AllowUserToDeleteRows = false;
-            this.dataGridLineasVenta.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridLineasVenta.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridLineasVenta.Location = new System.Drawing.Point(15, 60);
-            this.dataGridLineasVenta.MultiSelect = false;
-            this.dataGridLineasVenta.Name = "dataGridLineasVenta";
-            this.dataGridLineasVenta.ReadOnly = false;
-            this.dataGridLineasVenta.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
-            this.dataGridLineasVenta.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridLineasVenta_CellEndEdit);
-            this.dataGridLineasVenta.RowTemplate.Height = 25;
-            this.dataGridLineasVenta.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridLineasVenta.Size = new System.Drawing.Size(757, 300);
-            this.dataGridLineasVenta.TabIndex = 3;
+            dataGridLineasVenta.AllowUserToAddRows = false;
+            dataGridLineasVenta.AllowUserToDeleteRows = false;
+            dataGridLineasVenta.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridLineasVenta.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridLineasVenta.EditMode = DataGridViewEditMode.EditOnEnter;
+            dataGridLineasVenta.Location = new Point(15, 68);
+            dataGridLineasVenta.MultiSelect = false;
+            dataGridLineasVenta.Name = "dataGridLineasVenta";
+            dataGridLineasVenta.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridLineasVenta.Size = new Size(757, 340);
+            dataGridLineasVenta.TabIndex = 3;
+            dataGridLineasVenta.CellEndEdit += DataGridLineasVenta_CellEndEdit;
             // 
             // btnEliminarLinea
             // 
-            this.btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnEliminarLinea.Location = new System.Drawing.Point(652, 29);
-            this.btnEliminarLinea.Name = "btnEliminarLinea";
-            this.btnEliminarLinea.Size = new System.Drawing.Size(120, 25);
-            this.btnEliminarLinea.TabIndex = 4;
-            this.btnEliminarLinea.Text = "Eliminar";
-            this.btnEliminarLinea.UseVisualStyleBackColor = true;
-            this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
+            btnEliminarLinea.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnEliminarLinea.Location = new Point(652, 33);
+            btnEliminarLinea.Name = "btnEliminarLinea";
+            btnEliminarLinea.Size = new Size(120, 28);
+            btnEliminarLinea.TabIndex = 4;
+            btnEliminarLinea.Text = "Eliminar";
+            btnEliminarLinea.UseVisualStyleBackColor = true;
+            btnEliminarLinea.Click += btnEliminarLinea_Click;
             // 
             // btnFinalizarVenta
             // 
-            this.btnFinalizarVenta.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnFinalizarVenta.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.btnFinalizarVenta.Location = new System.Drawing.Point(652, 381);
-            this.btnFinalizarVenta.Name = "btnFinalizarVenta";
-            this.btnFinalizarVenta.Size = new System.Drawing.Size(120, 30);
-            this.btnFinalizarVenta.TabIndex = 5;
-            this.btnFinalizarVenta.Text = "Confirmar Venta";
-            this.btnFinalizarVenta.UseVisualStyleBackColor = true;
-            this.btnFinalizarVenta.Click += new System.EventHandler(this.btnFinalizarVenta_Click);
+            btnFinalizarVenta.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnFinalizarVenta.Font = new Font("Segoe UI", 9.75F, FontStyle.Bold);
+            btnFinalizarVenta.Location = new Point(652, 432);
+            btnFinalizarVenta.Name = "btnFinalizarVenta";
+            btnFinalizarVenta.Size = new Size(120, 34);
+            btnFinalizarVenta.TabIndex = 5;
+            btnFinalizarVenta.Text = "Confirmar Venta";
+            btnFinalizarVenta.UseVisualStyleBackColor = true;
+            btnFinalizarVenta.Click += btnFinalizarVenta_Click;
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancelar.Location = new System.Drawing.Point(526, 381);
-            this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(120, 30);
-            this.btnCancelar.TabIndex = 6;
-            this.btnCancelar.Text = "Cancelar";
-            this.btnCancelar.UseVisualStyleBackColor = true;
-            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnCancelar.Location = new Point(526, 432);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(120, 34);
+            btnCancelar.TabIndex = 6;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += btnCancelar_Click;
             // 
             // lblProducto
             // 
-            this.lblProducto.AutoSize = true;
-            this.lblProducto.Location = new System.Drawing.Point(15, 12);
-            this.lblProducto.Name = "lblProducto";
-            this.lblProducto.Size = new System.Drawing.Size(59, 15);
-            this.lblProducto.TabIndex = 7;
-            this.lblProducto.Text = "Producto:";
+            lblProducto.AutoSize = true;
+            lblProducto.Location = new Point(15, 14);
+            lblProducto.Name = "lblProducto";
+            lblProducto.Size = new Size(81, 20);
+            lblProducto.TabIndex = 7;
+            lblProducto.Text = "Producto:";
             // 
             // lblCantidad
             // 
-            this.lblCantidad.AutoSize = true;
-            this.lblCantidad.Location = new System.Drawing.Point(271, 12);
-            this.lblCantidad.Name = "lblCantidad";
-            this.lblCantidad.Size = new System.Drawing.Size(58, 15);
-            this.lblCantidad.TabIndex = 8;
-            this.lblCantidad.Text = "Cantidad:";
+            lblCantidad.AutoSize = true;
+            lblCantidad.Location = new Point(271, 14);
+            lblCantidad.Name = "lblCantidad";
+            lblCantidad.Size = new Size(82, 20);
+            lblCantidad.TabIndex = 8;
+            lblCantidad.Text = "Cantidad:";
             // 
             // lblTotalVenta
             // 
-            this.lblTotalVenta.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.lblTotalVenta.AutoSize = true;
-            this.lblTotalVenta.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblTotalVenta.Location = new System.Drawing.Point(15, 382);
-            this.lblTotalVenta.Name = "lblTotalVenta";
-            this.lblTotalVenta.Size = new System.Drawing.Size(121, 25);
-            this.lblTotalVenta.TabIndex = 9;
-            this.lblTotalVenta.Text = "Total: $0.00";
+            lblTotalVenta.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            lblTotalVenta.AutoSize = true;
+            lblTotalVenta.Font = new Font("Segoe UI", 14.25F, FontStyle.Bold);
+            lblTotalVenta.Location = new Point(15, 441);
+            lblTotalVenta.Name = "lblTotalVenta";
+            lblTotalVenta.Size = new Size(114, 25);
+            lblTotalVenta.TabIndex = 9;
+            lblTotalVenta.Text = "Total: $0.00";
             // 
             // chkMarcarFinalizada
             // 
-            this.chkMarcarFinalizada.AutoSize = true;
-            this.chkMarcarFinalizada.Location = new System.Drawing.Point(15, 370); 
-            this.chkMarcarFinalizada.Name = "chkMarcarFinalizada";
-            this.chkMarcarFinalizada.Size = new System.Drawing.Size(182, 19);
-            this.chkMarcarFinalizada.TabIndex = 10;
-            this.chkMarcarFinalizada.Text = "Marcar venta como finalizada";
-            this.chkMarcarFinalizada.UseVisualStyleBackColor = true;
+            chkMarcarFinalizada.AutoSize = true;
+            chkMarcarFinalizada.Location = new Point(14, 414);
+            chkMarcarFinalizada.Name = "chkMarcarFinalizada";
+            chkMarcarFinalizada.Size = new Size(251, 24);
+            chkMarcarFinalizada.TabIndex = 10;
+            chkMarcarFinalizada.Text = "Marcar venta como finalizada";
+            chkMarcarFinalizada.UseVisualStyleBackColor = true;
             // 
             // CrearVentaForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 421);
-            this.Controls.Add(this.lblTotalVenta);
-            this.Controls.Add(this.lblCantidad);
-            this.Controls.Add(this.lblProducto);
-            this.Controls.Add(this.btnCancelar);
-            this.Controls.Add(this.chkMarcarFinalizada);
-            this.Controls.Add(this.btnFinalizarVenta);
-            this.Controls.Add(this.btnEliminarLinea);
-            this.Controls.Add(this.dataGridLineasVenta);
-            this.Controls.Add(this.btnAgregarProducto);
-            this.Controls.Add(this.numCantidad);
-            this.Controls.Add(this.cmbProductos);
-            this.MinimumSize = new System.Drawing.Size(600, 350);
-            this.Name = "CrearVentaForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Crear Nueva Venta";
-            this.Load += new System.EventHandler(this.CrearVentaForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasVenta)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(784, 477);
+            Controls.Add(lblTotalVenta);
+            Controls.Add(lblCantidad);
+            Controls.Add(lblProducto);
+            Controls.Add(btnCancelar);
+            Controls.Add(chkMarcarFinalizada);
+            Controls.Add(btnFinalizarVenta);
+            Controls.Add(btnEliminarLinea);
+            Controls.Add(dataGridLineasVenta);
+            Controls.Add(btnAgregarProducto);
+            Controls.Add(numCantidad);
+            Controls.Add(cmbProductos);
+            MinimumSize = new Size(600, 391);
+            Name = "CrearVentaForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Crear Nueva Venta";
+            Load += CrearVentaForm_Load;
+            ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridLineasVenta).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

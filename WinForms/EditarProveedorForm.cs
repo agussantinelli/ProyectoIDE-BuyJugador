@@ -109,5 +109,10 @@ namespace WinForms
             DialogResult = DialogResult.Cancel;
             this.Close(); // # REFACTORIZADO para MDI
         }
+
+        private void txtRazonSocial_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

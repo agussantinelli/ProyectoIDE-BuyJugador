@@ -33,9 +33,9 @@
             // 
             // txtBuscarProveedor
             // 
-            txtBuscarProveedor.Location = new Point(158, 14);
+            txtBuscarProveedor.Location = new Point(206, 12);
             txtBuscarProveedor.Name = "txtBuscarProveedor";
-            txtBuscarProveedor.Size = new Size(400, 22);
+            txtBuscarProveedor.Size = new Size(400, 25);
             txtBuscarProveedor.TabIndex = 3;
             txtBuscarProveedor.TextChanged += FiltrosChanged;
             // 
@@ -44,7 +44,7 @@
             lblBuscarProveedor.AutoSize = true;
             lblBuscarProveedor.Location = new Point(12, 14);
             lblBuscarProveedor.Name = "lblBuscarProveedor";
-            lblBuscarProveedor.Size = new Size(140, 17);
+            lblBuscarProveedor.Size = new Size(175, 20);
             lblBuscarProveedor.TabIndex = 4;
             lblBuscarProveedor.Text = "Buscar por proveedor:";
             // 
@@ -52,9 +52,9 @@
             // 
             cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFiltroGasto.Items.AddRange(new object[] { "Todos", "Hasta $10.000", "$10.001 a $50.000", "Más de $50.000" });
-            cmbFiltroGasto.Location = new Point(589, 11);
+            cmbFiltroGasto.Location = new Point(642, 12);
             cmbFiltroGasto.Name = "cmbFiltroGasto";
-            cmbFiltroGasto.Size = new Size(130, 25);
+            cmbFiltroGasto.Size = new Size(130, 28);
             cmbFiltroGasto.TabIndex = 5;
             cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
             // 

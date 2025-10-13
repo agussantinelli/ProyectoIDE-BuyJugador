@@ -22,73 +22,74 @@
 
         private void InitializeComponent()
         {
-            this.lblProductoNombre = new System.Windows.Forms.Label();
-            this.numCantidad = new System.Windows.Forms.NumericUpDown();
-            this.lblCantidad = new System.Windows.Forms.Label();
-            this.btnConfirmar = new System.Windows.Forms.Button();
-            this.btnCancelar = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
-            this.SuspendLayout();
+            lblProductoNombre = new Label();
+            numCantidad = new NumericUpDown();
+            lblCantidad = new Label();
+            btnConfirmar = new Button();
+            btnCancelar = new Button();
+            ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
+            SuspendLayout();
             // 
             // lblProductoNombre
             // 
-            this.lblProductoNombre.AutoSize = true;
-            this.lblProductoNombre.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblProductoNombre.Location = new System.Drawing.Point(25, 20);
-            this.lblProductoNombre.Name = "lblProductoNombre";
-            this.lblProductoNombre.Size = new System.Drawing.Size(155, 21);
-            this.lblProductoNombre.TabIndex = 0;
-            this.lblProductoNombre.Text = "Nombre Producto";
+            lblProductoNombre.AutoSize = true;
+            lblProductoNombre.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblProductoNombre.Location = new Point(25, 20);
+            lblProductoNombre.Name = "lblProductoNombre";
+            lblProductoNombre.Size = new Size(147, 21);
+            lblProductoNombre.TabIndex = 0;
+            lblProductoNombre.Text = "Nombre Producto";
             // 
             // numCantidad
             // 
-            this.numCantidad.Location = new System.Drawing.Point(95, 60);
-            this.numCantidad.Name = "numCantidad";
-            this.numCantidad.Size = new System.Drawing.Size(120, 23);
-            this.numCantidad.TabIndex = 1;
+            numCantidad.Location = new Point(120, 62);
+            numCantidad.Name = "numCantidad";
+            numCantidad.Size = new Size(120, 25);
+            numCantidad.TabIndex = 1;
             // 
             // lblCantidad
             // 
-            this.lblCantidad.AutoSize = true;
-            this.lblCantidad.Location = new System.Drawing.Point(29, 62);
-            this.lblCantidad.Name = "lblCantidad";
-            this.lblCantidad.Size = new System.Drawing.Size(61, 15);
-            this.lblCantidad.TabIndex = 2;
-            this.lblCantidad.Text = "Cantidad:";
+            lblCantidad.AutoSize = true;
+            lblCantidad.Location = new Point(29, 62);
+            lblCantidad.Name = "lblCantidad";
+            lblCantidad.Size = new Size(82, 20);
+            lblCantidad.TabIndex = 2;
+            lblCantidad.Text = "Cantidad:";
             // 
             // btnConfirmar
             // 
-            this.btnConfirmar.Location = new System.Drawing.Point(140, 110);
-            this.btnConfirmar.Name = "btnConfirmar";
-            this.btnConfirmar.Size = new System.Drawing.Size(100, 30);
-            this.btnConfirmar.TabIndex = 3;
-            this.btnConfirmar.Text = "Confirmar";
-            this.btnConfirmar.UseVisualStyleBackColor = true;
-            this.btnConfirmar.Click += new System.EventHandler(this.btnConfirmar_Click);
+            btnConfirmar.Location = new Point(140, 110);
+            btnConfirmar.Name = "btnConfirmar";
+            btnConfirmar.Size = new Size(100, 30);
+            btnConfirmar.TabIndex = 3;
+            btnConfirmar.Text = "Confirmar";
+            btnConfirmar.UseVisualStyleBackColor = true;
+            btnConfirmar.Click += btnConfirmar_Click;
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(30, 110);
-            this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(100, 30);
-            this.btnCancelar.TabIndex = 4;
-            this.btnCancelar.Text = "Cancelar";
-            this.btnCancelar.UseVisualStyleBackColor = true;
-            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            btnCancelar.Location = new Point(30, 110);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(100, 30);
+            btnCancelar.TabIndex = 4;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += btnCancelar_Click;
             // 
             // AñanirProductoPedidoForm
             // 
-            this.ClientSize = new System.Drawing.Size(284, 161);
-            this.Controls.Add(this.btnCancelar);
-            this.Controls.Add(this.btnConfirmar);
-            this.Controls.Add(this.lblCantidad);
-            this.Controls.Add(this.numCantidad);
-            this.Controls.Add(this.lblProductoNombre);
-            this.Name = "AñanirProductoPedidoForm";
-            this.Text = "Añadir Producto a Pedido";
-            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            ClientSize = new Size(284, 161);
+            Controls.Add(btnCancelar);
+            Controls.Add(btnConfirmar);
+            Controls.Add(lblCantidad);
+            Controls.Add(numCantidad);
+            Controls.Add(lblProductoNombre);
+            Name = "AñanirProductoPedidoForm";
+            Text = "Añadir Producto a Pedido";
+            ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

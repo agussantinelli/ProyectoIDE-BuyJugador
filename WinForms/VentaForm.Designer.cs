@@ -34,9 +34,9 @@
             // 
             // txtBuscarCliente
             // 
-            txtBuscarCliente.Location = new Point(135, 14);
+            txtBuscarCliente.Location = new Point(163, 14);
             txtBuscarCliente.Name = "txtBuscarCliente";
-            txtBuscarCliente.Size = new Size(400, 22);
+            txtBuscarCliente.Size = new Size(400, 25);
             txtBuscarCliente.TabIndex = 2;
             txtBuscarCliente.TextChanged += FiltrosChanged;
             // 
@@ -45,7 +45,7 @@
             lblBuscarCliente.AutoSize = true;
             lblBuscarCliente.Location = new Point(12, 14);
             lblBuscarCliente.Name = "lblBuscarCliente";
-            lblBuscarCliente.Size = new Size(118, 17);
+            lblBuscarCliente.Size = new Size(145, 20);
             lblBuscarCliente.TabIndex = 3;
             lblBuscarCliente.Text = "Buscar por cliente:";
             // 
@@ -53,9 +53,9 @@
             // 
             cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFiltroGasto.Items.AddRange(new object[] { "Todos", "Hasta $10.000", "$10.001 a $50.000", "Más de $50.000" });
-            cmbFiltroGasto.Location = new Point(556, 14);
+            cmbFiltroGasto.Location = new Point(599, 11);
             cmbFiltroGasto.Name = "cmbFiltroGasto";
-            cmbFiltroGasto.Size = new Size(160, 25);
+            cmbFiltroGasto.Size = new Size(160, 28);
             cmbFiltroGasto.TabIndex = 4;
             cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
             // 
@@ -64,7 +64,7 @@
             lblFiltroGasto.AutoSize = true;
             lblFiltroGasto.Location = new Point(550, 14);
             lblFiltroGasto.Name = "lblFiltroGasto";
-            lblFiltroGasto.Size = new Size(0, 17);
+            lblFiltroGasto.Size = new Size(0, 20);
             lblFiltroGasto.TabIndex = 5;
             // 
             // dataGridVentas

@@ -17,97 +17,93 @@
 
         private void InitializeComponent()
         {
-            this.lblProductoInfo = new System.Windows.Forms.Label();
-            this.lblProveedorInfo = new System.Windows.Forms.Label();
-            this.lblPrecio = new System.Windows.Forms.Label();
-            this.numPrecio = new System.Windows.Forms.NumericUpDown();
-            this.btnGuardar = new System.Windows.Forms.Button();
-            this.btnCancelar = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.numPrecio)).BeginInit();
-            this.SuspendLayout();
+            lblProductoInfo = new Label();
+            lblProveedorInfo = new Label();
+            lblPrecio = new Label();
+            numPrecio = new NumericUpDown();
+            btnGuardar = new Button();
+            btnCancelar = new Button();
+            ((System.ComponentModel.ISupportInitialize)numPrecio).BeginInit();
+            SuspendLayout();
             // 
             // lblProductoInfo
             // 
-            this.lblProductoInfo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblProductoInfo.Location = new System.Drawing.Point(12, 9);
-            this.lblProductoInfo.Name = "lblProductoInfo";
-            this.lblProductoInfo.Size = new System.Drawing.Size(260, 23);
-            this.lblProductoInfo.TabIndex = 0;
-            this.lblProductoInfo.Text = "Producto: 'Nombre del Producto'";
-            this.lblProductoInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblProductoInfo.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblProductoInfo.Location = new Point(12, 10);
+            lblProductoInfo.Name = "lblProductoInfo";
+            lblProductoInfo.Size = new Size(260, 26);
+            lblProductoInfo.TabIndex = 0;
+            lblProductoInfo.Text = "Producto: 'Nombre del Producto'";
+            lblProductoInfo.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblProveedorInfo
             // 
-            this.lblProveedorInfo.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
-            this.lblProveedorInfo.Location = new System.Drawing.Point(12, 32);
-            this.lblProveedorInfo.Name = "lblProveedorInfo";
-            this.lblProveedorInfo.Size = new System.Drawing.Size(260, 23);
-            this.lblProveedorInfo.TabIndex = 5;
-            this.lblProveedorInfo.Text = "Proveedor: 'Razón Social'";
-            this.lblProveedorInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            lblProveedorInfo.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblProveedorInfo.Location = new Point(12, 36);
+            lblProveedorInfo.Name = "lblProveedorInfo";
+            lblProveedorInfo.Size = new Size(260, 26);
+            lblProveedorInfo.TabIndex = 5;
+            lblProveedorInfo.Text = "Proveedor: 'Razón Social'";
+            lblProveedorInfo.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // lblPrecio
             // 
-            this.lblPrecio.AutoSize = true;
-            this.lblPrecio.Location = new System.Drawing.Point(34, 75);
-            this.lblPrecio.Name = "lblPrecio";
-            this.lblPrecio.Size = new System.Drawing.Size(81, 15);
-            this.lblPrecio.TabIndex = 1;
-            this.lblPrecio.Text = "Nuevo Precio:";
+            lblPrecio.AutoSize = true;
+            lblPrecio.Location = new Point(34, 85);
+            lblPrecio.Name = "lblPrecio";
+            lblPrecio.Size = new Size(114, 20);
+            lblPrecio.TabIndex = 1;
+            lblPrecio.Text = "Nuevo Precio:";
             // 
             // numPrecio
             // 
-            this.numPrecio.DecimalPlaces = 2;
-            this.numPrecio.Location = new System.Drawing.Point(121, 73);
-            this.numPrecio.Maximum = new decimal(new int[] {
-            1000000,
-            0,
-            0,
-            0});
-            this.numPrecio.Name = "numPrecio";
-            this.numPrecio.Size = new System.Drawing.Size(120, 23);
-            this.numPrecio.TabIndex = 2;
+            numPrecio.DecimalPlaces = 2;
+            numPrecio.Location = new Point(154, 83);
+            numPrecio.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
+            numPrecio.Name = "numPrecio";
+            numPrecio.Size = new Size(120, 25);
+            numPrecio.TabIndex = 2;
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(172, 119);
-            this.btnGuardar.Name = "btnGuardar";
-            this.btnGuardar.Size = new System.Drawing.Size(100, 30);
-            this.btnGuardar.TabIndex = 3;
-            this.btnGuardar.Text = "Guardar";
-            this.btnGuardar.UseVisualStyleBackColor = true;
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
+            btnGuardar.Location = new Point(172, 135);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new Size(100, 34);
+            btnGuardar.TabIndex = 3;
+            btnGuardar.Text = "Guardar";
+            btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click;
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(12, 119);
-            this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(100, 30);
-            this.btnCancelar.TabIndex = 4;
-            this.btnCancelar.Text = "Cancelar";
-            this.btnCancelar.UseVisualStyleBackColor = true;
-            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            btnCancelar.Location = new Point(12, 135);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(100, 34);
+            btnCancelar.TabIndex = 4;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += btnCancelar_Click;
             // 
             // AsignarPrecioProductoProveedorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 161);
-            this.Controls.Add(this.btnCancelar);
-            this.Controls.Add(this.btnGuardar);
-            this.Controls.Add(this.numPrecio);
-            this.Controls.Add(this.lblPrecio);
-            this.Controls.Add(this.lblProveedorInfo);
-            this.Controls.Add(this.lblProductoInfo);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "AsignarPrecioProductoProveedorForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Asignar Precio";
-            ((System.ComponentModel.ISupportInitialize)(this.numPrecio)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(284, 182);
+            Controls.Add(btnCancelar);
+            Controls.Add(btnGuardar);
+            Controls.Add(numPrecio);
+            Controls.Add(lblPrecio);
+            Controls.Add(lblProveedorInfo);
+            Controls.Add(lblProductoInfo);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "AsignarPrecioProductoProveedorForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Asignar Precio";
+            ((System.ComponentModel.ISupportInitialize)numPrecio).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

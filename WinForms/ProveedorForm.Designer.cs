@@ -53,9 +53,9 @@ namespace WinForms
             // 
             // txtBuscar
             // 
-            txtBuscar.Location = new Point(169, 12);
+            txtBuscar.Location = new Point(221, 12);
             txtBuscar.Name = "txtBuscar";
-            txtBuscar.Size = new Size(300, 22);
+            txtBuscar.Size = new Size(300, 25);
             txtBuscar.TabIndex = 1;
             txtBuscar.TextChanged += txtBuscar_TextChanged;
             // 
@@ -64,7 +64,7 @@ namespace WinForms
             lblBuscar.AutoSize = true;
             lblBuscar.Location = new Point(12, 15);
             lblBuscar.Name = "lblBuscar";
-            lblBuscar.Size = new Size(151, 17);
+            lblBuscar.Size = new Size(186, 20);
             lblBuscar.TabIndex = 0;
             lblBuscar.Text = "Buscar por Razón Social:";
             // 
@@ -82,9 +82,9 @@ namespace WinForms
             // tabPageActivos
             // 
             tabPageActivos.Controls.Add(dgvActivos);
-            tabPageActivos.Location = new Point(4, 26);
+            tabPageActivos.Location = new Point(4, 29);
             tabPageActivos.Name = "tabPageActivos";
-            tabPageActivos.Size = new Size(1168, 390);
+            tabPageActivos.Size = new Size(1168, 387);
             tabPageActivos.TabIndex = 0;
             tabPageActivos.Text = "Activos";
             // 
@@ -93,16 +93,16 @@ namespace WinForms
             dgvActivos.Dock = DockStyle.Fill;
             dgvActivos.Location = new Point(0, 0);
             dgvActivos.Name = "dgvActivos";
-            dgvActivos.Size = new Size(1168, 390);
+            dgvActivos.Size = new Size(1168, 387);
             dgvActivos.TabIndex = 0;
             dgvActivos.SelectionChanged += dgv_SelectionChanged;
             // 
             // tabPageInactivos
             // 
             tabPageInactivos.Controls.Add(dgvInactivos);
-            tabPageInactivos.Location = new Point(4, 26);
+            tabPageInactivos.Location = new Point(4, 29);
             tabPageInactivos.Name = "tabPageInactivos";
-            tabPageInactivos.Size = new Size(1168, 390);
+            tabPageInactivos.Size = new Size(1168, 387);
             tabPageInactivos.TabIndex = 1;
             tabPageInactivos.Text = "Inactivos";
             // 
@@ -111,7 +111,7 @@ namespace WinForms
             dgvInactivos.Dock = DockStyle.Fill;
             dgvInactivos.Location = new Point(0, 0);
             dgvInactivos.Name = "dgvInactivos";
-            dgvInactivos.Size = new Size(1168, 390);
+            dgvInactivos.Size = new Size(1168, 387);
             dgvInactivos.TabIndex = 0;
             dgvInactivos.SelectionChanged += dgv_SelectionChanged;
             // 

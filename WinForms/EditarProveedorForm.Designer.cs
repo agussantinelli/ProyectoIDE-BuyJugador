@@ -17,211 +17,212 @@
 
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtRazonSocial = new System.Windows.Forms.TextBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtCuit = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.txtEmail = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtTelefono = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtDireccion = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.cmbProvincia = new System.Windows.Forms.ComboBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.cmbLocalidad = new System.Windows.Forms.ComboBox();
-            this.btnGuardar = new System.Windows.Forms.Button();
-            this.btnCancelar = new System.Windows.Forms.Button();
-            this.lblId = new System.Windows.Forms.Label();
-            this.txtId = new System.Windows.Forms.TextBox();
-            this.SuspendLayout();
-            // 
-            // lblId
-            // 
-            this.lblId.AutoSize = true;
-            this.lblId.Location = new System.Drawing.Point(26, 25);
-            this.lblId.Name = "lblId";
-            this.lblId.Size = new System.Drawing.Size(21, 15);
-            this.lblId.TabIndex = 0;
-            this.lblId.Text = "ID:";
-            // 
-            // txtId
-            // 
-            this.txtId.Location = new System.Drawing.Point(119, 22);
-            this.txtId.Name = "txtId";
-            this.txtId.Size = new System.Drawing.Size(219, 23);
-            this.txtId.TabIndex = 1;
+            label1 = new Label();
+            txtRazonSocial = new TextBox();
+            label2 = new Label();
+            txtCuit = new TextBox();
+            label3 = new Label();
+            txtEmail = new TextBox();
+            label4 = new Label();
+            txtTelefono = new TextBox();
+            label5 = new Label();
+            txtDireccion = new TextBox();
+            label6 = new Label();
+            cmbProvincia = new ComboBox();
+            label7 = new Label();
+            cmbLocalidad = new ComboBox();
+            btnGuardar = new Button();
+            btnCancelar = new Button();
+            lblId = new Label();
+            txtId = new TextBox();
+            SuspendLayout();
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(26, 58);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(76, 15);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "Razón Social:";
+            label1.AutoSize = true;
+            label1.Location = new Point(26, 66);
+            label1.Name = "label1";
+            label1.Size = new Size(104, 20);
+            label1.TabIndex = 2;
+            label1.Text = "Razón Social:";
             // 
             // txtRazonSocial
             // 
-            this.txtRazonSocial.Location = new System.Drawing.Point(119, 55);
-            this.txtRazonSocial.Name = "txtRazonSocial";
-            this.txtRazonSocial.Size = new System.Drawing.Size(219, 23);
-            this.txtRazonSocial.TabIndex = 3;
+            txtRazonSocial.Location = new Point(143, 66);
+            txtRazonSocial.Name = "txtRazonSocial";
+            txtRazonSocial.Size = new Size(219, 25);
+            txtRazonSocial.TabIndex = 3;
+            txtRazonSocial.TextChanged += txtRazonSocial_TextChanged;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(26, 91);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(35, 15);
-            this.label2.TabIndex = 4;
-            this.label2.Text = "CUIT:";
+            label2.AutoSize = true;
+            label2.Location = new Point(26, 103);
+            label2.Name = "label2";
+            label2.Size = new Size(46, 20);
+            label2.TabIndex = 4;
+            label2.Text = "CUIT:";
             // 
             // txtCuit
             // 
-            this.txtCuit.Location = new System.Drawing.Point(119, 88);
-            this.txtCuit.Name = "txtCuit";
-            this.txtCuit.Size = new System.Drawing.Size(219, 23);
-            this.txtCuit.TabIndex = 5;
+            txtCuit.Location = new Point(143, 103);
+            txtCuit.Name = "txtCuit";
+            txtCuit.Size = new Size(219, 25);
+            txtCuit.TabIndex = 5;
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(26, 124);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 15);
-            this.label3.TabIndex = 6;
-            this.label3.Text = "Email:";
+            label3.AutoSize = true;
+            label3.Location = new Point(26, 141);
+            label3.Name = "label3";
+            label3.Size = new Size(50, 20);
+            label3.TabIndex = 6;
+            label3.Text = "Email:";
             // 
             // txtEmail
             // 
-            this.txtEmail.Location = new System.Drawing.Point(119, 121);
-            this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(219, 23);
-            this.txtEmail.TabIndex = 7;
+            txtEmail.Location = new Point(143, 141);
+            txtEmail.Name = "txtEmail";
+            txtEmail.Size = new Size(219, 25);
+            txtEmail.TabIndex = 7;
             // 
             // label4
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(26, 157);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 15);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "Teléfono:";
+            label4.AutoSize = true;
+            label4.Location = new Point(26, 178);
+            label4.Name = "label4";
+            label4.Size = new Size(75, 20);
+            label4.TabIndex = 8;
+            label4.Text = "Teléfono:";
             // 
             // txtTelefono
             // 
-            this.txtTelefono.Location = new System.Drawing.Point(119, 154);
-            this.txtTelefono.Name = "txtTelefono";
-            this.txtTelefono.Size = new System.Drawing.Size(219, 23);
-            this.txtTelefono.TabIndex = 9;
+            txtTelefono.Location = new Point(143, 178);
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new Size(219, 25);
+            txtTelefono.TabIndex = 9;
             // 
             // label5
             // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(26, 190);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(60, 15);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "Dirección:";
+            label5.AutoSize = true;
+            label5.Location = new Point(26, 215);
+            label5.Name = "label5";
+            label5.Size = new Size(84, 20);
+            label5.TabIndex = 10;
+            label5.Text = "Dirección:";
             // 
             // txtDireccion
             // 
-            this.txtDireccion.Location = new System.Drawing.Point(119, 187);
-            this.txtDireccion.Name = "txtDireccion";
-            this.txtDireccion.Size = new System.Drawing.Size(219, 23);
-            this.txtDireccion.TabIndex = 11;
+            txtDireccion.Location = new Point(143, 215);
+            txtDireccion.Name = "txtDireccion";
+            txtDireccion.Size = new Size(219, 25);
+            txtDireccion.TabIndex = 11;
             // 
             // label6
             // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(26, 223);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(59, 15);
-            this.label6.TabIndex = 12;
-            this.label6.Text = "Provincia:";
+            label6.AutoSize = true;
+            label6.Location = new Point(26, 253);
+            label6.Name = "label6";
+            label6.Size = new Size(82, 20);
+            label6.TabIndex = 12;
+            label6.Text = "Provincia:";
             // 
             // cmbProvincia
             // 
-            this.cmbProvincia.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbProvincia.FormattingEnabled = true;
-            this.cmbProvincia.Location = new System.Drawing.Point(119, 220);
-            this.cmbProvincia.Name = "cmbProvincia";
-            this.cmbProvincia.Size = new System.Drawing.Size(219, 23);
-            this.cmbProvincia.TabIndex = 13;
-            this.cmbProvincia.SelectedIndexChanged += new System.EventHandler(this.cmbProvincia_SelectedIndexChanged);
+            cmbProvincia.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProvincia.FormattingEnabled = true;
+            cmbProvincia.Location = new Point(143, 253);
+            cmbProvincia.Name = "cmbProvincia";
+            cmbProvincia.Size = new Size(219, 28);
+            cmbProvincia.TabIndex = 13;
+            cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
             // 
             // label7
             // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(26, 256);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(61, 15);
-            this.label7.TabIndex = 14;
-            this.label7.Text = "Localidad:";
+            label7.AutoSize = true;
+            label7.Location = new Point(26, 290);
+            label7.Name = "label7";
+            label7.Size = new Size(86, 20);
+            label7.TabIndex = 14;
+            label7.Text = "Localidad:";
             // 
             // cmbLocalidad
             // 
-            this.cmbLocalidad.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbLocalidad.FormattingEnabled = true;
-            this.cmbLocalidad.Location = new System.Drawing.Point(119, 253);
-            this.cmbLocalidad.Name = "cmbLocalidad";
-            this.cmbLocalidad.Size = new System.Drawing.Size(219, 23);
-            this.cmbLocalidad.TabIndex = 15;
+            cmbLocalidad.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbLocalidad.FormattingEnabled = true;
+            cmbLocalidad.Location = new Point(143, 290);
+            cmbLocalidad.Name = "cmbLocalidad";
+            cmbLocalidad.Size = new Size(219, 28);
+            cmbLocalidad.TabIndex = 15;
             // 
             // btnGuardar
             // 
-            this.btnGuardar.Location = new System.Drawing.Point(238, 298);
-            this.btnGuardar.Name = "btnGuardar";
-            this.btnGuardar.Size = new System.Drawing.Size(100, 30);
-            this.btnGuardar.TabIndex = 16;
-            this.btnGuardar.Text = "Guardar";
-            this.btnGuardar.UseVisualStyleBackColor = true;
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
+            btnGuardar.Location = new Point(262, 338);
+            btnGuardar.Name = "btnGuardar";
+            btnGuardar.Size = new Size(100, 34);
+            btnGuardar.TabIndex = 16;
+            btnGuardar.Text = "Guardar";
+            btnGuardar.UseVisualStyleBackColor = true;
+            btnGuardar.Click += btnGuardar_Click;
             // 
             // btnCancelar
             // 
-            this.btnCancelar.Location = new System.Drawing.Point(119, 298);
-            this.btnCancelar.Name = "btnCancelar";
-            this.btnCancelar.Size = new System.Drawing.Size(100, 30);
-            this.btnCancelar.TabIndex = 17;
-            this.btnCancelar.Text = "Cancelar";
-            this.btnCancelar.UseVisualStyleBackColor = true;
-            this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
+            btnCancelar.Location = new Point(102, 338);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(100, 34);
+            btnCancelar.TabIndex = 17;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = true;
+            btnCancelar.Click += btnCancelar_Click;
+            // 
+            // lblId
+            // 
+            lblId.AutoSize = true;
+            lblId.Location = new Point(26, 28);
+            lblId.Name = "lblId";
+            lblId.Size = new Size(29, 20);
+            lblId.TabIndex = 0;
+            lblId.Text = "ID:";
+            // 
+            // txtId
+            // 
+            txtId.Location = new Point(143, 28);
+            txtId.Name = "txtId";
+            txtId.Size = new Size(219, 25);
+            txtId.TabIndex = 1;
             // 
             // EditarProveedorForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(364, 341);
-            this.Controls.Add(this.btnCancelar);
-            this.Controls.Add(this.btnGuardar);
-            this.Controls.Add(this.cmbLocalidad);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.cmbProvincia);
-            this.Controls.Add(this.label6);
-            this.Controls.Add(this.txtDireccion);
-            this.Controls.Add(this.label5);
-            this.Controls.Add(this.txtTelefono);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.txtCuit);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtRazonSocial);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtId);
-            this.Controls.Add(this.lblId);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "EditarProveedorForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Editar Proveedor";
-            this.Load += new System.EventHandler(this.EditarProveedorForm_Load);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(390, 399);
+            Controls.Add(btnCancelar);
+            Controls.Add(btnGuardar);
+            Controls.Add(cmbLocalidad);
+            Controls.Add(label7);
+            Controls.Add(cmbProvincia);
+            Controls.Add(label6);
+            Controls.Add(txtDireccion);
+            Controls.Add(label5);
+            Controls.Add(txtTelefono);
+            Controls.Add(label4);
+            Controls.Add(txtEmail);
+            Controls.Add(label3);
+            Controls.Add(txtCuit);
+            Controls.Add(label2);
+            Controls.Add(txtRazonSocial);
+            Controls.Add(label1);
+            Controls.Add(txtId);
+            Controls.Add(lblId);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "EditarProveedorForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Editar Proveedor";
+            Load += EditarProveedorForm_Load;
+            ResumeLayout(false);
+            PerformLayout();
         }
         #endregion
 
