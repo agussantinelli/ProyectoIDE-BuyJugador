@@ -1,130 +1,102 @@
 using Data;
 using DominioServicios;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+// # 1. Configuración de Servicios
+
+builder.Services.AddDbContext<BuyJugadorContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
+
+// # Agrega los servicios de dominio
+builder.Services.AddScoped<PersonaService>();
+builder.Services.AddScoped<ProductoService>();
+builder.Services.AddScoped<ProveedorService>();
+builder.Services.AddScoped<TipoProductoService>();
+builder.Services.AddScoped<ProvinciaService>();
+builder.Services.AddScoped<LocalidadService>();
+builder.Services.AddScoped<ProductoProveedorService>();
+builder.Services.AddScoped<PrecioVentaService>();
+builder.Services.AddScoped<PrecioCompraService>();
+builder.Services.AddScoped<PedidoService>();
+builder.Services.AddScoped<VentaService>();
+builder.Services.AddScoped<LineaPedidoService>();
+builder.Services.AddScoped<LineaVentaService>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyJugador API", Version = "v1" });
+});
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          // Aquí pones la dirección de tu app Blazor
-                          policy.WithOrigins("https://localhost:7035")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
-                      });
+    options.AddPolicy("AllowBlazorApp",
+        builder => builder.WithOrigins("https://localhost:7035")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod());
 });
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 
-#region Builder Configuration
-
-var connectionString = builder.Configuration.GetConnectionString("BuyJugadorConnection");
-
-builder.Services.AddDbContext<BuyJugadorContext>(options =>
-    options.UseSqlServer(connectionString)
-           .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning)));
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddRazorPages();
-
-#endregion
-
-
-#region Services Registration
-
-builder.Services.AddScoped<PersonaService>();
-builder.Services.AddScoped<LineaPedidoService>();
-builder.Services.AddScoped<LineaVentaService>();
-builder.Services.AddScoped<LocalidadService>();
-builder.Services.AddScoped<PedidoService>();
-builder.Services.AddScoped<PrecioCompraService>();
-builder.Services.AddScoped<PrecioVentaService>();
-builder.Services.AddScoped<ProductoService>();
-builder.Services.AddScoped<ProveedorService>();
-builder.Services.AddScoped<ProvinciaService>();
-builder.Services.AddScoped<TipoProductoService>();
-builder.Services.AddScoped<VentaService>();
-builder.Services.AddScoped<ProductoProveedorService>();
-
-#endregion
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-#region Application Pipeline Configuration
+// # 2. Configuración del Pipeline de Middleware
 
-// # Configura el pipeline de solicitudes HTTP.
 if (app.Environment.IsDevelopment())
 {
-    // # En desarrollo, habilita Swagger para documentar y probar la API.
     app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    // # En producción, usa un manejador de excepciones y HSTS.
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BuyJugador API v1"));
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var context = services.GetRequiredService<BuyJugadorContext>();
+        await DbSeeder.SeedAsync(context);
+    }
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-// ***** UBICACIÓN CORRECTA PARA CORS *****
-// Debe ir después de UseRouting() y antes de UseAuthorization().
-app.UseCors(MyAllowSpecificOrigins);
-
+app.UseCors("AllowBlazorApp");
+app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapRazorPages();
-
-#endregion
-
-#region Database Seeding
-
-// # Ejecuta el seeder para poblar la base de datos con datos iniciales.
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<BuyJugadorContext>();
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    try
-    {
-        // # Es una buena práctica ejecutar tareas asíncronas de inicialización aquí.
-        await DbSeeder.SeedAsync(context);
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-}
-
-#endregion
-
-#region API Endpoints Registration
-
-// # Mapea todos los grupos de endpoints de la API.
+// # 3. Mapeo de Endpoints
+app.MapAuthenticationEndpoints();
+app.MapPersonaEndpoints();
 app.MapProductoEndpoints();
 app.MapProveedorEndpoints();
-app.MapPersonaEndpoints();
+app.MapTipoProductoEndpoints();
+app.MapProvinciaEndpoints();
+app.MapLocalidadEndpoints();
+app.MapProductoProveedorEndpoints();
+app.MapPrecioVentaEndpoints();
+app.MapPrecioCompraEndpoints();
+app.MapPedidoEndpoints();
+app.MapVentaEndpoints();
 app.MapLineaPedidoEndpoints();
 app.MapLineaVentaEndpoints();
-app.MapLocalidadEndpoints();
-app.MapPedidoEndpoints();
-app.MapPrecioCompraEndpoints();
-app.MapPrecioVentaEndpoints();
-app.MapProvinciaEndpoints();
-app.MapTipoProductoEndpoints();
-app.MapVentaEndpoints();
-app.MapProductoProveedorEndpoints();
-
-#endregion
 
 app.Run();
+

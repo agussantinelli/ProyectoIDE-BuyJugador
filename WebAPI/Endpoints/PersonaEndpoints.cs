@@ -1,5 +1,4 @@
-﻿// WebAPI/Endpoints/PersonaEndpoints.cs
-using DominioServicios; 
+﻿using DominioServicios;
 using DTOs;
 
 namespace WebAPI.Endpoints
@@ -49,18 +48,7 @@ namespace WebAPI.Endpoints
                 var borrado = await service.DeleteAsync(id);
                 return borrado ? Results.NoContent() : Results.NotFound();
             });
-
-            app.MapPost("/api/personas/login", async (PersonaService service, LoginRequestDto loginRequest) =>
-            {
-                var personaDto = await service.LoginAsync(loginRequest.Dni, loginRequest.Password);
-                return personaDto != null ? Results.Ok(personaDto) : Results.Unauthorized();
-            }).AllowAnonymous();
-        }
-
-        public class LoginRequestDto
-        {
-            public int Dni { get; set; }
-            public string Password { get; set; } = null!;
         }
     }
 }
+

@@ -12,8 +12,6 @@ using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-// CORRECCIÓN: Usar el nombre completamente calificado para el componente 'App'.
-// Esto elimina cualquier ambigüedad para el compilador.
 builder.RootComponents.Add<BlazorApp.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
@@ -25,11 +23,14 @@ var apiUri = new Uri(apiBase);
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-builder.Services.AddScoped<TokenMessageHandler>();
+
+// # CORRECCIÓN: Usamos el nombre completo para ser explícitos y evitar ambigüedad.
+builder.Services.AddScoped<BlazorApp.Auth.TokenMessageHandler>();
 
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
-               .AddHttpMessageHandler<TokenMessageHandler>();
+               // # CORRECCIÓN: Especificamos el handler del namespace BlazorApp.Auth.
+               .AddHttpMessageHandler<BlazorApp.Auth.TokenMessageHandler>();
 
 builder.Services.AddScoped(sp => new ProductoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new ProveedorApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));

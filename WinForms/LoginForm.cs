@@ -1,10 +1,10 @@
 ﻿using ApiClient;
 using System;
 using System.Windows.Forms;
+using DTOs;
 
 namespace WinForms
 {
-    // # El Login DEBE ser modal. Su lógica no cambia.
     public partial class LoginForm : BaseForm
     {
         private readonly PersonaApiClient _personaApiClient;
@@ -15,7 +15,6 @@ namespace WinForms
             InitializeComponent();
             _personaApiClient = personaApiClient;
             _userSessionService = userSessionService;
-
             StyleManager.ApplyButtonStyle(btnLogin);
         }
 
@@ -29,10 +28,15 @@ namespace WinForms
 
             try
             {
-                var loggedInUser = await _personaApiClient.LoginAsync(dni, txtPassword.Text);
-                if (loggedInUser != null)
+                // # MODIFICACIÓN: Se consume el método de login actualizado.
+                var loginResponse = await _personaApiClient.LoginAsync(dni, txtPassword.Text);
+
+                // # La validación ahora usa el objeto de respuesta completo.
+                if (loginResponse?.Token != null && loginResponse.UserInfo != null)
                 {
-                    _userSessionService.CurrentUser = loggedInUser;
+                    // # Se establece la sesión con ambos, el DTO del usuario y el token.
+                    _userSessionService.SetSession(loginResponse.UserInfo, loginResponse.Token);
+
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
@@ -48,3 +52,4 @@ namespace WinForms
         }
     }
 }
+
