@@ -21,14 +21,12 @@ namespace WinForms
         {
             public int IdProducto { get; set; }
             public string Nombre { get; set; }
-            public string Descripcion { get; set; }
         }
 
         private class ProductoAsignadoRow
         {
             public int IdProducto { get; set; }
             public string Nombre { get; set; }
-            public string Descripcion { get; set; }
             public decimal PrecioCompra { get; set; }
         }
 
@@ -77,8 +75,7 @@ namespace WinForms
                     .Select(p => new ProductoDisponibleRow
                     {
                         IdProducto = p.IdProducto,
-                        Nombre = p.Nombre,
-                        Descripcion = p.Descripcion
+                        Nombre = p.Nombre
                     })
                     .ToList();
 
@@ -87,7 +84,6 @@ namespace WinForms
                     {
                         IdProducto = p.IdProducto,
                         Nombre = p.Nombre,
-                        Descripcion = p.Descripcion,
                         PrecioCompra = p.PrecioCompra
                     })
                     .ToList();
@@ -130,14 +126,7 @@ namespace WinForms
                     DataPropertyName = nameof(ProductoDisponibleRow.Nombre),
                     HeaderText = "Nombre",
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 180
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoDisponibleRow.Descripcion),
-                    HeaderText = "Descripción",
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 220
+                    FillWeight = 260
                 }
             });
         }
@@ -165,21 +154,14 @@ namespace WinForms
                     DataPropertyName = nameof(ProductoAsignadoRow.Nombre),
                     HeaderText = "Nombre",
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 160
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoAsignadoRow.Descripcion),
-                    HeaderText = "Descripción",
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 200
+                    FillWeight = 210
                 },
                 new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = nameof(ProductoAsignadoRow.PrecioCompra),
                     HeaderText = "Precio Compra",
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 90,
+                    FillWeight = 100,
                     DefaultCellStyle = new DataGridViewCellStyle
                     {
                         Format = "C2",
@@ -208,7 +190,6 @@ namespace WinForms
                     {
                         IdProducto = productoSeleccionado.IdProducto,
                         Nombre = productoSeleccionado.Nombre,
-                        Descripcion = productoSeleccionado.Descripcion,
                         PrecioCompra = formPrecio.Precio
                     });
                 }
@@ -223,8 +204,7 @@ namespace WinForms
                 _disponiblesBindingList.Add(new ProductoDisponibleRow
                 {
                     IdProducto = productoSeleccionado.IdProducto,
-                    Nombre = productoSeleccionado.Nombre,
-                    Descripcion = productoSeleccionado.Descripcion
+                    Nombre = productoSeleccionado.Nombre
                 });
             }
         }
