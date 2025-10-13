@@ -41,7 +41,7 @@
 
             <AuthorizeView>
                 <Authorized>
-                    <div class="user-area" role="group" aria-label="Área de usuario">
+                    <div class="user-area">
                         <span class="text-muted">Hola,</span>
                         <strong>@(context.User.Identity?.Name ?? "Usuario")</strong>
                         <button class="btn btn-link" type="button" @onclick="Logout">Logout</button>
@@ -65,13 +65,11 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
-
         try
         {
             var saved = await TryGetLocalStorage("sidebarCollapsed");
             if (bool.TryParse(saved, out var parsed))
                 isCollapsed = parsed;
-
             StateHasChanged();
         }
         catch { }

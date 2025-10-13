@@ -1,113 +1,135 @@
 ﻿.app-shell {
     display: grid;
-    grid-template-columns: 240px 1fr;
+    grid-template-columns: 90px 1fr;
     min-height: 100vh;
     background: transparent;
 }
 
 .sidebar {
-    background: var(--surface-2, #111a2f);
-    border-right: 1px solid var(--border, #253046);
-    transition: width .15s ease;
-    width: 240px;
+    background: #0f172a;
+    border-right: 1px solid #1e293b;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
+    padding-top: .5rem;
+    transition: width .2s ease;
 }
 
 .sidebar-top {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 64px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0.4rem;
+    height: 72px; 
 }
 
-.menu-toggle {
-    width: 2.4rem;
-    height: 2.4rem;
-    font-size: 1.2rem;
+.icon-btn.menu-toggle {
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: 10px;
+    border: 1px solid #334155;
+    background: #1e293b;
+    color: #e2e8f0;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.sidebar.collapsed {
-    width: 72px;
-}
+    .icon-btn.menu-toggle:hover {
+        background: #334155;
+    }
 
 .sidebar nav {
     display: flex;
     flex-direction: column;
-    padding: .25rem;
+    align-items: center;
+    gap: .8rem;
+    margin-top: .5rem;
 }
 
 .nav-item {
     display: flex;
     align-items: center;
-    gap: .7rem;
-    color: var(--text);
-    padding: .6rem .9rem;
-    border-radius: 10px;
-    margin: .15rem .5rem;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    color: #94a3b8;
     text-decoration: none;
+    transition: all .2s ease;
 }
 
     .nav-item:hover {
-        background: rgba(59,130,246,.12);
+        background: rgba(59,130,246,.15);
+        color: #fff;
     }
 
     .nav-item.active {
-        background: rgba(59,130,246,.18);
-        border: 1px solid var(--border);
+        background: rgba(59,130,246,.25);
+        color: #fff;
     }
-
-.sidebar.collapsed .label {
-    display: none;
-}
 
 .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
-    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75));
-    border-bottom: 1px solid var(--border);
-    padding: .6rem 1rem;
+    background: linear-gradient(180deg, rgba(15,23,42,.95), rgba(15,23,42,.8));
+    border-bottom: 1px solid #1e293b;
+    padding: 1rem 2rem;
+    margin-left: -90px;
+    width: calc(100% + 90px);
+    box-sizing: border-box;
+    position: relative;
+    z-index: 5;
 }
 
 .brand-centered {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: .6rem;
+    gap: .7rem;
     flex: 1;
     cursor: pointer;
-    transition: transform .2s ease, text-shadow .3s ease;
+    text-align: center;
 }
 
-    .brand-centered:hover {
-        transform: scale(1.05);
-        text-shadow: 0 0 10px rgba(59,130,246,.6);
-    }
-
     .brand-centered .bi {
-        font-size: 1.5rem;
-        color: var(--accent, #3b82f6);
+        font-size: 1.6rem;
+        color: #3b82f6;
     }
 
 .brand-title {
-    font-size: 1.2rem;
-    color: var(--text, #fff);
+    font-size: 1.3rem;
+    color: #f1f5f9;
+    letter-spacing: 0.5px;
     user-select: none;
 }
 
 .user-area {
     display: flex;
-    gap: .5rem;
     align-items: center;
+    gap: .6rem;
 }
 
+    .user-area span {
+        color: #cbd5e1;
+    }
+
+    .user-area strong {
+        color: #f8fafc;
+    }
+
+    .user-area .btn-link {
+        color: #3b82f6;
+        text-decoration: none;
+    }
+
+        .user-area .btn-link:hover {
+            text-decoration: underline;
+        }
+
 .content {
-    padding: 1.2rem;
+    padding: 2rem;
     min-width: 0;
 }
 
@@ -116,11 +138,13 @@
         grid-template-columns: 72px 1fr;
     }
 
-    .sidebar {
-        width: 72px;
+    .topbar {
+        margin-left: -72px;
+        width: calc(100% + 72px);
+        padding: .8rem 1rem;
     }
 
-    .sidebar-top {
-        justify-content: center;
+    .brand-title {
+        font-size: 1.1rem;
     }
 }
