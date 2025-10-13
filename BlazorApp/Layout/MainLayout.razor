@@ -1,40 +1,46 @@
-﻿@using BlazorApp.Auth
-@inherits LayoutComponentBase
+﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
-<div class="app-shell">
-    <aside class="sidebar @(isCollapsed ? "collapsed" : "")" role="navigation" aria-label="Menú lateral">
-        <div class="sidebar-top">
-            <button class="icon-btn menu-toggle" type="button" title="Abrir/cerrar menú"
-                    aria-label="Abrir/cerrar menú" @onclick="Toggle">
-                <span class="bi bi-list" aria-hidden="true"></span>
+<div class="app-shell @(isCollapsed ? "collapsed" : "")">
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <button class="icon-btn menu-toggle" @onclick="ToggleSidebar" title="Menú">
+                <span class="bi bi-list"></span>
             </button>
+            <div class="brand-mini" @onclick="@(() => Nav.NavigateTo("/"))" title="Inicio">
+                <span class="bi bi-box-seam"></span>
+            </div>
         </div>
 
-        <nav>
+        <nav class="sidebar-nav">
             <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door" aria-hidden="true"></span><span class="label">Inicio</span>
+                <span class="bi bi-house-door"></span>
+                <span class="nav-label">Inicio</span>
             </NavLink>
             <NavLink class="nav-item" href="/productos">
-                <span class="bi bi-bag" aria-hidden="true"></span><span class="label">Productos</span>
+                <span class="bi bi-bag"></span>
+                <span class="nav-label">Productos</span>
             </NavLink>
             <NavLink class="nav-item" href="/ventas">
-                <span class="bi bi-receipt" aria-hidden="true"></span><span class="label">Ventas</span>
+                <span class="bi bi-receipt"></span>
+                <span class="nav-label">Ventas</span>
             </NavLink>
             <NavLink class="nav-item" href="/pedidos">
-                <span class="bi bi-truck" aria-hidden="true"></span><span class="label">Pedidos</span>
+                <span class="bi bi-truck"></span>
+                <span class="nav-label">Pedidos</span>
             </NavLink>
             <NavLink class="nav-item" href="/tipos-producto">
-                <span class="bi bi-tags" aria-hidden="true"></span><span class="label">Tipos de producto</span>
+                <span class="bi bi-tags"></span>
+                <span class="nav-label">Tipos de producto</span>
             </NavLink>
         </nav>
     </aside>
 
     <section class="main">
         <header class="topbar">
-            <div class="brand-centered" @onclick="@(() => Nav.NavigateTo("/"))" title="Ir al inicio">
+            <div class="brand-centered" @onclick="@(() => Nav.NavigateTo("/"))">
                 <span class="bi bi-box-seam"></span>
                 <strong class="brand-title">Inventario</strong>
             </div>
@@ -44,7 +50,7 @@
                     <div class="user-area">
                         <span class="text-muted">Hola,</span>
                         <strong>@(context.User.Identity?.Name ?? "Usuario")</strong>
-                        <button class="btn btn-link" type="button" @onclick="Logout">Logout</button>
+                        <button class="btn btn-link" @onclick="Logout">Logout</button>
                     </div>
                 </Authorized>
                 <NotAuthorized>
@@ -60,47 +66,19 @@
 </div>
 
 @code {
-    private bool isCollapsed = true;
+    private bool isCollapsed = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-        try
-        {
-            var saved = await TryGetLocalStorage("sidebarCollapsed");
-            if (bool.TryParse(saved, out var parsed))
-                isCollapsed = parsed;
-            StateHasChanged();
-        }
-        catch { }
-    }
-
-    private async Task Toggle()
+    private void ToggleSidebar()
     {
         isCollapsed = !isCollapsed;
-        try
-        {
-            await TrySetLocalStorage("sidebarCollapsed", isCollapsed.ToString().ToLowerInvariant());
-        }
-        catch { }
     }
 
     private async Task Logout()
     {
-        var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
-        await customAuthStateProvider.MarkUserAsLoggedOutAsync();
-        Nav.NavigateTo("/login");
-    }
-
-    private async Task<string?> TryGetLocalStorage(string key)
-    {
-        try { return await JS.InvokeAsync<string?>("localStorage.getItem", key); }
-        catch { return null; }
-    }
-
-    private async Task TrySetLocalStorage(string key, string value)
-    {
-        try { await JS.InvokeVoidAsync("localStorage.setItem", key, value); }
-        catch { }
+        if (AuthStateProvider is CustomAuthenticationStateProvider provider)
+        {
+            await provider.MarkUserAsLoggedOutAsync();
+            Nav.NavigateTo("/login");
+        }
     }
 }

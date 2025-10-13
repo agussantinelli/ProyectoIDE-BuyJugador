@@ -1,5 +1,5 @@
 :root {
-    color-scheme: dark; 
+    color-scheme: dark;
     --bg-page: #0b1220;
     --text: #e6edf6;
     --text-muted: #a8b3cf;
@@ -9,12 +9,13 @@
     --surface-1: #0f172a;
     --surface-2: #111a2f;
     --radius: 10px;
-    --shadow: 0 8px 30px rgba(0,0,0,.35);
+    --shadow: 0 8px 30px rgba(0, 0, 0, .35);
 }
 
 html, body {
     background: radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.15), transparent 60%), radial-gradient(1000px 500px at 90% 10%, rgba(99,102,241,.12), transparent 60%), var(--bg-page) !important;
     color: var(--text) !important;
+    margin: 0;
 }
 
 a, .btn-link {
@@ -68,12 +69,6 @@ button, .btn {
     box-shadow: var(--shadow) !important;
 }
 
-.list-group, .list-group-item {
-    background: var(--surface-2) !important;
-    color: var(--text) !important;
-    border-color: var(--border) !important;
-}
-
 .table {
     color: var(--text) !important;
 }
@@ -105,27 +100,18 @@ button, .btn {
     color: #d3ffe7 !important;
 }
 
-.navbar, header {
-    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75)) !important;
-    color: var(--text) !important;
-    border-bottom: 1px solid var(--border) !important;
-}
-
 #blazor-error-ui {
     background: #2b1a1a !important;
     color: #ffdede !important;
     border-top: 1px solid #5a2a2a !important;
 }
 
-    #blazor-error-ui a.reload {
+    #blazor-error-ui a.reload, #blazor-error-ui a.dismiss {
         color: #fff;
         text-decoration: underline;
-    }
-
-    #blazor-error-ui a.dismiss {
-        color: #fff;
     }
 
 .loading-progress circle:last-child {
     stroke: var(--accent-600) !important;
 }
+
