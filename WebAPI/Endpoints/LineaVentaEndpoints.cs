@@ -7,7 +7,6 @@ namespace WebAPI.Endpoints
     {
         public static void MapLineaVentaEndpoints(this WebApplication app)
         {
-            // El nombre del grupo ya estaba correcto (en plural).
             var group = app.MapGroup("/api/lineaventas");
 
             group.MapGet("/", async (LineaVentaService service) =>

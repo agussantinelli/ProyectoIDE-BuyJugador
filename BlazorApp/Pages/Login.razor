@@ -2,44 +2,48 @@
 @layout Layout.EmptyLayout
 @using System.Net.Http.Json
 @using System.ComponentModel.DataAnnotations
+@using System.Web
 @using BlazorApp.Auth
 @inject IHttpClientFactory HttpFactory
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
-<h3>Iniciar Sesión</h3>
+<div class="login-container">
+    <div class="login-box">
+        <h2 class="text-center mb-4">Iniciar Sesión</h2>
+        <EditForm Model="_model" OnValidSubmit="OnSubmit">
+            <DataAnnotationsValidator />
 
-<EditForm Model="_model" OnValidSubmit="OnSubmit">
-    <DataAnnotationsValidator />
-    
-    <div class="mb-3">
-        <label>DNI</label>
-        <InputText class="form-control" @bind-Value="_model.Dni" />
-        <ValidationMessage For="@(() => _model.Dni)" />
-    </div>
-    <div class="mb-3">
-        <label>Contraseña</label>
-        <InputText class="form-control" @bind-Value="_model.Password" type="password" />
-        <ValidationMessage For="@(() => _model.Password)" />
-    </div>
+            <div class="mb-3">
+                <label>DNI</label>
+                <InputText class="form-control" @bind-Value="_model.Dni" />
+                <ValidationMessage For="@(() => _model.Dni)" />
+            </div>
+            <div class="mb-3">
+                <label>Contraseña</label>
+                <InputText class="form-control" @bind-Value="_model.Password" type="password" />
+                <ValidationMessage For="@(() => _model.Password)" />
+            </div>
 
-    <button type="submit" class="btn btn-primary" disabled="@_loading">
-        @if (_loading)
-        {
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span> Ingresando...</span>
-        }
-        else
-        {
-            <span>Login</span>
-        }
-    </button>
-    
-    @if (!string.IsNullOrEmpty(_error))
-    {
-        <div class="alert alert-danger mt-2">@_error</div>
-    }
-</EditForm>
+            <button type="submit" class="btn btn-primary w-100" disabled="@_loading">
+                @if (_loading)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Ingresando...</span>
+                }
+                else
+                {
+                    <span>Ingresar</span>
+                }
+            </button>
+
+            @if (!string.IsNullOrEmpty(_error))
+            {
+                <div class="alert alert-danger mt-2">@_error</div>
+            }
+        </EditForm>
+    </div>
+</div>
 
 @code {
     private readonly LoginRequest _model = new();
@@ -52,12 +56,8 @@
         _loading = true;
         try
         {
-            // Creamos un cliente HttpClient que NO envía el token de autorización,
-            // ya que para el login todavía no lo tenemos.
             var client = HttpFactory.CreateClient("NoAuth");
-
-            // Asegúrate que "api/auth/login" es el endpoint correcto en tu WebAPI
-            var response = await client.PostAsJsonAsync("api/auth/login", _model);
+            var response = await client.PostAsJsonAsync("api/Authentication/login", _model);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -65,25 +65,23 @@
                 return;
             }
 
-            // Asumimos que la API devuelve un JSON con una propiedad "token"
-            // Ejemplo: { "token": "ey..." }
             var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
             var token = loginResponse?.Token;
-            
+
             if (string.IsNullOrWhiteSpace(token))
             {
                 _error = "La respuesta de la API no contenía un token válido.";
                 return;
             }
 
-            // Obtenemos nuestra implementación del provider para llamar a su método específico
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
             await customAuthStateProvider.MarkUserAsLoggedInAsync(token);
 
-            // Redirigir al usuario. Si vino de una página protegida, lo devolvemos allí.
             var uri = new Uri(Nav.Uri);
-            var returnUrl = System.Web.HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
-            Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl, forceLoad: true);
+            var returnUrl = HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
+
+            // # CORRECCIÓN: Redirigir a la URL de retorno o a "/" (Home.razor) sin forzar recarga.
+            Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
         }
         catch (Exception ex)
         {
@@ -92,10 +90,10 @@
         finally
         {
             _loading = false;
+            StateHasChanged(); // Nos aseguramos de que la UI se actualice
         }
     }
 
-    // DTO para el formulario de login
     public class LoginRequest
     {
         [Required(ErrorMessage = "El DNI es obligatorio.")]
@@ -105,9 +103,10 @@
         public string Password { get; set; } = string.Empty;
     }
 
-    // DTO para deserializar la respuesta del login
     public class LoginResponse
     {
         public string? Token { get; set; }
+        // No necesitamos el UserInfo aquí en Blazor, solo el token.
     }
 }
+

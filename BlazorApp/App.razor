@@ -1,32 +1,41 @@
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        @*
-            AuthorizeRouteView se encarga de verificar si el usuario tiene acceso a la ruta.
-            Si no lo tiene, renderiza el contenido de la sección <NotAuthorized>.
-        *@
         <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
             <NotAuthorized>
-                @*
-                    Si el usuario no está autenticado, no mostramos un error.
-                    En su lugar, lo redirigimos a la página de login.
-                    El componente RedirectToLogin ya existe en tu proyecto.
-                *@
+                @* Si el usuario intenta acceder a una página protegida y no está logueado, lo enviamos al login. *@
                 <RedirectToLogin />
             </NotAuthorized>
             <Authorizing>
-                @*
-                    Mientras se comprueba el estado de autenticación (es una operación asíncrona),
-                    mostramos un mensaje al usuario.
+                @* # MEJORA: Mientras Blazor determina si el usuario está autenticado,
+                    # mostramos una pantalla de carga amigable. Esto reemplaza a Splash.razor.
                 *@
-                <p>Verificando autorización...</p>
+                <div class="splash">
+                    <div class="splash-card">
+                        <div class="splash-logo"><span class="bi bi-box-seam" aria-hidden="true"></span></div>
+                        <h3>Cargando panel</h3>
+                        <p class="muted">Verificando sesión...</p>
+                        <div class="spinner"><div></div><div></div><div></div></div>
+                    </div>
+                </div>
             </Authorizing>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
         <PageTitle>No encontrado</PageTitle>
-        <LayoutView Layout="@typeof(Layout.MainLayout)">
-            <p role="alert">Lo sentimos, no hay nada en esta dirección.</p>
+        <LayoutView Layout="@typeof(Layout.EmptyLayout)">
+            @* # MEJORA: Usamos el mismo estilo del splash para la página de 'No encontrado'. *@
+            <div class="splash">
+                <div class="splash-card">
+                    <div class="splash-logo"><span class="bi bi-exclamation-triangle" aria-hidden="true"></span></div>
+                    <h3>Página no encontrada</h3>
+                    <p class="muted">Lo sentimos, no hay nada en esta dirección.</p>
+                    <a href="/" class="btn btn-primary">Volver al inicio</a>
+                </div>
+            </div>
         </LayoutView>
     </NotFound>
 </Router>
+
+@* Añadimos el componente RedirectToLogin que ya tienes en tu proyecto *@
+@using BlazorApp.Shared

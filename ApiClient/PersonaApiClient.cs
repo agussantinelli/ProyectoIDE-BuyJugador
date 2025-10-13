@@ -15,6 +15,19 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
+        public async Task<LoginResponseDTO?> LoginAsync(int dni, string password)
+        {
+            var loginRequest = new { Dni = dni, Password = password };
+            var response = await _httpClient.PostAsJsonAsync("api/Authentication/login", loginRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<LoginResponseDTO>();
+            }
+
+            return null;
+        }
+
         public async Task<List<PersonaDTO>?> GetAllAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas");
@@ -49,19 +62,6 @@ namespace ApiClient
         {
             return await _httpClient.PutAsync($"api/personas/reactivar/{id}", null);
         }
-
-
-        public async Task<PersonaDTO?> LoginAsync(int dni, string password)
-        {
-            var loginRequest = new { Dni = dni, Password = password };
-            var response = await _httpClient.PostAsJsonAsync("api/personas/login", loginRequest);
-
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<PersonaDTO>();
-            }
-
-            return null;
-        }
     }
 }
+
