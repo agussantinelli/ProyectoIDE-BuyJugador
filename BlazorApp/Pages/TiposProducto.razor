@@ -1,6 +1,108 @@
 ﻿@page "/tipos-producto"
-@attribute [Authorize]
+@inject ApiClient.TipoProductoApiClient tipoProductoApiClient
+@inject NavigationManager NavigationManager
 
-<PageTitle>Tipos de producto</PageTitle>
-<h2>Tipos de producto</h2>
-<p class="text-muted">Clasifica tus productos.</p>
+<div class="table-container">
+    <div class="table-header">
+        <h1>Tipos de Producto</h1>
+        <button class="create-button" @onclick="CrearTipoProducto">Crear Tipo de Producto</button>
+    </div>
+
+    <div class="search-bar-container">
+        <input type="text" class="search-input" placeholder="Buscar por nombre o descripción..." @bind="searchString" @bind:event="oninput" />
+    </div>
+
+    @if (filteredTiposProducto == null)
+    {
+        <p><em>Cargando...</em></p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tipoProducto in filteredTiposProducto)
+                {
+                    <tr>
+                        <td>@tipoProducto.Descripcion</td>
+                        <td>@tipoProducto.Descripcion</td>
+                        <td>
+                            <div class="actions">
+                                <button class="edit-button" @onclick="() => EditarTipoProducto(tipoProducto.IdTipoProducto)">Editar</button>
+                                <button class="delete-button" @onclick="() => EliminarTipoProducto(tipoProducto.IdTipoProducto)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<DTOs.TipoProductoDTO> tiposProducto;
+    private List<DTOs.TipoProductoDTO> filteredTiposProducto;
+    private string searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarTiposProducto();
+    }
+
+    private async Task CargarTiposProducto()
+    {
+        tiposProducto = await tipoProductoApiClient.GetAllAsync();
+        FiltrarTiposProducto();
+    }
+
+    private void FiltrarTiposProducto()
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+        {
+            filteredTiposProducto = tiposProducto;
+        }
+        else
+        {
+            filteredTiposProducto = tiposProducto
+                .Where(tp =>
+                    tp.Descripcion.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                    tp.Descripcion.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        StateHasChanged(); // Notifica a Blazor que la UI debe re-renderizarse
+    }
+
+    private void OnSearchInput(ChangeEventArgs e)
+    {
+        searchString = e.Value.ToString();
+        FiltrarTiposProducto();
+    }
+
+    void CrearTipoProducto()
+    {
+        // TODO: Debes crear la página/componente para crear un tipo de producto
+        // NavigationManager.NavigateTo("/crear-tipoproducto");
+        Console.WriteLine("Navegando a la página de creación...");
+    }
+
+    void EditarTipoProducto(int id)
+    {
+        // TODO: Debes crear la página/componente para editar un tipo de producto
+        // NavigationManager.NavigateTo($"/editar-tipoproducto/{id}");
+        Console.WriteLine($"Navegando a la página de edición para el ID: {id}");
+    }
+
+    async Task EliminarTipoProducto(int id)
+    {
+        // Aquí podrías agregar una confirmación (ej. un modal) antes de eliminar
+        await tipoProductoApiClient.DeleteAsync(id);
+        // Si se eliminó correctamente, recargamos la lista
+        await CargarTiposProducto();
+    }
+}
