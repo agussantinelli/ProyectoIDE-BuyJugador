@@ -3,11 +3,6 @@
     partial class AñanirProductoPedidoForm
     {
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.Label lblProductoNombre;
-        private System.Windows.Forms.NumericUpDown numCantidad;
-        private System.Windows.Forms.Label lblCantidad;
-        private System.Windows.Forms.Button btnConfirmar;
-        private System.Windows.Forms.Button btnCancelar;
 
         protected override void Dispose(bool disposing)
         {
@@ -22,77 +17,114 @@
 
         private void InitializeComponent()
         {
-            lblProductoNombre = new Label();
-            numCantidad = new NumericUpDown();
-            lblCantidad = new Label();
-            btnConfirmar = new Button();
-            btnCancelar = new Button();
-            ((System.ComponentModel.ISupportInitialize)numCantidad).BeginInit();
-            SuspendLayout();
+            this.lblProducto = new System.Windows.Forms.Label();
+            this.cmbProductos = new System.Windows.Forms.ComboBox();
+            this.lblCantidad = new System.Windows.Forms.Label();
+            this.numCantidad = new System.Windows.Forms.NumericUpDown();
+            this.btnConfirmar = new System.Windows.Forms.Button();
+            this.btnCancelar = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
+            this.SuspendLayout();
             // 
-            // lblProductoNombre
+            // lblProducto
             // 
-            lblProductoNombre.AutoSize = true;
-            lblProductoNombre.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            lblProductoNombre.Location = new Point(25, 20);
-            lblProductoNombre.Name = "lblProductoNombre";
-            lblProductoNombre.Size = new Size(147, 21);
-            lblProductoNombre.TabIndex = 0;
-            lblProductoNombre.Text = "Nombre Producto";
+            this.lblProducto.AutoSize = true;
+            this.lblProducto.Location = new System.Drawing.Point(12, 15);
+            this.lblProducto.Name = "lblProducto";
+            this.lblProducto.Size = new System.Drawing.Size(68, 17);
+            this.lblProducto.TabIndex = 0;
+            this.lblProducto.Text = "Producto:";
             // 
-            // numCantidad
+            // cmbProductos
             // 
-            numCantidad.Location = new Point(120, 62);
-            numCantidad.Name = "numCantidad";
-            numCantidad.Size = new Size(120, 25);
-            numCantidad.TabIndex = 1;
+            this.cmbProductos.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbProductos.FormattingEnabled = true;
+            this.cmbProductos.Location = new System.Drawing.Point(86, 12);
+            this.cmbProductos.Name = "cmbProductos";
+            this.cmbProductos.Size = new System.Drawing.Size(286, 25);
+            this.cmbProductos.TabIndex = 1;
             // 
             // lblCantidad
             // 
-            lblCantidad.AutoSize = true;
-            lblCantidad.Location = new Point(29, 62);
-            lblCantidad.Name = "lblCantidad";
-            lblCantidad.Size = new Size(82, 20);
-            lblCantidad.TabIndex = 2;
-            lblCantidad.Text = "Cantidad:";
+            this.lblCantidad.AutoSize = true;
+            this.lblCantidad.Location = new System.Drawing.Point(12, 50);
+            this.lblCantidad.Name = "lblCantidad";
+            this.lblCantidad.Size = new System.Drawing.Size(68, 17);
+            this.lblCantidad.TabIndex = 2;
+            this.lblCantidad.Text = "Cantidad:";
+            // 
+            // numCantidad
+            // 
+            this.numCantidad.Location = new System.Drawing.Point(86, 48);
+            this.numCantidad.Maximum = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            this.numCantidad.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numCantidad.Name = "numCantidad";
+            this.numCantidad.Size = new System.Drawing.Size(120, 24);
+            this.numCantidad.TabIndex = 3;
+            this.numCantidad.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // btnConfirmar
             // 
-            btnConfirmar.Location = new Point(140, 110);
-            btnConfirmar.Name = "btnConfirmar";
-            btnConfirmar.Size = new Size(100, 30);
-            btnConfirmar.TabIndex = 3;
-            btnConfirmar.Text = "Confirmar";
-            btnConfirmar.UseVisualStyleBackColor = true;
-            btnConfirmar.Click += btnConfirmar_Click;
+            this.btnConfirmar.Location = new System.Drawing.Point(196, 90);
+            this.btnConfirmar.Name = "btnConfirmar";
+            this.btnConfirmar.Size = new System.Drawing.Size(85, 30);
+            this.btnConfirmar.TabIndex = 4;
+            this.btnConfirmar.Text = "Confirmar";
+            this.btnConfirmar.UseVisualStyleBackColor = true;
+            this.btnConfirmar.Click += new System.EventHandler(this.btnConfirmar_Click);
             // 
             // btnCancelar
             // 
-            btnCancelar.Location = new Point(30, 110);
-            btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(100, 30);
-            btnCancelar.TabIndex = 4;
-            btnCancelar.Text = "Cancelar";
-            btnCancelar.UseVisualStyleBackColor = true;
-            btnCancelar.Click += btnCancelar_Click;
+            this.btnCancelar.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnCancelar.Location = new System.Drawing.Point(287, 90);
+            this.btnCancelar.Name = "btnCancelar";
+            this.btnCancelar.Size = new System.Drawing.Size(85, 30);
+            this.btnCancelar.TabIndex = 5;
+            this.btnCancelar.Text = "Cancelar";
+            this.btnCancelar.UseVisualStyleBackColor = true;
             // 
             // AñanirProductoPedidoForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
-            ClientSize = new Size(284, 161);
-            Controls.Add(btnCancelar);
-            Controls.Add(btnConfirmar);
-            Controls.Add(lblCantidad);
-            Controls.Add(numCantidad);
-            Controls.Add(lblProductoNombre);
-            Name = "AñanirProductoPedidoForm";
-            Text = "Añadir Producto a Pedido";
-            ((System.ComponentModel.ISupportInitialize)numCantidad).EndInit();
-            ResumeLayout(false);
-            PerformLayout();
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 17F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(384, 131);
+            this.Controls.Add(this.btnCancelar);
+            this.Controls.Add(this.btnConfirmar);
+            this.Controls.Add(this.numCantidad);
+            this.Controls.Add(this.lblCantidad);
+            this.Controls.Add(this.cmbProductos);
+            this.Controls.Add(this.lblProducto);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "AñanirProductoPedidoForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            this.Text = "Añadir Producto al Pedido";
+            ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         #endregion
+
+        private System.Windows.Forms.Label lblProducto;
+        private System.Windows.Forms.ComboBox cmbProductos;
+        private System.Windows.Forms.Label lblCantidad;
+        private System.Windows.Forms.NumericUpDown numCantidad;
+        private System.Windows.Forms.Button btnConfirmar;
+        private System.Windows.Forms.Button btnCancelar;
     }
 }
 

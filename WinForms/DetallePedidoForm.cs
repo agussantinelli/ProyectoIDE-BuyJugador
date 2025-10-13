@@ -5,28 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
 {
     public partial class DetallePedidoForm : BaseForm
     {
-        // # Campos privados para manejar el estado interno del formulario.
         private readonly int _pedidoId;
         private PedidoDTO _pedido;
         private readonly bool _esAdmin;
         private BindingList<LineaPedidoDTO> _lineasDePedido;
-
-        // # Inyección de todos los ApiClients que este formulario necesita para ser autónomo.
         private readonly PedidoApiClient _pedidoApiClient;
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
-
         private bool _datosModificados = false;
         private List<ProductoDTO> _productosDelProveedor;
 
-        // # CONSTRUCTOR CORREGIDO Y ESTANDARIZADO
         public DetallePedidoForm(
             int pedidoId,
             bool esAdmin,
@@ -47,6 +41,7 @@ namespace WinForms
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnAgregarLinea);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
+            StyleManager.ApplyButtonStyle(btnEditarCantidad);
             StyleManager.ApplyButtonStyle(btnConfirmarCambios);
             StyleManager.ApplyButtonStyle(btnCerrar);
         }
@@ -70,13 +65,15 @@ namespace WinForms
                 lblProveedor.Text = $"Proveedor: {_pedido.ProveedorRazonSocial}";
                 lblFecha.Text = $"Fecha: {_pedido.Fecha:dd/MM/yyyy}";
 
-                // # CORRECCIÓN: Se usa la propiedad correcta 'LineasPedido' del DTO.
                 _lineasDePedido = new BindingList<LineaPedidoDTO>(_pedido.LineasPedido ?? new List<LineaPedidoDTO>());
                 dataGridDetalle.DataSource = _lineasDePedido;
-                ConfigurarColumnas();
 
+                ConfigurarColumnas();
                 ActualizarTotal();
                 ConfigurarVisibilidadControles();
+
+                dataGridDetalle.SelectionChanged += dataGridDetalle_SelectionChanged;
+                dataGridDetalle.CellEndEdit += dataGridDetalle_CellEndEdit;
             }
             catch (Exception ex)
             {
@@ -92,22 +89,29 @@ namespace WinForms
         {
             if (_pedido == null) return;
             bool pedidoPendiente = "Pendiente".Equals(_pedido.Estado, StringComparison.OrdinalIgnoreCase);
+            bool puedeEditar = _esAdmin && pedidoPendiente;
 
-            btnAgregarLinea.Visible = _esAdmin && pedidoPendiente;
-            btnEliminarLinea.Visible = _esAdmin && pedidoPendiente;
-            btnConfirmarCambios.Visible = _esAdmin && pedidoPendiente;
-            btnConfirmarCambios.Enabled = false; // Se activa solo si hay cambios
-            dataGridDetalle.ReadOnly = !_esAdmin || !pedidoPendiente;
+            btnAgregarLinea.Visible = puedeEditar;
+            btnEliminarLinea.Visible = puedeEditar;
+            btnEditarCantidad.Visible = puedeEditar;
+            btnConfirmarCambios.Visible = puedeEditar;
+            btnConfirmarCambios.Enabled = _datosModificados;
+
+            dataGridDetalle.ReadOnly = !puedeEditar;
+            if (dataGridDetalle.Columns.Contains("Cantidad"))
+            {
+                dataGridDetalle.Columns["Cantidad"].ReadOnly = !puedeEditar;
+            }
         }
 
         private void ConfigurarColumnas()
         {
             dataGridDetalle.AutoGenerateColumns = false;
             dataGridDetalle.Columns.Clear();
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = !_esAdmin });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" }, ReadOnly = true });
-            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" }, ReadOnly = true });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80 });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "PrecioUnitario", DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" }, ReadOnly = true });
+            dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Subtotal", DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" }, ReadOnly = true });
         }
 
         private void ActualizarTotal()
@@ -140,11 +144,9 @@ namespace WinForms
                 return;
             }
 
-            // A modo de ejemplo, se toma el primer producto disponible.
-            // Lo ideal sería abrir un formulario de selección aquí.
-            var productoAñadir = productosDisponibles.First();
+            using var form = _serviceProvider.GetRequiredService<AñanirProductoPedidoForm>();
+            form.CargarProductosDisponibles(productosDisponibles);
 
-            using var form = new AñanirProductoPedidoForm(productoAñadir);
             if (form.ShowDialog() == DialogResult.OK)
             {
                 var nuevaLinea = form.LineaPedido;
@@ -167,6 +169,15 @@ namespace WinForms
             }
         }
 
+        private void btnEditarCantidad_Click(object sender, EventArgs e)
+        {
+            if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
+            {
+                dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
+                dataGridDetalle.BeginEdit(true);
+            }
+        }
+
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
         {
             if (_pedido == null || !_datosModificados) return;
@@ -174,24 +185,32 @@ namespace WinForms
             var confirm = MessageBox.Show("¿Desea guardar los cambios en el pedido?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
+            this.Cursor = Cursors.WaitCursor;
             try
             {
-                var dto = new CrearPedidoCompletoDTO
+                _pedido.LineasPedido = _lineasDePedido.ToList();
+                var response = await _pedidoApiClient.UpdateAsync(_pedido.IdPedido, _pedido);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    IdProveedor = _pedido.IdProveedor,
-                    LineasPedido = _lineasDePedido.ToList()
-                };
-
-                // await _pedidoApiClient.UpdatePedidoCompletoAsync(_pedido.IdPedido, dto); // Descomentar cuando el endpoint exista
-
-                MessageBox.Show("Cambios guardados exitosamente.", "Éxito");
-                _datosModificados = false;
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                    MessageBox.Show("Cambios guardados exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _datosModificados = false;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al guardar los cambios: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al guardar los cambios: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
@@ -213,6 +232,35 @@ namespace WinForms
 
             this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
             this.Close();
+        }
+
+        private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var lineaEditada = _lineasDePedido[e.RowIndex];
+
+            if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
+            {
+                MessageBox.Show("Por favor, ingrese una cantidad numérica válida y mayor a cero.", "Cantidad Inválida", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                dataGridDetalle.CancelEdit();
+                _lineasDePedido.ResetItem(e.RowIndex);
+                return;
+            }
+
+            lineaEditada.Cantidad = nuevaCantidad;
+
+            // # CORRECCIÓN: No se asigna a Subtotal. Se marcan los cambios y se refresca.
+            MarcarComoModificado();
+            _lineasDePedido.ResetItem(e.RowIndex);
+            ActualizarTotal();
+        }
+
+        private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
+        {
+            bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
+            btnEliminarLinea.Enabled = hayFilaSeleccionada;
+            btnEditarCantidad.Enabled = hayFilaSeleccionada;
         }
     }
 }

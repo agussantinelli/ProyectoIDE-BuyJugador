@@ -7,12 +7,17 @@ namespace DTOs
     public class ProductoDTO
     {
         public int IdProducto { get; set; }
-        public string Nombre { get; set; }
+        public string Nombre { get; set; } = string.Empty;
         public string? Descripcion { get; set; }
         public int Stock { get; set; }
         public int? IdTipoProducto { get; set; }
         public string? TipoProductoDescripcion { get; set; }
         public decimal? PrecioActual { get; set; }
+
+        // # MEJORA: Se añade la propiedad PrecioCompra para que el DTO sea más completo
+        // # y pueda ser utilizado en el contexto de pedidos a proveedores.
+        public decimal PrecioCompra { get; set; }
+
         public List<PrecioVentaDTO> Precios { get; set; } = new();
 
         public static ProductoDTO? FromDominio(DominioModelo.Producto p)
@@ -56,3 +61,4 @@ namespace DTOs
         }
     }
 }
+
