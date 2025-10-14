@@ -25,6 +25,26 @@ namespace WebAPI.Endpoints
                 return Results.Ok(productosDto);
             });
 
+            app.MapGet("/api/productos/proveedor/{idProveedor}", async (int idProveedor, ProductoService productoService) =>
+            {
+                var productos = await productoService.GetByProveedorIdAsync(idProveedor);
+                if (productos == null)
+                {
+                    return Results.NotFound();
+                }
+
+                var productosDto = productos.Select(p => {
+                    var dto = ProductoDTO.FromDominio(p);
+                    dto.PrecioCompra = p.PreciosCompra
+                                        .Where(pc => pc.IdProveedor == idProveedor)
+                                        .Select(pc => pc.Monto)
+                                        .FirstOrDefault();
+                    return dto;
+                }).ToList();
+
+                return Results.Ok(productosDto);
+            });
+
             app.MapGet("/api/productos/{id}", async (int id, ProductoService productoService) =>
             {
                 var producto = await productoService.GetByIdAsync(id);
@@ -65,3 +85,4 @@ namespace WebAPI.Endpoints
         }
     }
 }
+

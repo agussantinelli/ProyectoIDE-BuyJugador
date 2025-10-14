@@ -5,8 +5,6 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    // # Este formulario se mantiene como modal (usa ShowDialog).
-    // # Se le hace heredar de BaseForm para consistencia de estilo.
     public partial class AñadirProductoVentaForm : BaseForm
     {
         public ProductoDTO ProductoSeleccionado { get; private set; }
@@ -28,24 +26,36 @@ namespace WinForms
 
         private void ConfigurarColumnas()
         {
-            if (dgvProductos.Columns.Count > 0)
+            dgvProductos.AutoGenerateColumns = false;
+            dgvProductos.Columns.Clear();
+
+            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn
             {
-
-                dgvProductos.Columns["Nombre"].HeaderText = "Producto";
-                dgvProductos.Columns["Descripcion"].HeaderText = "Descripción";
-                dgvProductos.Columns["Stock"].HeaderText = "Stock";
-                dgvProductos.Columns["Precio"].HeaderText = "Precio";
-                dgvProductos.Columns["Precio"].DefaultCellStyle.Format = "C2"; 
-
-
-                if (dgvProductos.Columns["IdProducto"] != null) dgvProductos.Columns["IdProducto"].Visible = false;
-                if (dgvProductos.Columns["IdTipoProducto"] != null) dgvProductos.Columns["IdTipoProducto"].Visible = false;
-                if (dgvProductos.Columns["Activo"] != null) dgvProductos.Columns["Activo"].Visible = false;
-                if (dgvProductos.Columns["Precios"] != null) dgvProductos.Columns["Precios"].Visible = false;
-
-                dgvProductos.Columns["Nombre"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                dgvProductos.Columns["Descripcion"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-            }
+                Name = "Nombre",
+                DataPropertyName = "Nombre",
+                HeaderText = "Producto",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Descripcion",
+                DataPropertyName = "Descripcion",
+                HeaderText = "Descripción",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Stock",
+                DataPropertyName = "Stock",
+                HeaderText = "Stock"
+            });
+            dgvProductos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "Precio",
+                DataPropertyName = "PrecioActual",
+                HeaderText = "Precio",
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" }
+            });
         }
 
         private void btnAceptar_Click(object sender, EventArgs e)
@@ -82,3 +92,4 @@ namespace WinForms
         }
     }
 }
+

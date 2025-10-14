@@ -1,5 +1,6 @@
 ﻿using Data;
 using DominioModelo;
+using DTOs;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,16 @@ namespace DominioServicios
                 .Include(p => p.IdTipoProductoNavigation)
                 .Include(p => p.PreciosVenta)
                 .FirstOrDefaultAsync(p => p.IdProducto == id);
+        }
+
+        public async Task<List<Producto>> GetByProveedorIdAsync(int idProveedor)
+        {
+            return await _context.Productos
+                .Where(p => p.ProductoProveedores.Any(pp => pp.IdProveedor == idProveedor))
+                .Include(p => p.IdTipoProductoNavigation)
+                .Include(p => p.PreciosCompra) 
+                .Include(p => p.PreciosVenta)
+                .ToListAsync();
         }
 
         public async Task<Producto> CreateAsync(Producto producto)
@@ -90,3 +101,4 @@ namespace DominioServicios
         }
     }
 }
+

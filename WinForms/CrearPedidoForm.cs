@@ -1,7 +1,7 @@
 ﻿using ApiClient;
 using DTOs;
-using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net.Http.Json;
@@ -15,22 +15,18 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly PedidoApiClient _pedidoApiClient;
         private readonly ProveedorApiClient _proveedorApiClient;
-        private readonly IServiceProvider _serviceProvider;
 
         private BindingList<LineaPedidoDTO> _lineasPedido = new();
-        private List<ProductoDTO> _productosDelProveedor = new();
 
         public CrearPedidoForm(
             ProductoApiClient productoApiClient,
             PedidoApiClient pedidoApiClient,
-            ProveedorApiClient proveedorApiClient,
-            IServiceProvider serviceProvider)
+            ProveedorApiClient proveedorApiClient)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _pedidoApiClient = pedidoApiClient;
             _proveedorApiClient = proveedorApiClient;
-            _serviceProvider = serviceProvider;
 
             dataGridLineasPedido.DataSource = _lineasPedido;
 
@@ -45,7 +41,8 @@ namespace WinForms
         {
             await CargarProveedores();
             ConfigurarGridLineas();
-            btnAgregarProducto.Enabled = false;
+            // # Los controles de producto se deshabilitan hasta que se elija un proveedor.
+            ToggleProductControls(false);
         }
 
         private async Task CargarProveedores()
@@ -67,85 +64,94 @@ namespace WinForms
 
         private async void cmbProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
+            // # Limpia el pedido actual y la selección de productos.
             _lineasPedido.Clear();
+            cmbProductos.DataSource = null;
             ActualizarTotal();
 
             if (cmbProveedores.SelectedItem is ProveedorDTO proveedor)
             {
+                this.Cursor = Cursors.WaitCursor;
                 try
                 {
-                    _productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor) ?? new List<ProductoDTO>();
-                    btnAgregarProducto.Enabled = true;
+                    // # Carga los productos asociados al proveedor seleccionado.
+                    var productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor) ?? new List<ProductoDTO>();
+
+                    cmbProductos.DataSource = productosDelProveedor;
+                    cmbProductos.DisplayMember = "Nombre";
+                    cmbProductos.ValueMember = "IdProducto";
+                    cmbProductos.SelectedIndex = -1;
+                    cmbProductos.Text = "Seleccione un producto...";
+
+                    ToggleProductControls(true); // # Habilita los controles de producto.
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error al cargar productos del proveedor: {ex.Message}", "Error");
-                    _productosDelProveedor.Clear();
-                    btnAgregarProducto.Enabled = false;
+                    ToggleProductControls(false);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
                 }
             }
             else
             {
-                btnAgregarProducto.Enabled = false;
+                ToggleProductControls(false); // # Deshabilita si no hay proveedor.
             }
-        }
-
-        private void ConfigurarGridLineas()
-        {
-            dataGridLineasPedido.AutoGenerateColumns = false;
-            dataGridLineasPedido.Columns.Clear();
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
         }
 
         private void btnAgregarProducto_Click(object sender, EventArgs e)
         {
-            var idsProductosEnPedido = _lineasPedido.Select(l => l.IdProducto).ToList();
-            var productosDisponibles = _productosDelProveedor
-                .Where(p => !idsProductosEnPedido.Contains(p.IdProducto))
-                .ToList();
-
-            if (!productosDisponibles.Any())
+            if (cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
             {
-                MessageBox.Show("No hay más productos de este proveedor para agregar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Seleccione un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            // # CORRECCIÓN: Se usa el nombre de clase corregido "AñadirProductoPedidoForm".
-            using var form = _serviceProvider.GetRequiredService<AñadirProductoPedidoForm>();
-            form.CargarProductosDisponibles(productosDisponibles);
-
-            // # CORRECCIÓN: Se trabaja con las nuevas propiedades "ProductoSeleccionado" y "CantidadSeleccionada".
-            if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
+            var cantidad = (int)numCantidad.Value;
+            if (cantidad <= 0)
             {
-                // # La responsabilidad de crear el DTO de la línea se mueve aquí.
-                var nuevaLinea = new LineaPedidoDTO
-                {
-                    IdProducto = form.ProductoSeleccionado.IdProducto,
-                    NombreProducto = form.ProductoSeleccionado.Nombre,
-                    Cantidad = form.CantidadSeleccionada,
-                    PrecioUnitario = form.ProductoSeleccionado.PrecioCompra // Se usa el precio de compra
-                };
-
-                _lineasPedido.Add(nuevaLinea);
-                ActualizarTotal();
+                MessageBox.Show("La cantidad debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            var lineaExistente = _lineasPedido.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
+
+            if (lineaExistente != null)
+            {
+                // # Si el producto ya está en el pedido, suma la cantidad.
+                lineaExistente.Cantidad += cantidad;
+            }
+            else
+            {
+                // # Si es un producto nuevo, crea la línea.
+                _lineasPedido.Add(new LineaPedidoDTO
+                {
+                    IdProducto = productoSeleccionado.IdProducto,
+                    NombreProducto = productoSeleccionado.Nombre,
+                    Cantidad = cantidad,
+                    PrecioUnitario = productoSeleccionado.PrecioCompra
+                });
+            }
+
+            _lineasPedido.ResetBindings(); // # Refresca la grilla.
+            ActualizarTotal();
+
+            // # Resetea los controles para la siguiente entrada.
+            cmbProductos.SelectedIndex = -1;
+            cmbProductos.Text = "";
+            numCantidad.Value = 1;
+            cmbProductos.Focus();
         }
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
-            if (dataGridLineasPedido.CurrentRow != null)
+            if (dataGridLineasPedido.CurrentRow?.DataBoundItem is LineaPedidoDTO lineaSeleccionada)
             {
-                _lineasPedido.Remove((LineaPedidoDTO)dataGridLineasPedido.CurrentRow.DataBoundItem);
+                _lineasPedido.Remove(lineaSeleccionada);
                 ActualizarTotal();
             }
-        }
-
-        private void ActualizarTotal()
-        {
-            lblTotalPedido.Text = $"Total: {_lineasPedido.Sum(l => l.Subtotal):C}";
         }
 
         private async void btnConfirmarPedido_Click(object sender, EventArgs e)
@@ -184,6 +190,28 @@ namespace WinForms
             }
         }
 
+        private void ConfigurarGridLineas()
+        {
+            dataGridLineasPedido.AutoGenerateColumns = false;
+            dataGridLineasPedido.Columns.Clear();
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
+        }
+
+        private void ActualizarTotal()
+        {
+            lblTotalPedido.Text = $"Total: {_lineasPedido.Sum(l => l.Subtotal):C}";
+        }
+
+        private void ToggleProductControls(bool enabled)
+        {
+            cmbProductos.Enabled = enabled;
+            numCantidad.Enabled = enabled;
+            btnAgregarProducto.Enabled = enabled;
+        }
+
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             this.DialogResult = DialogResult.Cancel;
@@ -191,3 +219,4 @@ namespace WinForms
         }
     }
 }
+

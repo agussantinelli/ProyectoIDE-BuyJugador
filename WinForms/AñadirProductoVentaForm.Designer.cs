@@ -23,11 +23,11 @@
         private void InitializeComponent()
         {
             dgvProductos = new DataGridView();
+            Precio = new DataGridViewTextBoxColumn();
             txtCantidad = new TextBox();
             lblCantidad = new Label();
             btnAceptar = new Button();
             btnCancelar = new Button();
-            Precio = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
             // 
@@ -43,13 +43,20 @@
             dgvProductos.Name = "dgvProductos";
             dgvProductos.ReadOnly = true;
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvProductos.Size = new Size(460, 210);
+            dgvProductos.Size = new Size(717, 313);
             dgvProductos.TabIndex = 0;
+            // 
+            // Precio
+            // 
+            Precio.DataPropertyName = "PrecioActual";
+            Precio.HeaderText = "Precio";
+            Precio.Name = "Precio";
+            Precio.ReadOnly = true;
             // 
             // txtCantidad
             // 
             txtCantidad.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            txtCantidad.Location = new Point(113, 238);
+            txtCantidad.Location = new Point(113, 341);
             txtCantidad.Name = "txtCantidad";
             txtCantidad.Size = new Size(100, 25);
             txtCantidad.TabIndex = 1;
@@ -58,7 +65,7 @@
             // 
             lblCantidad.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCantidad.AutoSize = true;
-            lblCantidad.Location = new Point(12, 241);
+            lblCantidad.Location = new Point(12, 344);
             lblCantidad.Name = "lblCantidad";
             lblCantidad.Size = new Size(82, 20);
             lblCantidad.TabIndex = 2;
@@ -67,7 +74,7 @@
             // btnAceptar
             // 
             btnAceptar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnAceptar.Location = new Point(316, 233);
+            btnAceptar.Location = new Point(573, 336);
             btnAceptar.Name = "btnAceptar";
             btnAceptar.Size = new Size(75, 33);
             btnAceptar.TabIndex = 3;
@@ -78,7 +85,7 @@
             // btnCancelar
             // 
             btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnCancelar.Location = new Point(397, 233);
+            btnCancelar.Location = new Point(654, 336);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(75, 33);
             btnCancelar.TabIndex = 4;
@@ -86,18 +93,11 @@
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
-            // Precio
-            // 
-            Precio.DataPropertyName = "PrecioActual";
-            Precio.HeaderText = "Precio";
-            Precio.Name = "Precio";
-            Precio.ReadOnly = true;
-            // 
             // AñadirProductoVentaForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(484, 279);
+            ClientSize = new Size(741, 382);
             Controls.Add(btnCancelar);
             Controls.Add(btnAceptar);
             Controls.Add(lblCantidad);
