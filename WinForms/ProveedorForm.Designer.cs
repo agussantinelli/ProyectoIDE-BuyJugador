@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace WinForms
+﻿namespace WinForms
 {
     partial class ProveedorForm
     {
@@ -20,6 +17,7 @@ namespace WinForms
         private Button btnReactivar;
         private Button btnVolver;
         private Button btnAsignarProductos;
+        private Button btnVerProductos; // # NUEVO
 
         protected override void Dispose(bool disposing)
         {
@@ -42,6 +40,7 @@ namespace WinForms
             btnEliminar = new Button();
             btnEditar = new Button();
             btnAsignarProductos = new Button();
+            btnVerProductos = new Button(); // # NUEVO
             btnReactivar = new Button();
             tabControlProveedores.SuspendLayout();
             tabPageActivos.SuspendLayout();
@@ -70,6 +69,7 @@ namespace WinForms
             // 
             // tabControlProveedores
             // 
+            tabControlProveedores.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
             tabControlProveedores.Location = new Point(12, 50);
@@ -122,6 +122,7 @@ namespace WinForms
             panelBotones.Controls.Add(btnEliminar);
             panelBotones.Controls.Add(btnEditar);
             panelBotones.Controls.Add(btnAsignarProductos);
+            panelBotones.Controls.Add(btnVerProductos); // # NUEVO
             panelBotones.Controls.Add(btnReactivar);
             panelBotones.Dock = DockStyle.Bottom;
             panelBotones.Location = new Point(0, 465);
@@ -173,10 +174,19 @@ namespace WinForms
             btnAsignarProductos.TabIndex = 4;
             btnAsignarProductos.Text = "Asignar Productos";
             btnAsignarProductos.Click += btnAsignarProductos_Click;
+            //
+            // btnVerProductos
+            //
+            btnVerProductos.Location = new Point(652, 17);
+            btnVerProductos.Name = "btnVerProductos";
+            btnVerProductos.Size = new Size(150, 30);
+            btnVerProductos.TabIndex = 6;
+            btnVerProductos.Text = "Ver Productos";
+            btnVerProductos.Click += btnVerProductos_Click;
             // 
             // btnReactivar
             // 
-            btnReactivar.Location = new Point(656, 17);
+            btnReactivar.Location = new Point(808, 17);
             btnReactivar.Name = "btnReactivar";
             btnReactivar.Size = new Size(115, 30);
             btnReactivar.TabIndex = 5;
@@ -186,7 +196,6 @@ namespace WinForms
             // 
             // ProveedorForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
             ClientSize = new Size(1200, 530);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
@@ -206,5 +215,3 @@ namespace WinForms
         }
     }
 }
-
-

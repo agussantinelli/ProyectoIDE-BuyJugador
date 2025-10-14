@@ -17,14 +17,10 @@ namespace WinForms
             var host = Host.CreateDefaultBuilder()
                 .ConfigureServices((context, services) =>
                 {
-
                     var apiBaseAddress = new Uri("https://localhost:7145/");
 
-
                     services.AddSingleton<UserSessionService>();
-
                     services.AddTransient<TokenMessageHandler>();
-
 
                     Action<HttpClient> configureClient = client => client.BaseAddress = apiBaseAddress;
 
@@ -80,7 +76,6 @@ namespace WinForms
                         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
                         .AddHttpMessageHandler<TokenMessageHandler>();
 
-
                     services.AddTransient<LoginForm>();
                     services.AddTransient<MainForm>();
                     services.AddTransient<PersonaForm>();
@@ -108,6 +103,8 @@ namespace WinForms
                     services.AddTransient<DetallePedidoForm>();
                     services.AddTransient<AsignarProductosProveedorForm>();
                     services.AddTransient<AñadirProductoPedidoForm>();
+                    services.AddTransient<VerProductosProveedorForm>();
+                    services.AddTransient<VerProveedoresProductoForm>();
                 })
                 .Build();
 
@@ -119,7 +116,7 @@ namespace WinForms
                 {
                     if (loginForm.ShowDialog() != DialogResult.OK)
                     {
-                        break; 
+                        break;
                     }
                 }
 
@@ -130,14 +127,13 @@ namespace WinForms
 
                 if (userSessionService.CurrentUser == null)
                 {
-                    continue; 
+                    continue;
                 }
                 else
                 {
-                    break; 
+                    break;
                 }
             }
         }
     }
 }
-

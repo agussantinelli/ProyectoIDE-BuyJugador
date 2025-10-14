@@ -22,7 +22,7 @@ namespace ApiClient
 
         public async Task<List<ProductoDTO>?> GetProductosByProveedorIdAsync(int idProveedor)
         {
-            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/producto-proveedor/{idProveedor}");
+            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/productos/proveedor/{idProveedor}");
         }
 
         public async Task<List<ProductoDTO>?> GetAllAsync()
