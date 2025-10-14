@@ -5,14 +5,12 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    // # Este formulario se mantiene como modal (usa ShowDialog).
-    // # Se le hace heredar de BaseForm para consistencia de estilo.
-    public partial class AñadirProductoVentaForm : BaseForm
+    public partial class AñadirProductoPedidoForm : BaseForm
     {
         public ProductoDTO ProductoSeleccionado { get; private set; }
         public int CantidadSeleccionada { get; private set; }
 
-        public AñadirProductoVentaForm()
+        public AñadirProductoPedidoForm()
         {
             InitializeComponent();
             StyleManager.ApplyButtonStyle(btnAceptar);
@@ -20,6 +18,7 @@ namespace WinForms
             StyleManager.ApplyDataGridViewStyle(dgvProductos);
         }
 
+        // # Carga la lista de productos en el DataGridView.
         public void CargarProductosDisponibles(List<ProductoDTO> productos)
         {
             dgvProductos.DataSource = productos;
@@ -30,14 +29,14 @@ namespace WinForms
         {
             if (dgvProductos.Columns.Count > 0)
             {
-
                 dgvProductos.Columns["Nombre"].HeaderText = "Producto";
                 dgvProductos.Columns["Descripcion"].HeaderText = "Descripción";
-                dgvProductos.Columns["Stock"].HeaderText = "Stock";
-                dgvProductos.Columns["Precio"].HeaderText = "Precio";
-                dgvProductos.Columns["Precio"].DefaultCellStyle.Format = "C2"; 
+                dgvProductos.Columns["Stock"].HeaderText = "Stock Actual";
 
+                dgvProductos.Columns["Precio"].HeaderText = "Precio de Compra";
+                dgvProductos.Columns["Precio"].DefaultCellStyle.Format = "C2";
 
+                // # Ocultar columnas no relevantes.
                 if (dgvProductos.Columns["IdProducto"] != null) dgvProductos.Columns["IdProducto"].Visible = false;
                 if (dgvProductos.Columns["IdTipoProducto"] != null) dgvProductos.Columns["IdTipoProducto"].Visible = false;
                 if (dgvProductos.Columns["Activo"] != null) dgvProductos.Columns["Activo"].Visible = false;
@@ -55,12 +54,6 @@ namespace WinForms
                 if (cantidad <= 0)
                 {
                     MessageBox.Show("La cantidad debe ser mayor a cero.", "Cantidad inválida", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (cantidad > selectedProduct.Stock)
-                {
-                    MessageBox.Show($"La cantidad solicitada ({cantidad}) supera el stock disponible ({selectedProduct.Stock}).", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 

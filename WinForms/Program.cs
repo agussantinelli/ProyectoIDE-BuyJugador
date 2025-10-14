@@ -107,7 +107,7 @@ namespace WinForms
                     services.AddTransient<CrearPedidoForm>();
                     services.AddTransient<DetallePedidoForm>();
                     services.AddTransient<AsignarProductosProveedorForm>();
-                    services.AddTransient<AñanirProductoPedidoForm>();
+                    services.AddTransient<AñadirProductoPedidoForm>();
                 })
                 .Build();
 

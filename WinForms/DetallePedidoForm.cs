@@ -140,18 +140,25 @@ namespace WinForms
                 return;
             }
 
-            using var form = _serviceProvider.GetRequiredService<AñanirProductoPedidoForm>();
+            // # CORRECCIÓN: Se usa el nombre de clase corregido "AñadirProductoPedidoForm".
+            using var form = _serviceProvider.GetRequiredService<AñadirProductoPedidoForm>();
             form.CargarProductosDisponibles(productosDisponibles);
 
-            if (form.ShowDialog() == DialogResult.OK)
+            // # CORRECCIÓN: Se trabaja con las nuevas propiedades "ProductoSeleccionado" y "CantidadSeleccionada".
+            if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
             {
-                var nuevaLinea = form.LineaPedido;
-                if (nuevaLinea != null)
+                // # La responsabilidad de crear el DTO de la línea se mueve aquí.
+                var nuevaLinea = new LineaPedidoDTO
                 {
-                    _lineasDePedido.Add(nuevaLinea);
-                    MarcarComoModificado();
-                    ActualizarTotal();
-                }
+                    IdProducto = form.ProductoSeleccionado.IdProducto,
+                    NombreProducto = form.ProductoSeleccionado.Nombre,
+                    Cantidad = form.CantidadSeleccionada,
+                    PrecioUnitario = form.ProductoSeleccionado.PrecioCompra
+                };
+
+                _lineasDePedido.Add(nuevaLinea);
+                MarcarComoModificado();
+                ActualizarTotal();
             }
         }
 
@@ -165,16 +172,11 @@ namespace WinForms
             }
         }
 
-        // # MEJORA DE UX:
-        // # Al hacer clic en el botón, se establece el foco directamente en la celda "Cantidad"
-        // # de la fila seleccionada y se inicia el modo de edición.
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
             {
-                // 1. Establecer la celda "Cantidad" de la fila actual como la celda activa.
                 dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
-                // 2. Iniciar el modo de edición y seleccionar todo el texto.
                 dataGridDetalle.BeginEdit(true);
             }
         }
@@ -262,4 +264,3 @@ namespace WinForms
         }
     }
 }
-

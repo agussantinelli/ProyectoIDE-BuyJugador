@@ -113,12 +113,23 @@ namespace WinForms
                 return;
             }
 
-            using var form = _serviceProvider.GetRequiredService<AñanirProductoPedidoForm>();
+            // # CORRECCIÓN: Se usa el nombre de clase corregido "AñadirProductoPedidoForm".
+            using var form = _serviceProvider.GetRequiredService<AñadirProductoPedidoForm>();
             form.CargarProductosDisponibles(productosDisponibles);
 
-            if (form.ShowDialog() == DialogResult.OK && form.LineaPedido != null)
+            // # CORRECCIÓN: Se trabaja con las nuevas propiedades "ProductoSeleccionado" y "CantidadSeleccionada".
+            if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
             {
-                _lineasPedido.Add(form.LineaPedido);
+                // # La responsabilidad de crear el DTO de la línea se mueve aquí.
+                var nuevaLinea = new LineaPedidoDTO
+                {
+                    IdProducto = form.ProductoSeleccionado.IdProducto,
+                    NombreProducto = form.ProductoSeleccionado.Nombre,
+                    Cantidad = form.CantidadSeleccionada,
+                    PrecioUnitario = form.ProductoSeleccionado.PrecioCompra // Se usa el precio de compra
+                };
+
+                _lineasPedido.Add(nuevaLinea);
                 ActualizarTotal();
             }
         }
@@ -153,7 +164,6 @@ namespace WinForms
 
             try
             {
-                // # CORRECCIÓN: Se utiliza el método 'CreateAsync' estandarizado en el ApiClient.
                 var response = await _pedidoApiClient.CreateAsync(pedidoCompletoDto);
                 if (response.IsSuccessStatusCode)
                 {
@@ -181,4 +191,3 @@ namespace WinForms
         }
     }
 }
-

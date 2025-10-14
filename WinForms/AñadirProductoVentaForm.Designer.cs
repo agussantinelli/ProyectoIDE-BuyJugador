@@ -27,6 +27,7 @@
             lblCantidad = new Label();
             btnAceptar = new Button();
             btnCancelar = new Button();
+            Precio = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
             // 
@@ -36,6 +37,7 @@
             dgvProductos.AllowUserToDeleteRows = false;
             dgvProductos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvProductos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvProductos.Columns.AddRange(new DataGridViewColumn[] { Precio });
             dgvProductos.Location = new Point(12, 14);
             dgvProductos.MultiSelect = false;
             dgvProductos.Name = "dgvProductos";
@@ -84,6 +86,13 @@
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
             // 
+            // Precio
+            // 
+            Precio.DataPropertyName = "PrecioActual";
+            Precio.HeaderText = "Precio";
+            Precio.Name = "Precio";
+            Precio.ReadOnly = true;
+            // 
             // AñadirProductoVentaForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
@@ -102,5 +111,7 @@
         }
 
         #endregion
+
+        private DataGridViewTextBoxColumn Precio;
     }
 }
