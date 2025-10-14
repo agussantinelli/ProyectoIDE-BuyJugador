@@ -1,0 +1,49 @@
+﻿@page "/tipos-producto/nuevo"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject TipoProductoApiClient tipoProductoApiClient
+@inject NavigationManager NavigationManager
+
+<div class="form-container">
+    <div class="form-header">
+        <h3 class="form-title">Nuevo Tipo de Producto</h3>
+        <button class="btn btn-secondary" @onclick="Cancelar">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver</span>
+        </button>
+    </div>
+
+    <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <InputText id="descripcion" class="form-control" @bind-Value="_tipoProducto.Descripcion" />
+            <ValidationMessage For="@(() => _tipoProducto.Descripcion)" />
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i>
+                <span>Guardar</span>
+            </button>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    private TipoProductoDTO _tipoProducto = new();
+
+    private async Task Guardar()
+    {
+        await tipoProductoApiClient.CreateAsync(_tipoProducto);
+        NavigationManager.NavigateTo("/tipos-producto");
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/tipos-producto");
+    }
+}

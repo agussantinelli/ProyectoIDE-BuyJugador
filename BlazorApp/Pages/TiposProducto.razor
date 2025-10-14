@@ -4,6 +4,7 @@
 @using ApiClient
 @using DTOs
 @inject TipoProductoApiClient tipoProductoApiClient
+@inject NavigationManager NavigationManager
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -11,22 +12,22 @@
 
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
-            <input class="tbl-input" type="text" placeholder="Buscar tipo de producto..."
-                   @bind="searchString" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="CrearTipoProducto">
+            <input class="tbl-input" type="text" placeholder="Buscar por descripción..."
+                   @bind="TextoBusqueda" @bind:event="oninput" />
+            <button class="btn btn-primary" @onclick="NuevoTipoProducto">
                 <i class="bi bi-plus-circle"></i>
                 <span>Nuevo</span>
             </button>
         </div>
     </div>
 
-    @if (filteredTiposProducto == null)
+    @if (tiposProductoFiltrados == null)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando tipos de producto...
         </div>
     }
-    else if (!filteredTiposProducto.Any())
+    else if (!tiposProductoFiltrados.Any())
     {
         <div class="tbl-state">
             <i class="bi bi-inbox"></i> No se encontraron tipos de producto.
@@ -38,26 +39,24 @@
             <table class="tbl table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
+                        <th>ID</th>
                         <th>Descripción</th>
-                        <th class="tbl-text-end">Acciones</th>
+                        <th class="tbl-actions">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var tipoProducto in filteredTiposProducto)
+                    @foreach (var tipo in tiposProductoFiltrados)
                     {
                         <tr>
-                            <td class="tbl-truncate">@tipoProducto.Descripcion</td>
-                            <td class="tbl-muted tbl-truncate">@tipoProducto.Descripcion</td>
-                            <td class="tbl-text-end">
-                                <div class="tbl-actions">
-                                    <button class="tbl-icon-btn" title="Editar" @onclick="() => EditarTipoProducto(tipoProducto.IdTipoProducto)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarTipoProducto(tipoProducto.IdTipoProducto)">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
-                                </div>
+                            <td>@tipo.IdTipoProducto</td>
+                            <td>@tipo.Descripcion</td>
+                            <td class="tbl-actions">
+                                <button class="btn-icon" title="Editar" @onclick="() => Editar(tipo)">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button class="btn-icon" title="Eliminar" @onclick="() => AbrirModalConfirmacion(tipo)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -67,10 +66,45 @@
     }
 </div>
 
+@if (mostrarModalConfirmacion)
+{
+    <div class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModalConfirmacion"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el tipo de producto: <strong>@_tipoProductoParaEliminar?.Descripcion</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalConfirmacion">Cancelar</button>
+                    <button type="button" class="btn btn-danger" @onclick="EliminarConfirmado">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
-    private List<DTOs.TipoProductoDTO> tiposProducto;
-    private List<DTOs.TipoProductoDTO> filteredTiposProducto;
-    private string searchString = "";
+    private List<TipoProductoDTO>? _tiposProducto;
+    private List<TipoProductoDTO>? tiposProductoFiltrados;
+    private string _textoBusqueda = string.Empty;
+
+    private string TextoBusqueda
+    {
+        get => _textoBusqueda;
+        set
+        {
+            _textoBusqueda = value;
+            AplicarFiltro();
+        }
+    }
+
+    private bool mostrarModalConfirmacion = false;
+    private TipoProductoDTO? _tipoProductoParaEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,52 +113,59 @@
 
     private async Task CargarTiposProducto()
     {
-        tiposProducto = await tipoProductoApiClient.GetAllAsync();
-        FiltrarTiposProducto();
+        _tiposProducto = await tipoProductoApiClient.GetAllAsync() ?? new();
+        AplicarFiltro();
     }
 
-    private void FiltrarTiposProducto()
+    private void AplicarFiltro()
     {
-        if (string.IsNullOrWhiteSpace(searchString))
+        if (string.IsNullOrWhiteSpace(TextoBusqueda))
         {
-            filteredTiposProducto = tiposProducto;
+            tiposProductoFiltrados = _tiposProducto;
         }
         else
         {
-            filteredTiposProducto = tiposProducto
-                .Where(tp =>
-                    (tp.Descripcion ?? string.Empty).Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
-                    (tp.Descripcion ?? string.Empty).Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            tiposProductoFiltrados = _tiposProducto?
+                .Where(p => (p.Descripcion ?? string.Empty).Contains(TextoBusqueda, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
     }
 
-    private void OnSearchInput(ChangeEventArgs e)
+    private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipos-producto/nuevo");
+
+    private void Editar(TipoProductoDTO tipo) => NavigationManager.NavigateTo($"/tipos-producto/editar/{tipo.IdTipoProducto}");
+
+    private void AbrirModalConfirmacion(TipoProductoDTO tipo)
     {
-        searchString = e.Value.ToString();
-        FiltrarTiposProducto();
-        StateHasChanged();
+        _tipoProductoParaEliminar = tipo;
+        mostrarModalConfirmacion = true;
     }
 
-    void CrearTipoProducto()
+    private void CerrarModalConfirmacion()
     {
-        // TODO: Debes crear la página/componente para crear un tipo de producto
-        // NavigationManager.NavigateTo("/crear-tipoproducto");
-        Console.WriteLine("Navegando a la página de creación...");
+        mostrarModalConfirmacion = false;
+        _tipoProductoParaEliminar = null;
     }
 
-    void EditarTipoProducto(int id)
+    private async Task EliminarConfirmado()
     {
-        // TODO: Debes crear la página/componente para editar un tipo de producto
-        // NavigationManager.NavigateTo($"/editar-tipoproducto/{id}");
-        Console.WriteLine($"Navegando a la página de edición para el ID: {id}");
-    }
-
-    async Task EliminarTipoProducto(int id)
-    {
-        // Aquí podrías agregar una confirmación (ej. un modal) antes de eliminar
-        await tipoProductoApiClient.DeleteAsync(id);
-        // Si se eliminó correctamente, recargamos la lista
-        await CargarTiposProducto();
+        if (_tipoProductoParaEliminar != null)
+        {
+            try
+            {
+                await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
+                await CargarTiposProducto(); // Recarga la lista si la eliminación fue exitosa
+            }
+            catch (Exception ex)
+            {
+                // Opcional: Manejar o registrar el error
+                Console.WriteLine($"Error al eliminar el tipo de producto: {ex.Message}");
+            }
+            finally
+            {
+                CerrarModalConfirmacion();
+            }
+        }
     }
 }
+

@@ -1,5 +1,69 @@
-﻿<h3>EditarTipoProducto</h3>
+﻿@page "/tipos-producto/editar/{Id:int}"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject TipoProductoApiClient tipoProductoApiClient
+@inject NavigationManager NavigationManager
+
+<div class="form-container">
+    @if (_tipoProducto == null)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando...
+        </div>
+    }
+    else
+    {
+        <div class="form-header">
+            <h3 class="form-title">Editando: @_tipoProducto.Descripcion</h3>
+             <button class="btn btn-secondary" @onclick="Cancelar">
+                <i class="bi bi-arrow-left"></i>
+                <span>Volver</span>
+            </button>
+        </div>
+
+        <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="descripcion">Descripción</label>
+                <InputText id="descripcion" class="form-control" @bind-Value="_tipoProducto.Descripcion" />
+                <ValidationMessage For="@(() => _tipoProducto.Descripcion)" />
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    <span>Guardar Cambios</span>
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
 
 @code {
+    [Parameter]
+    public int Id { get; set; }
 
+    private TipoProductoDTO? _tipoProducto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tipoProducto = await tipoProductoApiClient.GetByIdAsync(Id);
+    }
+
+    private async Task Guardar()
+    {
+        if (_tipoProducto != null)
+        {
+            await tipoProductoApiClient.UpdateAsync(Id, _tipoProducto);
+            NavigationManager.NavigateTo("/tipos-producto");
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/tipos-producto");
+    }
 }
