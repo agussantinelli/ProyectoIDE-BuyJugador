@@ -34,6 +34,7 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVerHistorialPrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
             StyleManager.ApplyButtonStyle(btnVolver);
+            StyleManager.ApplyButtonStyle(btnVerProveedores); // # NUEVO
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
@@ -57,6 +58,32 @@ namespace WinForms
                 MessageBox.Show($"Error cargando productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        // # NUEVO: Manejador para el botón "Ver Proveedores"
+        private void btnVerProveedores_Click(object sender, EventArgs e)
+        {
+            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+            var producto = ObtenerSeleccionado(dgv);
+            if (producto == null) return;
+
+            var existingForm = this.MdiParent?.MdiChildren.OfType<VerProveedoresProductoForm>()
+                .FirstOrDefault(f => f.Tag is int prodId && prodId == producto.IdProducto);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = _serviceProvider.GetRequiredService<VerProveedoresProductoForm>();
+                form.CargarDatos(producto.IdProducto, producto.Nombre);
+                form.Tag = producto.IdProducto;
+                form.MdiParent = this.MdiParent;
+                form.Show();
+            }
+        }
+
+        // ... (resto de manejadores y métodos sin cambios)
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
         {
@@ -128,7 +155,6 @@ namespace WinForms
             return null;
         }
 
-        // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             var existingForm = this.MdiParent?.MdiChildren.OfType<CrearProductoForm>().FirstOrDefault();
@@ -151,7 +177,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnEditar_Click(object sender, EventArgs e)
         {
             if (tabControl.SelectedTab != tabActivos) return;
@@ -181,7 +206,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnVerHistorialPrecios_Click(object sender, EventArgs e)
         {
             DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
@@ -207,14 +231,12 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnEditarPrecio_Click(object sender, EventArgs e)
         {
             DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
             var producto = ObtenerSeleccionado(dgv);
             if (producto == null) return;
 
-            // # Se mantiene ShowDialog() aquí porque es una acción rápida y modal.
             using var edit = new EditarPrecioForm(
                 _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
                 producto.IdProducto,
@@ -263,12 +285,14 @@ namespace WinForms
         {
             bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
             bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
+            bool haySeleccion = seleccionadoActivos || seleccionadoInactivos;
 
             btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
             btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
             btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
-            btnVerHistorialPrecios.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos) || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
-            btnEditarPrecio.Enabled = (tabControl.SelectedTab == tabActivos && seleccionadoActivos) || (tabControl.SelectedTab == tabInactivos && seleccionadoInactivos);
+            btnVerHistorialPrecios.Enabled = haySeleccion;
+            btnEditarPrecio.Enabled = haySeleccion;
+            btnVerProveedores.Enabled = haySeleccion; // # NUEVO
         }
 
         private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -286,4 +310,3 @@ namespace WinForms
         private void mnuEditarPrecio_Click(object sender, EventArgs e) => btnEditarPrecio_Click(sender, e);
     }
 }
-

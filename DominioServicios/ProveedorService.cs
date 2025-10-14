@@ -20,35 +20,17 @@ namespace DominioServicios
         public async Task<List<ProveedorDTO>> GetAllAsync()
         {
             return await _context.Proveedores
-                .Select(p => new ProveedorDTO
-                {
-                    IdProveedor = p.IdProveedor,
-                    RazonSocial = p.RazonSocial,
-                    Cuit = p.Cuit,
-                    Email = p.Email,
-                    Telefono = p.Telefono,
-                    Direccion = p.Direccion,
-                    IdLocalidad = p.IdLocalidad,
-                    Activo = p.Activo
-                }).ToListAsync();
+                .Select(p => ProveedorDTO.FromDominio(p)!)
+                .ToListAsync();
         }
 
         public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
             return await _context.Proveedores
-                .IgnoreQueryFilters() 
+                .IgnoreQueryFilters()
                 .Where(p => !p.Activo)
-                .Select(p => new ProveedorDTO
-                {
-                    IdProveedor = p.IdProveedor,
-                    RazonSocial = p.RazonSocial,
-                    Cuit = p.Cuit,
-                    Email = p.Email,
-                    Telefono = p.Telefono,
-                    Direccion = p.Direccion,
-                    IdLocalidad = p.IdLocalidad,
-                    Activo = p.Activo
-                }).ToListAsync();
+                .Select(p => ProveedorDTO.FromDominio(p)!)
+                .ToListAsync();
         }
 
         public async Task<ProveedorDTO?> GetByIdAsync(int id)
@@ -59,6 +41,13 @@ namespace DominioServicios
             return ProveedorDTO.FromDominio(p);
         }
 
+        public async Task<List<ProveedorDTO>> GetByProductoIdAsync(int idProducto)
+        {
+            return await _context.Proveedores
+                .Where(p => p.ProductoProveedores.Any(pp => pp.IdProducto == idProducto))
+                .Select(p => ProveedorDTO.FromDominio(p)!)
+                .ToListAsync();
+        }
 
         private async Task<Proveedor?> FindProveedorByIdAsync(int id)
         {
@@ -92,7 +81,7 @@ namespace DominioServicios
             var proveedor = await FindProveedorByIdAsync(id);
             if (proveedor == null)
             {
-                return false; 
+                return false;
             }
 
             proveedor.RazonSocial = dto.RazonSocial;

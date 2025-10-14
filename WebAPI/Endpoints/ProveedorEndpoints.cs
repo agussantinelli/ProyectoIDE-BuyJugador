@@ -1,8 +1,8 @@
 ﻿using DTOs;
 using DominioServicios;
-using Microsoft.AspNetCore.Builder; 
-using Microsoft.AspNetCore.Http;    
-using Microsoft.AspNetCore.Routing; 
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace WebAPI.Endpoints
 {
@@ -21,6 +21,13 @@ namespace WebAPI.Endpoints
             group.MapGet("/inactivos", async (ProveedorService service) =>
             {
                 var proveedores = await service.GetInactivosAsync();
+                return Results.Ok(proveedores);
+            });
+
+            // # NUEVO: Endpoint para obtener proveedores por ID de producto.
+            group.MapGet("/producto/{idProducto}", async (int idProducto, ProveedorService service) =>
+            {
+                var proveedores = await service.GetByProductoIdAsync(idProducto);
                 return Results.Ok(proveedores);
             });
 
@@ -58,4 +65,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-

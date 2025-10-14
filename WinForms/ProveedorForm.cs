@@ -2,7 +2,6 @@
 using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,6 +46,7 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnAsignarProductos);
+            StyleManager.ApplyButtonStyle(btnVerProductos); // # NUEVO
         }
 
         private async void ProveedorForm_Load(object sender, EventArgs e)
@@ -78,7 +78,32 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
+        // # NUEVO: Manejador del botón "Ver Productos"
+        private void btnVerProductos_Click(object sender, EventArgs e)
+        {
+            var seleccionado = ObtenerSeleccionado(dgvActivos);
+            if (seleccionado == null) return;
+
+            var existingForm = this.MdiParent?.MdiChildren.OfType<VerProductosProveedorForm>()
+                .FirstOrDefault(f => f.Tag is int provId && provId == seleccionado.IdProveedor);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = _serviceProvider.GetRequiredService<VerProductosProveedorForm>();
+                form.CargarDatos(seleccionado.IdProveedor, seleccionado.RazonSocial);
+                form.Tag = seleccionado.IdProveedor;
+                form.MdiParent = this.MdiParent;
+                form.Show();
+            }
+        }
+
+
+        // ... (resto de los manejadores de eventos como btnNuevo, btnEditar, etc.)
+
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             var existingForm = this.MdiParent?.MdiChildren.OfType<CrearProveedorForm>().FirstOrDefault();
@@ -100,7 +125,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnEditar_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado(dgvActivos);
@@ -130,7 +154,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnAsignarProductos_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado(dgvActivos);
@@ -231,7 +254,7 @@ namespace WinForms
 
         private void AplicarFiltro()
         {
-            var filtro = _filtroActual.ToLower();
+            var filtro = _filtroActual.ToLowerInvariant();
 
             if (tabControlProveedores.SelectedTab == tabPageActivos)
             {
@@ -267,21 +290,21 @@ namespace WinForms
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.LocalidadNombre), HeaderText = "Localidad", Width = 150 });
             dgv.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(ProveedorRow.ProvinciaNombre), HeaderText = "Provincia", Width = 150 });
             dgv.ReadOnly = true;
-            dgv.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgv.MultiSelect = false;
-            dgv.RowHeadersVisible = false;
-            dgv.AllowUserToAddRows = false;
-            dgv.AllowUserToDeleteRows = false;
         }
 
 
         private void ActualizarBotones()
         {
             bool esActivos = tabControlProveedores.SelectedTab == tabPageActivos;
-            btnEditar.Visible = esActivos && dgvActivos.CurrentRow != null;
-            btnEliminar.Visible = esActivos && dgvActivos.CurrentRow != null;
-            btnReactivar.Visible = !esActivos && dgvInactivos.CurrentRow != null;
-            btnAsignarProductos.Visible = esActivos && dgvActivos.CurrentRow != null;
+            bool hayActivoSeleccionado = esActivos && dgvActivos.CurrentRow != null;
+
+            btnEditar.Visible = hayActivoSeleccionado;
+            btnEliminar.Visible = hayActivoSeleccionado;
+            btnAsignarProductos.Visible = hayActivoSeleccionado;
+            btnVerProductos.Visible = hayActivoSeleccionado; // # NUEVO
+
+            bool hayInactivoSeleccionado = !esActivos && dgvInactivos.CurrentRow != null;
+            btnReactivar.Visible = hayInactivoSeleccionado;
         }
 
         private class ProveedorRow
@@ -314,4 +337,3 @@ namespace WinForms
         }
     }
 }
-
