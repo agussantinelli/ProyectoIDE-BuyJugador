@@ -27,7 +27,6 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnNuevoPedido);
             StyleManager.ApplyButtonStyle(btnEliminar);
-            // # CORRECCIÓN: El nombre del botón en el diseñador es 'btnFinalizarPedido'.
             StyleManager.ApplyButtonStyle(btnFinalizarPedido);
             StyleManager.ApplyButtonStyle(btnVerDetalle);
 
@@ -36,13 +35,16 @@ namespace WinForms
 
         private async void PedidoForm_Load(object sender, EventArgs e)
         {
-            cmbFiltroGasto.Items.AddRange(new object[]
+            if (cmbFiltroGasto.Items.Count == 0)
             {
-                "Todos",
-                "Hasta $100.000",
-                "Entre $100.000 y $500.000",
-                "Más de $500.000"
-            });
+                cmbFiltroGasto.Items.AddRange(new object[]
+                {
+                    "Todos",
+                    "Hasta $100.000",
+                    "Entre $100.000 y $500.000",
+                    "Más de $500.000"
+                });
+            }
             cmbFiltroGasto.SelectedIndex = 0;
 
             await CargarPedidos();
@@ -63,7 +65,6 @@ namespace WinForms
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                // # CORRECCIÓN: Se usa el método estandarizado 'GetAllAsync'.
                 _todosLosPedidos = await _pedidoApiClient.GetAllAsync() ?? new List<PedidoDTO>();
                 AplicarFiltros();
             }
@@ -135,8 +136,6 @@ namespace WinForms
             }
             else
             {
-                // # CORRECCIÓN: Se resuelve cada dependencia necesaria del ServiceProvider
-                // # y se pasa al nuevo constructor del formulario de detalle.
                 var pedidoApiClient = _serviceProvider.GetRequiredService<PedidoApiClient>();
                 var productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
 
@@ -213,7 +212,6 @@ namespace WinForms
             }
         }
 
-        // # CORRECCIÓN: El nombre del método coincide con el del diseñador.
         private async void btnFinalizarPedido_Click(object sender, EventArgs e)
         {
             if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedido) return;
@@ -273,8 +271,6 @@ namespace WinForms
 
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
 
-        // # CORRECCIÓN: Se añade el manejador de eventos que faltaba.
         private void FiltrosChanged(object sender, EventArgs e) => AplicarFiltros();
     }
 }
-

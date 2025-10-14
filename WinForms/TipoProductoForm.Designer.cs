@@ -34,7 +34,7 @@
             // 
             txtBuscar.Location = new Point(103, 9);
             txtBuscar.Name = "txtBuscar";
-            txtBuscar.Size = new Size(600, 25);
+            txtBuscar.Size = new Size(319, 25);
             txtBuscar.TabIndex = 1;
             txtBuscar.TextChanged += txtBuscar_TextChanged;
             // 
@@ -45,7 +45,7 @@
             dgvTiposProducto.Name = "dgvTiposProducto";
             dgvTiposProducto.ReadOnly = true;
             dgvTiposProducto.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvTiposProducto.Size = new Size(1040, 400);
+            dgvTiposProducto.Size = new Size(460, 400);
             dgvTiposProducto.TabIndex = 2;
             dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
             // 
@@ -97,7 +97,7 @@
             // TipoProductoForm
             // 
             AutoScaleDimensions = new SizeF(7F, 17F);
-            ClientSize = new Size(1100, 520);
+            ClientSize = new Size(503, 520);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(dgvTiposProducto);

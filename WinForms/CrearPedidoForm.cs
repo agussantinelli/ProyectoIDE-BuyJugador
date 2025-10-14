@@ -17,6 +17,7 @@ namespace WinForms
         private readonly ProveedorApiClient _proveedorApiClient;
 
         private BindingList<LineaPedidoDTO> _lineasPedido = new();
+        private List<ProductoDTO> _productosDelProveedor = new();
 
         public CrearPedidoForm(
             ProductoApiClient productoApiClient,
@@ -41,8 +42,7 @@ namespace WinForms
         {
             await CargarProveedores();
             ConfigurarGridLineas();
-            // # Los controles de producto se deshabilitan hasta que se elija un proveedor.
-            ToggleProductControls(false);
+            btnAgregarProducto.Enabled = false;
         }
 
         private async Task CargarProveedores()
@@ -64,94 +64,83 @@ namespace WinForms
 
         private async void cmbProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // # Limpia el pedido actual y la selección de productos.
             _lineasPedido.Clear();
-            cmbProductos.DataSource = null;
             ActualizarTotal();
 
             if (cmbProveedores.SelectedItem is ProveedorDTO proveedor)
             {
-                this.Cursor = Cursors.WaitCursor;
                 try
                 {
-                    // # Carga los productos asociados al proveedor seleccionado.
-                    var productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor) ?? new List<ProductoDTO>();
-
-                    cmbProductos.DataSource = productosDelProveedor;
+                    _productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor) ?? new List<ProductoDTO>();
+                    cmbProductos.DataSource = _productosDelProveedor;
                     cmbProductos.DisplayMember = "Nombre";
                     cmbProductos.ValueMember = "IdProducto";
-                    cmbProductos.SelectedIndex = -1;
-                    cmbProductos.Text = "Seleccione un producto...";
-
-                    ToggleProductControls(true); // # Habilita los controles de producto.
+                    cmbProductos.SelectedIndex = _productosDelProveedor.Any() ? 0 : -1;
+                    btnAgregarProducto.Enabled = _productosDelProveedor.Any();
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error al cargar productos del proveedor: {ex.Message}", "Error");
-                    ToggleProductControls(false);
-                }
-                finally
-                {
-                    this.Cursor = Cursors.Default;
+                    _productosDelProveedor.Clear();
+                    cmbProductos.DataSource = null;
+                    btnAgregarProducto.Enabled = false;
                 }
             }
             else
             {
-                ToggleProductControls(false); // # Deshabilita si no hay proveedor.
+                btnAgregarProducto.Enabled = false;
+                cmbProductos.DataSource = null;
             }
+        }
+
+        private void ConfigurarGridLineas()
+        {
+            dataGridLineasPedido.AutoGenerateColumns = false;
+            dataGridLineasPedido.Columns.Clear();
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
+            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
         }
 
         private void btnAgregarProducto_Click(object sender, EventArgs e)
         {
             if (cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
             {
-                MessageBox.Show("Seleccione un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Debe seleccionar un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            var cantidad = (int)numCantidad.Value;
-            if (cantidad <= 0)
+            if (_lineasPedido.Any(l => l.IdProducto == productoSeleccionado.IdProducto))
             {
-                MessageBox.Show("La cantidad debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Este producto ya ha sido agregado al pedido.", "Producto Duplicado", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var lineaExistente = _lineasPedido.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
-
-            if (lineaExistente != null)
+            var nuevaLinea = new LineaPedidoDTO
             {
-                // # Si el producto ya está en el pedido, suma la cantidad.
-                lineaExistente.Cantidad += cantidad;
-            }
-            else
-            {
-                // # Si es un producto nuevo, crea la línea.
-                _lineasPedido.Add(new LineaPedidoDTO
-                {
-                    IdProducto = productoSeleccionado.IdProducto,
-                    NombreProducto = productoSeleccionado.Nombre,
-                    Cantidad = cantidad,
-                    PrecioUnitario = productoSeleccionado.PrecioCompra
-                });
-            }
+                IdProducto = productoSeleccionado.IdProducto,
+                NombreProducto = productoSeleccionado.Nombre,
+                Cantidad = (int)numCantidad.Value,
+                PrecioUnitario = productoSeleccionado.PrecioCompra
+            };
 
-            _lineasPedido.ResetBindings(); // # Refresca la grilla.
+            _lineasPedido.Add(nuevaLinea);
             ActualizarTotal();
-
-            // # Resetea los controles para la siguiente entrada.
-            cmbProductos.SelectedIndex = -1;
-            cmbProductos.Text = "";
-            numCantidad.Value = 1;
-            cmbProductos.Focus();
         }
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
-            if (dataGridLineasPedido.CurrentRow?.DataBoundItem is LineaPedidoDTO lineaSeleccionada)
+            if (dataGridLineasPedido.CurrentRow != null)
             {
-                _lineasPedido.Remove(lineaSeleccionada);
+                _lineasPedido.Remove((LineaPedidoDTO)dataGridLineasPedido.CurrentRow.DataBoundItem);
                 ActualizarTotal();
             }
+        }
+
+        private void ActualizarTotal()
+        {
+            lblTotalPedido.Text = $"Total: {_lineasPedido.Sum(l => l.Subtotal):C}";
         }
 
         private async void btnConfirmarPedido_Click(object sender, EventArgs e)
@@ -166,6 +155,7 @@ namespace WinForms
             {
                 IdProveedor = (int)cmbProveedores.SelectedValue,
                 LineasPedido = _lineasPedido.ToList(),
+                MarcarComoRecibido = chkMarcarRecibido.Checked // # NUEVO
             };
 
             try
@@ -188,28 +178,6 @@ namespace WinForms
             {
                 MessageBox.Show($"Error al crear el pedido: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void ConfigurarGridLineas()
-        {
-            dataGridLineasPedido.AutoGenerateColumns = false;
-            dataGridLineasPedido.Columns.Clear();
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "PrecioUnitario", HeaderText = "Precio Unit.", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
-            dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
-        }
-
-        private void ActualizarTotal()
-        {
-            lblTotalPedido.Text = $"Total: {_lineasPedido.Sum(l => l.Subtotal):C}";
-        }
-
-        private void ToggleProductControls(bool enabled)
-        {
-            cmbProductos.Enabled = enabled;
-            numCantidad.Enabled = enabled;
-            btnAgregarProducto.Enabled = enabled;
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)

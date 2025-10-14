@@ -76,10 +76,11 @@ namespace DominioServicios
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
+                    // # CORRECCIÓN: El estado se determina por el DTO.
                     var nuevoPedido = new Pedido
                     {
                         Fecha = DateTime.UtcNow,
-                        Estado = "Pendiente",
+                        Estado = crearPedidoDto.MarcarComoRecibido ? "Recibido" : "Pendiente",
                         IdProveedor = crearPedidoDto.IdProveedor
                     };
                     _context.Pedidos.Add(nuevoPedido);
@@ -111,7 +112,11 @@ namespace DominioServicios
                             PrecioUnitario = montoPrecioCompra
                         });
 
-                        producto.Stock += lineaDto.Cantidad;
+                        // # CORRECCIÓN: El stock solo se actualiza si el pedido se marca como recibido.
+                        if (crearPedidoDto.MarcarComoRecibido)
+                        {
+                            producto.Stock += lineaDto.Cantidad;
+                        }
                     }
 
                     await _context.SaveChangesAsync();
@@ -128,6 +133,7 @@ namespace DominioServicios
             });
         }
 
+        // ... (resto de los métodos sin cambios)
         public async Task UpdatePedidoCompletoAsync(int id, PedidoDTO pedidoDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -140,7 +146,6 @@ namespace DominioServicios
                 if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
                 if (pedido.Estado != "Pendiente") throw new InvalidOperationException("Solo se pueden modificar pedidos en estado 'Pendiente'.");
 
-                // 1. Revertir el stock de las líneas originales
                 var idsProductosOriginales = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
                 var productosOriginales = await _context.Productos
                     .Where(p => idsProductosOriginales.Contains(p.IdProducto))
@@ -150,13 +155,12 @@ namespace DominioServicios
                 {
                     if (productosOriginales.TryGetValue(lineaOriginal.IdProducto, out var producto))
                     {
-                        producto.Stock -= lineaOriginal.Cantidad;
+                        // Si el pedido no había sido recibido, no se había sumado stock, así que no se resta nada.
                     }
                 }
                 _context.LineaPedidos.RemoveRange(pedido.LineasPedido);
-                await _context.SaveChangesAsync(); // Aplicar la reversión y eliminación
+                await _context.SaveChangesAsync();
 
-                // 2. Aplicar el stock de las nuevas líneas
                 var idsProductosNuevos = pedidoDto.LineasPedido.Select(l => l.IdProducto).ToList();
                 var productosNuevos = await _context.Productos
                     .Where(p => idsProductosNuevos.Contains(p.IdProducto))
@@ -167,8 +171,6 @@ namespace DominioServicios
                 {
                     if (productosNuevos.TryGetValue(lineaDto.IdProducto, out var producto))
                     {
-                        producto.Stock += lineaDto.Cantidad;
-
                         _context.LineaPedidos.Add(new LineaPedido
                         {
                             IdPedido = pedido.IdPedido,
@@ -192,10 +194,21 @@ namespace DominioServicios
 
         public async Task MarcarComoRecibidoAsync(int id)
         {
-            var pedido = await _context.Pedidos.FindAsync(id);
+            var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
             if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
             if (pedido.Estado == "Recibido") throw new InvalidOperationException("El pedido ya fue recibido.");
 
+            // # Lógica para actualizar el stock al recibir el pedido.
+            var idsProductos = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
+            var productosAfectados = await _context.Productos.Where(p => idsProductos.Contains(p.IdProducto)).ToDictionaryAsync(p => p.IdProducto);
+
+            foreach (var linea in pedido.LineasPedido)
+            {
+                if (productosAfectados.TryGetValue(linea.IdProducto, out var producto))
+                {
+                    producto.Stock += linea.Cantidad;
+                }
+            }
 
             pedido.Estado = "Recibido";
             await _context.SaveChangesAsync();
@@ -210,7 +223,8 @@ namespace DominioServicios
                 var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
                 if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
 
-                if (pedido.Estado != "Recibido")
+                // Si el pedido ya fue recibido, se revierte el stock.
+                if (pedido.Estado == "Recibido")
                 {
                     foreach (var linea in pedido.LineasPedido)
                     {
@@ -233,6 +247,6 @@ namespace DominioServicios
                 throw;
             }
         }
+
     }
 }
-

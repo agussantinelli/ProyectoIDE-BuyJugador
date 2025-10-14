@@ -28,167 +28,167 @@ namespace WinForms
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.txtBuscar = new System.Windows.Forms.TextBox();
-            this.btnNuevo = new System.Windows.Forms.Button();
-            this.btnEditar = new System.Windows.Forms.Button();
-            this.btnEliminar = new System.Windows.Forms.Button();
-            this.btnVolver = new System.Windows.Forms.Button();
-            this.lblBuscar = new System.Windows.Forms.Label();
-            this.tabControlPersonas = new System.Windows.Forms.TabControl();
-            this.tabPageActivos = new System.Windows.Forms.TabPage();
-            this.dgvActivos = new System.Windows.Forms.DataGridView();
-            this.tabPageInactivos = new System.Windows.Forms.TabPage();
-            this.dgvInactivos = new System.Windows.Forms.DataGridView();
-            this.btnReactivar = new System.Windows.Forms.Button();
-            this.tabControlPersonas.SuspendLayout();
-            this.tabPageActivos.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvActivos)).BeginInit();
-            this.tabPageInactivos.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvInactivos)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // lblBuscar
-            // 
-            this.lblBuscar.AutoSize = true;
-            this.lblBuscar.Location = new System.Drawing.Point(20, 15);
-            this.lblBuscar.Name = "lblBuscar";
-            this.lblBuscar.Size = new System.Drawing.Size(45, 15);
-            this.lblBuscar.TabIndex = 0;
-            this.lblBuscar.Text = "Buscar:";
+            txtBuscar = new TextBox();
+            btnNuevo = new Button();
+            btnEditar = new Button();
+            btnEliminar = new Button();
+            btnVolver = new Button();
+            lblBuscar = new Label();
+            tabControlPersonas = new TabControl();
+            tabPageActivos = new TabPage();
+            dgvActivos = new DataGridView();
+            tabPageInactivos = new TabPage();
+            dgvInactivos = new DataGridView();
+            btnReactivar = new Button();
+            tabControlPersonas.SuspendLayout();
+            tabPageActivos.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvActivos).BeginInit();
+            tabPageInactivos.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
+            SuspendLayout();
             // 
             // txtBuscar
             // 
-            this.txtBuscar.Location = new System.Drawing.Point(80, 12);
-            this.txtBuscar.Name = "txtBuscar";
-            this.txtBuscar.Size = new System.Drawing.Size(600, 23);
-            this.txtBuscar.TabIndex = 1;
-            this.txtBuscar.TextChanged += new System.EventHandler(this.txtBuscar_TextChanged);
-            // 
-            // tabControlPersonas
-            // 
-            this.tabControlPersonas.Controls.Add(this.tabPageActivos);
-            this.tabControlPersonas.Controls.Add(this.tabPageInactivos);
-            this.tabControlPersonas.Location = new System.Drawing.Point(20, 50);
-            this.tabControlPersonas.Name = "tabControlPersonas";
-            this.tabControlPersonas.SelectedIndex = 0;
-            this.tabControlPersonas.Size = new System.Drawing.Size(1150, 420);
-            this.tabControlPersonas.TabIndex = 2;
-            this.tabControlPersonas.SelectedIndexChanged += new System.EventHandler(this.tabControlPersonas_SelectedIndexChanged);
-            // 
-            // tabPageActivos
-            // 
-            this.tabPageActivos.Controls.Add(this.dgvActivos);
-            this.tabPageActivos.Location = new System.Drawing.Point(4, 24);
-            this.tabPageActivos.Name = "tabPageActivos";
-            this.tabPageActivos.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageActivos.Size = new System.Drawing.Size(1142, 392);
-            this.tabPageActivos.TabIndex = 0;
-            this.tabPageActivos.Text = "Personal Activo";
-            this.tabPageActivos.UseVisualStyleBackColor = true;
-            // 
-            // dgvActivos
-            // 
-            this.dgvActivos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvActivos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvActivos.Location = new System.Drawing.Point(3, 3);
-            this.dgvActivos.Name = "dgvActivos";
-            this.dgvActivos.Size = new System.Drawing.Size(1136, 386);
-            this.dgvActivos.TabIndex = 0;
-            this.dgvActivos.SelectionChanged += new System.EventHandler(this.dgvActivos_SelectionChanged);
-            // 
-            // tabPageInactivos
-            // 
-            this.tabPageInactivos.Controls.Add(this.dgvInactivos);
-            this.tabPageInactivos.Location = new System.Drawing.Point(4, 24);
-            this.tabPageInactivos.Name = "tabPageInactivos";
-            this.tabPageInactivos.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageInactivos.Size = new System.Drawing.Size(1142, 392);
-            this.tabPageInactivos.TabIndex = 1;
-            this.tabPageInactivos.Text = "Ex-Personal";
-            this.tabPageInactivos.UseVisualStyleBackColor = true;
-            // 
-            // dgvInactivos
-            // 
-            this.dgvInactivos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvInactivos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvInactivos.Location = new System.Drawing.Point(3, 3);
-            this.dgvInactivos.Name = "dgvInactivos";
-            this.dgvInactivos.Size = new System.Drawing.Size(1136, 386);
-            this.dgvInactivos.TabIndex = 0;
-            this.dgvInactivos.SelectionChanged += new System.EventHandler(this.dgvInactivos_SelectionChanged);
-            // 
-            // btnVolver
-            // 
-            this.btnVolver.Location = new System.Drawing.Point(20, 480);
-            this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(100, 30);
-            this.btnVolver.TabIndex = 3;
-            this.btnVolver.Text = "Volver";
-            this.btnVolver.UseVisualStyleBackColor = true;
-            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            txtBuscar.Location = new Point(80, 12);
+            txtBuscar.Name = "txtBuscar";
+            txtBuscar.Size = new Size(600, 25);
+            txtBuscar.TabIndex = 1;
+            txtBuscar.TextChanged += txtBuscar_TextChanged;
             // 
             // btnNuevo
             // 
-            this.btnNuevo.Location = new System.Drawing.Point(140, 480);
-            this.btnNuevo.Name = "btnNuevo";
-            this.btnNuevo.Size = new System.Drawing.Size(100, 30);
-            this.btnNuevo.TabIndex = 4;
-            this.btnNuevo.Text = "Nuevo";
-            this.btnNuevo.UseVisualStyleBackColor = true;
-            this.btnNuevo.Click += new System.EventHandler(this.btnNuevo_Click);
+            btnNuevo.Location = new Point(140, 480);
+            btnNuevo.Name = "btnNuevo";
+            btnNuevo.Size = new Size(100, 30);
+            btnNuevo.TabIndex = 4;
+            btnNuevo.Text = "Nuevo";
+            btnNuevo.UseVisualStyleBackColor = true;
+            btnNuevo.Click += btnNuevo_Click;
             // 
             // btnEditar
             // 
-            this.btnEditar.Location = new System.Drawing.Point(260, 480);
-            this.btnEditar.Name = "btnEditar";
-            this.btnEditar.Size = new System.Drawing.Size(100, 30);
-            this.btnEditar.TabIndex = 5;
-            this.btnEditar.Text = "Editar";
-            this.btnEditar.UseVisualStyleBackColor = true;
-            this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
+            btnEditar.Location = new Point(260, 480);
+            btnEditar.Name = "btnEditar";
+            btnEditar.Size = new Size(100, 30);
+            btnEditar.TabIndex = 5;
+            btnEditar.Text = "Editar";
+            btnEditar.UseVisualStyleBackColor = true;
+            btnEditar.Click += btnEditar_Click;
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(380, 480);
-            this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(100, 30);
-            this.btnEliminar.TabIndex = 6;
-            this.btnEliminar.Text = "Dar de Baja";
-            this.btnEliminar.UseVisualStyleBackColor = true;
-            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            btnEliminar.Location = new Point(380, 480);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(100, 30);
+            btnEliminar.TabIndex = 6;
+            btnEliminar.Text = "Dar de Baja";
+            btnEliminar.UseVisualStyleBackColor = true;
+            btnEliminar.Click += btnEliminar_Click;
+            // 
+            // btnVolver
+            // 
+            btnVolver.Location = new Point(20, 480);
+            btnVolver.Name = "btnVolver";
+            btnVolver.Size = new Size(100, 30);
+            btnVolver.TabIndex = 3;
+            btnVolver.Text = "Volver";
+            btnVolver.UseVisualStyleBackColor = true;
+            btnVolver.Click += btnVolver_Click;
+            // 
+            // lblBuscar
+            // 
+            lblBuscar.AutoSize = true;
+            lblBuscar.Location = new Point(20, 15);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.Size = new Size(62, 20);
+            lblBuscar.TabIndex = 0;
+            lblBuscar.Text = "Buscar:";
+            // 
+            // tabControlPersonas
+            // 
+            tabControlPersonas.Controls.Add(tabPageActivos);
+            tabControlPersonas.Controls.Add(tabPageInactivos);
+            tabControlPersonas.Location = new Point(20, 50);
+            tabControlPersonas.Name = "tabControlPersonas";
+            tabControlPersonas.SelectedIndex = 0;
+            tabControlPersonas.Size = new Size(1150, 420);
+            tabControlPersonas.TabIndex = 2;
+            tabControlPersonas.SelectedIndexChanged += tabControlPersonas_SelectedIndexChanged;
+            // 
+            // tabPageActivos
+            // 
+            tabPageActivos.Controls.Add(dgvActivos);
+            tabPageActivos.Location = new Point(4, 29);
+            tabPageActivos.Name = "tabPageActivos";
+            tabPageActivos.Padding = new Padding(3);
+            tabPageActivos.Size = new Size(1142, 387);
+            tabPageActivos.TabIndex = 0;
+            tabPageActivos.Text = "Personal Activo";
+            tabPageActivos.UseVisualStyleBackColor = true;
+            // 
+            // dgvActivos
+            // 
+            dgvActivos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvActivos.Dock = DockStyle.Fill;
+            dgvActivos.Location = new Point(3, 3);
+            dgvActivos.Name = "dgvActivos";
+            dgvActivos.Size = new Size(1136, 381);
+            dgvActivos.TabIndex = 0;
+            dgvActivos.SelectionChanged += dgvActivos_SelectionChanged;
+            // 
+            // tabPageInactivos
+            // 
+            tabPageInactivos.Controls.Add(dgvInactivos);
+            tabPageInactivos.Location = new Point(4, 29);
+            tabPageInactivos.Name = "tabPageInactivos";
+            tabPageInactivos.Padding = new Padding(3);
+            tabPageInactivos.Size = new Size(1142, 387);
+            tabPageInactivos.TabIndex = 1;
+            tabPageInactivos.Text = "Ex-Personal";
+            tabPageInactivos.UseVisualStyleBackColor = true;
+            // 
+            // dgvInactivos
+            // 
+            dgvInactivos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvInactivos.Dock = DockStyle.Fill;
+            dgvInactivos.Location = new Point(3, 3);
+            dgvInactivos.Name = "dgvInactivos";
+            dgvInactivos.Size = new Size(1136, 381);
+            dgvInactivos.TabIndex = 0;
+            dgvInactivos.SelectionChanged += dgvInactivos_SelectionChanged;
             // 
             // btnReactivar
             // 
-            this.btnReactivar.Location = new System.Drawing.Point(500, 480);
-            this.btnReactivar.Name = "btnReactivar";
-            this.btnReactivar.Size = new System.Drawing.Size(100, 30);
-            this.btnReactivar.TabIndex = 7;
-            this.btnReactivar.Text = "Reactivar";
-            this.btnReactivar.UseVisualStyleBackColor = true;
-            this.btnReactivar.Click += new System.EventHandler(this.btnReactivar_Click);
+            btnReactivar.Location = new Point(500, 480);
+            btnReactivar.Name = "btnReactivar";
+            btnReactivar.Size = new Size(100, 30);
+            btnReactivar.TabIndex = 7;
+            btnReactivar.Text = "Reactivar";
+            btnReactivar.UseVisualStyleBackColor = true;
+            btnReactivar.Click += btnReactivar_Click;
             // 
             // PersonaForm
             // 
-            this.ClientSize = new System.Drawing.Size(1200, 530);
-            this.Controls.Add(this.btnReactivar);
-            this.Controls.Add(this.btnEliminar);
-            this.Controls.Add(this.btnEditar);
-            this.Controls.Add(this.btnNuevo);
-            this.Controls.Add(this.btnVolver);
-            this.Controls.Add(this.tabControlPersonas);
-            this.Controls.Add(this.txtBuscar);
-            this.Controls.Add(this.lblBuscar);
-            this.Name = "PersonaForm";
-            this.Text = "Gestión de Personal";
-            this.Load += new System.EventHandler(this.PersonaForm_Load);
-            this.tabControlPersonas.ResumeLayout(false);
-            this.tabPageActivos.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvActivos)).EndInit();
-            this.tabPageInactivos.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvInactivos)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(7F, 17F);
+            ClientSize = new Size(1200, 530);
+            Controls.Add(btnReactivar);
+            Controls.Add(btnEliminar);
+            Controls.Add(btnEditar);
+            Controls.Add(btnNuevo);
+            Controls.Add(btnVolver);
+            Controls.Add(tabControlPersonas);
+            Controls.Add(txtBuscar);
+            Controls.Add(lblBuscar);
+            Name = "PersonaForm";
+            Text = "Gestión de Personal";
+            Load += PersonaForm_Load;
+            tabControlPersonas.ResumeLayout(false);
+            tabPageActivos.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvActivos).EndInit();
+            tabPageInactivos.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dgvInactivos).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
     }
 }

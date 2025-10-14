@@ -2,10 +2,8 @@
 using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -65,7 +63,6 @@ namespace WinForms
                 lblIdPedido.Text = $"ID Pedido: {_pedido.IdPedido}";
                 lblProveedor.Text = $"Proveedor: {_pedido.ProveedorRazonSocial}";
                 lblFecha.Text = $"Fecha: {_pedido.Fecha:dd/MM/yyyy}";
-                lblTotal.Text = $"Total: {_pedido.Total:C2}";
 
                 _lineasDePedido = new BindingList<LineaPedidoDTO>(_pedido.LineasPedido ?? new List<LineaPedidoDTO>());
                 dataGridDetalle.DataSource = _lineasDePedido;
@@ -115,7 +112,7 @@ namespace WinForms
 
         private void ActualizarTotal()
         {
-            _pedido.Total = _lineasDePedido.Sum(l => l.Subtotal);
+            _pedido.Total = _lineasDePedido.Sum(l => l.Cantidad * l.PrecioUnitario);
             lblTotal.Text = $"Total: {_pedido.Total:C2}";
         }
 
@@ -140,14 +137,11 @@ namespace WinForms
                 return;
             }
 
-            // # CORRECCIÓN: Se usa el nombre de clase corregido "AñadirProductoPedidoForm".
             using var form = _serviceProvider.GetRequiredService<AñadirProductoPedidoForm>();
             form.CargarProductosDisponibles(productosDisponibles);
 
-            // # CORRECCIÓN: Se trabaja con las nuevas propiedades "ProductoSeleccionado" y "CantidadSeleccionada".
             if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
             {
-                // # La responsabilidad de crear el DTO de la línea se mueve aquí.
                 var nuevaLinea = new LineaPedidoDTO
                 {
                     IdProducto = form.ProductoSeleccionado.IdProducto,

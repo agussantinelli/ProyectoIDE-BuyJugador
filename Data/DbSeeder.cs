@@ -36,8 +36,7 @@ public static class DbSeeder
 
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        // # Descomenta la siguiente línea UNA VEZ para borrar y recrear la base de datos en desarrollo.
-        //await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())
@@ -63,6 +62,7 @@ public static class DbSeeder
             {
                 await SeedVentasAsync(context);
                 await SeedPedidosAsync(context);
+
                 await context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -216,6 +216,7 @@ public static class DbSeeder
     #endregion
 
     #region Transactional Seeding Methods
+    // # REFACTORIZADO: Lógica simplificada para usar una sola transacción.
     private static async Task SeedVentasAsync(BuyJugadorContext context)
     {
         if (await context.Ventas.AnyAsync()) return;
@@ -235,13 +236,13 @@ public static class DbSeeder
             new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = EstadosVenta.Finalizada, IdPersona = personas[0].IdPersona },
             new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = EstadosVenta.Pendiente, IdPersona = personas[1].IdPersona }
         };
-        
+
         foreach (var venta in ventas)
         {
             Console.WriteLine($"LOG: Preparando Venta para Persona ID {venta.IdPersona} con Fecha {venta.Fecha:yyyy-MM-dd}");
             var productosParaVenta = productosDict.Values.OrderBy(x => _random.Next()).Take(_random.Next(2, 4)).ToList();
             int nroLineaCounter = 1;
-            
+
             foreach (var producto in productosParaVenta)
             {
                 var precioVigente = producto.PreciosVenta
@@ -261,7 +262,7 @@ public static class DbSeeder
                             Cantidad = cantidad,
                             PrecioUnitario = precioVigente.Monto
                         };
-                        venta.LineaVenta.Add(linea); 
+                        venta.LineaVenta.Add(linea); // Se añade la línea a la navegación de la venta.
                         producto.Stock -= cantidad;
                         Console.WriteLine($"    -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
                     }
@@ -304,7 +305,7 @@ public static class DbSeeder
                 IdProveedor = proveedores[i].IdProveedor
             };
             pedidos.Add(nuevoPedido);
-            
+
             Console.WriteLine($"LOG: Preparando Pedido para Proveedor ID {nuevoPedido.IdProveedor} con Fecha {nuevoPedido.Fecha:yyyy-MM-dd}");
 
             int nroLineaPedido = 1;
@@ -323,7 +324,7 @@ public static class DbSeeder
                     PrecioUnitario = Math.Round(productoPrecio.Monto * (1 + (nroLineaPedido % 4) * 0.03m), 2)
                 };
                 nuevoPedido.LineasPedido.Add(linea);
-                
+
                 Console.WriteLine($"    -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
 
                 if (nuevoPedido.Estado == EstadosPedido.Recibido && productosDict.TryGetValue(productoPrecio.IdProducto, out var producto))
@@ -399,7 +400,8 @@ public static class DbSeeder
     private static IEnumerable<Producto> GetProductosConPreciosVenta(List<TipoProducto> tipos)
     {
         var tiposDict = tipos.ToDictionary(t => t.Descripcion, t => t.IdTipoProducto);
-        
+
+        // # CORRECCIÓN: Usar una fecha en el pasado para que los precios sean válidos para las ventas creadas.
         var fechaPrecios = DateTime.UtcNow.AddMonths(-1).Date;
 
         return new List<Producto>
