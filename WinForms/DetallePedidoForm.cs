@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WinForms
@@ -64,16 +65,14 @@ namespace WinForms
                 lblIdPedido.Text = $"ID Pedido: {_pedido.IdPedido}";
                 lblProveedor.Text = $"Proveedor: {_pedido.ProveedorRazonSocial}";
                 lblFecha.Text = $"Fecha: {_pedido.Fecha:dd/MM/yyyy}";
+                lblTotal.Text = $"Total: {_pedido.Total:C2}";
 
                 _lineasDePedido = new BindingList<LineaPedidoDTO>(_pedido.LineasPedido ?? new List<LineaPedidoDTO>());
                 dataGridDetalle.DataSource = _lineasDePedido;
 
                 ConfigurarColumnas();
-                ActualizarTotal();
                 ConfigurarVisibilidadControles();
-
-                dataGridDetalle.SelectionChanged += dataGridDetalle_SelectionChanged;
-                dataGridDetalle.CellEndEdit += dataGridDetalle_CellEndEdit;
+                ActualizarTotal();
             }
             catch (Exception ex)
             {
@@ -95,9 +94,9 @@ namespace WinForms
             btnEliminarLinea.Visible = puedeEditar;
             btnEditarCantidad.Visible = puedeEditar;
             btnConfirmarCambios.Visible = puedeEditar;
-            btnConfirmarCambios.Enabled = _datosModificados;
-
+            btnConfirmarCambios.Enabled = false;
             dataGridDetalle.ReadOnly = !puedeEditar;
+
             if (dataGridDetalle.Columns.Contains("Cantidad"))
             {
                 dataGridDetalle.Columns["Cantidad"].ReadOnly = !puedeEditar;
@@ -116,11 +115,8 @@ namespace WinForms
 
         private void ActualizarTotal()
         {
-            if (_pedido != null)
-            {
-                _pedido.Total = _lineasDePedido.Sum(l => l.Subtotal);
-                lblTotal.Text = $"Total: {_pedido.Total:C2}";
-            }
+            _pedido.Total = _lineasDePedido.Sum(l => l.Subtotal);
+            lblTotal.Text = $"Total: {_pedido.Total:C2}";
         }
 
         private void MarcarComoModificado()
@@ -169,11 +165,16 @@ namespace WinForms
             }
         }
 
+        // # MEJORA DE UX:
+        // # Al hacer clic en el botón, se establece el foco directamente en la celda "Cantidad"
+        // # de la fila seleccionada y se inicia el modo de edición.
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
             {
+                // 1. Establecer la celda "Cantidad" de la fila actual como la celda activa.
                 dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
+                // 2. Iniciar el modo de edición y seleccionar todo el texto.
                 dataGridDetalle.BeginEdit(true);
             }
         }
@@ -181,7 +182,6 @@ namespace WinForms
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
         {
             if (_pedido == null || !_datosModificados) return;
-
             var confirm = MessageBox.Show("¿Desea guardar los cambios en el pedido?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
@@ -229,7 +229,6 @@ namespace WinForms
                     return;
                 }
             }
-
             this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
             this.Close();
         }
@@ -237,7 +236,6 @@ namespace WinForms
         private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
-
             var lineaEditada = _lineasDePedido[e.RowIndex];
 
             if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
@@ -249,18 +247,18 @@ namespace WinForms
             }
 
             lineaEditada.Cantidad = nuevaCantidad;
-
-            // # CORRECCIÓN: No se asigna a Subtotal. Se marcan los cambios y se refresca.
-            MarcarComoModificado();
             _lineasDePedido.ResetItem(e.RowIndex);
             ActualizarTotal();
+            MarcarComoModificado();
         }
 
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
             bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            btnEliminarLinea.Enabled = hayFilaSeleccionada;
-            btnEditarCantidad.Enabled = hayFilaSeleccionada;
+            bool puedeEditar = _esAdmin && "Pendiente".Equals(_pedido?.Estado, StringComparison.OrdinalIgnoreCase);
+
+            btnEliminarLinea.Enabled = hayFilaSeleccionada && puedeEditar;
+            btnEditarCantidad.Enabled = hayFilaSeleccionada && puedeEditar;
         }
     }
 }

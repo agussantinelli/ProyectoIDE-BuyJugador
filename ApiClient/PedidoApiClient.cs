@@ -15,7 +15,7 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        public async Task<List<PedidoDTO>> GetPedidosAsync()
+        public async Task<List<PedidoDTO>> GetAllAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<PedidoDTO>>("api/pedidos");
         }
@@ -25,11 +25,10 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<PedidoDTO>($"api/pedidos/{id}");
         }
 
-        public async Task<PedidoDTO> CreatePedidoCompletoAsync(CrearPedidoCompletoDTO dto)
+        // # CORRECCIÓN: Se añade el método CreateAsync que faltaba.
+        public async Task<HttpResponseMessage> CreateAsync(CrearPedidoCompletoDTO dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/pedidos/completo", dto);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<PedidoDTO>();
+            return await _httpClient.PostAsJsonAsync("api/pedidos/completo", dto);
         }
 
         public async Task<HttpResponseMessage> DeleteAsync(int id)
@@ -39,7 +38,8 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> MarcarComoRecibidoAsync(int id)
         {
-            return await _httpClient.PostAsync($"api/pedidos/{id}/recibir", null);
+            // # CORRECCIÓN: Se usa PUT en lugar de POST para esta acción.
+            return await _httpClient.PutAsync($"api/pedidos/{id}/recibir", null);
         }
 
         public async Task<HttpResponseMessage> UpdateAsync(int id, PedidoDTO pedido)
@@ -48,3 +48,4 @@ namespace ApiClient
         }
     }
 }
+

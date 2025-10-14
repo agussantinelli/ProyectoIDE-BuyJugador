@@ -17,44 +17,44 @@
 
         private void InitializeComponent()
         {
-            txtBuscarProveedor = new TextBox();
-            lblBuscarProveedor = new Label();
-            cmbFiltroGasto = new ComboBox();
-            dataGridPedidos = new DataGridView();
-            panelBotones = new Panel();
-            btnVolver = new Button();
-            btnNuevoPedido = new Button();
-            btnEliminar = new Button();
-            btnVerDetalle = new Button();
-            btnFinalizarPedido = new Button();
+            txtBuscarProveedor = new System.Windows.Forms.TextBox();
+            lblBuscarProveedor = new System.Windows.Forms.Label();
+            cmbFiltroGasto = new System.Windows.Forms.ComboBox();
+            dataGridPedidos = new System.Windows.Forms.DataGridView();
+            panelBotones = new System.Windows.Forms.Panel();
+            btnVolver = new System.Windows.Forms.Button();
+            btnNuevoPedido = new System.Windows.Forms.Button();
+            btnEliminar = new System.Windows.Forms.Button();
+            btnVerDetalle = new System.Windows.Forms.Button();
+            btnFinalizarPedido = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)dataGridPedidos).BeginInit();
             panelBotones.SuspendLayout();
             SuspendLayout();
             // 
             // txtBuscarProveedor
             // 
-            txtBuscarProveedor.Location = new Point(206, 12);
+            txtBuscarProveedor.Location = new System.Drawing.Point(206, 12);
             txtBuscarProveedor.Name = "txtBuscarProveedor";
-            txtBuscarProveedor.Size = new Size(400, 25);
+            txtBuscarProveedor.Size = new System.Drawing.Size(400, 25);
             txtBuscarProveedor.TabIndex = 3;
             txtBuscarProveedor.TextChanged += FiltrosChanged;
             // 
             // lblBuscarProveedor
             // 
             lblBuscarProveedor.AutoSize = true;
-            lblBuscarProveedor.Location = new Point(12, 14);
+            lblBuscarProveedor.Location = new System.Drawing.Point(12, 14);
             lblBuscarProveedor.Name = "lblBuscarProveedor";
-            lblBuscarProveedor.Size = new Size(175, 20);
+            lblBuscarProveedor.Size = new System.Drawing.Size(175, 20);
             lblBuscarProveedor.TabIndex = 4;
             lblBuscarProveedor.Text = "Buscar por proveedor:";
             // 
             // cmbFiltroGasto
             // 
-            cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbFiltroGasto.Items.AddRange(new object[] { "Todos", "Hasta $10.000", "$10.001 a $50.000", "Más de $50.000" });
-            cmbFiltroGasto.Location = new Point(642, 12);
+            cmbFiltroGasto.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            cmbFiltroGasto.FormattingEnabled = true;
+            cmbFiltroGasto.Location = new System.Drawing.Point(642, 12);
             cmbFiltroGasto.Name = "cmbFiltroGasto";
-            cmbFiltroGasto.Size = new Size(130, 28);
+            cmbFiltroGasto.Size = new System.Drawing.Size(130, 25);
             cmbFiltroGasto.TabIndex = 5;
             cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
             // 
@@ -62,15 +62,15 @@
             // 
             dataGridPedidos.AllowUserToAddRows = false;
             dataGridPedidos.AllowUserToDeleteRows = false;
-            dataGridPedidos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            dataGridPedidos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            dataGridPedidos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridPedidos.Location = new Point(12, 51);
+            dataGridPedidos.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right;
+            dataGridPedidos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridPedidos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridPedidos.Location = new System.Drawing.Point(12, 51);
             dataGridPedidos.MultiSelect = false;
             dataGridPedidos.Name = "dataGridPedidos";
             dataGridPedidos.ReadOnly = true;
-            dataGridPedidos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridPedidos.Size = new Size(760, 385);
+            dataGridPedidos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            dataGridPedidos.Size = new System.Drawing.Size(760, 385);
             dataGridPedidos.TabIndex = 2;
             dataGridPedidos.SelectionChanged += DataGridPedidos_SelectionChanged;
             // 
@@ -81,17 +81,17 @@
             panelBotones.Controls.Add(btnEliminar);
             panelBotones.Controls.Add(btnVerDetalle);
             panelBotones.Controls.Add(btnFinalizarPedido);
-            panelBotones.Dock = DockStyle.Bottom;
-            panelBotones.Location = new Point(0, 452);
+            panelBotones.Dock = System.Windows.Forms.DockStyle.Bottom;
+            panelBotones.Location = new System.Drawing.Point(0, 452);
             panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(784, 70);
+            panelBotones.Size = new System.Drawing.Size(784, 70);
             panelBotones.TabIndex = 1;
             // 
             // btnVolver
             // 
-            btnVolver.Location = new Point(12, 19);
+            btnVolver.Location = new System.Drawing.Point(12, 19);
             btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(115, 34);
+            btnVolver.Size = new System.Drawing.Size(115, 34);
             btnVolver.TabIndex = 0;
             btnVolver.Text = "Volver";
             btnVolver.UseVisualStyleBackColor = true;
@@ -99,9 +99,9 @@
             // 
             // btnNuevoPedido
             // 
-            btnNuevoPedido.Location = new Point(133, 19);
+            btnNuevoPedido.Location = new System.Drawing.Point(133, 19);
             btnNuevoPedido.Name = "btnNuevoPedido";
-            btnNuevoPedido.Size = new Size(115, 34);
+            btnNuevoPedido.Size = new System.Drawing.Size(115, 34);
             btnNuevoPedido.TabIndex = 1;
             btnNuevoPedido.Text = "Nuevo Pedido";
             btnNuevoPedido.UseVisualStyleBackColor = true;
@@ -109,9 +109,9 @@
             // 
             // btnEliminar
             // 
-            btnEliminar.Location = new Point(254, 19);
+            btnEliminar.Location = new System.Drawing.Point(254, 19);
             btnEliminar.Name = "btnEliminar";
-            btnEliminar.Size = new Size(115, 34);
+            btnEliminar.Size = new System.Drawing.Size(115, 34);
             btnEliminar.TabIndex = 2;
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
@@ -119,10 +119,10 @@
             // 
             // btnVerDetalle
             // 
-            btnVerDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnVerDetalle.Location = new Point(657, 19);
+            btnVerDetalle.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            btnVerDetalle.Location = new System.Drawing.Point(657, 19);
             btnVerDetalle.Name = "btnVerDetalle";
-            btnVerDetalle.Size = new Size(115, 34);
+            btnVerDetalle.Size = new System.Drawing.Size(115, 34);
             btnVerDetalle.TabIndex = 3;
             btnVerDetalle.Text = "Ver Detalle";
             btnVerDetalle.UseVisualStyleBackColor = true;
@@ -130,9 +130,9 @@
             // 
             // btnFinalizarPedido
             // 
-            btnFinalizarPedido.Location = new Point(375, 19);
+            btnFinalizarPedido.Location = new System.Drawing.Point(375, 19);
             btnFinalizarPedido.Name = "btnFinalizarPedido";
-            btnFinalizarPedido.Size = new Size(115, 34);
+            btnFinalizarPedido.Size = new System.Drawing.Size(115, 34);
             btnFinalizarPedido.TabIndex = 4;
             btnFinalizarPedido.Text = "Recibido";
             btnFinalizarPedido.UseVisualStyleBackColor = true;
@@ -140,9 +140,9 @@
             // 
             // PedidoForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(784, 522);
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(784, 522);
             Controls.Add(panelBotones);
             Controls.Add(dataGridPedidos);
             Controls.Add(txtBuscarProveedor);
@@ -171,3 +171,4 @@
         private System.Windows.Forms.ComboBox cmbFiltroGasto;
     }
 }
+

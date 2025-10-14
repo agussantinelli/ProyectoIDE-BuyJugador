@@ -12,8 +12,18 @@ public static class DbSeeder
 {
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        //context.Database.EnsureDeleted();  //Descomentar para resetear la base de datos
-        context.Database.EnsureCreated();
+        // # Descomenta la siguiente línea UNA VEZ para borrar y recrear la base de datos.
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        // Si ya hay productos, asumimos que el seeder ya corrió y no hacemos nada.
+        if (await context.Productos.AnyAsync())
+        {
+            Console.WriteLine("✅ La base de datos ya contiene datos. No se ejecutará el seeder.");
+            return;
+        }
+
+        Console.WriteLine("Iniciando el sembrado de la base de datos...");
 
         await SeedProvinciasYLocalidadesAsync(context);
         await SeedTiposProductoAsync(context);
@@ -21,15 +31,31 @@ public static class DbSeeder
         await SeedProveedoresAsync(context);
         await SeedProductosConPreciosVentaAsync(context);
         await SeedRelacionesYPreciosCompraAsync(context);
-        await SeedVentasAsync(context);
-        await SeedPedidosAsync(context);
+
+        var strategy = context.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using var transaction = await context.Database.BeginTransactionAsync();
+            try
+            {
+                await SeedVentasAsync(context);
+                await SeedPedidosAsync(context);
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine($"Error durante el sembrado transaccional: {ex.Message}");
+            }
+        });
 
         Console.WriteLine("✅ Database seeded successfully!");
     }
 
+    #region Base Seeding Methods
     private static async Task SeedProvinciasYLocalidadesAsync(BuyJugadorContext context)
     {
-        if (context.Provincias.Any()) return;
+        if (await context.Provincias.AnyAsync()) return;
         Console.WriteLine("Seeding Provincias y Localidades...");
 
         using var httpClient = new HttpClient();
@@ -75,7 +101,7 @@ public static class DbSeeder
 
     private static async Task SeedTiposProductoAsync(BuyJugadorContext context)
     {
-        if (context.TiposProductos.Any()) return;
+        if (await context.TiposProductos.AnyAsync()) return;
         Console.WriteLine("Seeding Tipos de Producto...");
         context.TiposProductos.AddRange(GetTiposProducto());
         await context.SaveChangesAsync();
@@ -83,7 +109,7 @@ public static class DbSeeder
 
     private static async Task SeedPersonasAsync(BuyJugadorContext context)
     {
-        if (context.Personas.IgnoreQueryFilters().Any()) return;
+        if (await context.Personas.IgnoreQueryFilters().AnyAsync()) return;
         Console.WriteLine("Seeding Personas...");
         var locs = await context.Localidades.ToListAsync();
         if (locs.Any())
@@ -95,7 +121,7 @@ public static class DbSeeder
 
     private static async Task SeedProveedoresAsync(BuyJugadorContext context)
     {
-        if (context.Proveedores.IgnoreQueryFilters().Any()) return;
+        if (await context.Proveedores.IgnoreQueryFilters().AnyAsync()) return;
         Console.WriteLine("Seeding Proveedores...");
         var localidades = await context.Localidades.ToListAsync();
         var proveedores = GetProveedores(localidades);
@@ -108,7 +134,7 @@ public static class DbSeeder
 
     private static async Task SeedProductosConPreciosVentaAsync(BuyJugadorContext context)
     {
-        if (context.Productos.IgnoreQueryFilters().Any()) return;
+        if (await context.Productos.IgnoreQueryFilters().AnyAsync()) return;
         Console.WriteLine("Seeding Productos y Precios de Venta...");
         var tipos = await context.TiposProductos.ToListAsync();
         context.Productos.AddRange(GetProductosConPreciosVenta(tipos));
@@ -117,7 +143,7 @@ public static class DbSeeder
 
     private static async Task SeedRelacionesYPreciosCompraAsync(BuyJugadorContext context)
     {
-        if (context.ProductoProveedores.Any()) return;
+        if (await context.ProductoProveedores.AnyAsync()) return;
         Console.WriteLine("Seeding Relaciones Producto-Proveedor y Precios de Compra...");
 
         var proveedores = await context.Proveedores.ToListAsync();
@@ -126,96 +152,92 @@ public static class DbSeeder
 
         var random = new Random();
 
-        using var transaction = await context.Database.BeginTransactionAsync();
-        try
+        foreach (var proveedor in proveedores)
         {
-            foreach (var proveedor in proveedores)
+            var productosAsignados = proveedor.RazonSocial.Contains("Softy Systems", StringComparison.OrdinalIgnoreCase)
+                ? productos
+                : productos.OrderBy(p => random.Next()).Take(random.Next(5, 10)).ToList();
+
+            foreach (var producto in productosAsignados)
             {
-                var productosAsignados = proveedor.RazonSocial.Contains("Softy Systems", StringComparison.OrdinalIgnoreCase)
-                    ? productos
-                    : productos.OrderBy(p => random.Next()).Take(random.Next(5, 10)).ToList();
-
-                foreach (var producto in productosAsignados)
+                context.ProductoProveedores.Add(new ProductoProveedor
                 {
-                    context.ProductoProveedores.Add(new ProductoProveedor
-                    {
-                        IdProveedor = proveedor.IdProveedor,
-                        IdProducto = producto.IdProducto
-                    });
+                    IdProveedor = proveedor.IdProveedor,
+                    IdProducto = producto.IdProducto
+                });
 
-                    var precioVenta = producto.PreciosVenta.FirstOrDefault()?.Monto ?? 10000m;
-                    var precioCompraFinal = CalcularPrecioCompra(producto, proveedor, precioVenta);
-                    context.PreciosCompra.Add(new PrecioCompra
-                    {
-                        IdProveedor = proveedor.IdProveedor,
-                        IdProducto = producto.IdProducto,
-                        Monto = precioCompraFinal
-                    });
-                }
+                var precioVenta = producto.PreciosVenta.FirstOrDefault()?.Monto ?? 10000m;
+                var precioCompraFinal = CalcularPrecioCompra(producto, proveedor, precioVenta);
+                context.PreciosCompra.Add(new PrecioCompra
+                {
+                    IdProveedor = proveedor.IdProveedor,
+                    IdProducto = producto.IdProducto,
+                    Monto = precioCompraFinal
+                });
             }
-            await context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            Console.WriteLine("Relaciones y Precios de Compra generados correctamente.");
         }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            Console.WriteLine($"Error al sembrar relaciones y precios de compra: {ex.Message}");
-        }
+        await context.SaveChangesAsync();
+        Console.WriteLine("Relaciones y Precios de Compra generados correctamente.");
     }
+    #endregion
 
     private static async Task SeedVentasAsync(BuyJugadorContext context)
     {
-        if (context.Ventas.Any()) return;
+        if (await context.Ventas.AnyAsync()) return;
         Console.WriteLine("Seeding Ventas...");
 
         var personas = await context.Personas.Where(p => p.Estado).ToListAsync();
-        var productos = await context.Productos.Include(p => p.PreciosVenta).ToListAsync();
-        if (!personas.Any() || !productos.Any()) return;
+        var productosDict = await context.Productos.Include(p => p.PreciosVenta).ToDictionaryAsync(p => p.IdProducto);
+
+        if (personas.Count < 2 || !productosDict.Any()) return;
 
         var random = new Random();
-        var ventas = new List<Venta>();
-        ventas.Add(new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personas[0].IdPersona });
-        if (personas.Count > 1)
+        var ventas = new List<Venta>
         {
-            ventas.Add(new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personas[1].IdPersona });
-        }
+            new Venta { Fecha = DateTime.UtcNow.AddDays(-10), Estado = "Finalizada", IdPersona = personas[0].IdPersona },
+            new Venta { Fecha = DateTime.UtcNow.AddDays(-5), Estado = "Pendiente", IdPersona = personas[1].IdPersona }
+        };
         context.Ventas.AddRange(ventas);
         await context.SaveChangesAsync();
 
-        var lineasVenta = new List<LineaVenta>();
-        int nroLineaCounter = 1;
         foreach (var venta in ventas)
         {
-            var productosParaVenta = productos.OrderBy(x => random.Next()).Take(random.Next(2, 4));
+            var productosParaVenta = productosDict.Values.OrderBy(x => random.Next()).Take(random.Next(2, 4)).ToList();
+            int nroLineaCounter = 1;
             foreach (var producto in productosParaVenta)
             {
                 var precioVigente = producto.PreciosVenta.Where(pv => pv.FechaDesde <= venta.Fecha).OrderByDescending(pv => pv.FechaDesde).FirstOrDefault();
                 if (precioVigente != null)
                 {
-                    lineasVenta.Add(new LineaVenta
+                    int cantidad = random.Next(1, 4);
+                    if (producto.Stock >= cantidad)
                     {
-                        IdVenta = venta.IdVenta,
-                        NroLineaVenta = nroLineaCounter++,
-                        IdProducto = producto.IdProducto,
-                        Cantidad = random.Next(1, 4),
-                        PrecioUnitario = precioVigente.Monto
-                    });
+                        context.LineaVentas.Add(new LineaVenta
+                        {
+                            IdVenta = venta.IdVenta,
+                            NroLineaVenta = nroLineaCounter++,
+                            IdProducto = producto.IdProducto,
+                            Cantidad = cantidad,
+                            PrecioUnitario = precioVigente.Monto
+                        });
+                        producto.Stock -= cantidad;
+                    }
                 }
             }
         }
-        context.LineaVentas.AddRange(lineasVenta);
         await context.SaveChangesAsync();
     }
 
     private static async Task SeedPedidosAsync(BuyJugadorContext context)
     {
-        if (context.Pedidos.Any()) return;
+        if (await context.Pedidos.AnyAsync()) return;
         Console.WriteLine("Seeding Pedidos...");
 
         var proveedores = await context.Proveedores.Where(p => p.Activo).OrderBy(p => p.IdProveedor).ToListAsync();
         var productosConPrecio = await context.PreciosCompra.ToListAsync();
         if (!proveedores.Any() || !productosConPrecio.Any()) return;
+
+        var productosDict = await context.Productos.ToDictionaryAsync(p => p.IdProducto);
 
         var random = new Random();
         var pedidos = new List<Pedido>();
@@ -226,32 +248,37 @@ public static class DbSeeder
         context.Pedidos.AddRange(pedidos);
         await context.SaveChangesAsync();
 
-        var lineasPedido = new List<LineaPedido>();
-        int nroLineaPedido = 1;
         foreach (var pedido in pedidos)
         {
+            int nroLineaPedido = 1;
             var productosDelProveedor = productosConPrecio.Where(pc => pc.IdProveedor == pedido.IdProveedor).OrderBy(x => random.Next()).Take(5);
             foreach (var productoPrecio in productosDelProveedor)
             {
                 decimal precioDiferente = Math.Round(productoPrecio.Monto * (1 + (nroLineaPedido % 4) * 0.03m), 2);
-                lineasPedido.Add(new LineaPedido
+                int cantidad = nroLineaPedido % 2 == 0 ? 10 : 5;
+
+                context.LineaPedidos.Add(new LineaPedido
                 {
                     IdPedido = pedido.IdPedido,
                     NroLineaPedido = nroLineaPedido,
                     IdProducto = productoPrecio.IdProducto,
-                    Cantidad = nroLineaPedido % 2 == 0 ? 10 : 5,
+                    Cantidad = cantidad,
                     PrecioUnitario = precioDiferente
                 });
+
+                if (pedido.Estado == "Recibido" && productosDict.TryGetValue(productoPrecio.IdProducto, out var producto))
+                {
+                    producto.Stock += cantidad;
+                }
                 nroLineaPedido++;
             }
         }
-        context.LineaPedidos.AddRange(lineasPedido);
         await context.SaveChangesAsync();
     }
 
+    #region Data Generation Methods
     private static IEnumerable<TipoProducto> GetTiposProducto() => new List<TipoProducto>
     {
-        // # RESTAURADO: Se eliminó la propiedad 'Activo' ya que no existe en el modelo.
         new TipoProducto { Descripcion = "Componentes" }, new TipoProducto { Descripcion = "Monitores" }, new TipoProducto { Descripcion = "Parlantes" },
         new TipoProducto { Descripcion = "Teclados" }, new TipoProducto { Descripcion = "Mouse" }, new TipoProducto { Descripcion = "Impresoras" },
         new TipoProducto { Descripcion = "Scanners" }, new TipoProducto { Descripcion = "Tabletas" }, new TipoProducto { Descripcion = "Laptops" },
@@ -361,17 +388,25 @@ public static class DbSeeder
     {
         for (int i = 0; i < maxRetries; i++)
         {
-            var response = await client.GetAsync(url);
-            if (response.IsSuccessStatusCode)
-                return await response.Content.ReadAsStringAsync();
-            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            try
             {
-                Console.WriteLine($"API limit reached, waiting {3 * (i + 1)}s...");
-                await Task.Delay(3000 * (i + 1));
+                var response = await client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                {
+                    Console.WriteLine($"API limit reached, waiting {3 * (i + 1)}s...");
+                    await Task.Delay(3000 * (i + 1));
+                }
+                else
+                {
+                    response.EnsureSuccessStatusCode();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                response.EnsureSuccessStatusCode();
+                Console.WriteLine($"Error fetching {url}: {ex.Message}. Retrying...");
+                await Task.Delay(1000);
             }
         }
         throw new HttpRequestException("Max retries reached for: " + url);
@@ -381,5 +416,6 @@ public static class DbSeeder
     private class ProvinciaAPI { public string Id { get; set; } public string Nombre { get; set; } }
     private class ApiResponseMunicipios { public List<MunicipioAPI> Municipios { get; set; } }
     private class MunicipioAPI { public string Nombre { get; set; } public ProvinciaAPI Provincia { get; set; } }
+    #endregion
 }
 

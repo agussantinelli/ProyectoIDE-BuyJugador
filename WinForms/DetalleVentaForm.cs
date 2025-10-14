@@ -21,7 +21,6 @@ namespace WinForms
         private List<ProductoDTO> _todosLosProductos;
         private bool _datosModificados = false;
 
-        // # CORRECCIÓN: Se elimina LineaVentaApiClient del constructor
         public DetalleVentaForm(
             int ventaId,
             bool esAdmin,
@@ -63,8 +62,6 @@ namespace WinForms
                 }
 
                 _todosLosProductos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
-
-                // # CORRECCIÓN: Las líneas vienen dentro del VentaDTO.
                 _lineasDeVenta = new BindingList<LineaVentaDTO>(_venta.Lineas ?? new List<LineaVentaDTO>());
 
                 lblIdVenta.Text = $"ID Venta: {_venta.IdVenta}";
@@ -181,11 +178,16 @@ namespace WinForms
             }
         }
 
+        // # MEJORA DE UX:
+        // # Al hacer clic en el botón, se establece el foco directamente en la celda "Cantidad"
+        // # de la fila seleccionada y se inicia el modo de edición.
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
             {
+                // 1. Establecer la celda "Cantidad" de la fila actual como la celda activa.
                 dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
+                // 2. Iniciar el modo de edición y seleccionar todo el texto.
                 dataGridDetalle.BeginEdit(true);
             }
         }
@@ -259,7 +261,6 @@ namespace WinForms
             var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaEditada.IdProducto);
             if (producto == null) return;
 
-            // # CORRECCIÓN: Usamos la propiedad correcta 'Lineas' del DTO '_venta'.
             int cantidadOriginalEnVenta = _venta.Lineas.FirstOrDefault(l => l.NroLineaVenta == lineaEditada.NroLineaVenta)?.Cantidad ?? 0;
             int stockDisponible = producto.Stock + cantidadOriginalEnVenta;
 
@@ -281,8 +282,10 @@ namespace WinForms
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
             bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            btnEliminarLinea.Enabled = hayFilaSeleccionada;
-            btnEditarCantidad.Enabled = hayFilaSeleccionada;
+            bool puedeEditar = _esAdmin && "Pendiente".Equals(_venta?.Estado, StringComparison.OrdinalIgnoreCase);
+
+            btnEliminarLinea.Enabled = hayFilaSeleccionada && puedeEditar;
+            btnEditarCantidad.Enabled = hayFilaSeleccionada && puedeEditar;
         }
     }
 }

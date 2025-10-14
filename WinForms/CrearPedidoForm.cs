@@ -1,8 +1,10 @@
 ﻿using ApiClient;
 using DTOs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,18 +15,24 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly PedidoApiClient _pedidoApiClient;
         private readonly ProveedorApiClient _proveedorApiClient;
-        private readonly PrecioCompraApiClient _precioCompraApiClient;
+        private readonly IServiceProvider _serviceProvider;
 
-        private BindingList<LineaPedidoDTO> _lineasPedidoActual = new();
-        private int _nroLineaCounter = 1;
+        private BindingList<LineaPedidoDTO> _lineasPedido = new();
+        private List<ProductoDTO> _productosDelProveedor = new();
 
-        public CrearPedidoForm(ProductoApiClient productoApiClient, PedidoApiClient pedidoApiClient, ProveedorApiClient proveedorApiClient, PrecioCompraApiClient precioCompraApiClient)
+        public CrearPedidoForm(
+            ProductoApiClient productoApiClient,
+            PedidoApiClient pedidoApiClient,
+            ProveedorApiClient proveedorApiClient,
+            IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _productoApiClient = productoApiClient;
             _pedidoApiClient = pedidoApiClient;
             _proveedorApiClient = proveedorApiClient;
-            _precioCompraApiClient = precioCompraApiClient;
+            _serviceProvider = serviceProvider;
+
+            dataGridLineasPedido.DataSource = _lineasPedido;
 
             StyleManager.ApplyDataGridViewStyle(dataGridLineasPedido);
             StyleManager.ApplyButtonStyle(btnConfirmarPedido);
@@ -37,19 +45,19 @@ namespace WinForms
         {
             await CargarProveedores();
             ConfigurarGridLineas();
-            dataGridLineasPedido.DataSource = _lineasPedidoActual;
+            btnAgregarProducto.Enabled = false;
         }
 
         private async Task CargarProveedores()
         {
             try
             {
-                var proveedores = await _proveedorApiClient.GetProveedoresAsync();
+                var proveedores = await _proveedorApiClient.GetAllAsync();
                 cmbProveedores.DataSource = proveedores;
                 cmbProveedores.DisplayMember = "RazonSocial";
                 cmbProveedores.ValueMember = "IdProveedor";
                 cmbProveedores.SelectedIndex = -1;
-                cmbProductos.Enabled = false;
+                cmbProveedores.Text = "Seleccione un proveedor...";
             }
             catch (Exception ex)
             {
@@ -59,24 +67,26 @@ namespace WinForms
 
         private async void cmbProveedores_SelectedIndexChanged(object sender, EventArgs e)
         {
+            _lineasPedido.Clear();
+            ActualizarTotal();
+
             if (cmbProveedores.SelectedItem is ProveedorDTO proveedor)
             {
                 try
                 {
-                    var productos = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor);
-                    cmbProductos.DataSource = productos;
-                    cmbProductos.DisplayMember = "Nombre";
-                    cmbProductos.ValueMember = "IdProducto";
-                    cmbProductos.Enabled = true;
-                    cmbProductos.SelectedIndex = -1;
-                    cmbProductos.Text = "";
+                    _productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(proveedor.IdProveedor) ?? new List<ProductoDTO>();
+                    btnAgregarProducto.Enabled = true;
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Error al cargar productos del proveedor: {ex.Message}", "Error");
-                    cmbProductos.DataSource = null;
-                    cmbProductos.Enabled = false;
+                    _productosDelProveedor.Clear();
+                    btnAgregarProducto.Enabled = false;
                 }
+            }
+            else
+            {
+                btnAgregarProducto.Enabled = false;
             }
         }
 
@@ -90,52 +100,26 @@ namespace WinForms
             dataGridLineasPedido.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Subtotal", HeaderText = "Subtotal", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" }, ReadOnly = true });
         }
 
-        private async void btnAgregarProducto_Click(object sender, EventArgs e)
+        private void btnAgregarProducto_Click(object sender, EventArgs e)
         {
-            if (cmbProveedores.SelectedItem is not ProveedorDTO proveedorSeleccionado || cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
+            var idsProductosEnPedido = _lineasPedido.Select(l => l.IdProducto).ToList();
+            var productosDisponibles = _productosDelProveedor
+                .Where(p => !idsProductosEnPedido.Contains(p.IdProducto))
+                .ToList();
+
+            if (!productosDisponibles.Any())
             {
-                MessageBox.Show("Seleccione un proveedor y un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("No hay más productos de este proveedor para agregar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-            var cantidad = (int)numCantidad.Value;
-            if (cantidad <= 0)
+
+            using var form = _serviceProvider.GetRequiredService<AñanirProductoPedidoForm>();
+            form.CargarProductosDisponibles(productosDisponibles);
+
+            if (form.ShowDialog() == DialogResult.OK && form.LineaPedido != null)
             {
-                MessageBox.Show("La cantidad debe ser mayor a cero.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                var precioCompra = await _precioCompraApiClient.GetByIdAsync(productoSeleccionado.IdProducto, proveedorSeleccionado.IdProveedor);
-
-                if (precioCompra == null)
-                {
-                    MessageBox.Show("Este producto no tiene un precio de compra asignado por el proveedor seleccionado. No se puede agregar al pedido.", "Precio no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var lineaExistente = _lineasPedidoActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
-                if (lineaExistente != null)
-                {
-                    lineaExistente.Cantidad += cantidad;
-                }
-                else
-                {
-                    _lineasPedidoActual.Add(new LineaPedidoDTO
-                    {
-                        IdProducto = productoSeleccionado.IdProducto,
-                        Cantidad = cantidad,
-                        NombreProducto = productoSeleccionado.Nombre,
-                        PrecioUnitario = precioCompra.Monto,
-                        NroLineaPedido = _nroLineaCounter++
-                    });
-                }
-                _lineasPedidoActual.ResetBindings();
+                _lineasPedido.Add(form.LineaPedido);
                 ActualizarTotal();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ocurrió un error al verificar el precio: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -143,19 +127,19 @@ namespace WinForms
         {
             if (dataGridLineasPedido.CurrentRow != null)
             {
-                _lineasPedidoActual.Remove((LineaPedidoDTO)dataGridLineasPedido.CurrentRow.DataBoundItem);
+                _lineasPedido.Remove((LineaPedidoDTO)dataGridLineasPedido.CurrentRow.DataBoundItem);
                 ActualizarTotal();
             }
         }
 
         private void ActualizarTotal()
         {
-            lblTotalPedido.Text = $"Total: {_lineasPedidoActual.Sum(l => l.Subtotal):C}";
+            lblTotalPedido.Text = $"Total: {_lineasPedido.Sum(l => l.Subtotal):C}";
         }
 
         private async void btnConfirmarPedido_Click(object sender, EventArgs e)
         {
-            if (cmbProveedores.SelectedValue == null || !_lineasPedidoActual.Any())
+            if (cmbProveedores.SelectedValue == null || !_lineasPedido.Any())
             {
                 MessageBox.Show("Debe seleccionar un proveedor y agregar al menos un producto.", "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -164,15 +148,25 @@ namespace WinForms
             var pedidoCompletoDto = new CrearPedidoCompletoDTO
             {
                 IdProveedor = (int)cmbProveedores.SelectedValue,
-                LineasPedido = _lineasPedidoActual.ToList(),
+                LineasPedido = _lineasPedido.ToList(),
             };
 
             try
             {
-                var pedidoCreado = await _pedidoApiClient.CreatePedidoCompletoAsync(pedidoCompletoDto);
-                MessageBox.Show($"Pedido #{pedidoCreado?.IdPedido} creado exitosamente.", "Pedido Creado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                // # CORRECCIÓN: Se utiliza el método 'CreateAsync' estandarizado en el ApiClient.
+                var response = await _pedidoApiClient.CreateAsync(pedidoCompletoDto);
+                if (response.IsSuccessStatusCode)
+                {
+                    var pedidoCreado = await response.Content.ReadFromJsonAsync<PedidoDTO>();
+                    MessageBox.Show($"Pedido #{pedidoCreado?.IdPedido} creado exitosamente.", "Pedido Creado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al crear el pedido: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
@@ -187,3 +181,4 @@ namespace WinForms
         }
     }
 }
+

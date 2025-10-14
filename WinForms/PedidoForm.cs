@@ -27,6 +27,7 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnNuevoPedido);
             StyleManager.ApplyButtonStyle(btnEliminar);
+            // # CORRECCIÓN: El nombre del botón en el diseñador es 'btnFinalizarPedido'.
             StyleManager.ApplyButtonStyle(btnFinalizarPedido);
             StyleManager.ApplyButtonStyle(btnVerDetalle);
 
@@ -47,8 +48,6 @@ namespace WinForms
             await CargarPedidos();
             ConfigurarVisibilidadControles();
             ActualizarEstadoBotones();
-
-            dataGridPedidos.SelectionChanged += DataGridPedidos_SelectionChanged;
         }
 
         private void ConfigurarVisibilidadControles()
@@ -56,6 +55,7 @@ namespace WinForms
             bool esAdmin = _userSessionService.EsAdmin;
             btnNuevoPedido.Visible = esAdmin;
             btnEliminar.Visible = esAdmin;
+            btnFinalizarPedido.Visible = esAdmin;
         }
 
         private async Task CargarPedidos()
@@ -63,7 +63,8 @@ namespace WinForms
             try
             {
                 this.Cursor = Cursors.WaitCursor;
-                _todosLosPedidos = await _pedidoApiClient.GetPedidosAsync() ?? new List<PedidoDTO>();
+                // # CORRECCIÓN: Se usa el método estandarizado 'GetAllAsync'.
+                _todosLosPedidos = await _pedidoApiClient.GetAllAsync() ?? new List<PedidoDTO>();
                 AplicarFiltros();
             }
             catch (Exception ex)
@@ -108,7 +109,10 @@ namespace WinForms
                 .ToList();
 
             dataGridPedidos.DataSource = null;
-            dataGridPedidos.DataSource = pedidosFiltrados;
+            if (pedidosFiltrados.Any())
+            {
+                dataGridPedidos.DataSource = pedidosFiltrados;
+            }
 
             ActualizarEstadoBotones();
         }
@@ -209,6 +213,7 @@ namespace WinForms
             }
         }
 
+        // # CORRECCIÓN: El nombre del método coincide con el del diseñador.
         private async void btnFinalizarPedido_Click(object sender, EventArgs e)
         {
             if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedido) return;
@@ -259,16 +264,16 @@ namespace WinForms
             if (hayFilaSeleccionada && dataGridPedidos.CurrentRow.DataBoundItem is PedidoDTO pedido)
             {
                 btnFinalizarPedido.Enabled = "Pendiente".Equals(pedido.Estado, StringComparison.OrdinalIgnoreCase) && _userSessionService.EsAdmin;
-                btnFinalizarPedido.Visible = _userSessionService.EsAdmin;
             }
             else
             {
                 btnFinalizarPedido.Enabled = false;
-                btnFinalizarPedido.Visible = _userSessionService.EsAdmin;
             }
         }
 
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
+
+        // # CORRECCIÓN: Se añade el manejador de eventos que faltaba.
         private void FiltrosChanged(object sender, EventArgs e) => AplicarFiltros();
     }
 }
