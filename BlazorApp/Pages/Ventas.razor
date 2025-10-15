@@ -1,10 +1,10 @@
 ﻿@page "/ventas"
 @attribute [Authorize]
 
-@using ApiClient
 @using DTOs
+@using ApiClient
 @inject VentaApiClient ventaApiClient
-@inject UserSessionService userSessionService
+@inject UserSessionService userSession
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -15,7 +15,7 @@
             <input class="tbl-input" type="text" placeholder="Buscar vendedor..."
                    @bind="textoFiltro" @bind:event="oninput" />
 
-            @if (userSessionService.EsAdmin)
+            @if (esAdmin)
             {
                 <button class="btn btn-primary" @onclick="NuevaVenta">
                     <i class="bi bi-plus-circle"></i>
@@ -27,15 +27,11 @@
 
     @if (ventas == null)
     {
-        <div class="tbl-state">
-            <i class="bi bi-arrow-repeat spin"></i> Cargando ventas...
-        </div>
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando ventas...</div>
     }
     else if (!VentasFiltradas.Any())
     {
-        <div class="tbl-state">
-            <i class="bi bi-inbox"></i> No se encontraron ventas.
-        </div>
+        <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron ventas.</div>
     }
     else
     {
@@ -66,7 +62,7 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    @if (userSessionService.EsAdmin)
+                                    @if (esAdmin)
                                     {
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(v)">
                                             <i class="bi bi-trash3"></i>
@@ -92,16 +88,15 @@
 @code {
     private List<VentaDTO>? ventas;
     private string textoFiltro = string.Empty;
+    private bool esAdmin;
 
     protected override async Task OnInitializedAsync()
     {
+        esAdmin = await userSession.EsAdminAsync();
         await CargarVentas();
     }
 
-    private async Task CargarVentas()
-    {
-        ventas = await ventaApiClient.GetAllAsync() ?? new();
-    }
+    private async Task CargarVentas() => ventas = await ventaApiClient.GetAllAsync() ?? new();
 
     private IEnumerable<VentaDTO> VentasFiltradas =>
         ventas?.Where(v =>
@@ -109,31 +104,19 @@
             || (v.NombreVendedor?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
         ?? Enumerable.Empty<VentaDTO>();
 
-    private void NuevaVenta()
-    {
-        // navegación o abrir modal para nueva venta
-    }
+    private void NuevaVenta() { }
 
-    private void VerDetalle(VentaDTO venta)
-    {
-        // navegación a página de detalle
-    }
+    private void VerDetalle(VentaDTO venta) { }
 
     private async Task Eliminar(VentaDTO venta)
     {
         var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
-        if (resp.IsSuccessStatusCode)
-        {
-            await CargarVentas();
-        }
+        if (resp.IsSuccessStatusCode) await CargarVentas();
     }
 
     private async Task Finalizar(VentaDTO venta)
     {
-        var resp = await ventaApiClient.MarcarComoFinalizadaAsync(venta.IdVenta);
-        if (resp.IsSuccessStatusCode)
-        {
-            await CargarVentas();
-        }
+        var resp = await ventaApiClient.FinalizarVentaAsync(venta.IdVenta);
+        if (resp.IsSuccessStatusCode) await CargarVentas();
     }
 }

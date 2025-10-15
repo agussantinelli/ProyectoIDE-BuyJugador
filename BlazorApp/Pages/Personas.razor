@@ -4,6 +4,7 @@
 @using ApiClient
 @using DTOs
 @inject PersonaApiClient personaApiClient
+@inject UserSessionService userSession
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -12,11 +13,16 @@
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
             <input class="tbl-input" type="text" placeholder="Buscar persona..."
-                   @bind="textoFiltro" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="Nuevo">
-                <i class="bi bi-plus-circle"></i>
-                <span>Nuevo</span>
-            </button>
+                   value="@textoFiltro" @oninput="OnFiltroChanged" />
+
+
+            @if (esAdmin)
+            {
+                <button class="btn btn-primary" @onclick="Nuevo">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Nuevo</span>
+                </button>
+            }
         </div>
     </div>
 
@@ -52,7 +58,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in PersonasFiltradas)
+                    @foreach (var p in personasFiltradas)
                     {
                         <tr>
                             <td class="tbl-truncate">@p.NombreCompleto</td>
@@ -93,58 +99,61 @@
 @code {
     private List<PersonaDTO>? activos;
     private List<PersonaDTO>? inactivos;
+    private List<PersonaDTO> personasFiltradas = new();
     private bool tabActivos = true;
     private string textoFiltro = "";
+    private bool esAdmin;
+
+    private void OnFiltroChanged(ChangeEventArgs e)
+    {
+        textoFiltro = e.Value?.ToString() ?? "";
+        AplicarFiltro();
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        esAdmin = await userSession.EsAdminAsync();
         await CargarDatos();
     }
 
     private async Task CargarDatos()
     {
-        //activos = await personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
-        //inactivos = await personaApiClient.GetInactivosAsync() ?? new List<PersonaDTO>();
-        //AplicarFiltro();
+        activos = await personaApiClient.GetAllAsync() ?? new();
+        inactivos = await personaApiClient.GetInactivosAsync() ?? new();
+        AplicarFiltro();
     }
 
     private void ChangeTab(bool mostrarActivos)
     {
-        //tabActivos = mostrarActivos;
-        //AplicarFiltro();
+        tabActivos = mostrarActivos;
+        AplicarFiltro();
     }
 
-    private IEnumerable<PersonaDTO> PersonasFiltradas
-        => (tabActivos ? activos : inactivos)
-           .Where(p =>
-               string.IsNullOrWhiteSpace(textoFiltro)
-               || (p.NombreCompleto?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
-               || p.Dni.ToString().Contains(textoFiltro)
-           );
-
-    private void Nuevo()
+    private void AplicarFiltro()
     {
+        var origen = tabActivos ? activos : inactivos;
+
+        personasFiltradas = origen
+            ?.Where(p =>
+                string.IsNullOrWhiteSpace(textoFiltro)
+                || (p.NombreCompleto?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+                || p.Dni.ToString().Contains(textoFiltro))
+            .ToList() ?? new();
     }
 
-    private void Editar(PersonaDTO p)
-    {
-    }
+    private void Nuevo() { }
+
+    private void Editar(PersonaDTO p) { }
 
     private async Task DarBaja(PersonaDTO p)
     {
         var resp = await personaApiClient.DeleteAsync(p.IdPersona);
-        if (resp.IsSuccessStatusCode)
-        {
-            await CargarDatos();
-        }
+        if (resp.IsSuccessStatusCode) await CargarDatos();
     }
 
     private async Task Reactivar(PersonaDTO p)
     {
         var resp = await personaApiClient.ReactivarAsync(p.IdPersona);
-        if (resp.IsSuccessStatusCode)
-        {
-            await CargarDatos();
-        }
+        if (resp.IsSuccessStatusCode) await CargarDatos();
     }
 }

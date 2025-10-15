@@ -1,18 +1,20 @@
 ﻿@page "/pedidos"
 @attribute [Authorize]
 
-@using ApiClient
 @using DTOs
+@using ApiClient
 @inject PedidoApiClient pedidoApiClient
-@inject UserSessionService userSessionService
+@inject UserSessionService userSession
 
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Pedidos</h2>
+
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon"></span>
             <input class="tbl-input" placeholder="Buscar proveedor..." @bind="textoFiltro" @bind:event="oninput" />
-            @if (userSessionService.EsAdmin)
+
+            @if (esAdmin)
             {
                 <button class="btn btn-primary" @onclick="NuevoPedido">
                     <i class="bi bi-plus-circle"></i><span>Nuevo</span>
@@ -53,11 +55,13 @@
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    @if (userSessionService.EsAdmin)
+
+                                    @if (esAdmin)
                                     {
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
+
                                         @if (p.Estado == "Pendiente")
                                         {
                                             <button class="tbl-icon-btn" title="Finalizar" @onclick="() => Finalizar(p)">
@@ -78,9 +82,11 @@
 @code {
     private List<PedidoDTO>? pedidos;
     private string textoFiltro = string.Empty;
+    private bool esAdmin;
 
     protected override async Task OnInitializedAsync()
     {
+        esAdmin = await userSession.EsAdminAsync();
         await CargarPedidos();
     }
 
@@ -90,8 +96,9 @@
         pedidos.Where(p => string.IsNullOrWhiteSpace(textoFiltro)
                         || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false));
 
-    private void NuevoPedido() { /* Navegar */ }
-    private void VerDetalle(PedidoDTO p) { /* Ver detalle */ }
+    private void NuevoPedido() { }
+
+    private void VerDetalle(PedidoDTO p) { }
 
     private async Task Eliminar(PedidoDTO p)
     {

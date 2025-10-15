@@ -216,7 +216,6 @@ public static class DbSeeder
     #endregion
 
     #region Transactional Seeding Methods
-    // # REFACTORIZADO: Lógica simplificada para usar una sola transacción.
     private static async Task SeedVentasAsync(BuyJugadorContext context)
     {
         if (await context.Ventas.AnyAsync()) return;
@@ -262,7 +261,7 @@ public static class DbSeeder
                             Cantidad = cantidad,
                             PrecioUnitario = precioVigente.Monto
                         };
-                        venta.LineaVenta.Add(linea); // Se añade la línea a la navegación de la venta.
+                        venta.LineaVenta.Add(linea);
                         producto.Stock -= cantidad;
                         Console.WriteLine($"    -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
                     }
@@ -401,7 +400,6 @@ public static class DbSeeder
     {
         var tiposDict = tipos.ToDictionary(t => t.Descripcion, t => t.IdTipoProducto);
 
-        // # CORRECCIÓN: Usar una fecha en el pasado para que los precios sean válidos para las ventas creadas.
         var fechaPrecios = DateTime.UtcNow.AddMonths(-1).Date;
 
         return new List<Producto>
