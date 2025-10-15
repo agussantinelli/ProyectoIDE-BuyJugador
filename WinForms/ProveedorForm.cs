@@ -301,7 +301,7 @@ namespace WinForms
             btnEditar.Visible = hayActivoSeleccionado;
             btnEliminar.Visible = hayActivoSeleccionado;
             btnAsignarProductos.Visible = hayActivoSeleccionado;
-            btnVerProductos.Visible = hayActivoSeleccionado; // # NUEVO
+            btnVerProductos.Visible = hayActivoSeleccionado; 
 
             bool hayInactivoSeleccionado = !esActivos && dgvInactivos.CurrentRow != null;
             btnReactivar.Visible = hayInactivoSeleccionado;

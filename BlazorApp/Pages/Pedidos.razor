@@ -1,6 +1,107 @@
 ﻿@page "/pedidos"
 @attribute [Authorize]
 
-<PageTitle>Pedidos</PageTitle>
-<h2>Pedidos</h2>
-<p class="text-muted">Gestión de pedidos a proveedores.</p>
+@using ApiClient
+@using DTOs
+@inject PedidoApiClient pedidoApiClient
+@inject UserSessionService userSessionService
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Gestión de Pedidos</h2>
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon"></span>
+            <input class="tbl-input" placeholder="Buscar proveedor..." @bind="textoFiltro" @bind:event="oninput" />
+            @if (userSessionService.EsAdmin)
+            {
+                <button class="btn btn-primary" @onclick="NuevoPedido">
+                    <i class="bi bi-plus-circle"></i><span>Nuevo</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (pedidos == null)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedidos...</div>
+    }
+    else
+    {
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nro Pedido</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Estado</th>
+                        <th class="tbl-text-end">Total</th>
+                        <th class="tbl-text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in PedidosFiltrados)
+                    {
+                        <tr>
+                            <td>@p.IdPedido</td>
+                            <td>@p.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@p.ProveedorRazonSocial</td>
+                            <td>@p.Estado</td>
+                            <td class="tbl-text-end">@p.Total.ToString("C")</td>
+                            <td class="tbl-text-end">
+                                <div class="tbl-actions">
+                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    @if (userSessionService.EsAdmin)
+                                    {
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                        @if (p.Estado == "Pendiente")
+                                        {
+                                            <button class="tbl-icon-btn" title="Finalizar" @onclick="() => Finalizar(p)">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<PedidoDTO>? pedidos;
+    private string textoFiltro = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarPedidos();
+    }
+
+    private async Task CargarPedidos() => pedidos = await pedidoApiClient.GetAllAsync() ?? new();
+
+    private IEnumerable<PedidoDTO> PedidosFiltrados =>
+        pedidos.Where(p => string.IsNullOrWhiteSpace(textoFiltro)
+                        || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false));
+
+    private void NuevoPedido() { /* Navegar */ }
+    private void VerDetalle(PedidoDTO p) { /* Ver detalle */ }
+
+    private async Task Eliminar(PedidoDTO p)
+    {
+        var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
+        if (resp.IsSuccessStatusCode) await CargarPedidos();
+    }
+
+    private async Task Finalizar(PedidoDTO p)
+    {
+        var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
+        if (resp.IsSuccessStatusCode) await CargarPedidos();
+    }
+}

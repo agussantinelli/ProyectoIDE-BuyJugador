@@ -40,7 +40,6 @@ namespace BlazorApp.Auth
             }
         }
 
-        // Llamado desde Login.razor después de un inicio de sesión exitoso.
         public async Task MarkUserAsLoggedInAsync(string token)
         {
             await _localStorage.SetItemAsync("authToken", token);
@@ -48,7 +47,6 @@ namespace BlazorApp.Auth
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
 
             // Notifica a Blazor que el estado de autenticación cambió.
-            // Esto dispara la actualización de la UI.
             NotifyAuthenticationStateChanged(authState);
         }
 

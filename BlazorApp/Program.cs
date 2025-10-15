@@ -24,12 +24,10 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
-// # CORRECCIÓN: Usamos el nombre completo para ser explícitos y evitar ambigüedad.
 builder.Services.AddScoped<BlazorApp.Auth.TokenMessageHandler>();
 
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
-               // # CORRECCIÓN: Especificamos el handler del namespace BlazorApp.Auth.
                .AddHttpMessageHandler<BlazorApp.Auth.TokenMessageHandler>();
 
 builder.Services.AddScoped(sp => new ProductoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
