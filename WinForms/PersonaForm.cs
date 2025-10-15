@@ -14,7 +14,7 @@ namespace WinForms
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
-        private readonly IServiceProvider _serviceProvider; // # Añadido para MDI
+        private readonly IServiceProvider _serviceProvider; 
 
         private List<PersonaDTO> _activosCache = new();
         private List<PersonaDTO> _inactivosCache = new();
@@ -23,7 +23,7 @@ namespace WinForms
         public PersonaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider; // # Añadido para MDI
+            _serviceProvider = serviceProvider; 
             _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
@@ -116,7 +116,6 @@ namespace WinForms
             return dgv.SelectedRows.Count > 0 ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO : null;
         }
 
-        // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             var existingForm = this.MdiParent?.MdiChildren.OfType<CrearPersonaForm>().FirstOrDefault();

@@ -59,7 +59,6 @@ namespace WinForms
             }
         }
 
-        // # NUEVO: Manejador para el botón "Ver Proveedores"
         private void btnVerProveedores_Click(object sender, EventArgs e)
         {
             DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
@@ -83,7 +82,6 @@ namespace WinForms
             }
         }
 
-        // ... (resto de manejadores y métodos sin cambios)
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
         {

@@ -80,7 +80,6 @@
             var uri = new Uri(Nav.Uri);
             var returnUrl = HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
 
-            // # CORRECCIÓN: Redirigir a la URL de retorno o a "/" (Home.razor) sin forzar recarga.
             Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
         }
         catch (Exception ex)
@@ -90,7 +89,7 @@
         finally
         {
             _loading = false;
-            StateHasChanged(); // Nos aseguramos de que la UI se actualice
+            StateHasChanged(); 
         }
     }
 
@@ -106,7 +105,6 @@
     public class LoginResponse
     {
         public string? Token { get; set; }
-        // No necesitamos el UserInfo aquí en Blazor, solo el token.
     }
 }
 

@@ -13,14 +13,14 @@ namespace WinForms
     public partial class TipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
-        private readonly IServiceProvider _serviceProvider; // # Añadido para MDI
+        private readonly IServiceProvider _serviceProvider;
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
 
         public TipoProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider; // # Añadido para MDI
+            _serviceProvider = serviceProvider; 
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
 
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
@@ -93,7 +93,6 @@ namespace WinForms
             return row?.DataBoundItem as TipoProductoDTO;
         }
 
-        // # REFACTORIZADO para MDI
         private void btnNuevo_Click(object sender, EventArgs e)
         {
             var existingForm = this.MdiParent?.MdiChildren.OfType<CrearTipoProductoForm>().FirstOrDefault();
