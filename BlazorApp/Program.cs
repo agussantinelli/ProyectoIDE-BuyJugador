@@ -22,7 +22,10 @@ var apiUri = new Uri(apiBase);
 
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
+
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+builder.Services.AddScoped<UserSessionService>();
 
 builder.Services.AddScoped<BlazorApp.Auth.TokenMessageHandler>();
 
