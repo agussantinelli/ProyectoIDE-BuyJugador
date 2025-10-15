@@ -12,7 +12,8 @@
 
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon"></span>
-            <input class="tbl-input" placeholder="Buscar proveedor..." @bind="textoFiltro" @bind:event="oninput" />
+            <input class="tbl-input" placeholder="Buscar proveedor..."
+                   value="@textoFiltro" @oninput="OnFiltroChanged" />
 
             @if (esAdmin)
             {
@@ -21,11 +22,17 @@
                 </button>
             }
         </div>
+
+        <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     </div>
 
     @if (pedidos == null)
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedidos...</div>
+    }
+    else if (!pedidosFiltrados.Any())
+    {
+        <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
     }
     else
     {
@@ -42,7 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in PedidosFiltrados)
+                    @foreach (var p in pedidosFiltrados)
                     {
                         <tr>
                             <td>@p.IdPedido</td>
@@ -81,6 +88,7 @@
 
 @code {
     private List<PedidoDTO>? pedidos;
+    private List<PedidoDTO> pedidosFiltrados = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
 
@@ -90,11 +98,34 @@
         await CargarPedidos();
     }
 
-    private async Task CargarPedidos() => pedidos = await pedidoApiClient.GetAllAsync() ?? new();
+    private async Task CargarPedidos()
+    {
+        try
+        {
+            pedidos = await pedidoApiClient.GetAllAsync() ?? new();
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] No se pudieron cargar los pedidos: {ex.Message}");
+            pedidos = new();
+        }
+    }
 
-    private IEnumerable<PedidoDTO> PedidosFiltrados =>
-        pedidos.Where(p => string.IsNullOrWhiteSpace(textoFiltro)
-                        || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false));
+    private void OnFiltroChanged(ChangeEventArgs e)
+    {
+        textoFiltro = e.Value?.ToString() ?? "";
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        pedidosFiltrados = pedidos
+            .Where(p =>
+                string.IsNullOrWhiteSpace(textoFiltro)
+                || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList();
+    }
 
     private void NuevoPedido() { }
 

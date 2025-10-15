@@ -25,7 +25,6 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<PedidoDTO>($"api/pedidos/{id}");
         }
 
-        // # CORRECCIÓN: Se añade el método CreateAsync que faltaba.
         public async Task<HttpResponseMessage> CreateAsync(CrearPedidoCompletoDTO dto)
         {
             return await _httpClient.PostAsJsonAsync("api/pedidos/completo", dto);
@@ -38,7 +37,6 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> MarcarComoRecibidoAsync(int id)
         {
-            // # CORRECCIÓN: Se usa PUT en lugar de POST para esta acción.
             return await _httpClient.PutAsync($"api/pedidos/{id}/recibir", null);
         }
 
