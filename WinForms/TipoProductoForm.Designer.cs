@@ -21,111 +21,112 @@
 
         private void InitializeComponent()
         {
-            this.txtBuscar = new System.Windows.Forms.TextBox();
-            this.dgvTiposProducto = new System.Windows.Forms.DataGridView();
-            this.btnNuevo = new System.Windows.Forms.Button();
-            this.btnEditar = new System.Windows.Forms.Button();
-            this.btnEliminar = new System.Windows.Forms.Button();
-            this.btnVolver = new System.Windows.Forms.Button();
-            this.lblBuscar = new System.Windows.Forms.Label();
-            this.btnVerProductos = new System.Windows.Forms.Button(); // #NUEVO
-            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).BeginInit();
-            this.SuspendLayout();
+            txtBuscar = new TextBox();
+            dgvTiposProducto = new DataGridView();
+            btnNuevo = new Button();
+            btnEditar = new Button();
+            btnEliminar = new Button();
+            btnVolver = new Button();
+            lblBuscar = new Label();
+            btnVerProductos = new Button();
+            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).BeginInit();
+            SuspendLayout();
             // 
             // txtBuscar
             // 
-            this.txtBuscar.Location = new System.Drawing.Point(103, 9);
-            this.txtBuscar.Name = "txtBuscar";
-            this.txtBuscar.Size = new System.Drawing.Size(377, 25);
-            this.txtBuscar.TabIndex = 1;
-            this.txtBuscar.TextChanged += new System.EventHandler(this.txtBuscar_TextChanged);
+            txtBuscar.Location = new Point(116, 9);
+            txtBuscar.Name = "txtBuscar";
+            txtBuscar.Size = new Size(453, 30);
+            txtBuscar.TabIndex = 1;
+            txtBuscar.TextChanged += txtBuscar_TextChanged;
             // 
             // dgvTiposProducto
             // 
-            this.dgvTiposProducto.Location = new System.Drawing.Point(20, 40);
-            this.dgvTiposProducto.MultiSelect = false;
-            this.dgvTiposProducto.Name = "dgvTiposProducto";
-            this.dgvTiposProducto.ReadOnly = true;
-            this.dgvTiposProducto.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvTiposProducto.Size = new System.Drawing.Size(460, 400);
-            this.dgvTiposProducto.TabIndex = 2;
-            this.dgvTiposProducto.SelectionChanged += new System.EventHandler(this.dgvTiposProducto_SelectionChanged);
+            dgvTiposProducto.ColumnHeadersHeight = 29;
+            dgvTiposProducto.Location = new Point(22, 54);
+            dgvTiposProducto.MultiSelect = false;
+            dgvTiposProducto.Name = "dgvTiposProducto";
+            dgvTiposProducto.ReadOnly = true;
+            dgvTiposProducto.RowHeadersWidth = 51;
+            dgvTiposProducto.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvTiposProducto.Size = new Size(663, 400);
+            dgvTiposProducto.TabIndex = 2;
+            dgvTiposProducto.SelectionChanged += dgvTiposProducto_SelectionChanged;
             // 
             // btnNuevo
             // 
-            this.btnNuevo.Location = new System.Drawing.Point(135, 470);
-            this.btnNuevo.Name = "btnNuevo";
-            this.btnNuevo.Size = new System.Drawing.Size(100, 30);
-            this.btnNuevo.TabIndex = 3;
-            this.btnNuevo.Text = "Nuevo";
-            this.btnNuevo.Click += new System.EventHandler(this.btnNuevo_Click);
+            btnNuevo.Location = new Point(152, 470);
+            btnNuevo.Name = "btnNuevo";
+            btnNuevo.Size = new Size(112, 30);
+            btnNuevo.TabIndex = 3;
+            btnNuevo.Text = "Nuevo";
+            btnNuevo.Click += btnNuevo_Click;
             // 
             // btnEditar
             // 
-            this.btnEditar.Location = new System.Drawing.Point(241, 470);
-            this.btnEditar.Name = "btnEditar";
-            this.btnEditar.Size = new System.Drawing.Size(100, 30);
-            this.btnEditar.TabIndex = 4;
-            this.btnEditar.Text = "Editar";
-            this.btnEditar.Click += new System.EventHandler(this.btnEditar_Click);
+            btnEditar.Location = new Point(271, 470);
+            btnEditar.Name = "btnEditar";
+            btnEditar.Size = new Size(112, 30);
+            btnEditar.TabIndex = 4;
+            btnEditar.Text = "Editar";
+            btnEditar.Click += btnEditar_Click;
             // 
             // btnEliminar
             // 
-            this.btnEliminar.Location = new System.Drawing.Point(347, 470);
-            this.btnEliminar.Name = "btnEliminar";
-            this.btnEliminar.Size = new System.Drawing.Size(100, 30);
-            this.btnEliminar.TabIndex = 5;
-            this.btnEliminar.Text = "Eliminar";
-            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            btnEliminar.Location = new Point(390, 470);
+            btnEliminar.Name = "btnEliminar";
+            btnEliminar.Size = new Size(112, 30);
+            btnEliminar.TabIndex = 5;
+            btnEliminar.Text = "Eliminar";
+            btnEliminar.Click += btnEliminar_Click;
             // 
             // btnVolver
             // 
-            this.btnVolver.Location = new System.Drawing.Point(20, 470);
-            this.btnVolver.Name = "btnVolver";
-            this.btnVolver.Size = new System.Drawing.Size(100, 30);
-            this.btnVolver.TabIndex = 6;
-            this.btnVolver.Text = "Volver";
-            this.btnVolver.Click += new System.EventHandler(this.btnVolver_Click);
+            btnVolver.Location = new Point(22, 470);
+            btnVolver.Name = "btnVolver";
+            btnVolver.Size = new Size(112, 30);
+            btnVolver.TabIndex = 6;
+            btnVolver.Text = "Volver";
+            btnVolver.Click += btnVolver_Click;
             // 
             // lblBuscar
             // 
-            this.lblBuscar.AutoSize = true;
-            this.lblBuscar.Location = new System.Drawing.Point(20, 12);
-            this.lblBuscar.Name = "lblBuscar";
-            this.lblBuscar.Size = new System.Drawing.Size(62, 20);
-            this.lblBuscar.TabIndex = 0;
-            this.lblBuscar.Text = "Buscar:";
+            lblBuscar.AutoSize = true;
+            lblBuscar.Location = new Point(22, 12);
+            lblBuscar.Name = "lblBuscar";
+            lblBuscar.Size = new Size(76, 22);
+            lblBuscar.TabIndex = 0;
+            lblBuscar.Text = "Buscar:";
             // 
             // btnVerProductos
-            // #NUEVO
             // 
-            this.btnVerProductos.Location = new System.Drawing.Point(347, 434);
-            this.btnVerProductos.Name = "btnVerProductos";
-            this.btnVerProductos.Size = new System.Drawing.Size(133, 30);
-            this.btnVerProductos.TabIndex = 7;
-            this.btnVerProductos.Text = "Ver Productos";
-            this.btnVerProductos.UseVisualStyleBackColor = true;
-            this.btnVerProductos.Click += new System.EventHandler(this.btnVerProductos_Click);
+            btnVerProductos.Location = new Point(574, 470);
+            btnVerProductos.Name = "btnVerProductos";
+            btnVerProductos.Size = new Size(150, 30);
+            btnVerProductos.TabIndex = 7;
+            btnVerProductos.Text = "Ver Productos";
+            btnVerProductos.UseVisualStyleBackColor = true;
+            btnVerProductos.Click += btnVerProductos_Click;
             // 
             // TipoProductoForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.ClientSize = new System.Drawing.Size(503, 520);
-            this.Controls.Add(this.btnVerProductos);
-            this.Controls.Add(this.lblBuscar);
-            this.Controls.Add(this.txtBuscar);
-            this.Controls.Add(this.dgvTiposProducto);
-            this.Controls.Add(this.btnNuevo);
-            this.Controls.Add(this.btnEditar);
-            this.Controls.Add(this.btnEliminar);
-            this.Controls.Add(this.btnVolver);
-            this.Name = "TipoProductoForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Gestión de Tipos de Producto";
-            this.Load += new System.EventHandler(this.TipoProductoForm_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvTiposProducto)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            AutoScaleDimensions = new SizeF(9F, 20F);
+            ClientSize = new Size(751, 520);
+            Controls.Add(btnVerProductos);
+            Controls.Add(lblBuscar);
+            Controls.Add(txtBuscar);
+            Controls.Add(dgvTiposProducto);
+            Controls.Add(btnNuevo);
+            Controls.Add(btnEditar);
+            Controls.Add(btnEliminar);
+            Controls.Add(btnVolver);
+            Name = "TipoProductoForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Gestión de Tipos de Producto";
+            Load += TipoProductoForm_Load;
+            ((System.ComponentModel.ISupportInitialize)dgvTiposProducto).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
     }
 }

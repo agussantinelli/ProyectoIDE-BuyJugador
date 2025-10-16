@@ -1,4 +1,7 @@
-﻿namespace WinForms
+﻿using System.Windows.Forms;
+using System.Drawing;
+
+namespace WinForms
 {
     partial class VerProductosTipoForm
     {
@@ -6,6 +9,7 @@
         private System.Windows.Forms.DataGridView dgvProductos;
         private System.Windows.Forms.Button btnVolver;
         private System.Windows.Forms.Label lblTitulo;
+        private System.Windows.Forms.Button btnEliminar; // #NUEVO
 
         protected override void Dispose(bool disposing)
         {
@@ -21,6 +25,7 @@
             this.dgvProductos = new System.Windows.Forms.DataGridView();
             this.btnVolver = new System.Windows.Forms.Button();
             this.lblTitulo = new System.Windows.Forms.Label();
+            this.btnEliminar = new System.Windows.Forms.Button(); // #NUEVO
             ((System.ComponentModel.ISupportInitialize)(this.dgvProductos)).BeginInit();
             this.SuspendLayout();
             // 
@@ -33,8 +38,9 @@
             this.dgvProductos.Name = "dgvProductos";
             this.dgvProductos.ReadOnly = true;
             this.dgvProductos.RowTemplate.Height = 25;
-            this.dgvProductos.Size = new System.Drawing.Size(754, 326);
+            this.dgvProductos.Size = new System.Drawing.Size(854, 326);
             this.dgvProductos.TabIndex = 1;
+            this.dgvProductos.SelectionChanged += new System.EventHandler(this.dgvProductos_SelectionChanged); // #NUEVO
             // 
             // btnVolver
             // 
@@ -57,11 +63,24 @@
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "Productos del Tipo: ...";
             // 
+            // btnEliminar
+            // #NUEVO
+            // 
+            this.btnEliminar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnEliminar.Location = new System.Drawing.Point(760, 407);
+            this.btnEliminar.Name = "btnEliminar";
+            this.btnEliminar.Size = new System.Drawing.Size(117, 31);
+            this.btnEliminar.TabIndex = 3;
+            this.btnEliminar.Text = "Eliminar";
+            this.btnEliminar.UseVisualStyleBackColor = true;
+            this.btnEliminar.Click += new System.EventHandler(this.btnEliminar_Click);
+            // 
             // VerProductosTipoForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(900, 450);
+            this.Controls.Add(this.btnEliminar);
             this.Controls.Add(this.lblTitulo);
             this.Controls.Add(this.btnVolver);
             this.Controls.Add(this.dgvProductos);
@@ -74,3 +93,4 @@
         }
     }
 }
+

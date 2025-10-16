@@ -21,15 +21,18 @@ namespace WinForms
             _idTipoProducto = idTipoProducto;
             _descripcionTipoProducto = descripcionTipoProducto;
 
-            // Apply styles
+            // # Intención: Aplicar estilos consistentes a los controles del formulario.
             StyleManager.ApplyDataGridViewStyle(dgvProductos);
             StyleManager.ApplyButtonStyle(btnVolver);
+            StyleManager.ApplyButtonStyle(btnEliminar); // #NUEVO
         }
 
         private async void VerProductosTipoForm_Load(object sender, EventArgs e)
         {
             this.Text = $"Productos del Tipo: '{_descripcionTipoProducto}'";
             lblTitulo.Text = this.Text;
+
+            btnEliminar.Visible = false; 
             await CargarProductos();
         }
 
@@ -37,7 +40,6 @@ namespace WinForms
         {
             try
             {
-                // Set cursor to wait
                 this.Cursor = Cursors.WaitCursor;
                 var productos = await _productoApiClient.GetByTipoProductoIdAsync(_idTipoProducto) ?? new List<ProductoDTO>();
                 dgvProductos.DataSource = productos.ToList();
@@ -49,14 +51,12 @@ namespace WinForms
             }
             finally
             {
-                // Restore cursor
                 this.Cursor = Cursors.Default;
             }
         }
 
         private void ConfigurarColumnas()
         {
-            // Configure visible columns
             if (dgvProductos.Columns.Contains("IdProducto"))
             {
                 dgvProductos.Columns["IdProducto"].HeaderText = "Código";
@@ -79,7 +79,6 @@ namespace WinForms
                 dgvProductos.Columns["PrecioActual"].Width = 120;
             }
 
-            // Hide unnecessary columns
             var columnasAOcultar = new string[] { "Descripcion", "IdTipoProducto", "TipoProductoDescripcion", "PrecioCompra", "Precios" };
             foreach (string colName in columnasAOcultar)
             {
@@ -90,6 +89,56 @@ namespace WinForms
             }
         }
 
+        private ProductoDTO? ObtenerProductoSeleccionado()
+        {
+            if (dgvProductos.SelectedRows.Count > 0)
+            {
+                return dgvProductos.SelectedRows[0].DataBoundItem as ProductoDTO;
+            }
+            return null;
+        }
+
+        private async void btnEliminar_Click(object sender, EventArgs e)
+        {
+            var producto = ObtenerProductoSeleccionado();
+            if (producto == null) return;
+
+            var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar el producto '{producto.Nombre}'?", "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (confirmResult == DialogResult.Yes)
+            {
+                try
+                {
+                    this.Cursor = Cursors.WaitCursor;
+                    var response = await _productoApiClient.DeleteAsync(producto.IdProducto);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Producto eliminado exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await CargarProductos(); 
+                    }
+                    else
+                    {
+                        var error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Error al eliminar el producto: {error}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ocurrió un error inesperado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
+                }
+            }
+        }
+
+        private void dgvProductos_SelectionChanged(object sender, EventArgs e)
+        {
+            btnEliminar.Visible = dgvProductos.SelectedRows.Count > 0;
+        }
+
         private void btnVolver_Click(object sender, EventArgs e) => this.Close();
     }
 }
+
