@@ -36,7 +36,7 @@ public static class DbSeeder
 
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        await context.Database.EnsureDeletedAsync();
+        //await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())

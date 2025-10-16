@@ -2,8 +2,8 @@
 using DominioServicios;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebAPI.Endpoints
 {
@@ -35,13 +35,28 @@ namespace WebAPI.Endpoints
 
                 var productosDto = productos.Select(p => {
                     var dto = ProductoDTO.FromDominio(p);
-                    dto.PrecioCompra = p.PreciosCompra
-                                        .Where(pc => pc.IdProveedor == idProveedor)
-                                        .Select(pc => pc.Monto)
-                                        .FirstOrDefault();
+                    if (dto != null && p.PreciosCompra != null)
+                    {
+                        dto.PrecioCompra = p.PreciosCompra
+                                             .Where(pc => pc.IdProveedor == idProveedor)
+                                             .Select(pc => pc.Monto)
+                                             .FirstOrDefault();
+                    }
                     return dto;
                 }).ToList();
 
+                return Results.Ok(productosDto);
+            });
+
+            // #NUEVO: Endpoint para obtener productos por tipo.
+            app.MapGet("/api/productos/tipo/{idTipoProducto}", async (int idTipoProducto, ProductoService productoService) =>
+            {
+                var productos = await productoService.GetByTipoProductoIdAsync(idTipoProducto);
+                if (productos == null)
+                {
+                    return Results.NotFound();
+                }
+                var productosDto = productos.Select(p => ProductoDTO.FromDominio(p)).ToList();
                 return Results.Ok(productosDto);
             });
 
@@ -85,4 +100,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-

@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,6 +12,7 @@ namespace WinForms
     public partial class TipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
+        private readonly ProductoApiClient _productoApiClient; // #NUEVO
         private readonly IServiceProvider _serviceProvider;
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
@@ -20,13 +20,15 @@ namespace WinForms
         public TipoProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider; 
+            _serviceProvider = serviceProvider;
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
+            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>(); // #NUEVO
 
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnVerProductos); // #NUEVO
             StyleManager.ApplyButtonStyle(btnVolver);
         }
 
@@ -34,6 +36,7 @@ namespace WinForms
         {
             btnEditar.Visible = false;
             btnEliminar.Visible = false;
+            btnVerProductos.Visible = false; // #NUEVO
             dgvTiposProducto.ClearSelection();
             await CargarTipos();
             AplicarFiltro();
@@ -89,8 +92,11 @@ namespace WinForms
 
         private TipoProductoDTO? ObtenerSeleccionado()
         {
-            var row = dgvTiposProducto.SelectedRows.Count > 0 ? dgvTiposProducto.SelectedRows[0] : dgvTiposProducto.CurrentRow;
-            return row?.DataBoundItem as TipoProductoDTO;
+            if (dgvTiposProducto.SelectedRows.Count > 0)
+            {
+                return dgvTiposProducto.SelectedRows[0].DataBoundItem as TipoProductoDTO;
+            }
+            return null;
         }
 
         private void btnNuevo_Click(object sender, EventArgs e)
@@ -104,7 +110,8 @@ namespace WinForms
             {
                 var form = new CrearTipoProductoForm(_tipoProductoApiClient);
                 form.MdiParent = this.MdiParent;
-                form.FormClosed += async (s, args) => {
+                form.FormClosed += async (s, args) =>
+                {
                     if (form.DialogResult == DialogResult.OK)
                     {
                         await CargarTipos();
@@ -115,7 +122,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnEditar_Click(object sender, EventArgs e)
         {
             var tipo = ObtenerSeleccionado();
@@ -133,7 +139,8 @@ namespace WinForms
                 var form = new EditarTipoProductoForm(_tipoProductoApiClient, tipo);
                 form.Tag = tipo.IdTipoProducto;
                 form.MdiParent = this.MdiParent;
-                form.FormClosed += async (s, args) => {
+                form.FormClosed += async (s, args) =>
+                {
                     if (form.DialogResult == DialogResult.OK)
                     {
                         await CargarTipos();
@@ -167,12 +174,34 @@ namespace WinForms
 
         private void btnVolver_Click(object sender, EventArgs e) => Close();
 
+        // #NUEVO: Abre el formulario para ver los productos asociados al tipo seleccionado.
+        private void btnVerProductos_Click(object sender, EventArgs e)
+        {
+            var tipo = ObtenerSeleccionado();
+            if (tipo == null) return;
+
+            var existingForm = this.MdiParent?.MdiChildren.OfType<VerProductosTipoForm>()
+               .FirstOrDefault(f => f.Tag is int tipoId && tipoId == tipo.IdTipoProducto);
+
+            if (existingForm != null)
+            {
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var form = new VerProductosTipoForm(_productoApiClient, tipo.IdTipoProducto, tipo.Descripcion);
+                form.Tag = tipo.IdTipoProducto;
+                form.MdiParent = this.MdiParent;
+                form.Show();
+            }
+        }
+
         private void dgvTiposProducto_SelectionChanged(object sender, EventArgs e)
         {
             bool seleccionado = dgvTiposProducto.SelectedRows.Count > 0;
             btnEditar.Visible = seleccionado;
             btnEliminar.Visible = seleccionado;
+            btnVerProductos.Visible = seleccionado; // #NUEVO
         }
     }
 }
-
