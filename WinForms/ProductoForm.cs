@@ -31,10 +31,10 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnDarBaja);
             StyleManager.ApplyButtonStyle(btnReactivar);
-            StyleManager.ApplyButtonStyle(btnVerHistorialPrecios);
+            StyleManager.ApplyButtonStyle(btnReportePrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
             StyleManager.ApplyButtonStyle(btnVolver);
-            StyleManager.ApplyButtonStyle(btnVerProveedores); // # NUEVO
+            StyleManager.ApplyButtonStyle(btnVerProveedores);
         }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
@@ -81,7 +81,6 @@ namespace WinForms
                 form.Show();
             }
         }
-
 
         private void txtBuscar_TextChanged(object sender, EventArgs e)
         {
@@ -204,28 +203,19 @@ namespace WinForms
             }
         }
 
-        private void btnVerHistorialPrecios_Click(object sender, EventArgs e)
+        private void btnReportePrecios_Click(object sender, EventArgs e)
         {
-            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
-            var producto = ObtenerSeleccionado(dgv);
-            if (producto == null) return;
-
-            var existingForm = this.MdiParent?.MdiChildren.OfType<HistorialPreciosForm>()
-                .FirstOrDefault(f => f.Tag is int prodId && prodId == producto.IdProducto);
-
+            var existingForm = this.MdiParent?.MdiChildren.OfType<HistorialPreciosForm>().FirstOrDefault();
             if (existingForm != null)
             {
                 existingForm.BringToFront();
             }
             else
             {
-                var hist = new HistorialPreciosForm(
-                    _serviceProvider.GetRequiredService<PrecioVentaApiClient>(),
-                    producto.IdProducto,
-                    producto.Nombre);
-                hist.Tag = producto.IdProducto;
-                hist.MdiParent = this.MdiParent;
-                hist.Show();
+                // # CORRECCIÓN: Llamada al constructor que solo toma 1 argumento.
+                var form = new HistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>());
+                form.MdiParent = this.MdiParent;
+                form.Show();
             }
         }
 
@@ -288,9 +278,10 @@ namespace WinForms
             btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
             btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
             btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
-            btnVerHistorialPrecios.Enabled = haySeleccion;
+
+            btnReportePrecios.Enabled = true; // # El reporte global siempre está disponible.
             btnEditarPrecio.Enabled = haySeleccion;
-            btnVerProveedores.Enabled = haySeleccion; // # NUEVO
+            btnVerProveedores.Enabled = haySeleccion;
         }
 
         private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -304,7 +295,18 @@ namespace WinForms
             }
         }
 
-        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => btnVerHistorialPrecios_Click(sender, e);
+        // # El menú contextual debe deshabilitarse si la acción no aplica.
+        private void cmOpciones_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            bool haySeleccion = (tabControl.SelectedTab == tabActivos && dgvActivos.SelectedRows.Count > 0) ||
+                                (tabControl.SelectedTab == tabInactivos && dgvInactivos.SelectedRows.Count > 0);
+
+            mnuEditarPrecio.Enabled = haySeleccion;
+            mnuVerHistorialPrecios.Enabled = false; // # Se accede desde el botón principal. Opcional: podrías dejarlo.
+        }
+
+        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => btnReportePrecios_Click(sender, e);
         private void mnuEditarPrecio_Click(object sender, EventArgs e) => btnEditarPrecio_Click(sender, e);
     }
 }
+

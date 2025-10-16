@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-
 namespace WebAPI.Endpoints
 {
     public static class PrecioVentaEndpoints
@@ -14,6 +13,8 @@ namespace WebAPI.Endpoints
         {
             var g = app.MapGroup("/api/precios-venta");
 
+            // # (NUEVO) Endpoint para obtener los datos del reporte.
+            g.MapGet("/historial", async (PrecioVentaService service) => Results.Ok(await service.GetHistorialPreciosAsync()));
 
             g.MapGet("/", async (PrecioVentaService service) => Results.Ok(await service.GetAllAsync()));
 
@@ -23,13 +24,11 @@ namespace WebAPI.Endpoints
                 return precio is not null ? Results.Ok(precio) : Results.NotFound();
             });
 
-
             g.MapGet("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
             {
                 var dto = await service.GetByIdAsync(idProducto, fechaDesde);
                 return dto is not null ? Results.Ok(dto) : Results.NotFound();
             });
-
 
             g.MapPost("/", async (PrecioVentaDTO dto, PrecioVentaService service) =>
             {
@@ -37,13 +36,11 @@ namespace WebAPI.Endpoints
                 return Results.Created($"/api/precios-venta/{creado.IdProducto}/{creado.FechaDesde:yyyy-MM-ddTHH:mm:ss}", creado);
             });
 
-
             g.MapPut("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaDTO dto, PrecioVentaService service) =>
             {
                 await service.UpdateAsync(idProducto, fechaDesde, dto);
                 return Results.NoContent();
             });
-
 
             g.MapDelete("/{idProducto:int}/{fechaDesde:datetime}", async (int idProducto, DateTime fechaDesde, PrecioVentaService service) =>
             {
@@ -53,5 +50,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-
-

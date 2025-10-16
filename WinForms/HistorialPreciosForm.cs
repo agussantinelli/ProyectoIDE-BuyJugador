@@ -1,9 +1,11 @@
 ﻿using ApiClient;
 using DTOs;
+using ScottPlot;
+// # AÑADIR ESTE USING: Es necesario para acceder a los generadores de Ticks.
+using ScottPlot.TickGenerators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,88 +14,62 @@ namespace WinForms
     public partial class HistorialPreciosForm : BaseForm
     {
         private readonly PrecioVentaApiClient _precioApiClient;
-        private readonly int _idProducto;
-        private readonly string _nombreProducto;
 
-        private List<PrecioVentaDTO> _cache = new();
-
-        public HistorialPreciosForm(PrecioVentaApiClient precioApiClient, int idProducto, string nombreProducto)
+        public HistorialPreciosForm(PrecioVentaApiClient precioApiClient)
         {
             InitializeComponent();
             _precioApiClient = precioApiClient;
-            _idProducto = idProducto;
-            _nombreProducto = nombreProducto ?? "";
-
-            StyleManager.ApplyDataGridViewStyle(dgvHistorial);
-            StyleManager.ApplyButtonStyle(btnCerrar);
-            StyleManager.ApplyButtonStyle(btnRefrescar);
         }
 
         private async void HistorialPreciosForm_Load(object sender, EventArgs e)
         {
-            lblTitulo.Text = $"Historial de precios - {_nombreProducto} (ID: {_idProducto})";
-            await CargarHistorial();
+            await CargarDatosDelGrafico();
         }
 
-        private async Task CargarHistorial()
+        private async Task CargarDatosDelGrafico()
         {
+            this.Cursor = Cursors.WaitCursor;
+            formsPlot1.Plot.Title("Evolución de Precios de Venta");
+            formsPlot1.Plot.XLabel("Fecha");
+            formsPlot1.Plot.YLabel("Precio");
+
+            // # CORRECCIÓN DEFINITIVA: La sintaxis correcta para ScottPlot 5 es asignar 
+            // # una instancia del generador de ticks automáticos de fecha y hora.
+            formsPlot1.Plot.Axes.Bottom.TickGenerator = new DateTimeAutomatic();
+
             try
             {
-                var todos = await _precioApiClient.GetAllAsync() ?? new List<PrecioVentaDTO>();
-                _cache = todos
-                    .Where(p => p.IdProducto == _idProducto)
-                    .OrderByDescending(p => p.FechaDesde)
-                    .ToList();
+                var historialProductos = await _precioApiClient.GetHistorialAsync();
 
-                dgvHistorial.DataSource = _cache;
-                ConfigurarColumnas();
+                if (historialProductos == null || !historialProductos.Any())
+                {
+                    MessageBox.Show("No se encontraron datos para generar el reporte.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                foreach (var producto in historialProductos)
+                {
+                    if (producto.Puntos.Count > 1)
+                    {
+                        double[] fechas = producto.Puntos.Select(p => p.Fecha.ToOADate()).ToArray();
+                        double[] montos = producto.Puntos.Select(p => (double)p.Monto).ToArray();
+
+                        var scatter = formsPlot1.Plot.Add.Scatter(fechas, montos);
+                        scatter.LegendText = producto.NombreProducto;
+                        scatter.LineWidth = 2;
+                    }
+                }
+
+                formsPlot1.Plot.ShowLegend(Alignment.UpperLeft);
+                formsPlot1.Refresh();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error inesperado: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar el reporte: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void ConfigurarColumnas()
-        {
-            dgvHistorial.Columns.Clear();
-            dgvHistorial.AutoGenerateColumns = false;
-
-            dgvHistorial.Columns.Add(new DataGridViewTextBoxColumn
+            finally
             {
-                DataPropertyName = "FechaDesde",
-                HeaderText = "Fecha desde",
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy-MM-dd HH:mm" },
-                Width = 160
-            });
-            dgvHistorial.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "Monto",
-                HeaderText = "Monto",
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "C2" },
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
-            });
-        }
-
-        private void btnCerrar_Click(object sender, EventArgs e) => Close();
-
-        private async void btnRefrescar_Click(object sender, EventArgs e) => await CargarHistorial();
-
-        private void txtBuscar_TextChanged(object sender, EventArgs e)
-        {
-            var filtro = txtBuscar.Text?.Trim().ToLowerInvariant() ?? string.Empty;
-
-            if (string.IsNullOrWhiteSpace(filtro))
-            {
-                dgvHistorial.DataSource = _cache.ToList();
-            }
-            else
-            {
-                dgvHistorial.DataSource = _cache
-                    .Where(p =>
-                        p.FechaDesde.ToString("yyyy-MM-dd HH:mm").ToLower().Contains(filtro) ||
-                        p.Monto.ToString("0.##").ToLower().Contains(filtro))
-                    .ToList();
+                this.Cursor = Cursors.Default;
             }
         }
     }

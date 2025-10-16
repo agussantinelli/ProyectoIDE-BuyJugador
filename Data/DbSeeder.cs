@@ -36,7 +36,7 @@ public static class DbSeeder
 
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        //await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())
@@ -199,12 +199,13 @@ public static class DbSeeder
                     IdProducto = producto.IdProducto
                 });
 
-                var precioVenta = producto.PreciosVenta.FirstOrDefault()?.Monto ?? 10000m;
+                // # Usamos el precio más reciente para calcular el precio de compra.
+                var precioVentaReciente = producto.PreciosVenta.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 10000m;
                 preciosCompra.Add(new PrecioCompra
                 {
                     IdProveedor = proveedor.IdProveedor,
                     IdProducto = producto.IdProducto,
-                    Monto = CalcularPrecioCompra(producto, proveedor, precioVenta)
+                    Monto = CalcularPrecioCompra(producto, proveedor, precioVentaReciente)
                 });
             }
         }
@@ -263,16 +264,16 @@ public static class DbSeeder
                         };
                         venta.LineaVenta.Add(linea);
                         producto.Stock -= cantidad;
-                        Console.WriteLine($"    -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
+                        Console.WriteLine($"   -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
                     }
                     else
                     {
-                        Console.WriteLine($"    -> LOG: Stock insuficiente para Producto ID {producto.IdProducto}. Stock: {producto.Stock}, Cantidad solicitada: {cantidad}");
+                        Console.WriteLine($"   -> LOG: Stock insuficiente para Producto ID {producto.IdProducto}. Stock: {producto.Stock}, Cantidad solicitada: {cantidad}");
                     }
                 }
                 else
                 {
-                    Console.WriteLine($"    -> LOG: No se encontró precio vigente para Producto ID {producto.IdProducto} en la fecha {venta.Fecha:yyyy-MM-dd}");
+                    Console.WriteLine($"   -> LOG: No se encontró precio vigente para Producto ID {producto.IdProducto} en la fecha {venta.Fecha:yyyy-MM-dd}");
                 }
             }
         }
@@ -324,7 +325,7 @@ public static class DbSeeder
                 };
                 nuevoPedido.LineasPedido.Add(linea);
 
-                Console.WriteLine($"    -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
+                Console.WriteLine($"   -> Añadiendo línea: Producto ID {linea.IdProducto}, Cantidad: {linea.Cantidad}, Precio: {linea.PrecioUnitario:C}");
 
                 if (nuevoPedido.Estado == EstadosPedido.Recibido && productosDict.TryGetValue(productoPrecio.IdProducto, out var producto))
                 {
@@ -396,35 +397,69 @@ public static class DbSeeder
         };
     }
 
+    // # --- MÉTODO CORREGIDO Y MEJORADO PARA GENERAR HISTORIAL DE PRECIOS REALISTA ---
     private static IEnumerable<Producto> GetProductosConPreciosVenta(List<TipoProducto> tipos)
     {
         var tiposDict = tipos.ToDictionary(t => t.Descripcion, t => t.IdTipoProducto);
 
-        var fechaPrecios = DateTime.UtcNow.AddMonths(-1).Date;
-
-        return new List<Producto>
+        var productos = new List<Producto>
         {
-            new Producto { Nombre = "MotherBoard Ryzen 5.0", Descripcion = "Mother Asus", Stock = 150, Activo = true, IdTipoProducto = tiposDict["Componentes"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Monitor Curvo TLC", Descripcion = "Monitor Curvo 20°", Stock = 200, Activo = true, IdTipoProducto = tiposDict["Monitores"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Parlante Huge HBL", Descripcion = "Sonido Envolvente", Stock = 100, Activo = true, IdTipoProducto = tiposDict["Parlantes"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Teclado Mecánico RGB", Descripcion = "Teclado gaming mecánico", Stock = 80, Activo = true, IdTipoProducto = tiposDict["Teclados"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, Activo = true, IdTipoProducto = tiposDict["Mouse"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 15001) * 10 } } },
-            new Producto { Nombre = "Laptop Gamer Xtreme", Descripcion = "Laptop con GPU RTX 4060 y 32GB RAM", Stock = 50, Activo = true, IdTipoProducto = tiposDict["Laptops"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(3000, 5001) * 10 } } },
-            new Producto { Nombre = "Router Wi-Fi 6 Mesh", Descripcion = "Sistema de red inalámbrica de alto rendimiento", Stock = 90, Activo = true, IdTipoProducto = tiposDict["Redes"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(200, 1001) * 10 } } },
-            new Producto { Nombre = "Tablet Android 10\"", Descripcion = "Pantalla FHD y batería de larga duración", Stock = 75, Activo = true, IdTipoProducto = tiposDict["Tabletas"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 2501) * 10 } } },
-            new Producto { Nombre = "Impresora Láser HP", Descripcion = "Impresora monocromática rápida", Stock = 60, Activo = true, IdTipoProducto = tiposDict["Impresoras"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1500, 3001) * 10 } } },
-            new Producto { Nombre = "Disco SSD 1TB", Descripcion = "Almacenamiento rápido NVMe", Stock = 200, Activo = true, IdTipoProducto = tiposDict["Almacenamiento"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(500, 1201) * 10 } } },
-            new Producto { Nombre = "Cámara Web Full HD", Descripcion = "Con micrófono incorporado y autofoco", Stock = 150, Activo = true, IdTipoProducto = tiposDict["Cámaras"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(300, 701) * 10 } } },
-            new Producto { Nombre = "Auriculares Pro Studio", Descripcion = "Audio profesional para edición y mezcla", Stock = 40, Activo = true, IdTipoProducto = tiposDict["Audio Profesional"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1000, 2501) * 10 } } },
-            new Producto { Nombre = "Proyector HD LED", Descripcion = "Ideal para presentaciones y cine en casa", Stock = 30, Activo = true, IdTipoProducto = tiposDict["Proyectores"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(2000, 4001) * 10 } } },
-            new Producto { Nombre = "Scanner Documental Pro", Descripcion = "Scanner de alta velocidad para documentos", Stock = 25, Activo = true, IdTipoProducto = tiposDict["Scanners"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(800, 2001) * 10 } } },
-            new Producto { Nombre = "Desktop Workstation", Descripcion = "Computadora de escritorio para trabajo intensivo", Stock = 35, Activo = true, IdTipoProducto = tiposDict["Desktop"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(2500, 6001) * 10 } } },
-            new Producto { Nombre = "Servidor Rack 2U", Descripcion = "Servidor empresarial para centro de datos", Stock = 15, Activo = true, IdTipoProducto = tiposDict["Servidores"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(5000, 12001) * 10 } } },
-            new Producto { Nombre = "Software Suite Office", Descripcion = "Suite de oficina profesional", Stock = 500, Activo = true, IdTipoProducto = tiposDict["Software"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(100, 501) * 10 } } },
-            new Producto { Nombre = "Funda Laptop Universal", Descripcion = "Funda protectora para laptops", Stock = 300, Activo = true, IdTipoProducto = tiposDict["Accesorios"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(50, 201) * 10 } } },
-            new Producto { Nombre = "Kit Gaming RGB", Descripcion = "Kit completo para gaming con iluminación RGB", Stock = 45, Activo = true, IdTipoProducto = tiposDict["Gaming"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(1500, 3501) * 10 } } },
-            new Producto { Nombre = "Smartphone Android 5G", Descripcion = "Teléfono inteligente con conectividad 5G", Stock = 180, Activo = true, IdTipoProducto = tiposDict["Smartphones"], PreciosVenta = new List<PrecioVenta> { new PrecioVenta { FechaDesde = fechaPrecios, Monto = _random.Next(800, 2001) * 10 } } }
+            new Producto { Nombre = "MotherBoard Ryzen 5.0", Descripcion = "Mother Asus", Stock = 150, Activo = true, IdTipoProducto = tiposDict["Componentes"] },
+            new Producto { Nombre = "Monitor Curvo TLC", Descripcion = "Monitor Curvo 20°", Stock = 200, Activo = true, IdTipoProducto = tiposDict["Monitores"] },
+            new Producto { Nombre = "Parlante Huge HBL", Descripcion = "Sonido Envolvente", Stock = 100, Activo = true, IdTipoProducto = tiposDict["Parlantes"] },
+            new Producto { Nombre = "Teclado Mecánico RGB", Descripcion = "Teclado gaming mecánico", Stock = 80, Activo = true, IdTipoProducto = tiposDict["Teclados"] },
+            new Producto { Nombre = "Mouse Inalámbrico", Descripcion = "Mouse ergonómico inalámbrico", Stock = 120, Activo = true, IdTipoProducto = tiposDict["Mouse"] },
+            new Producto { Nombre = "Laptop Gamer Xtreme", Descripcion = "Laptop con GPU RTX 4060 y 32GB RAM", Stock = 50, Activo = true, IdTipoProducto = tiposDict["Laptops"] },
+            new Producto { Nombre = "Router Wi-Fi 6 Mesh", Descripcion = "Sistema de red inalámbrica de alto rendimiento", Stock = 90, Activo = true, IdTipoProducto = tiposDict["Redes"] },
+            new Producto { Nombre = "Tablet Android 10\"", Descripcion = "Pantalla FHD y batería de larga duración", Stock = 75, Activo = true, IdTipoProducto = tiposDict["Tabletas"] },
+            new Producto { Nombre = "Impresora Láser HP", Descripcion = "Impresora monocromática rápida", Stock = 60, Activo = true, IdTipoProducto = tiposDict["Impresoras"] },
+            new Producto { Nombre = "Disco SSD 1TB", Descripcion = "Almacenamiento rápido NVMe", Stock = 200, Activo = true, IdTipoProducto = tiposDict["Almacenamiento"] },
+            new Producto { Nombre = "Cámara Web Full HD", Descripcion = "Con micrófono incorporado y autofoco", Stock = 150, Activo = true, IdTipoProducto = tiposDict["Cámaras"] },
+            new Producto { Nombre = "Auriculares Pro Studio", Descripcion = "Audio profesional para edición y mezcla", Stock = 40, Activo = true, IdTipoProducto = tiposDict["Audio Profesional"] },
+            new Producto { Nombre = "Proyector HD LED", Descripcion = "Ideal para presentaciones y cine en casa", Stock = 30, Activo = true, IdTipoProducto = tiposDict["Proyectores"] },
+            new Producto { Nombre = "Scanner Documental Pro", Descripcion = "Scanner de alta velocidad para documentos", Stock = 25, Activo = true, IdTipoProducto = tiposDict["Scanners"] },
+            new Producto { Nombre = "Desktop Workstation", Descripcion = "Computadora de escritorio para trabajo intensivo", Stock = 35, Activo = true, IdTipoProducto = tiposDict["Desktop"] },
+            new Producto { Nombre = "Servidor Rack 2U", Descripcion = "Servidor empresarial para centro de datos", Stock = 15, Activo = true, IdTipoProducto = tiposDict["Servidores"] },
+            new Producto { Nombre = "Software Suite Office", Descripcion = "Suite de oficina profesional", Stock = 500, Activo = true, IdTipoProducto = tiposDict["Software"] },
+            new Producto { Nombre = "Funda Laptop Universal", Descripcion = "Funda protectora para laptops", Stock = 300, Activo = true, IdTipoProducto = tiposDict["Accesorios"] },
+            new Producto { Nombre = "Kit Gaming RGB", Descripcion = "Kit completo para gaming con iluminación RGB", Stock = 45, Activo = true, IdTipoProducto = tiposDict["Gaming"] },
+            new Producto { Nombre = "Smartphone Android 5G", Descripcion = "Teléfono inteligente con conectividad 5G", Stock = 180, Activo = true, IdTipoProducto = tiposDict["Smartphones"] }
         };
+
+        // # Lógica mejorada para generar historial de precios con fluctuaciones
+        foreach (var producto in productos)
+        {
+            producto.PreciosVenta = new List<PrecioVenta>();
+            // # Precio inicial de hace un año
+            decimal precioActual = _random.Next(500, 1500) * 100;
+
+            for (int i = 11; i >= 0; i--)
+            {
+                // # Añadimos el precio para el mes 'i' en el pasado
+                producto.PreciosVenta.Add(new PrecioVenta
+                {
+                    FechaDesde = DateTime.UtcNow.AddMonths(-i).Date,
+                    Monto = Math.Round(precioActual, 2)
+                });
+
+                // # Calculamos el precio para el siguiente mes (más cercano a hoy)
+                bool sube = _random.Next(0, 10) > 2; // 70% de probabilidad de que el precio suba
+                if (sube)
+                {
+                    // Aumenta entre 1% y 10%
+                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m;
+                    precioActual *= factor;
+                }
+                else
+                {
+                    // Baja entre 1% y 5%
+                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m;
+                    precioActual *= factor;
+                }
+            }
+        }
+
+        return productos;
     }
 
     private static decimal CalcularPrecioCompra(Producto producto, Proveedor proveedor, decimal precioVenta)
