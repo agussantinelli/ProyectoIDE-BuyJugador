@@ -36,7 +36,8 @@ public static class DbSeeder
 
     public static async Task SeedAsync(BuyJugadorContext context)
     {
-        await context.Database.EnsureDeletedAsync();
+        // # Descomenta esta línea para forzar la recreación de la BD cada vez que inicias
+        await context.Database.EnsureDeletedAsync(); 
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())
@@ -199,7 +200,6 @@ public static class DbSeeder
                     IdProducto = producto.IdProducto
                 });
 
-                // # Usamos el precio más reciente para calcular el precio de compra.
                 var precioVentaReciente = producto.PreciosVenta.OrderByDescending(p => p.FechaDesde).FirstOrDefault()?.Monto ?? 10000m;
                 preciosCompra.Add(new PrecioCompra
                 {
@@ -397,7 +397,6 @@ public static class DbSeeder
         };
     }
 
-    // # --- MÉTODO CORREGIDO Y MEJORADO PARA GENERAR HISTORIAL DE PRECIOS REALISTA ---
     private static IEnumerable<Producto> GetProductosConPreciosVenta(List<TipoProducto> tipos)
     {
         var tiposDict = tipos.ToDictionary(t => t.Descripcion, t => t.IdTipoProducto);
@@ -426,34 +425,28 @@ public static class DbSeeder
             new Producto { Nombre = "Smartphone Android 5G", Descripcion = "Teléfono inteligente con conectividad 5G", Stock = 180, Activo = true, IdTipoProducto = tiposDict["Smartphones"] }
         };
 
-        // # Lógica mejorada para generar historial de precios con fluctuaciones
         foreach (var producto in productos)
         {
             producto.PreciosVenta = new List<PrecioVenta>();
-            // # Precio inicial de hace un año
             decimal precioActual = _random.Next(500, 1500) * 100;
 
             for (int i = 11; i >= 0; i--)
             {
-                // # Añadimos el precio para el mes 'i' en el pasado
                 producto.PreciosVenta.Add(new PrecioVenta
                 {
                     FechaDesde = DateTime.UtcNow.AddMonths(-i).Date,
                     Monto = Math.Round(precioActual, 2)
                 });
 
-                // # Calculamos el precio para el siguiente mes (más cercano a hoy)
                 bool sube = _random.Next(0, 10) > 2; // 70% de probabilidad de que el precio suba
                 if (sube)
                 {
-                    // Aumenta entre 1% y 10%
-                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m;
+                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m; // 1% to 10%
                     precioActual *= factor;
                 }
                 else
                 {
-                    // Baja entre 1% y 5%
-                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m;
+                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m; // 1% to 5%
                     precioActual *= factor;
                 }
             }

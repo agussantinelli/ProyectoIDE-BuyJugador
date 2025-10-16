@@ -1,7 +1,6 @@
 ﻿using ApiClient;
 using DTOs;
 using ScottPlot;
-// # AÑADIR ESTE USING: Es necesario para acceder a los generadores de Ticks.
 using ScottPlot.TickGenerators;
 using System;
 using System.Collections.Generic;
@@ -33,8 +32,6 @@ namespace WinForms
             formsPlot1.Plot.XLabel("Fecha");
             formsPlot1.Plot.YLabel("Precio");
 
-            // # CORRECCIÓN DEFINITIVA: La sintaxis correcta para ScottPlot 5 es asignar 
-            // # una instancia del generador de ticks automáticos de fecha y hora.
             formsPlot1.Plot.Axes.Bottom.TickGenerator = new DateTimeAutomatic();
 
             try
@@ -47,6 +44,7 @@ namespace WinForms
                     return;
                 }
 
+                bool dataAdded = false;
                 foreach (var producto in historialProductos)
                 {
                     if (producto.Puntos.Count > 1)
@@ -57,10 +55,21 @@ namespace WinForms
                         var scatter = formsPlot1.Plot.Add.Scatter(fechas, montos);
                         scatter.LegendText = producto.NombreProducto;
                         scatter.LineWidth = 2;
+                        dataAdded = true;
                     }
                 }
 
-                formsPlot1.Plot.ShowLegend(Alignment.UpperLeft);
+                if (dataAdded)
+                {
+                    formsPlot1.Plot.ShowLegend(Alignment.UpperLeft);
+                    // # LA LÍNEA CLAVE: Le dice al gráfico que ajuste el zoom para ver todos los datos.
+                    formsPlot1.Plot.Axes.AutoScale();
+                }
+                else
+                {
+                    MessageBox.Show("No hay suficiente historial de precios (se necesita más de 1 punto por producto) para mostrar en el gráfico.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
                 formsPlot1.Refresh();
             }
             catch (Exception ex)
@@ -74,3 +83,4 @@ namespace WinForms
         }
     }
 }
+
