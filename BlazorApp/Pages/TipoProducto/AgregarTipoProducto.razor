@@ -1,4 +1,4 @@
-﻿@page "/tipos-producto/nuevo"
+﻿@page "/tipo-producto/agregar"
 @attribute [Authorize]
 
 @using ApiClient
@@ -39,11 +39,11 @@
     private async Task Guardar()
     {
         await tipoProductoApiClient.CreateAsync(_tipoProducto);
-        NavigationManager.NavigateTo("/tipos-producto");
+        NavigationManager.NavigateTo("/tipo-producto");
     }
 
     private void Cancelar()
     {
-        NavigationManager.NavigateTo("/tipos-producto");
+        NavigationManager.NavigateTo("/tipo-producto");
     }
 }

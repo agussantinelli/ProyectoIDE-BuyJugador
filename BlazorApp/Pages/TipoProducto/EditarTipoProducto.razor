@@ -1,4 +1,4 @@
-﻿@page "/tipos-producto/editar/{Id:int}"
+﻿@page "/tipo-producto/editar/{Id:int}"
 @attribute [Authorize]
 
 @using ApiClient
@@ -58,12 +58,12 @@
         if (_tipoProducto != null)
         {
             await tipoProductoApiClient.UpdateAsync(Id, _tipoProducto);
-            NavigationManager.NavigateTo("/tipos-producto");
+            NavigationManager.NavigateTo("/tipo-producto");
         }
     }
 
     private void Cancelar()
     {
-        NavigationManager.NavigateTo("/tipos-producto");
+        NavigationManager.NavigateTo("/tipo-producto");
     }
 }

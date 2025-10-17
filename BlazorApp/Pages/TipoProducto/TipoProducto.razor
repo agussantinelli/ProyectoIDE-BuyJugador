@@ -1,4 +1,4 @@
-﻿@page "/tipos-producto"
+﻿@page "/tipo-producto"
 @attribute [Authorize]
 
 @using ApiClient
@@ -131,9 +131,9 @@
         }
     }
 
-    private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipos-producto/nuevo");
+    private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipo-producto/agregar");
 
-    private void Editar(TipoProductoDTO tipo) => NavigationManager.NavigateTo($"/tipos-producto/editar/{tipo.IdTipoProducto}");
+    private void Editar(TipoProductoDTO tipo) => NavigationManager.NavigateTo($"/tipo-producto/editar/{tipo.IdTipoProducto}");
 
     private void AbrirModalConfirmacion(TipoProductoDTO tipo)
     {
