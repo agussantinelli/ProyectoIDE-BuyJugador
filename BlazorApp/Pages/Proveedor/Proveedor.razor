@@ -4,11 +4,13 @@
 @using ApiClient
 @using DTOs
 @inject ProveedorApiClient proveedorApiClient
+@inject ProvinciaApiClient provinciaApiClient
+@inject LocalidadApiClient localidadApiClient
+@inject NavigationManager navigationManager
 
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Proveedores</h2>
-
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon"></span>
             <input class="tbl-input" type="text" placeholder="Buscar proveedor..."
@@ -20,7 +22,7 @@
         </div>
     </div>
 
-    @if (activos == null || inactivos == null)
+    @if (isLoading)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando proveedores...
@@ -28,14 +30,14 @@
     }
     else
     {
-        <ul class="nav nav-tabs mb-3">
-            <li class="nav-item">
-                <a class="nav-link @(mostrarActivos ? "active" : "")" href="#" @onclick="(() => CambiarTab(true))">Activos</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link @(!mostrarActivos ? "active" : "")" href="#" @onclick="(() => CambiarTab(false))">Inactivos</a>
-            </li>
-        </ul>
+        <div class="view-selector mb-3">
+            <button class="btn @(mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(true)">
+                <i class="bi bi-check-circle"></i> Activos (@(activos?.Count ?? 0))
+            </button>
+            <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
+                <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
+            </button>
+        </div>
 
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
@@ -44,8 +46,8 @@
                         <th>Razón Social</th>
                         <th>CUIT</th>
                         <th>Email</th>
-                        <th>Teléfono</th>
-                        <th>Dirección</th>
+                        <th>Localidad</th>
+                        <th>Provincia</th>
                         <th class="tbl-text-end">Acciones</th>
                     </tr>
                 </thead>
@@ -56,12 +58,15 @@
                             <td>@p.RazonSocial</td>
                             <td>@p.Cuit</td>
                             <td>@p.Email</td>
-                            <td>@p.Telefono</td>
-                            <td>@p.Direccion</td>
+                            <td class="tbl-muted">@p.LocalidadNombre</td>
+                            <td class="tbl-muted">@p.ProvinciaNombre</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
                                     @if (mostrarActivos)
                                     {
+                                        <button class="tbl-icon-btn" title="Ver Productos" @onclick="() => VerProductos(p)">
+                                            <i class="bi bi-box-seam"></i>
+                                        </button>
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
@@ -71,8 +76,8 @@
                                     }
                                     else
                                     {
-                                        <button class="tbl-icon-btn" title="Reactivar" @onclick="() => Reactivar(p)">
-                                            <i class="bi bi-arrow-repeat"></i>
+                                        <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
+                                            <i class="bi bi-arrow-clockwise"></i>
                                         </button>
                                     }
                                 </div>
@@ -86,61 +91,109 @@
 </div>
 
 @code {
-    private List<ProveedorDTO>? activos;
-    private List<ProveedorDTO>? inactivos;
+    private List<ProveedorRow>? activos;
+    private List<ProveedorRow>? inactivos;
+    private List<ProvinciaDTO> provincias = new();
+    private List<LocalidadDTO> localidades = new();
+
     private bool mostrarActivos = true;
     private string textoFiltro = string.Empty;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarProveedores();
+        await CargarDatos();
     }
 
-    private async Task CargarProveedores()
+    private async Task CargarDatos()
     {
-        activos = await proveedorApiClient.GetAllAsync() ?? new();
-        inactivos = await proveedorApiClient.GetInactivosAsync() ?? new();
-    }
-
-    private IEnumerable<ProveedorDTO> ProveedoresFiltrados =>
-        (mostrarActivos ? activos : inactivos)
-        .Where(p =>
-            string.IsNullOrWhiteSpace(textoFiltro)
-            || (p.RazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (p.Cuit?.Contains(textoFiltro) ?? false)
-            || (p.Email?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
-        );
-
-    private void CambiarTab(bool activos)
-    {
-        mostrarActivos = activos;
-    }
-
-    private void NuevoProveedor()
-    {
-        // navegación o abrir modal para crear proveedor
-    }
-
-    private void Editar(ProveedorDTO proveedor)
-    {
-        // navegación a edición
-    }
-
-    private async Task Eliminar(ProveedorDTO proveedor)
-    {
-        var resp = await proveedorApiClient.DeleteAsync(proveedor.IdProveedor);
-        if (resp.IsSuccessStatusCode)
+        isLoading = true;
+        try
         {
-            await CargarProveedores();
+            var activosTask = proveedorApiClient.GetAllAsync();
+            var inactivosTask = proveedorApiClient.GetInactivosAsync();
+            var provinciasTask = provinciaApiClient.GetAllAsync();
+            var localidadesTask = localidadApiClient.GetAllAsync();
+
+            await Task.WhenAll(activosTask, inactivosTask, provinciasTask, localidadesTask);
+
+            var activosDto = activosTask.Result ?? new();
+            var inactivosDto = inactivosTask.Result ?? new();
+            provincias = provinciasTask.Result ?? new();
+            localidades = localidadesTask.Result ?? new();
+
+            activos = activosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
+            inactivos = inactivosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
+        }
+        catch
+        {
+            activos = new();
+            inactivos = new();
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
-    private async Task Reactivar(ProveedorDTO proveedor)
+    private IEnumerable<ProveedorRow> ProveedoresFiltrados =>
+        (mostrarActivos ? activos : inactivos)?
+        .Where(p =>
+            string.IsNullOrWhiteSpace(textoFiltro)
+            || (p.RazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.Cuit?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.Email?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.LocalidadNombre?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.ProvinciaNombre?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+        ) ?? Enumerable.Empty<ProveedorRow>();
+
+    private void CambiarTab(bool esActivo)
+    {
+        mostrarActivos = esActivo;
+    }
+
+    private void VerProductos(ProveedorRow proveedor)
+    {
+        navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/productos");
+    }
+
+    private async Task Eliminar(ProveedorRow proveedor)
+    {
+        var resp = await proveedorApiClient.DeleteAsync(proveedor.IdProveedor);
+        if (resp.IsSuccessStatusCode) await CargarDatos();
+    }
+
+    private async Task Reactivar(ProveedorRow proveedor)
     {
         var resp = await proveedorApiClient.ReactivarAsync(proveedor.IdProveedor);
-        if (resp.IsSuccessStatusCode)
+        if (resp.IsSuccessStatusCode) await CargarDatos();
+    }
+
+    private void NuevoProveedor() => navigationManager.NavigateTo("/proveedor/nuevo");
+    private void Editar(ProveedorRow proveedor) => navigationManager.NavigateTo($"/proveedor/editar/{proveedor.IdProveedor}");
+
+    private class ProveedorRow
+    {
+        public int IdProveedor { get; set; }
+        public string RazonSocial { get; set; } = string.Empty;
+        public string Cuit { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string? LocalidadNombre { get; set; }
+        public string? ProvinciaNombre { get; set; }
+
+        public static ProveedorRow From(ProveedorDTO p, List<LocalidadDTO> locs, List<ProvinciaDTO> provs)
         {
-            await CargarProveedores();
+            var loc = locs.FirstOrDefault(l => l.IdLocalidad == p.IdLocalidad);
+            var prov = provs.FirstOrDefault(x => x.IdProvincia == loc?.IdProvincia);
+            return new ProveedorRow
+            {
+                IdProveedor = p.IdProveedor,
+                RazonSocial = p.RazonSocial,
+                Cuit = p.Cuit,
+                Email = p.Email,
+                LocalidadNombre = loc?.Nombre,
+                ProvinciaNombre = prov?.Nombre
+            };
         }
     }
 }

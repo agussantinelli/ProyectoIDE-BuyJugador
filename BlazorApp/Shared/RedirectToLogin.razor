@@ -5,7 +5,6 @@
     {
         if (firstRender)
         {
-            // Redirige al login y guarda la URL actual para volver luego si lo necesitás
             Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Nav.Uri)}", forceLoad: false);
         }
     }

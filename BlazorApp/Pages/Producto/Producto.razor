@@ -22,10 +22,10 @@
 
     <div class="view-selector mb-3">
         <button class="btn @(vistaActual == Vista.Activos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Activos)">
-            Activos
+            <i class="bi bi-check-circle"></i> Activos (@(productosActivos?.Count ?? 0))
         </button>
         <button class="btn @(vistaActual == Vista.Inactivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Inactivos)">
-            Inactivos
+            <i class="bi bi-archive"></i> Inactivos (@(productosInactivos?.Count ?? 0))
         </button>
     </div>
 

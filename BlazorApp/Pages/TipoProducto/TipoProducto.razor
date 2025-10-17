@@ -154,11 +154,10 @@
             try
             {
                 await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
-                await CargarTiposProducto(); // Recarga la lista si la eliminación fue exitosa
+                await CargarTiposProducto();
             }
             catch (Exception ex)
             {
-                // Opcional: Manejar o registrar el error
                 Console.WriteLine($"Error al eliminar el tipo de producto: {ex.Message}");
             }
             finally
