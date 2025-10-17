@@ -5,6 +5,7 @@
 @using DTOs
 @inject PersonaApiClient personaApiClient
 @inject UserSessionService userSession
+@inject NavigationManager navigationManager
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -13,8 +14,7 @@
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
             <input class="tbl-input" type="text" placeholder="Buscar persona..."
-                   value="@textoFiltro" @oninput="OnFiltroChanged" />
-
+                   @bind="textoFiltro" @bind:event="oninput" />
 
             @if (esAdmin)
             {
@@ -34,44 +34,43 @@
     }
     else
     {
+        <div class="view-selector mb-3">
+            <button class="btn @(mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(true)">
+                <i class="bi bi-check-circle"></i> Activos (@(activos?.Count ?? 0))
+            </button>
+            <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
+                <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
+            </button>
+        </div>
+
         <div class="tbl-wrapper">
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link @(tabActivos ? "active" : "")" href="#" @onclick="(() => ChangeTab(true))">Activos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link @(!tabActivos ? "active" : "")" href="#" @onclick="(() => ChangeTab(false))">Inactivos</a>
-                </li>
-            </ul>
             <table class="tbl table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>DNI</th>
+                        <th>Rol</th>
                         <th>Email</th>
                         <th>Teléfono</th>
-                        <th>Dirección</th>
-                        <th>Fecha Ingreso</th>
                         <th>Localidad</th>
                         <th>Provincia</th>
                         <th class="tbl-text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in personasFiltradas)
+                    @foreach (var p in PersonasFiltradas)
                     {
                         <tr>
                             <td class="tbl-truncate">@p.NombreCompleto</td>
                             <td>@p.Dni</td>
+                            <td>@p.Rol</td>
                             <td class="tbl-truncate">@p.Email</td>
                             <td>@p.Telefono</td>
-                            <td class="tbl-truncate">@p.Direccion</td>
-                            <td>@p.FechaIngresoFormateada</td>
                             <td>@p.LocalidadNombre</td>
                             <td>@p.ProvinciaNombre</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
-                                    @if (tabActivos)
+                                    @if (mostrarActivos)
                                     {
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
@@ -82,8 +81,8 @@
                                     }
                                     else
                                     {
-                                        <button class="tbl-icon-btn" title="Reactivar" @onclick="() => Reactivar(p)">
-                                            <i class="bi bi-arrow-repeat"></i>
+                                        <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
+                                            <i class="bi bi-arrow-clockwise"></i>
                                         </button>
                                     }
                                 </div>
@@ -99,16 +98,18 @@
 @code {
     private List<PersonaDTO>? activos;
     private List<PersonaDTO>? inactivos;
-    private List<PersonaDTO> personasFiltradas = new();
-    private bool tabActivos = true;
-    private string textoFiltro = "";
-    private bool esAdmin;
+    private IEnumerable<PersonaDTO> PersonasFiltradas =>
+        (mostrarActivos ? activos : inactivos)?
+        .Where(p =>
+            string.IsNullOrWhiteSpace(textoFiltro)
+            || (p.NombreCompleto?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.Dni.ToString().Contains(textoFiltro, StringComparison.OrdinalIgnoreCase))
+            || (p.Rol.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase))
+        ) ?? Enumerable.Empty<PersonaDTO>();
 
-    private void OnFiltroChanged(ChangeEventArgs e)
-    {
-        textoFiltro = e.Value?.ToString() ?? "";
-        AplicarFiltro();
-    }
+    private bool mostrarActivos = true;
+    private string textoFiltro = string.Empty;
+    private bool esAdmin;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,32 +119,23 @@
 
     private async Task CargarDatos()
     {
-        activos = await personaApiClient.GetAllAsync() ?? new();
-        inactivos = await personaApiClient.GetInactivosAsync() ?? new();
-        AplicarFiltro();
+        var activosTask = personaApiClient.GetAllAsync();
+        var inactivosTask = personaApiClient.GetInactivosAsync();
+
+        await Task.WhenAll(activosTask, inactivosTask);
+
+        activos = await activosTask ?? new();
+        inactivos = await inactivosTask ?? new();
     }
 
-    private void ChangeTab(bool mostrarActivos)
+    private void CambiarTab(bool esActivo)
     {
-        tabActivos = mostrarActivos;
-        AplicarFiltro();
+        mostrarActivos = esActivo;
     }
 
-    private void AplicarFiltro()
-    {
-        var origen = tabActivos ? activos : inactivos;
+    private void Nuevo() => navigationManager.NavigateTo("/persona/nuevo");
 
-        personasFiltradas = origen
-            ?.Where(p =>
-                string.IsNullOrWhiteSpace(textoFiltro)
-                || (p.NombreCompleto?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
-                || p.Dni.ToString().Contains(textoFiltro))
-            .ToList() ?? new();
-    }
-
-    private void Nuevo() { }
-
-    private void Editar(PersonaDTO p) { }
+    private void Editar(PersonaDTO p) => navigationManager.NavigateTo($"/persona/editar/{p.IdPersona}");
 
     private async Task DarBaja(PersonaDTO p)
     {
