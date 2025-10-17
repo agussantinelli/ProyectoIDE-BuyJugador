@@ -20,6 +20,15 @@
         </div>
     </div>
 
+    <div class="view-selector mb-3">
+        <button class="btn @(vistaActual == Vista.Activos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Activos)">
+            Activos
+        </button>
+        <button class="btn @(vistaActual == Vista.Inactivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Inactivos)">
+            Inactivos
+        </button>
+    </div>
+
     @if (productosFiltrados == null)
     {
         <div class="tbl-state">
@@ -57,15 +66,24 @@
                             <td class="tbl-text-end">@p.Stock</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
-                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                    <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
-                                        <i class="bi bi-trash3"></i>
-                                    </button>
+                                    @if (vistaActual == Vista.Activos)
+                                    {
+                                        <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de Baja" @onclick="() => DarDeBaja(p)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    }
+                                    else 
+                                    {
+                                        <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -78,41 +96,77 @@
 
 
 @code {
-    private List<ProductoDTO>? productos;
-    private List<ProductoDTO>? productosFiltrados;
+    private enum Vista { Activos, Inactivos }
+    private Vista vistaActual = Vista.Activos;
+
+    private List<ProductoDTO>? productosActivos;
+    private List<ProductoDTO>? productosInactivos;
+    private List<ProductoDTO>? productosFiltrados; 
     private string textoBusqueda = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarProductos();
+        await CargarTodosProductos();
     }
 
-    private async Task CargarProductos()
+    private async Task CargarTodosProductos()
     {
-        productos = await productoApiClient.GetAllAsync() ?? new();
+        productosFiltrados = null;
+
+        var activosTask = productoApiClient.GetAllAsync();
+        var inactivosTask = productoApiClient.GetAllInactivosAsync();
+
+        await Task.WhenAll(activosTask, inactivosTask);
+
+        productosActivos = await activosTask ?? new();
+        productosInactivos = await inactivosTask ?? new();
+
         AplicarFiltro();
     }
 
     private void AplicarFiltro()
     {
+        var listaFuente = vistaActual == Vista.Activos ? productosActivos : productosInactivos;
+
         if (string.IsNullOrWhiteSpace(textoBusqueda))
-            productosFiltrados = productos;
+        {
+            productosFiltrados = listaFuente;
+        }
         else
-            productosFiltrados = productos?
+        {
+            productosFiltrados = listaFuente?
                 .Where(p => (p.Nombre ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
                          || (p.Descripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
                          || (p.TipoProductoDescripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
                 .ToList();
+        }
+    }
+
+    private void CambiarVista(Vista nuevaVista)
+    {
+        vistaActual = nuevaVista;
+        AplicarFiltro(); 
+    }
+
+    private async Task DarDeBaja(ProductoDTO p)
+    {
+        var response = await productoApiClient.DeleteAsync(p.IdProducto);
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarTodosProductos();
+        }
+    }
+
+    private async Task Reactivar(ProductoDTO p)
+    {
+        var response = await productoApiClient.ReactivarAsync(p.IdProducto);
+        if (response.IsSuccessStatusCode)
+        {
+            await CargarTodosProductos();
+        }
     }
 
     private void NuevoProducto() => Console.WriteLine("Nuevo producto");
     private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
     private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
-
-    private async Task Eliminar(ProductoDTO p)
-    {
-        var response = await productoApiClient.DeleteAsync(p.IdProducto);
-        if (response.IsSuccessStatusCode)
-            await CargarProductos();
-    }
 }
