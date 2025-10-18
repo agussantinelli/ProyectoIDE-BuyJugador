@@ -62,7 +62,7 @@
                             <td class="tbl-truncate">@p.Nombre</td>
                             <td class="tbl-muted tbl-truncate">@p.Descripcion</td>
                             <td class="tbl-truncate">@p.TipoProductoDescripcion</td>
-                            <td class="tbl-text-end">@((p.PrecioActual ?? 0m).ToString("C"))</td>
+                            <td class="tbl-text-end">@FormatCurrency(p.PrecioActual ?? 0m)</td>
                             <td class="tbl-text-end">@p.Stock</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
@@ -78,7 +78,7 @@
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     }
-                                    else 
+                                    else
                                     {
                                         <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
                                             <i class="bi bi-arrow-clockwise"></i>
@@ -101,8 +101,13 @@
 
     private List<ProductoDTO>? productosActivos;
     private List<ProductoDTO>? productosInactivos;
-    private List<ProductoDTO>? productosFiltrados; 
+    private List<ProductoDTO>? productosFiltrados;
     private string textoBusqueda = string.Empty;
+
+    private string FormatCurrency(decimal amount)
+    {
+        return amount.ToString("C");
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,7 +117,6 @@
     private async Task CargarTodosProductos()
     {
         productosFiltrados = null;
-
         var activosTask = productoApiClient.GetAllAsync();
         var inactivosTask = productoApiClient.GetAllInactivosAsync();
 
@@ -145,7 +149,7 @@
     private void CambiarVista(Vista nuevaVista)
     {
         vistaActual = nuevaVista;
-        AplicarFiltro(); 
+        AplicarFiltro();
     }
 
     private async Task DarDeBaja(ProductoDTO p)
@@ -170,3 +174,4 @@
     private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
     private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
 }
+

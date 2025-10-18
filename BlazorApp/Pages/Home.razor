@@ -1,38 +1,42 @@
 ﻿@page "/"
 @attribute [Authorize]
+
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Inicio</PageTitle>
 
-<AuthorizeView Context="auth">
-    <Authorized>
-        <div class="home-wrap">
-            @if (showWelcome)
-            {
-                <section class="welcome-panel">
-                    <div class="welcome-head">
-                        <span class="bi bi-person-badge-fill"></span>
-                        <strong>¡Bienvenido administrador, @auth.User.Identity?.Name!</strong>
-                        <button class="icon-btn" title="Cerrar" @onclick="CloseWelcome">
-                            <span class="bi bi-x-lg"></span>
-                        </button>
-                    </div>
-                    <p class="muted">
-                        Desde aquí podés administrar productos, ventas, pedidos y    de producto.
-                        Usá el menú lateral para navegar entre las secciones del sistema.
-                    </p>
-                </section>
-            }
-        </div>
-    </Authorized>
-    <NotAuthorized>
-        <RedirectTo Url="/login" />
-    </NotAuthorized>
-</AuthorizeView>
+<div class="home-wrap">
+    @if (showWelcome)
+    {
+        <section class="welcome-panel">
+            <div class="welcome-head">
+                <span class="bi bi-person-badge-fill"></span>
+                @* Se obtiene el nombre del usuario desde el code-behind *@
+                <strong>¡Bienvenido administrador, @_userName!</strong>
+                <button class="icon-btn" title="Cerrar" @onclick="CloseWelcome">
+                    <span class="bi bi-x-lg"></span>
+                </button>
+            </div>
+            <p class="muted">
+                Desde aquí podés administrar productos, ventas, pedidos y tipos de producto.
+                Usá el menú lateral para navegar entre las secciones del sistema.
+            </p>
+        </section>
+    }
+</div>
 
 @code {
     private bool showWelcome = true;
     private bool _loadedWelcome = false;
+    private string? _userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Se obtiene el estado de autenticación para conseguir el nombre del usuario.
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        _userName = authState.User.Identity?.Name;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -61,3 +65,4 @@
         catch { }
     }
 }
+

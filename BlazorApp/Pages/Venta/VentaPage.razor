@@ -55,7 +55,7 @@
                             <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                             <td>@v.NombreVendedor</td>
                             <td>@v.Estado</td>
-                            <td class="tbl-text-end">@v.Total.ToString("C2")</td>
+                            <td class="tbl-text-end">@FormatCurrency(v.Total)</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(v)">
@@ -89,6 +89,11 @@
     private List<VentaDTO>? ventas;
     private string textoFiltro = string.Empty;
     private bool esAdmin;
+
+    private string FormatCurrency(decimal amount)
+    {
+        return amount.ToString("C");
+    }
 
     protected override async Task OnInitializedAsync()
     {

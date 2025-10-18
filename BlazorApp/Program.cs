@@ -9,8 +9,17 @@ using System;
 using System.Net.Http;
 using ApiClient;
 using Blazored.LocalStorage;
+using System.Globalization;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+var cultureInfo = new CultureInfo("es-AR");
+NumberFormatInfo numberFormat = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+numberFormat.CurrencySymbol = "$";
+numberFormat.CurrencyPositivePattern = 2;
+cultureInfo.NumberFormat = numberFormat;
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 builder.RootComponents.Add<BlazorApp.App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -24,9 +33,7 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-
 builder.Services.AddScoped<UserSessionService>();
-
 builder.Services.AddScoped<BlazorApp.Auth.TokenMessageHandler>();
 
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);

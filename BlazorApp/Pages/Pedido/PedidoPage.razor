@@ -56,7 +56,7 @@
                             <td>@p.Fecha.ToString("dd/MM/yyyy")</td>
                             <td>@p.ProveedorRazonSocial</td>
                             <td>@p.Estado</td>
-                            <td class="tbl-text-end">@p.Total.ToString("C")</td>
+                            <td class="tbl-text-end">@FormatCurrency(p.Total)</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
@@ -92,6 +92,11 @@
     private string textoFiltro = string.Empty;
     private bool esAdmin;
 
+    private string FormatCurrency(decimal amount)
+    {
+        return amount.ToString("C");
+    }
+
     protected override async Task OnInitializedAsync()
     {
         esAdmin = await userSession.EsAdminAsync();
@@ -120,11 +125,11 @@
 
     private void AplicarFiltro()
     {
-        pedidosFiltrados = pedidos
+        pedidosFiltrados = pedidos?
             .Where(p =>
                 string.IsNullOrWhiteSpace(textoFiltro)
                 || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList();
+            .ToList() ?? new();
     }
 
     private void NuevoPedido() { }
@@ -143,3 +148,4 @@
         if (resp.IsSuccessStatusCode) await CargarPedidos();
     }
 }
+
