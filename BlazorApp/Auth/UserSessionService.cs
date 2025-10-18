@@ -44,5 +44,21 @@ namespace BlazorApp.Auth
             var user = await GetUserAsync();
             return user.Identity?.IsAuthenticated == true;
         }
+
+        public async Task<int?> GetUserIdAsync()
+        {
+            var user = await GetUserAsync();
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                // Buscamos el claim "NameIdentifier", que por convención contiene el ID del usuario.
+                var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+                {
+                    return userId;
+                }
+            }
+            return null;
+        }
+
     }
 }

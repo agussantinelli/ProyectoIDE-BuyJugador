@@ -5,6 +5,7 @@
 @using ApiClient
 @inject VentaApiClient ventaApiClient
 @inject UserSessionService userSession
+@inject NavigationManager NavigationManager  
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -109,7 +110,7 @@
             || (v.NombreVendedor?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
         ?? Enumerable.Empty<VentaDTO>();
 
-    private void NuevaVenta() { }
+    private void NuevaVenta() => NavigationManager.NavigateTo("/venta/crear");
 
     private void VerDetalle(VentaDTO venta) { }
 
