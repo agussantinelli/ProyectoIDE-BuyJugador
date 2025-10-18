@@ -9,9 +9,11 @@
 .tbl td.col-localidad {
     width: 100px;
     max-width: 100px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip; 
+    word-break: break-word;
+    overflow-wrap: anywhere
 }
 
 .tbl td {
