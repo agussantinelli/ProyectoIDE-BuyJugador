@@ -95,4 +95,3 @@ app.MapLineaPedidoEndpoints();
 app.MapLineaVentaEndpoints();
 
 app.Run();
-

@@ -8,40 +8,63 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 
-<div class="login-container">
-    <div class="login-box">
-        <h2 class="text-center mb-4">Iniciar Sesión</h2>
-        <EditForm Model="_model" OnValidSubmit="OnSubmit">
-            <DataAnnotationsValidator />
+<div class="login-page-wrapper">
+    <div class="login-card">
+        <div class="card-body">
 
-            <div class="mb-3">
-                <label>DNI</label>
-                <InputText class="form-control" @bind-Value="_model.Dni" />
-                <ValidationMessage For="@(() => _model.Dni)" />
-            </div>
-            <div class="mb-3">
-                <label>Contraseña</label>
-                <InputText class="form-control" @bind-Value="_model.Password" type="password" />
-                <ValidationMessage For="@(() => _model.Password)" />
+            <div class="text-center mb-4">
+                <h3 class="card-title">Iniciar Sesión</h3>
+                <p class="card-subtitle">Ingresa tus credenciales para continuar</p>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100" disabled="@_loading">
-                @if (_loading)
+            <EditForm Model="_model" OnValidSubmit="OnSubmit">
+                <DataAnnotationsValidator />
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <i class="bi bi-person"></i>
+                    </span>
+                    <div class="form-floating">
+                        <InputText class="form-control" id="dni" @bind-Value="_model.Dni" placeholder="DNI" />
+                        <label for="dni">DNI</label>
+                    </div>
+                </div>
+                <div class="validation-message-container">
+                    <ValidationMessage For="@(() => _model.Dni)" />
+                </div>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <i class="bi bi-lock"></i>
+                    </span>
+                    <div class="form-floating">
+                        <InputText class="form-control" id="password" type="password" @bind-Value="_model.Password" placeholder="Contraseña" />
+                        <label for="password">Contraseña</label>
+                    </div>
+                </div>
+                <div class="validation-message-container">
+                    <ValidationMessage For="@(() => _model.Password)" />
+                </div>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg" disabled="@_loading">
+                        @if (_loading)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-2">Ingresando...</span>
+                        }
+                        else
+                        {
+                            <span>Ingresar</span>
+                        }
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(_error))
                 {
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    <span> Ingresando...</span>
+                    <div class="alert alert-danger text-center mt-3 animate__animated animate__shakeX">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        @_error
+                    </div>
                 }
-                else
-                {
-                    <span>Ingresar</span>
-                }
-            </button>
-
-            @if (!string.IsNullOrEmpty(_error))
-            {
-                <div class="alert alert-danger mt-2">@_error</div>
-            }
-        </EditForm>
+            </EditForm>
+        </div>
     </div>
 </div>
 
@@ -89,7 +112,7 @@
         finally
         {
             _loading = false;
-            StateHasChanged(); 
+            StateHasChanged();
         }
     }
 
