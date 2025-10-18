@@ -1,0 +1,19 @@
+﻿.tbl th.col-cuit,
+.tbl td.col-cuit {
+    width: 160px;
+    max-width: 160px;
+    white-space: nowrap;
+}
+
+.tbl th.col-localidad,
+.tbl td.col-localidad {
+    width: 100px;
+    max-width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tbl td {
+    vertical-align: middle;
+}

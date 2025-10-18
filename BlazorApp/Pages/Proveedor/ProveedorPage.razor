@@ -44,9 +44,9 @@
                 <thead>
                     <tr>
                         <th>Razón Social</th>
-                        <th>CUIT</th>
+                        <th class="col-cuit">CUIT</th>
                         <th>Email</th>
-                        <th>Localidad</th>
+                        <th class="col-localidad">Localidad</th>
                         <th>Provincia</th>
                         <th class="tbl-text-end">Acciones</th>
                     </tr>
@@ -56,9 +56,9 @@
                     {
                         <tr>
                             <td>@p.RazonSocial</td>
-                            <td>@p.Cuit</td>
+                            <td class="col-cuit">@p.Cuit</td>
                             <td>@p.Email</td>
-                            <td class="tbl-muted">@p.LocalidadNombre</td>
+                            <td class="tbl-muted col-localidad">@p.LocalidadNombre</td>
                             <td class="tbl-muted">@p.ProvinciaNombre</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
