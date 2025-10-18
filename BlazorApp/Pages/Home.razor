@@ -3,6 +3,9 @@
 
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthStateProvider
+@inject ApiClient.ProductoApiClient ProductoApiClient
+@inject ApiClient.VentaApiClient VentaApiClient
+@inject ApiClient.PedidoApiClient PedidoApiClient
 
 <PageTitle>Inicio</PageTitle>
 
@@ -11,37 +14,171 @@
     {
         <section class="welcome-panel">
             <div class="welcome-head">
-                <span class="bi bi-person-badge-fill"></span>
-                @* Se obtiene el nombre del usuario desde el code-behind *@
-                <strong>¡Bienvenido administrador, @_userName!</strong>
+                <div>
+                    <span class="bi bi-person-badge-fill"></span>
+                    <strong>¡Bienvenido, @_userName!</strong>
+                </div>
                 <button class="icon-btn" title="Cerrar" @onclick="CloseWelcome">
                     <span class="bi bi-x-lg"></span>
                 </button>
             </div>
             <p class="muted">
-                Desde aquí podés administrar productos, ventas, pedidos y tipos de producto.
-                Usá el menú lateral para navegar entre las secciones del sistema.
+                Aquí tienes un resumen rápido del estado de tu negocio.
             </p>
         </section>
     }
+
+    <!-- KPI Cards Section -->
+    <section class="kpi-grid">
+        @if (_isLoadingKpis)
+        {
+            @* Placeholder for Sales KPI *@
+            <div class="kpi-card is-loading">
+                <div class="kpi-icon placeholder-glow"><span class="placeholder col-12"></span></div>
+                <div class="kpi-content">
+                    <span class="kpi-value placeholder-glow"><span class="placeholder col-6"></span></span>
+                    <span class="kpi-label placeholder-glow"><span class="placeholder col-9"></span></span>
+                </div>
+            </div>
+            @* Placeholder for Orders KPI *@
+            <div class="kpi-card is-loading">
+                <div class="kpi-icon placeholder-glow"><span class="placeholder col-12"></span></div>
+                <div class="kpi-content">
+                    <span class="kpi-value placeholder-glow"><span class="placeholder col-3"></span></span>
+                    <span class="kpi-label placeholder-glow"><span class="placeholder col-10"></span></span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background-color: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                    <i class="bi bi-cash-coin"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@_kpiData?.VentasHoy.ToString("C")</span>
+                    <span class="kpi-label">Ventas de Hoy</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background-color: rgba(249, 115, 22, 0.1); color: #f97316;">
+                    <i class="bi bi-truck"></i>
+                </div>
+                <div class="kpi-content">
+                    <span class="kpi-value">@_kpiData?.PedidosPendientes</span>
+                    <span class="kpi-label">Pedidos Pendientes</span>
+                </div>
+            </div>
+        }
+    </section>
+
+    <!-- Low Stock Alerts Panel -->
+    @if (!_isLoadingKpis && _kpiData?.ProductosBajoStock?.Any() == true)
+    {
+        <section class="stock-alert-panel">
+            <div class="stock-alert-header">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <h4>Alerta de Stock Bajo</h4>
+            </div>
+            <p class="muted">Los siguientes productos necesitan tu atención:</p>
+            <ul class="stock-alert-list">
+                @foreach (var producto in _kpiData.ProductosBajoStock)
+                {
+                    <li class="stock-alert-item">
+                        <span>@producto.Nombre</span>
+                        <span class="stock-badge">Stock: @producto.Stock</span>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+
+
+    <!-- Quick Access Cards Section -->
+    <section class="quick-cards">
+        <a class="qcard" href="/producto">
+            <span class="bi bi-bag"></span>
+            <div class="qcard-text">
+                <h4>Gestionar Productos</h4>
+                <p class="muted">Ver, crear y editar stock</p>
+            </div>
+        </a>
+        <a class="qcard" href="/venta">
+            <span class="bi bi-receipt"></span>
+            <div class="qcard-text">
+                <h4>Registrar Ventas</h4>
+                <p class="muted">Crear nuevas ventas y ver historial</p>
+            </div>
+        </a>
+        <a class="qcard" href="/pedido">
+            <span class="bi bi-truck"></span>
+            <div class="qcard-text">
+                <h4>Administrar Pedidos</h4>
+                <p class="muted">Gestionar pedidos a proveedores</p>
+            </div>
+        </a>
+        <a class="qcard" href="/estadisticas">
+            <span class="bi bi-graph-up"></span>
+            <div class="qcard-text">
+                <h4>Ver Estadísticas</h4>
+                <p class="muted">Analizar el rendimiento del negocio</p>
+            </div>
+        </a>
+    </section>
+
 </div>
 
 @code {
     private bool showWelcome = true;
     private bool _loadedWelcome = false;
     private string? _userName;
+    private KpiData? _kpiData;
+    private bool _isLoadingKpis = true;
+
+    public class KpiData
+    {
+        public decimal VentasHoy { get; set; }
+        public List<DTOs.ProductoDTO> ProductosBajoStock { get; set; } = new();
+        public int PedidosPendientes { get; set; }
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        // Se obtiene el estado de autenticación para conseguir el nombre del usuario.
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        _userName = authState.User.Identity?.Name;
+        var authStateTask = AuthStateProvider.GetAuthenticationStateAsync();
+        var kpiTask = LoadKpiData();
+
+        await Task.WhenAll(authStateTask, kpiTask);
+
+        var authState = await authStateTask;
+        _userName = authState.User.Identity?.Name ?? "Admin";
+        _isLoadingKpis = false;
+    }
+
+    private async Task LoadKpiData()
+    {
+        // NOTA: Aquí llamarías a tus endpoints reales.
+        // Ejemplo:
+        // var lowStockProducts = await ProductoApiClient.GetProductosBajoStockAsync();
+        // _kpiData.ProductosBajoStock = lowStockProducts;
+
+        await Task.Delay(1500);
+        var random = new Random();
+        _kpiData = new KpiData
+        {
+            VentasHoy = (decimal)(random.Next(500, 5000) + random.NextDouble()),
+            PedidosPendientes = random.Next(0, 8),
+            ProductosBajoStock = new List<DTOs.ProductoDTO>
+            {
+                new() { Nombre = "Producto Ejemplo A", Stock = 3 },
+                new() { Nombre = "Producto Ejemplo B", Stock = 1 },
+                new() { Nombre = "Producto Ejemplo C", Stock = 5 }
+            }
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender || _loadedWelcome) return;
-
         try
         {
             var val = await JS.InvokeAsync<string?>("localStorage.getItem", "hideWelcome");

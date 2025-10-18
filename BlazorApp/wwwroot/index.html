@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" translate="no" class="notranslate">
 <head>
-
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inventario App</title>
@@ -14,22 +13,18 @@
     <!-- Estilos de Bootstrap -->
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 
-    <!-- Estilos Globales de la App -->
+    <!-- Estilos Globales de la Aplicación -->
     <link rel="stylesheet" href="css/App.css" />
-    <link rel="stylesheet" href="css/MainLayout.css" />
 
-    <!-- NUEVO Y CRÍTICO: Referencia a los estilos aislados/agrupados de Blazor -->
-    <link href="BlazorApp.styles.css" rel="stylesheet" />
+    <!-- Estilos Aislados (son cargados automáticamente por Blazor con esta referencia) -->
+    <link rel="stylesheet" href="BlazorApp.styles.css" />
 
-    <!-- Librerías Externas -->
+    <!-- Librerías Externas para Iconos y Animaciones -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-
 </head>
 
-
 <body translate="no" class="notranslate">
-
     <div id="app">
         <div class="splash">
             <div class="splash-card">
@@ -44,18 +39,10 @@
     <script>
         window.addEventListener('error', e => console.error('JS startup error:', e.error || e.message || e));
         window.addEventListener('unhandledrejection', e => console.error('Unhandled promise rejection:', e.reason || e));
-
-        window.localStorageHelper = {
-            setItem: (k, v) => window.localStorage.setItem(k, v),
-            getItem: (k) => window.localStorage.getItem(k),
-            removeItem: (k) => window.localStorage.removeItem(k)
-        };
     </script>
-
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <script src="js/chart-interop.js"></script>
-
 </body>
 </html>
 

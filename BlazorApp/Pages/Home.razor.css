@@ -1,0 +1,206 @@
+﻿.home-wrap {
+    display: grid;
+    gap: 1.5rem; /* Increased gap */
+}
+
+/* --- Welcome Panel Styles --- */
+.welcome-panel {
+    background: linear-gradient(180deg, rgba(17,26,47,.72), rgba(17,26,47,.58));
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+}
+
+.welcome-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: space-between;
+}
+
+    .welcome-head > div {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .welcome-head .bi {
+        font-size: 1.5rem;
+        color: var(--accent);
+    }
+
+    .welcome-head strong {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+/* --- KPI Cards Styles --- */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+}
+
+.kpi-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.kpi-icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.5rem;
+}
+
+.kpi-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.kpi-value {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.kpi-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Loading Placeholder Styles */
+.kpi-card.is-loading .kpi-icon,
+.kpi-card.is-loading .kpi-value,
+.kpi-card.is-loading .kpi-label {
+    background-color: var(--surface-1);
+}
+
+    .kpi-card.is-loading .kpi-icon span {
+        height: 48px;
+        width: 48px;
+        border-radius: 50%;
+    }
+
+    .kpi-card.is-loading .kpi-value span {
+        height: 1.75rem;
+    }
+
+    .kpi-card.is-loading .kpi-label span {
+        height: 0.85rem;
+    }
+
+/* --- Stock Alert Panel --- */
+.stock-alert-panel {
+    background: linear-gradient(145deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.1));
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.stock-alert-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #ef4444;
+}
+
+    .stock-alert-header .bi {
+        font-size: 1.25rem;
+    }
+
+    .stock-alert-header h4 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+.stock-alert-panel .muted {
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.stock-alert-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.stock-alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.8rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.stock-badge {
+    background-color: #ef4444;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 1rem;
+}
+
+
+/* --- Quick Access Card Styles --- */
+.quick-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+}
+
+.qcard {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: linear-gradient(145deg, var(--surface-2), #18233f);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+    .qcard:hover {
+        transform: translateY(-5px);
+        background: #15233f;
+        border-color: #2f4371;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+
+    .qcard .bi {
+        font-size: 1.6rem;
+        color: var(--accent);
+    }
+
+.qcard-text h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.qcard-text p {
+    margin: .1rem 0 0;
+    font-size: 0.85rem;
+}
