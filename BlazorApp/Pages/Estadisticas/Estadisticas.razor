@@ -1,0 +1,153 @@
+﻿@page "/estadisticas"
+@attribute [Authorize]
+@using DTOs
+@using Microsoft.AspNetCore.Components.Forms
+@inject ApiClient.PrecioVentaApiClient PrecioApiClient
+@inject IJSRuntime JS
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Estadísticas</h2>
+
+        <div class="tbl-search">
+            <div class="d-flex gap-3 flex-wrap align-items-end">
+                <div>
+                    <label class="form-label">Desde</label>
+                    <InputDate @bind-Value="fromDate" class="form-control" />
+                </div>
+                <div>
+                    <label class="form-label">Hasta</label>
+                    <InputDate @bind-Value="toDate" class="form-control" />
+                </div>
+                <button class="btn btn-primary" @onclick="Refrescar">
+                    <i class="bi bi-arrow-repeat"></i><span class="ms-1">Actualizar</span>
+                </button>
+            </div>
+        </div>
+
+        <p class="tbl-subtitle text-muted">
+            <strong>Historial de precios</strong>
+        </p>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando datos…
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(error))
+    {
+        <div class="tbl-state">
+            <i class="bi bi-exclamation-triangle"></i> @error
+        </div>
+    }
+    else if (datasets.Count == 0)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-inbox"></i> No se encontraron datos para el período seleccionado.
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrapper">
+            <div class="ratio ratio-21x9 chart-host">
+                <canvas id="preciosChart"></canvas>
+            </div>
+            <small class="text-muted d-block mt-2">
+                Eje X: Fecha — Eje Y: Precio
+            </small>
+        </div>
+    }
+</div>
+
+@code {
+    private bool isLoading = true;
+    private string? error;
+
+    private DateTime? fromDate;
+    private DateTime? toDate;
+
+    private List<string> labelsIso = new();
+    private List<ChartDataset> datasets = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        toDate = DateTime.Today;
+        fromDate = DateTime.Today.AddDays(-180);
+        await Cargar();
+    }
+
+    private Task Refrescar() => Cargar();
+
+    private async Task Cargar()
+    {
+        isLoading = true;
+        error = null;
+        labelsIso.Clear();
+        datasets.Clear();
+        StateHasChanged();
+
+        try
+        {
+            var historial = await PrecioApiClient.GetHistorialAsync();
+
+            if (historial is null || historial.Count == 0)
+            {
+                isLoading = false;
+                return;
+            }
+
+            var allDates = historial
+                .SelectMany(p => p.Puntos.Select(pt => pt.Fecha.Date))
+                .Distinct()
+                .OrderBy(d => d);
+
+            if (fromDate.HasValue) allDates = allDates.Where(d => d >= fromDate.Value).OrderBy(d => d);
+            if (toDate.HasValue) allDates = allDates.Where(d => d <= toDate.Value).OrderBy(d => d);
+
+            var dateList = allDates.ToList();
+            labelsIso = dateList.Select(d => d.ToString("yyyy-MM-dd")).ToList();
+
+            foreach (var prod in historial)
+            {
+                var map = prod.Puntos
+                    .GroupBy(x => x.Fecha.Date)
+                    .ToDictionary(g => g.Key, g => (double)g.OrderBy(x => x.Fecha).Last().Monto);
+
+                var serie = new List<double?>(dateList.Count);
+                foreach (var d in dateList)
+                    serie.Add(map.TryGetValue(d, out var val) ? val : (double?)null);
+
+                if (serie.Count(v => v.HasValue) > 1)
+                {
+                    datasets.Add(new ChartDataset
+                    {
+                        label = prod.NombreProducto,
+                        data = serie
+                    });
+                }
+            }
+
+            isLoading = false;
+
+            if (datasets.Count > 0)
+                await JS.InvokeVoidAsync("charts.createOrUpdateLineChart", "preciosChart", labelsIso, datasets);
+        }
+        catch (Exception ex)
+        {
+            error = $"Error al cargar el reporte: {ex.Message}";
+            isLoading = false;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    public class ChartDataset
+    {
+        public string label { get; set; } = "";
+        public List<double?> data { get; set; } = new();
+    }
+}

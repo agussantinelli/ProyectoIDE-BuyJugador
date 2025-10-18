@@ -18,7 +18,6 @@ namespace DominioServicios
             _context = context;
         }
 
-        // # REFACTORIZADO: Lógica optimizada para evitar errores de EF Core y mejorar el rendimiento.
         public async Task<Venta> CrearVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
@@ -34,7 +33,7 @@ namespace DominioServicios
                         Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
                     };
                     _context.Ventas.Add(nuevaVenta);
-                    await _context.SaveChangesAsync(); // Guardar para obtener el ID de la venta
+                    await _context.SaveChangesAsync(); 
 
                     var idsProductos = dto.Lineas.Where(l => l.IdProducto.HasValue).Select(l => l.IdProducto!.Value).Distinct().ToList();
                     var productosAfectados = await _context.Productos
@@ -88,7 +87,6 @@ namespace DominioServicios
             });
         }
 
-        // # REFACTORIZADO: Lógica optimizada para manejar el stock en una sola transacción.
         public async Task UpdateVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
