@@ -1,14 +1,14 @@
 ﻿.tbl th.col-cuit,
 .tbl td.col-cuit {
-    width: 160px;
-    max-width: 160px;
+    width: 145px;
+    max-width: 145px;
     white-space: nowrap;
 }
 
 .tbl th.col-localidad,
 .tbl td.col-localidad {
-    width: 100px;
-    max-width: 100px;
+    width: 115px;
+    max-width: 115px;
     white-space: normal;
     overflow: visible;
     text-overflow: clip; 

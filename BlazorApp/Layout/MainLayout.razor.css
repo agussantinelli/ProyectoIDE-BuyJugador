@@ -168,6 +168,28 @@
     width: 100%;
 }
 
+.sidebar-nav .nav-item,
+.sidebar-nav .nav-item:link,
+.sidebar-nav .nav-item:visited,
+.sidebar-nav .nav-item:hover,
+.sidebar-nav .nav-item:active,
+.sidebar-nav .nav-item.active,
+.sidebar-nav .nav-item:focus,
+.sidebar-nav .nav-item:focus-visible {
+    text-decoration: none !important;
+    outline: none;
+}
+
+.sidebar-nav .nav-item {
+    -webkit-tap-highlight-color: transparent;
+}
+
+    .sidebar-nav .nav-item:focus,
+    .sidebar-nav .nav-item:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 2px rgba(59,130,246,.35);
+        border-radius: 10px;
+    }
 
 @media (max-width: 900px) {
     .app-shell {
