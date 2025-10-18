@@ -25,7 +25,6 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/productos/proveedor/{idProveedor}");
         }
 
-        // #NUEVO: Llama al nuevo endpoint para obtener productos por tipo.
         public async Task<List<ProductoDTO>?> GetByTipoProductoIdAsync(int idTipoProducto)
         {
             return await _httpClient.GetFromJsonAsync<List<ProductoDTO>>($"api/productos/tipo/{idTipoProducto}");

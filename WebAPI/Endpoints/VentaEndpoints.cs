@@ -15,7 +15,6 @@ public static class VentaEndpoints
 
         group.MapGet("/", async (VentaService ventaService) =>
         {
-            // # REFACTORIZADO: Se simplifica la obtención del total.
             var ventas = await ventaService.GetVentas()
                 .Include(v => v.LineaVenta)
                 .Select(v => new VentaDTO
@@ -39,7 +38,6 @@ public static class VentaEndpoints
 
             var ventaDto = VentaDTO.FromDominio(venta);
 
-            // # REFACTORIZADO: El mapeo a DTO ahora es más directo.
             ventaDto.Lineas = venta.LineaVenta.Select(l => LineaVentaDTO.FromDominio(l)).ToList();
             ventaDto.Total = ventaDto.Lineas.Sum(l => l.Subtotal);
 

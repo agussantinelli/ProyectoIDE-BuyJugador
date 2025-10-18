@@ -53,7 +53,6 @@ namespace DominioServicios
                 .ToListAsync();
         }
 
-        // #NUEVO: Obtiene productos por el ID de su tipo.
         public async Task<List<Producto>> GetByTipoProductoIdAsync(int idTipoProducto)
         {
             return await _context.Productos

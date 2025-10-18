@@ -9,7 +9,6 @@
         public string NombreProducto { get; set; } = "N/A";
         public decimal PrecioUnitario { get; set; }
 
-        // # CORRECCIÓN: Subtotal ahora es una propiedad calculada de solo lectura.
         public decimal Subtotal => Cantidad * PrecioUnitario;
         public bool EsNueva { get; set; } = false;
 

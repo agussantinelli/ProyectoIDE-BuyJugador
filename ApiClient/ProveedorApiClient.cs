@@ -30,7 +30,6 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<ProveedorDTO?>($"api/proveedores/{id}");
         }
 
-        // # NUEVO: Obtiene los proveedores asignados a un producto.
         public async Task<List<ProveedorDTO>?> GetProveedoresByProductoIdAsync(int idProducto)
         {
             return await _httpClient.GetFromJsonAsync<List<ProveedorDTO>>($"api/proveedores/producto/{idProducto}");

@@ -18,8 +18,6 @@ namespace DominioServicios
             _context = context;
         }
 
-        // # (NUEVO) Método para obtener el historial de precios para el reporte gráfico.
-        // # Consulta todos los precios, los agrupa por producto y los ordena por fecha.
         public async Task<List<HistorialPrecioProductoDTO>> GetHistorialPreciosAsync()
         {
             var historial = await _context.PreciosVenta
@@ -35,7 +33,6 @@ namespace DominioServicios
                 })
                 .ToListAsync();
 
-            // # Agrupamos en memoria para construir la estructura DTO final.
             var resultado = historial
                 .GroupBy(h => new { h.IdProducto, h.NombreProducto })
                 .Select(g => new HistorialPrecioProductoDTO

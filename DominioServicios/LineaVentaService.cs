@@ -17,8 +17,6 @@ namespace DominioServicios
             _context = context;
         }
 
-        // # CORRECCIÓN: La lógica de cálculo del subtotal ahora reside en el DTO.
-        // Este método solo se encarga de obtener los datos crudos.
         public async Task<List<LineaVentaDTO>> GetLineasByVentaIdAsync(int idVenta)
         {
             var lineas = await _context.LineaVentas

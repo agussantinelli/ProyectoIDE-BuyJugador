@@ -9,12 +9,10 @@ using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// # 1. Configuración de Servicios
 
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
 
-// # Agrega los servicios de dominio
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
@@ -62,7 +60,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// # 2. Configuración del Pipeline de Middleware
 
 if (app.Environment.IsDevelopment())
 {
@@ -82,7 +79,6 @@ app.UseCors("AllowBlazorApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// # 3. Mapeo de Endpoints
 app.MapAuthenticationEndpoints();
 app.MapPersonaEndpoints();
 app.MapProductoEndpoints();

@@ -1,5 +1,4 @@
-﻿// DominioServicios/PersonaService.cs
-using Data;
+﻿using Data;
 using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +15,6 @@ namespace DominioServicios
             _context = context;
         }
 
-        // # Obtiene todas las personas activas con su localidad y provincia.
         public async Task<IEnumerable<PersonaDTO>> GetAllAsync()
         {
             return await _context.Personas
@@ -26,11 +24,10 @@ namespace DominioServicios
                 .ToListAsync();
         }
 
-        // # Obtiene todas las personas inactivas (borrado lógico).
         public async Task<IEnumerable<PersonaDTO>> GetInactivosAsync()
         {
             return await _context.Personas
-                .IgnoreQueryFilters() // # Ignora el filtro global para buscar también los inactivos.
+                .IgnoreQueryFilters()
                 .Where(p => !p.Estado)
                 .Include(p => p.IdLocalidadNavigation)
                     .ThenInclude(l => l.IdProvinciaNavigation)
@@ -38,7 +35,6 @@ namespace DominioServicios
                 .ToListAsync();
         }
 
-        // # Obtiene una persona por su ID, incluyendo inactivos.
         public async Task<PersonaDTO?> GetByIdAsync(int id)
         {
             var persona = await _context.Personas
@@ -50,7 +46,6 @@ namespace DominioServicios
             return persona != null ? PersonaDTO.FromDominio(persona) : null;
         }
 
-        // # Crea una nueva persona, aplicando hash a la contraseña.
         public async Task<PersonaDTO> CreateAsync(PersonaDTO personaDto)
         {
             var persona = new Persona
@@ -73,7 +68,6 @@ namespace DominioServicios
             return dtoCreado;
         }
 
-        // Actualiza los datos de contacto de una persona.
         public async Task<bool> UpdateAsync(int id, PersonaDTO personaDto)
         {
             var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -88,19 +82,16 @@ namespace DominioServicios
             return true;
         }
 
-        // Realiza un borrado lógico de la persona.
         public async Task<bool> DeleteAsync(int id)
         {
             var persona = await _context.Personas.FindAsync(id);
             if (persona == null) return false;
 
-            // Implementamos el borrado lógico.
             persona.Estado = false;
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // Reactiva una persona que fue borrada lógicamente.
         public async Task<bool> ReactivarAsync(int id)
         {
             var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -111,7 +102,6 @@ namespace DominioServicios
             return true;
         }
 
-        // Valida las credenciales del usuario.
         public async Task<PersonaDTO?> LoginAsync(int dni, string password)
         {
             var persona = await _context.Personas

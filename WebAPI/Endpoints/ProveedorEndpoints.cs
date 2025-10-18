@@ -24,7 +24,6 @@ namespace WebAPI.Endpoints
                 return Results.Ok(proveedores);
             });
 
-            // # NUEVO: Endpoint para obtener proveedores por ID de producto.
             group.MapGet("/producto/{idProducto}", async (int idProducto, ProveedorService service) =>
             {
                 var proveedores = await service.GetByProductoIdAsync(idProducto);

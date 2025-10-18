@@ -9,8 +9,6 @@
         public int Cantidad { get; set; }
         public decimal PrecioUnitario { get; set; }
 
-        // # CORRECCIÓN: La propiedad Subtotal se mantiene como de solo lectura.
-        // # El error se corregirá en el formulario que intentaba asignarle un valor.
         public decimal Subtotal => Cantidad * PrecioUnitario;
         public bool EsNueva { get; set; } = false;
 
