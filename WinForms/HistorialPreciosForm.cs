@@ -62,7 +62,6 @@ namespace WinForms
                 if (dataAdded)
                 {
                     formsPlot1.Plot.ShowLegend(Alignment.UpperLeft);
-                    // # LA LÍNEA CLAVE: Le dice al gráfico que ajuste el zoom para ver todos los datos.
                     formsPlot1.Plot.Axes.AutoScale();
                 }
                 else

@@ -438,15 +438,15 @@ public static class DbSeeder
                     Monto = Math.Round(precioActual, 2)
                 });
 
-                bool sube = _random.Next(0, 10) > 2; // 70% de probabilidad de que el precio suba
+                bool sube = _random.Next(0, 10) > 2;
                 if (sube)
                 {
-                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m; // 1% to 10%
+                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m; 
                     precioActual *= factor;
                 }
                 else
                 {
-                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m; // 1% to 5%
+                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m; 
                     precioActual *= factor;
                 }
             }

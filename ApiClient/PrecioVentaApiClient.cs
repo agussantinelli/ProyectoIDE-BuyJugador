@@ -16,7 +16,6 @@ namespace ApiClient
             _httpClient = httpClient;
         }
 
-        // # (NUEVO) Consume el endpoint del historial de precios.
         public async Task<List<HistorialPrecioProductoDTO>?> GetHistorialAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<HistorialPrecioProductoDTO>>("api/precios-venta/historial");
