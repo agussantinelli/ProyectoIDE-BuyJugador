@@ -18,6 +18,17 @@ html, body {
     margin: 0;
 }
 
+header {
+    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75)) !important;
+    color: var(--text) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+main {
+    background: transparent !important;
+}
+
+
 a, .btn-link {
     color: var(--accent);
 }
@@ -115,7 +126,6 @@ button, .btn {
     stroke: var(--accent-600) !important;
 }
 
-/* Logo en topbar */
 .brand-logo {
     height: 32px;
     width: 32px;
@@ -123,7 +133,6 @@ button, .btn {
     margin-right: 0.5rem;
 }
 
-/* Mensaje de bienvenida */
 .home-wrap {
     display: grid;
     gap: 1rem;
@@ -169,3 +178,81 @@ button, .btn {
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
+
+.splash {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--bg-page);
+    color: var(--text);
+}
+
+.splash-card {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(17,26,47,.72);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    max-width: 320px;
+}
+
+    .splash-card img {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 1.5rem;
+    }
+
+    .splash-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .splash-card .muted {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+.spinner {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 13px;
+}
+
+    .spinner div {
+        position: absolute;
+        width: 13px;
+        height: 13px;
+        border-radius: 50%;
+        background: var(--primary);
+        animation: spinner 1.2s linear infinite;
+    }
+
+        .spinner div:nth-child(1) {
+            animation-delay: 0s;
+            left: 8px;
+        }
+
+        .spinner div:nth-child(2) {
+            animation-delay: -0.4s;
+            left: 32px;
+        }
+
+        .spinner div:nth-child(3) {
+            animation-delay: -0.8s;
+            left: 56px;
+        }
+
+@keyframes spinner {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+
+    40% {
+        transform: scale(1.0);
+    }
+}
+

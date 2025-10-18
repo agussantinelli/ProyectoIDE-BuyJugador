@@ -1,9 +1,0 @@
-﻿header {
-    background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.75)) !important;
-    color: var(--text) !important;
-    border-bottom: 1px solid var(--border) !important;
-}
-
-main {
-    background: transparent !important;
-}
