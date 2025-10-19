@@ -5,6 +5,7 @@
 @using DTOs
 @inject TipoProductoApiClient tipoProductoApiClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -71,21 +72,38 @@
     }
 </div>
 
-@if (mostrarModalConfirmacion)
+@if (mostrarModalConfirmacion && _tipoProductoParaEliminar != null)
 {
     <div class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" @onclick="CerrarModalConfirmacion"></button>
+                    <button type="button" class="btn-close" @onclick="CerrarModalConfirmacion" disabled="@eliminando"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas eliminar el tipo de producto: <strong>@_tipoProductoParaEliminar?.Descripcion</strong>?</p>
+                    <p>
+                        ¿Estás seguro de que deseas eliminar el tipo de producto:
+                        <strong>@_tipoProductoParaEliminar.Descripcion</strong>?
+                    </p>
+                    <small class="text-muted d-block">
+                        (Si tiene productos asociados, no podrá eliminarse)
+                    </small>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalConfirmacion">Cancelar</button>
-                    <button type="button" class="btn btn-danger" @onclick="EliminarConfirmado">Eliminar</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalConfirmacion" disabled="@eliminando">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger" @onclick="EliminarConfirmado" disabled="@eliminando">
+                        @if (eliminando)
+                        {
+                            <span><i class="bi bi-arrow-repeat spin"></i> Eliminando...</span>
+                        }
+                        else
+                        {
+                            <span>Eliminar</span>
+                        }
+                    </button>
                 </div>
             </div>
         </div>
@@ -105,6 +123,7 @@
     }
 
     private bool mostrarModalConfirmacion = false;
+    private bool eliminando = false;
     private TipoProductoDTO? _tipoProductoParaEliminar;
 
     protected override async Task OnInitializedAsync()
@@ -131,6 +150,7 @@
                 .Where(p => (p.Descripcion ?? string.Empty).Contains(f, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+        StateHasChanged();
     }
 
     private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipo-producto/crear");
@@ -145,25 +165,41 @@
 
     private void CerrarModalConfirmacion()
     {
+        if (eliminando) return;
         mostrarModalConfirmacion = false;
         _tipoProductoParaEliminar = null;
+        eliminando = false;
     }
 
     private async Task EliminarConfirmado()
     {
         if (_tipoProductoParaEliminar is null) return;
 
+        eliminando = true;
         try
         {
             await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
-            await CargarTiposProducto();
+
+            _tiposProducto?.RemoveAll(t => t.IdTipoProducto == _tipoProductoParaEliminar.IdTipoProducto);
+            AplicarFiltro();
+
+            await JS.InvokeVoidAsync("alert", "✅ Tipo de producto eliminado correctamente.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"❌ No se puede eliminar: {ex.Message}");
+        }
+        catch (HttpRequestException ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"❌ Error de conexión: {ex.Message}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error al eliminar el tipo de producto: {ex.Message}");
+            await JS.InvokeVoidAsync("alert", $"❌ Error inesperado: {ex.Message}");
         }
         finally
         {
+            eliminando = false;
             CerrarModalConfirmacion();
         }
     }
