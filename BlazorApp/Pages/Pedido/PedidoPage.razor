@@ -5,9 +5,17 @@
 @using ApiClient
 @inject PedidoApiClient pedidoApiClient
 @inject UserSessionService userSession
+@inject NavigationManager NavigationManager
 
 <link href="css/Table.css" rel="stylesheet" />
 
+@if (!string.IsNullOrEmpty(errorMensaje))
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Error:</strong> @errorMensaje
+        <button type="button" class="btn-close" @onclick="() => errorMensaje = null" aria-label="Close"></button>
+    </div>
+}
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Pedidos</h2>
@@ -17,6 +25,7 @@
             <input class="tbl-input" placeholder="Buscar proveedor..."
                    value="@textoFiltro" @oninput="OnFiltroChanged" />
 
+
             @if (esAdmin)
             {
                 <button class="btn btn-primary" @onclick="NuevoPedido">
@@ -25,61 +34,75 @@
             }
         </div>
 
-        <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
+        <p class="tbl-subtitle
+text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     </div>
 
-    @if (pedidos == null)
+    @if (pedidos == null && string.IsNullOrEmpty(errorMensaje))
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedidos...</div>
     }
-    else if (!pedidosFiltrados.Any())
+    else if (pedidos != null && !pedidosFiltrados.Any() && string.IsNullOrEmpty(errorMensaje))
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
     }
-    else
+    else if (pedidos != null) // Solo mostramos la tabla si pedidos no es null
     {
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
+
                 <thead>
                     <tr>
                         <th>Nro Pedido</th>
                         <th>Fecha</th>
+
                         <th>Proveedor</th>
                         <th>Estado</th>
                         <th class="tbl-text-end">Total</th>
                         <th class="tbl-text-end">Acciones</th>
+
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var p in pedidosFiltrados)
                     {
+
                         <tr>
                             <td>@p.IdPedido</td>
                             <td>@p.Fecha.ToString("dd/MM/yyyy")</td>
                             <td>@p.ProveedorRazonSocial</td>
+
                             <td>@p.Estado</td>
                             <td class="tbl-text-end">@FormatCurrency(p.Total)</td>
                             <td class="tbl-text-end">
+
                                 <div class="tbl-actions">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
                                         <i class="bi bi-eye"></i>
+
                                     </button>
 
                                     @if (esAdmin)
                                     {
+
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
+
                                         </button>
 
                                         @if (p.Estado == "Pendiente")
+
                                         {
                                             <button class="tbl-icon-btn" title="Finalizar" @onclick="() => Finalizar(p)">
+
                                                 <i class="bi bi-check-circle"></i>
                                             </button>
                                         }
+
                                     }
                                 </div>
                             </td>
+
                         </tr>
                     }
                 </tbody>
@@ -89,10 +112,12 @@
 </div>
 
 @code {
-    private List<PedidoDTO>? pedidos;
+    private List<PedidoDTO>?
+pedidos;
     private List<PedidoDTO> pedidosFiltrados = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
+    private string? errorMensaje; // <-- AÑADIDO: Para mostrar errores
 
     private string FormatCurrency(decimal amount)
     {
@@ -107,47 +132,97 @@
 
     private async Task CargarPedidos()
     {
+        errorMensaje = null; // Limpiamos errores previos
+        pedidos = null; // Ponemos en modo "cargando"
+
         try
         {
-            pedidos = await pedidoApiClient.GetAllAsync() ?? new();
+            // MODIFICADO: Se quita el '?? new()' para adaptarlo a la firma
+            // no-nullable del PedidoApiClient.
+            pedidos = await pedidoApiClient.GetAllAsync();
             AplicarFiltro();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[ERROR] No se pudieron cargar los pedidos: {ex.Message}");
-            pedidos = new();
+            // MODIFICADO: Guardamos el error para mostrarlo en la UI
+            errorMensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
+            Console.WriteLine($"[ERROR] {errorMensaje}");
+            pedidos = new(); // Asignamos lista vacía para que el filtro no falle
         }
     }
 
     private void OnFiltroChanged(ChangeEventArgs e)
     {
-        textoFiltro = e.Value?.ToString() ?? "";
+        textoFiltro = e.Value?.ToString() ??
+"";
         AplicarFiltro();
     }
 
     private void AplicarFiltro()
     {
         pedidosFiltrados = pedidos?
-            .Where(p =>
+.Where(p =>
                 string.IsNullOrWhiteSpace(textoFiltro)
                 || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList() ?? new();
+            .ToList() ??
+new();
     }
 
-    private void NuevoPedido() { }
+    // MODIFICADO: Funcionalidad de navegación
+    private void NuevoPedido()
+    {
+        NavigationManager.NavigateTo("/pedido/nuevo"); // Asumiendo que tendrás una página para esto
+    }
 
-    private void VerDetalle(PedidoDTO p) { }
+    private void VerDetalle(PedidoDTO p)
+    {
+        NavigationManager.NavigateTo($"/pedido/{p.IdPedido}"); // Asumiendo una página de detalle
+    }
 
     private async Task Eliminar(PedidoDTO p)
     {
-        var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
-        if (resp.IsSuccessStatusCode) await CargarPedidos();
+        errorMensaje = null;
+        try
+        {
+            var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
+
+            // MODIFICADO: Verificar respuesta y recargar
+            if (resp.IsSuccessStatusCode)
+            {
+                await CargarPedidos();
+            }
+            else
+            {
+                errorMensaje = $"Error al eliminar el pedido {p.IdPedido}: {resp.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Error al eliminar: {ex.Message}";
+        }
     }
 
     private async Task Finalizar(PedidoDTO p)
     {
-        var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
-        if (resp.IsSuccessStatusCode) await CargarPedidos();
+        errorMensaje = null;
+        try
+        {
+            var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
+
+            // MODIFICADO: Verificar respuesta y recargar
+            if (resp.IsSuccessStatusCode)
+            {
+                await CargarPedidos();
+            }
+            else
+            {
+                // Esto te mostrará el error 404 si la ruta del backend sigue incorrecta
+                errorMensaje = $"Error al finalizar el pedido {p.IdPedido}: {resp.StatusCode} ({resp.ReasonPhrase})";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Error al finalizar: {ex.Message}";
+        }
     }
 }
-

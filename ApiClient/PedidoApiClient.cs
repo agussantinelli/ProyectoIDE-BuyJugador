@@ -37,7 +37,7 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> MarcarComoRecibidoAsync(int id)
         {
-            return await _httpClient.PutAsync($"api/pedidos/{id}/recibir", null);
+            return await _httpClient.PutAsync($"api/pedidos/recibir/{id}", null);
         }
 
         public async Task<HttpResponseMessage> UpdateAsync(int id, PedidoDTO pedido)
