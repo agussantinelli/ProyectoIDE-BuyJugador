@@ -3,6 +3,7 @@ using DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -61,7 +62,6 @@ namespace WebAPI.Endpoints
                 }
             });
 
-            // # CORRECCIÓN: Se usa MapPut y se añade un manejo de errores más específico.
             group.MapPut("/recibir/{id}", async (int id, PedidoService service) =>
             {
                 try

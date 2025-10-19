@@ -1,4 +1,5 @@
-﻿using DTOs;
+﻿// VentaApiClient.cs
+using DTOs;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -16,34 +17,24 @@ namespace ApiClient
         }
 
         public async Task<List<VentaDTO>?> GetAllAsync()
-        {
-            return await _httpClient.GetFromJsonAsync<List<VentaDTO>>("api/ventas");
-        }
+            => await _httpClient.GetFromJsonAsync<List<VentaDTO>>("api/ventas");
 
         public async Task<VentaDTO?> GetByIdAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<VentaDTO?>($"api/ventas/{id}");
-        }
+            => await _httpClient.GetFromJsonAsync<VentaDTO?>($"api/ventas/{id}");
+
+        public async Task<List<VentaDTO>?> GetByPersonaAsync(int idPersona)
+            => await _httpClient.GetFromJsonAsync<List<VentaDTO>>($"api/ventas/persona/{idPersona}");
 
         public async Task<HttpResponseMessage> CreateCompletaAsync(CrearVentaCompletaDTO dto)
-        {
-            return await _httpClient.PostAsJsonAsync("api/ventas/completa", dto);
-        }
+            => await _httpClient.PostAsJsonAsync("api/ventas/completa", dto);
 
         public async Task<HttpResponseMessage> UpdateCompletaAsync(CrearVentaCompletaDTO dto)
-        {
-            return await _httpClient.PutAsJsonAsync($"api/ventas/completa/{dto.IdVenta}", dto);
-        }
+            => await _httpClient.PutAsJsonAsync($"api/ventas/completa/{dto.IdVenta}", dto);
 
         public async Task<HttpResponseMessage> DeleteAsync(int id)
-        {
-            return await _httpClient.DeleteAsync($"api/ventas/{id}");
-        }
+            => await _httpClient.DeleteAsync($"api/ventas/{id}");
 
         public async Task<HttpResponseMessage> FinalizarVentaAsync(int id)
-        {
-            return await _httpClient.PutAsync($"api/ventas/{id}/finalizar", null);
-        }
+            => await _httpClient.PutAsync($"api/ventas/{id}/finalizar", null);
     }
 }
-

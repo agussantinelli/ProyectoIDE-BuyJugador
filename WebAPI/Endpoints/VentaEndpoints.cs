@@ -81,6 +81,25 @@ public static class VentaEndpoints
             }
         });
 
+        group.MapGet("/persona/{idPersona:int}", async (int idPersona, VentaService ventaService) =>
+        {
+            var ventas = await ventaService.GetVentas()
+                .Where(v => v.IdPersona == idPersona)
+                .Include(v => v.LineaVenta)
+                .Select(v => new VentaDTO
+                {
+                    IdVenta = v.IdVenta,
+                    Fecha = v.Fecha,
+                    Estado = v.Estado,
+                    IdPersona = v.IdPersona,
+                    NombreVendedor = v.IdPersonaNavigation.NombreCompleto,
+                    Total = v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario)
+                })
+                .ToListAsync();
+
+            return Results.Ok(ventas);
+        });
+
         group.MapDelete("/{id:int}", async (int id, VentaService ventaService) =>
         {
             var result = await ventaService.DeleteVentaAsync(id);
