@@ -20,7 +20,7 @@
     {
         <div class="form-header">
             <h3 class="form-title">Editando: @_tipoProducto.Descripcion</h3>
-             <button class="btn btn-secondary" @onclick="Cancelar">
+            <button class="btn btn-secondary" @onclick="Cancelar">
                 <i class="bi bi-arrow-left"></i>
                 <span>Volver</span>
             </button>
@@ -28,6 +28,7 @@
 
         <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
             <DataAnnotationsValidator />
+            <ValidationSummary />
 
             <div class="form-group">
                 <label for="descripcion">Descripción</label>
@@ -40,15 +41,17 @@
                     <i class="bi bi-save"></i>
                     <span>Guardar Cambios</span>
                 </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+                    <i class="bi bi-x-circle"></i>
+                    <span>Cancelar</span>
+                </button>
             </div>
         </EditForm>
     }
 </div>
 
 @code {
-    [Parameter]
-    public int Id { get; set; }
-
+    [Parameter] public int Id { get; set; }
     private TipoProductoDTO? _tipoProducto;
 
     protected override async Task OnInitializedAsync()
@@ -58,15 +61,10 @@
 
     private async Task Guardar()
     {
-        if (_tipoProducto != null)
-        {
-            await tipoProductoApiClient.UpdateAsync(Id, _tipoProducto);
-            NavigationManager.NavigateTo("/tipo-producto");
-        }
-    }
-
-    private void Cancelar()
-    {
+        if (_tipoProducto is null) return;
+        await tipoProductoApiClient.UpdateAsync(Id, _tipoProducto);
         NavigationManager.NavigateTo("/tipo-producto");
     }
+
+    private void Cancelar() => NavigationManager.NavigateTo("/tipo-producto");
 }

@@ -20,6 +20,7 @@
 
     <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
+        <ValidationSummary />
 
         <div class="form-group">
             <label for="descripcion">Descripción</label>
@@ -31,6 +32,10 @@
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-save"></i>
                 <span>Guardar</span>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+                <i class="bi bi-x-circle"></i>
+                <span>Cancelar</span>
             </button>
         </div>
     </EditForm>
@@ -45,8 +50,5 @@
         NavigationManager.NavigateTo("/tipo-producto");
     }
 
-    private void Cancelar()
-    {
-        NavigationManager.NavigateTo("/tipo-producto");
-    }
+    private void Cancelar() => NavigationManager.NavigateTo("/tipo-producto");
 }

@@ -1,0 +1,85 @@
+﻿.tipo-prod-card {
+    max-width: 1100px;
+    margin: 1.25rem auto;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+}
+
+.tipo-prod-header {
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: .5rem;
+}
+
+.tipo-prod-search {
+    margin: .25rem 0 1rem;
+}
+
+.tipo-prod-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.tipo-prod-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+    .tipo-prod-table th, .tipo-prod-table td {
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .tipo-prod-table .col-nombre {
+        min-width: 220px;
+    }
+
+    .tipo-prod-table .col-desc {
+        min-width: 320px;
+    }
+
+    .tipo-prod-table .col-precio {
+        width: 120px;
+    }
+
+    .tipo-prod-table .col-stock {
+        width: 110px;
+    }
+
+    .tipo-prod-table .col-acciones {
+        width: clamp(150px, 18vw, 220px);
+        text-align: right;
+        overflow: visible;
+    }
+
+    .tipo-prod-table .tbl-actions {
+        display: inline-flex;
+        gap: .45rem;
+        align-items: center;
+    }
+
+    .tipo-prod-table .tbl-icon-btn {
+        padding: .35rem .45rem;
+        line-height: 1;
+    }
+
+    .tipo-prod-table td {
+        overflow: visible;
+    }
+
+@media (max-width: 992px) {
+    .tipo-prod-card {
+        max-width: 94vw;
+    }
+
+    .tipo-prod-table .col-desc {
+        min-width: 260px;
+    }
+}
+
+@media (max-width: 768px) {
+    .tipo-prod-table .col-acciones {
+        width: 160px;
+    }
+}

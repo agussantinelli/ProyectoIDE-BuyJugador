@@ -8,7 +8,6 @@
 
 <link href="css/Table.css" rel="stylesheet" />
 
-
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Tipos de Producto</h2>
@@ -54,6 +53,9 @@
                             <td>@tipo.IdTipoProducto</td>
                             <td>@tipo.Descripcion</td>
                             <td class="tbl-actions">
+                                <button class="btn-icon" title="Ver productos" @onclick="() => VerProductos(tipo)">
+                                    <i class="bi bi-boxes"></i>
+                                </button>
                                 <button class="btn-icon" title="Editar" @onclick="() => Editar(tipo)">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
@@ -94,16 +96,12 @@
 @code {
     private List<TipoProductoDTO>? _tiposProducto;
     private List<TipoProductoDTO>? tiposProductoFiltrados;
-    private string _textoBusqueda = string.Empty;
 
+    private string _textoBusqueda = string.Empty;
     private string TextoBusqueda
     {
         get => _textoBusqueda;
-        set
-        {
-            _textoBusqueda = value;
-            AplicarFiltro();
-        }
+        set { _textoBusqueda = value ?? string.Empty; AplicarFiltro(); }
     }
 
     private bool mostrarModalConfirmacion = false;
@@ -128,15 +126,16 @@
         }
         else
         {
+            var f = TextoBusqueda.Trim();
             tiposProductoFiltrados = _tiposProducto?
-                .Where(p => (p.Descripcion ?? string.Empty).Contains(TextoBusqueda, StringComparison.OrdinalIgnoreCase))
+                .Where(p => (p.Descripcion ?? string.Empty).Contains(f, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
     }
 
     private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipo-producto/crear");
-
     private void Editar(TipoProductoDTO tipo) => NavigationManager.NavigateTo($"/tipo-producto/editar/{tipo.IdTipoProducto}");
+    private void VerProductos(TipoProductoDTO tipo) => NavigationManager.NavigateTo($"/tipo-producto/{tipo.IdTipoProducto}/productos");
 
     private void AbrirModalConfirmacion(TipoProductoDTO tipo)
     {
@@ -152,22 +151,20 @@
 
     private async Task EliminarConfirmado()
     {
-        if (_tipoProductoParaEliminar != null)
+        if (_tipoProductoParaEliminar is null) return;
+
+        try
         {
-            try
-            {
-                await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
-                await CargarTiposProducto();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error al eliminar el tipo de producto: {ex.Message}");
-            }
-            finally
-            {
-                CerrarModalConfirmacion();
-            }
+            await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
+            await CargarTiposProducto();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error al eliminar el tipo de producto: {ex.Message}");
+        }
+        finally
+        {
+            CerrarModalConfirmacion();
         }
     }
 }
-

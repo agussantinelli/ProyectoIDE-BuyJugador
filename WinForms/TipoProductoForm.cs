@@ -12,7 +12,7 @@ namespace WinForms
     public partial class TipoProductoForm : BaseForm
     {
         private readonly TipoProductoApiClient _tipoProductoApiClient;
-        private readonly ProductoApiClient _productoApiClient; // #NUEVO
+        private readonly ProductoApiClient _productoApiClient; 
         private readonly IServiceProvider _serviceProvider;
         private List<TipoProductoDTO> _tiposCache = new();
         private string _filtroActual = string.Empty;
@@ -22,13 +22,13 @@ namespace WinForms
             InitializeComponent();
             _serviceProvider = serviceProvider;
             _tipoProductoApiClient = serviceProvider.GetRequiredService<TipoProductoApiClient>();
-            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>(); // #NUEVO
+            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>(); 
 
             StyleManager.ApplyDataGridViewStyle(dgvTiposProducto);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnEliminar);
-            StyleManager.ApplyButtonStyle(btnVerProductos); // #NUEVO
+            StyleManager.ApplyButtonStyle(btnVerProductos); 
             StyleManager.ApplyButtonStyle(btnVolver);
         }
 
@@ -174,7 +174,6 @@ namespace WinForms
 
         private void btnVolver_Click(object sender, EventArgs e) => Close();
 
-        // #NUEVO: Abre el formulario para ver los productos asociados al tipo seleccionado.
         private void btnVerProductos_Click(object sender, EventArgs e)
         {
             var tipo = ObtenerSeleccionado();
@@ -201,7 +200,7 @@ namespace WinForms
             bool seleccionado = dgvTiposProducto.SelectedRows.Count > 0;
             btnEditar.Visible = seleccionado;
             btnEliminar.Visible = seleccionado;
-            btnVerProductos.Visible = seleccionado; // #NUEVO
+            btnVerProductos.Visible = seleccionado; 
         }
     }
 }

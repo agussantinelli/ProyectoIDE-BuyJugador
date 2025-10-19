@@ -21,10 +21,9 @@ namespace WinForms
             _idTipoProducto = idTipoProducto;
             _descripcionTipoProducto = descripcionTipoProducto;
 
-            // # Intención: Aplicar estilos consistentes a los controles del formulario.
             StyleManager.ApplyDataGridViewStyle(dgvProductos);
             StyleManager.ApplyButtonStyle(btnVolver);
-            StyleManager.ApplyButtonStyle(btnEliminar); // #NUEVO
+            StyleManager.ApplyButtonStyle(btnEliminar); 
         }
 
         private async void VerProductosTipoForm_Load(object sender, EventArgs e)
