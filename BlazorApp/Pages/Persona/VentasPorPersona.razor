@@ -1,0 +1,88 @@
+﻿@page "/persona/ventas/{IdPersona:int}"
+@attribute [Authorize]
+
+@using DTOs
+@using ApiClient
+@inject VentaApiClient VentaApi
+@inject PersonaApiClient PersonaApi
+@inject NavigationManager Nav
+
+<link href="css/forms.css" rel="stylesheet" />
+
+<div class="form-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando ventas...</div>
+    }
+    else
+    {
+        <div class="form-header">
+            <h3 class="form-title">Ventas de @nombrePersona (@ventas.Count)</h3>
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i><span>Volver</span>
+            </button>
+        </div>
+
+        @if (!ventas.Any())
+        {
+            <div class="tbl-state"><i class="bi bi-inbox"></i> La persona no tiene ventas registradas.</div>
+        }
+        else
+        {
+            <div class="tbl-wrapper">
+                <table class="tbl table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th class="tbl-text-end">Total</th>
+                            <th class="tbl-text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in ventas)
+                        {
+                            <tr>
+                                <td>@v.IdVenta</td>
+                                <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@v.Estado</td>
+                                <td class="tbl-text-end">@v.Total.ToString("C")</td>
+                                <td class="tbl-text-end">
+                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => NavegarDetalle(v.IdVenta)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int IdPersona { get; set; }
+
+    private bool isLoading = true;
+    private string nombrePersona = "Persona";
+    private List<VentaDTO> ventas = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var persona = await PersonaApi.GetByIdAsync(IdPersona);
+            nombrePersona = persona?.NombreCompleto ?? $"ID {IdPersona}";
+            ventas = await VentaApi.GetByPersonaAsync(IdPersona) ?? new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void Volver() => Nav.NavigateTo("/persona");
+    private void NavegarDetalle(int idVenta) => Nav.NavigateTo($"/ventas/{idVenta}");
+}

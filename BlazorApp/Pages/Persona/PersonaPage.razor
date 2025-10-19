@@ -78,6 +78,9 @@
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar baja" @onclick="() => DarBaja(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
+                                        <button class="tbl-icon-btn" title="Ver ventas" @onclick="() => VerVentas(p)">
+                                            <i class="bi bi-receipt"></i>
+                                        </button>
                                     }
                                     else
                                     {
@@ -141,6 +144,11 @@
     {
         var resp = await personaApiClient.DeleteAsync(p.IdPersona);
         if (resp.IsSuccessStatusCode) await CargarDatos();
+    }
+
+    private void VerVentas(PersonaDTO p)
+    {
+        navigationManager.NavigateTo($"/persona/ventas/{p.IdPersona}");
     }
 
     private async Task Reactivar(PersonaDTO p)

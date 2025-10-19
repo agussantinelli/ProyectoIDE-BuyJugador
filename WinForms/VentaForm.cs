@@ -191,7 +191,6 @@ namespace WinForms
             }
             else
             {
-                // # CORRECCIÓN: Se crea la instancia de DetalleVentaForm con los 5 argumentos correctos.
                 var detalleForm = new DetalleVentaForm(
                     selectedVenta.IdVenta,
                     _userSessionService.EsAdmin,
