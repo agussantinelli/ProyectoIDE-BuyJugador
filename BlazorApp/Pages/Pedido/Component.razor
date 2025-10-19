@@ -1,0 +1,153 @@
+﻿@page "/pedido"
+@attribute [Authorize]
+
+@using DTOs
+@using ApiClient
+@inject PedidoApiClient pedidoApiClient
+@inject UserSessionService userSession
+
+<link href="css/Table.css" rel="stylesheet" />
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Gestión de Pedidos</h2>
+
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon"></span>
+            <input class="tbl-input" placeholder="Buscar proveedor..."
+                   value="@textoFiltro" @oninput="OnFiltroChanged" />
+
+            @if (esAdmin)
+            {
+                <button class="btn btn-primary" @onclick="NuevoPedido">
+                    <i class="bi bi-plus-circle"></i><span>Nuevo</span>
+                </button>
+            }
+        </div>
+
+        <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
+    </div>
+
+    @if (pedidos == null)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedidos...</div>
+    }
+    else if (!pedidosFiltrados.Any())
+    {
+        <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
+    }
+    else
+    {
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Nro Pedido</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Estado</th>
+                        <th class="tbl-text-end">Total</th>
+                        <th class="tbl-text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in pedidosFiltrados)
+                    {
+                        <tr>
+                            <td>@p.IdPedido</td>
+                            <td>@p.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>@p.ProveedorRazonSocial</td>
+                            <td>@p.Estado</td>
+                            <td class="tbl-text-end">@FormatCurrency(p.Total)</td>
+                            <td class="tbl-text-end">
+                                <div class="tbl-actions">
+                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+
+                                    @if (esAdmin)
+                                    {
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+
+                                        @if (p.Estado == "Pendiente")
+                                        {
+                                            <button class="tbl-icon-btn" title="Finalizar" @onclick="() => Finalizar(p)">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<PedidoDTO>? pedidos;
+    private List<PedidoDTO> pedidosFiltrados = new();
+    private string textoFiltro = string.Empty;
+    private bool esAdmin;
+
+    private string FormatCurrency(decimal amount)
+    {
+        return amount.ToString("C");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        esAdmin = await userSession.EsAdminAsync();
+        await CargarPedidos();
+    }
+
+    private async Task CargarPedidos()
+    {
+        try
+        {
+            pedidos = await pedidoApiClient.GetAllAsync() ?? new();
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] No se pudieron cargar los pedidos: {ex.Message}");
+            pedidos = new();
+        }
+    }
+
+    private void OnFiltroChanged(ChangeEventArgs e)
+    {
+        textoFiltro = e.Value?.ToString() ?? "";
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        pedidosFiltrados = pedidos?
+            .Where(p =>
+                string.IsNullOrWhiteSpace(textoFiltro)
+                || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList() ?? new();
+    }
+
+    private void NuevoPedido() { }
+
+    private void VerDetalle(PedidoDTO p) { }
+
+    private async Task Eliminar(PedidoDTO p)
+    {
+        var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
+        if (resp.IsSuccessStatusCode) await CargarPedidos();
+    }
+
+    private async Task Finalizar(PedidoDTO p)
+    {
+        var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
+        if (resp.IsSuccessStatusCode) await CargarPedidos();
+    }
+}
+
