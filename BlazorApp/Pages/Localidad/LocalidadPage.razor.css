@@ -1,0 +1,57 @@
+﻿.tbl-container {
+    padding: 1rem 1.25rem;
+}
+
+.tbl-title {
+    margin-bottom: .75rem;
+}
+
+.loc-toolbar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: .75rem;
+}
+
+.loc-input {
+    min-width: 320px;
+    max-width: 420px;
+}
+
+.loc-select {
+    min-width: 260px;
+    max-width: 360px;
+    height: 38px;
+    line-height: 38px;
+    padding-top: 6px; 
+    padding-bottom: 6px;
+}
+
+.tbl-search .tbl-search-icon {
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.tbl-input {
+    padding-left: 2rem;
+}
+
+.tbl-wrapper {
+    overflow: auto;
+    border-radius: .5rem;
+}
+
+.tbl td,
+.tbl th {
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .loc-input,
+    .loc-select {
+        min-width: 100%;
+        max-width: 100%;
+    }
+}
