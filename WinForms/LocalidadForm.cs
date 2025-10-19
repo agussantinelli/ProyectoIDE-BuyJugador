@@ -1,5 +1,4 @@
-﻿// # No se requieren cambios MDI en este formulario ya que no abre otras ventanas.
-using ApiClient;
+﻿using ApiClient;
 using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;

@@ -1,0 +1,113 @@
+﻿@page "/provincia/{Id:int}/localidades"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject ProvinciaApiClient ProvinciaApi
+@inject LocalidadApiClient LocalidadApi
+@inject NavigationManager Nav
+
+<link href="css/Table.css" rel="stylesheet" />
+
+<div class="tbl-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando localidades...</div>
+    }
+    else
+    {
+        <div class="tbl-header">
+            <h2 class="tbl-title">Localidades de @nombreProvincia (@(localidades?.Count ?? 0))</h2>
+            <div>
+                <button class="btn btn-secondary" @onclick="Volver">
+                    <i class="bi bi-arrow-left"></i><span>Volver</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
+            <input class="tbl-input" type="text" placeholder="Buscar localidad..."
+                   @bind="TextoBusqueda" @bind:event="oninput" />
+        </div>
+
+        @if (localidadesFiltradas is null)
+        {
+            <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando...</div>
+        }
+        else if (!localidadesFiltradas.Any())
+        {
+            <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron localidades.</div>
+        }
+        else
+        {
+            <div class="tbl-wrapper">
+                <table class="tbl table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width:120px">ID</th>
+                            <th>Localidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var l in localidadesFiltradas)
+                        {
+                            <tr>
+                                <td>@l.IdLocalidad</td>
+                                <td class="tbl-truncate">@l.Nombre</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private bool isLoading = true;
+    private string nombreProvincia = "Provincia";
+    private List<LocalidadDTO>? localidades;
+    private List<LocalidadDTO>? localidadesFiltradas;
+
+    private string _textoBusqueda = string.Empty;
+    private string TextoBusqueda
+    {
+        get => _textoBusqueda;
+        set { _textoBusqueda = value ?? string.Empty; AplicarFiltro(); }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var prov = await ProvinciaApi.GetByIdAsync(Id);
+            nombreProvincia = prov?.Nombre ?? $"ID {Id}";
+
+            var todas = await LocalidadApi.GetAllAsync() ?? new();
+            localidades = todas.Where(l => l.IdProvincia == Id)
+                               .OrderBy(l => l.Nombre)
+                               .ToList();
+            AplicarFiltro();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void AplicarFiltro()
+    {
+        if (localidades is null) { localidadesFiltradas = new(); return; }
+        if (string.IsNullOrWhiteSpace(TextoBusqueda)) { localidadesFiltradas = localidades; return; }
+
+        var f = TextoBusqueda.Trim();
+        localidadesFiltradas = localidades
+            .Where(l => (l.Nombre ?? string.Empty).Contains(f, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+    }
+
+    private void Volver() => Nav.NavigateTo("/provincia");
+}
