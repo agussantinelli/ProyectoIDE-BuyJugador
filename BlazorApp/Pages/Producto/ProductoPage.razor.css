@@ -1,0 +1,73 @@
+﻿.productos-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.productos-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+    .productos-table th,
+    .productos-table td {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .productos-table .col-nombre {
+        min-width: 220px;
+    }
+
+    .productos-table .col-desc {
+        min-width: 280px;
+    }
+
+    .productos-table .col-tipo {
+        width: 160px;
+    }
+
+    .productos-table .col-precio {
+        width: 120px;
+    }
+
+    .productos-table .col-stock {
+        width: 110px;
+    }
+
+    .productos-table .col-acciones {
+        width: clamp(160px, 18vw, 220px);
+        text-align: right;
+        white-space: nowrap;
+        overflow: visible;
+    }
+
+    .productos-table .tbl-actions {
+        display: inline-flex;
+        gap: .45rem;
+        align-items: center;
+    }
+
+    .productos-table .tbl-icon-btn {
+        padding: .35rem .45rem;
+        line-height: 1;
+    }
+
+    .productos-table td {
+        overflow: visible;
+    }
+
+@media (max-width: 992px) {
+    .productos-table .col-desc {
+        min-width: 220px;
+    }
+
+    .productos-table .col-acciones {
+        width: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .productos-table .col-acciones {
+        width: 160px;
+    }
+}

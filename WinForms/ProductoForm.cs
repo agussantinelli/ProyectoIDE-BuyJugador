@@ -212,7 +212,6 @@ namespace WinForms
             }
             else
             {
-                // # CORRECCIÓN: Llamada al constructor que solo toma 1 argumento.
                 var form = new HistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>());
                 form.MdiParent = this.MdiParent;
                 form.Show();
@@ -279,7 +278,7 @@ namespace WinForms
             btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
             btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
 
-            btnReportePrecios.Enabled = true; // # El reporte global siempre está disponible.
+            btnReportePrecios.Enabled = true; 
             btnEditarPrecio.Enabled = haySeleccion;
             btnVerProveedores.Enabled = haySeleccion;
         }
@@ -295,14 +294,13 @@ namespace WinForms
             }
         }
 
-        // # El menú contextual debe deshabilitarse si la acción no aplica.
         private void cmOpciones_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
             bool haySeleccion = (tabControl.SelectedTab == tabActivos && dgvActivos.SelectedRows.Count > 0) ||
                                 (tabControl.SelectedTab == tabInactivos && dgvInactivos.SelectedRows.Count > 0);
 
             mnuEditarPrecio.Enabled = haySeleccion;
-            mnuVerHistorialPrecios.Enabled = false; // # Se accede desde el botón principal. Opcional: podrías dejarlo.
+            mnuVerHistorialPrecios.Enabled = false; 
         }
 
         private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => btnReportePrecios_Click(sender, e);

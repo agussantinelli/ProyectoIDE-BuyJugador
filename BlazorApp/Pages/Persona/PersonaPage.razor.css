@@ -25,7 +25,7 @@
     }
 
     .personas-table .col-email {
-        min-width: 200px;
+        min-width: 400px;
     }
 
     .personas-table .col-tel {
@@ -38,13 +38,6 @@
 
     .personas-table .col-prov {
         width: 150px;
-    }
-
-    .personas-table .col-acciones {
-        width: clamp(160px, 18vw, 220px);
-        text-align: right;
-        white-space: nowrap;
-        overflow: visible;
     }
 
 .personas-actions {

@@ -1,0 +1,105 @@
+﻿
+.form-container {
+    max-width: 720px;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+}
+
+.form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.form-title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+    .form-group label {
+        display: block;
+        margin-bottom: .45rem;
+        font-weight: 500;
+    }
+
+.form-control, .form-select {
+    width: 100%;
+    padding: .55rem .75rem;
+    border: 1px solid #cfcfcf;
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+    .form-control[readonly] {
+        background: #f5f6f7;
+        color: #6b6f76;
+    }
+
+.inline-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .85rem;
+}
+
+.inline-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: .85rem;
+}
+
+.form-actions {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: .75rem;
+    justify-content: flex-end;
+}
+
+.tbl-state {
+    text-align: center;
+    color: #6c757d;
+    padding: 2rem 1rem;
+}
+
+.spin {
+    display: inline-block;
+    margin-right: .35rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0)
+    }
+
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.validation-message {
+    color: #b42318;
+    font-size: .9rem;
+    margin-top: .35rem;
+}
+
+.btn i {
+    margin-right: .4rem;
+}
+
+
+@keyframes tbl-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

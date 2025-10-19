@@ -14,8 +14,6 @@ namespace DTOs
         public string? TipoProductoDescripcion { get; set; }
         public decimal? PrecioActual { get; set; }
 
-        // # MEJORA: Se añade la propiedad PrecioCompra para que el DTO sea más completo
-        // # y pueda ser utilizado en el contexto de pedidos a proveedores.
         public decimal PrecioCompra { get; set; }
 
         public List<PrecioVentaDTO> Precios { get; set; } = new();

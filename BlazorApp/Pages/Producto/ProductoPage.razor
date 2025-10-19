@@ -5,6 +5,8 @@
 @using DTOs
 @inject ProductoApiClient productoApiClient
 
+<link href="css/Table.css" rel="stylesheet" />
+
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Productos</h2>
@@ -12,7 +14,7 @@
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
             <input class="tbl-input" type="text" placeholder="Buscar producto..."
-                   @bind="textoBusqueda" @bind:event="oninput" />
+                   @bind="TextoBusqueda" @bind:event="oninput" />
             <button class="btn btn-primary" @onclick="NuevoProducto">
                 <i class="bi bi-plus-circle"></i>
                 <span>Nuevo</span>
@@ -29,7 +31,7 @@
         </button>
     </div>
 
-    @if (productosFiltrados == null)
+    @if (productosFiltrados is null)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando productos...
@@ -43,16 +45,16 @@
     }
     else
     {
-        <div class="tbl-wrapper">
-            <table class="tbl table-striped table-hover">
+        <div class="tbl-wrapper productos-wrapper">
+            <table class="tbl table-striped table-hover productos-table">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Tipo</th>
-                        <th class="tbl-text-end">Precio</th>
-                        <th class="tbl-text-end">Stock</th>
-                        <th class="tbl-text-end">Acciones</th>
+                        <th class="col-nombre">Nombre</th>
+                        <th class="col-desc">Descripción</th>
+                        <th class="col-tipo">Tipo</th>
+                        <th class="tbl-text-end col-precio">Precio</th>
+                        <th class="tbl-text-end col-stock">Stock</th>
+                        <th class="col-acciones">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -64,7 +66,7 @@
                             <td class="tbl-truncate">@p.TipoProductoDescripcion</td>
                             <td class="tbl-text-end">@FormatCurrency(p.PrecioActual ?? 0m)</td>
                             <td class="tbl-text-end">@p.Stock</td>
-                            <td class="tbl-text-end">
+                            <td class="col-acciones">
                                 <div class="tbl-actions">
                                     @if (vistaActual == Vista.Activos)
                                     {
@@ -94,7 +96,6 @@
     }
 </div>
 
-
 @code {
     private enum Vista { Activos, Inactivos }
     private Vista vistaActual = Vista.Activos;
@@ -102,12 +103,19 @@
     private List<ProductoDTO>? productosActivos;
     private List<ProductoDTO>? productosInactivos;
     private List<ProductoDTO>? productosFiltrados;
-    private string textoBusqueda = string.Empty;
 
-    private string FormatCurrency(decimal amount)
+    private string _textoBusqueda = string.Empty;
+    private string TextoBusqueda
     {
-        return amount.ToString("C");
+        get => _textoBusqueda;
+        set
+        {
+            _textoBusqueda = value ?? string.Empty;
+            AplicarFiltro();
+        }
     }
+
+    private string FormatCurrency(decimal amount) => amount.ToString("C");
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,20 +138,21 @@
 
     private void AplicarFiltro()
     {
-        var listaFuente = vistaActual == Vista.Activos ? productosActivos : productosInactivos;
+        var fuente = vistaActual == Vista.Activos ? productosActivos : productosInactivos;
 
-        if (string.IsNullOrWhiteSpace(textoBusqueda))
+        if (string.IsNullOrWhiteSpace(_textoBusqueda))
         {
-            productosFiltrados = listaFuente;
+            productosFiltrados = fuente;
+            return;
         }
-        else
-        {
-            productosFiltrados = listaFuente?
-                .Where(p => (p.Nombre ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
-                         || (p.Descripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase)
-                         || (p.TipoProductoDescripcion ?? string.Empty).Contains(textoBusqueda, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
+
+        var f = _textoBusqueda.Trim();
+        productosFiltrados = fuente?
+            .Where(p =>
+                (p.Nombre ?? "").Contains(f, StringComparison.OrdinalIgnoreCase) ||
+                (p.Descripcion ?? "").Contains(f, StringComparison.OrdinalIgnoreCase) ||
+                (p.TipoProductoDescripcion ?? "").Contains(f, StringComparison.OrdinalIgnoreCase))
+            .ToList();
     }
 
     private void CambiarVista(Vista nuevaVista)
@@ -155,23 +164,16 @@
     private async Task DarDeBaja(ProductoDTO p)
     {
         var response = await productoApiClient.DeleteAsync(p.IdProducto);
-        if (response.IsSuccessStatusCode)
-        {
-            await CargarTodosProductos();
-        }
+        if (response.IsSuccessStatusCode) await CargarTodosProductos();
     }
 
     private async Task Reactivar(ProductoDTO p)
     {
         var response = await productoApiClient.ReactivarAsync(p.IdProducto);
-        if (response.IsSuccessStatusCode)
-        {
-            await CargarTodosProductos();
-        }
+        if (response.IsSuccessStatusCode) await CargarTodosProductos();
     }
 
     private void NuevoProducto() => Console.WriteLine("Nuevo producto");
     private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
     private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
 }
-
