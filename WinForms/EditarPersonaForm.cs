@@ -91,13 +91,13 @@ namespace WinForms
 
             MessageBox.Show("Persona actualizada exitosamente.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
-            this.Close(); // # REFACTORIZADO para MDI
+            this.Close(); 
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
-            this.Close(); // # REFACTORIZADO para MDI
+            this.Close(); 
         }
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)

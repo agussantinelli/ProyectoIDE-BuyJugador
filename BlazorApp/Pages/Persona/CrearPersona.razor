@@ -1,0 +1,243 @@
+﻿@page "/persona/crear"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject PersonaApiClient PersonaApi
+@inject ProvinciaApiClient ProvinciaApi
+@inject LocalidadApiClient LocalidadApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<link href="css/forms.css" rel="stylesheet" />
+
+<div class="form-container">
+    <div class="form-header">
+        <h3 class="form-title">Nueva Persona</h3>
+        <button class="btn btn-secondary" @onclick="Cancelar">
+            <i class="bi bi-arrow-left"></i><span>Volver</span>
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando datos...
+        </div>
+    }
+    else
+    {
+        <EditForm EditContext="@editContext" OnValidSubmit="@Guardar">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="nombre">Nombre completo</label>
+                <InputText id="nombre" class="form-control" @bind-Value="Model.NombreCompleto" />
+                <ValidationMessage class="validation-message" For="@(() => Model.NombreCompleto)" />
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="dni">DNI</label>
+                    <InputNumber id="dni" class="form-control" @bind-Value="Model.Dni" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Dni)" />
+                </div>
+                <div class="form-group">
+                    <label for="rol">Rol</label>
+                    <InputSelect id="rol" class="form-select" @bind-Value="Model.RolSeleccionado" @onchange="OnRolChanged">
+                        @foreach (var r in Roles)
+                        {
+                            <option value="@r">@r</option>
+                        }
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <InputText id="telefono" class="form-control" @bind-Value="Model.Telefono" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Telefono)" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <InputText id="direccion" class="form-control" @bind-Value="Model.Direccion" />
+                <ValidationMessage class="validation-message" For="@(() => Model.Direccion)" />
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="provincia">Provincia</label>
+                    <InputSelect id="provincia" class="form-select" @bind-Value="Model.IdProvincia" @onchange="OnProvinciaChanged">
+                        <option value="">-- Seleccionar provincia --</option>
+                        @foreach (var p in Provincias)
+                        {
+                            <option value="@p.IdProvincia">@p.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage class="validation-message" For="@(() => Model.IdProvincia)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="localidad">Localidad</label>
+                    <InputSelect id="localidad" class="form-select" @bind-Value="Model.IdLocalidad" disabled="@(!LocalidadesFiltradas.Any())">
+                        <option value="">-- Seleccionar localidad --</option>
+                        @foreach (var l in LocalidadesFiltradas)
+                        {
+                            <option value="@l.IdLocalidad">@l.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage class="validation-message" For="@(() => Model.IdLocalidad)" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText id="password" class="form-control" type="password" @bind-Value="Model.Password" />
+                <ValidationMessage class="validation-message" For="@(() => Model.Password)" />
+            </div>
+
+            @if (EsEmpleado)
+            {
+                <div class="form-group">
+                    <label for="fechaIngreso">Fecha de ingreso</label>
+                    <InputDate id="fechaIngreso" class="form-control" @bind-Value="Model.FechaIngreso" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.FechaIngreso)" />
+                </div>
+            }
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    <i class="bi bi-save"></i><span>@(isSaving ? "Guardando..." : "Guardar")</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar" disabled="@isSaving">
+                    <i class="bi bi-x-circle"></i><span>Cancelar</span>
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    public class PersonaCreateModel
+    {
+        [Required(ErrorMessage = "El nombre es obligatorio")]
+        [StringLength(150)]
+        public string? NombreCompleto { get; set; }
+
+        [Required(ErrorMessage = "El DNI es obligatorio")]
+        [Range(1, int.MaxValue, ErrorMessage = "DNI inválido")]
+        public int? Dni { get; set; }
+
+        [Required, EmailAddress]
+        public string? Email { get; set; }
+
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Mínimo 6 caracteres")]
+        public string? Password { get; set; }
+
+        [StringLength(30)]
+        public string? Telefono { get; set; }
+
+        [StringLength(200)]
+        public string? Direccion { get; set; }
+
+        [Required(ErrorMessage = "Seleccione una provincia")]
+        public int? IdProvincia { get; set; }
+
+        [Required(ErrorMessage = "Seleccione una localidad")]
+        public int? IdLocalidad { get; set; }
+
+        public DateOnly? FechaIngreso { get; set; }
+
+        [Required]
+        public string RolSeleccionado { get; set; } = "Empleado"; 
+    }
+
+    private PersonaCreateModel Model = new();
+    private EditContext? editContext;
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private List<ProvinciaDTO> Provincias = new();
+    private List<LocalidadDTO> LocalidadesTodas = new();
+    private List<LocalidadDTO> LocalidadesFiltradas =>
+        (Model.IdProvincia is null)
+        ? new()
+        : LocalidadesTodas.Where(l => l.IdProvincia == Model.IdProvincia).ToList();
+
+    private static readonly string[] Roles = new[] { "Dueño", "Empleado" };
+    private bool EsEmpleado => Model.RolSeleccionado == "Empleado";
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(Model);
+        try
+        {
+            Provincias = await ProvinciaApi.GetAllAsync() ?? new();
+            LocalidadesTodas = await LocalidadApi.GetAllOrderedAsync() ?? new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        var ok = await JS.InvokeAsync<bool>("confirm", "⚠️ Se creará la persona.\n¿Desea continuar?");
+        if (!ok) return;
+
+        isSaving = true;
+        try
+        {
+            var dto = new PersonaDTO
+            {
+                NombreCompleto = Model.NombreCompleto?.Trim(),
+                Dni = Model.Dni ?? 0,
+                Email = Model.Email?.Trim(),
+                Password = Model.Password,
+                Telefono = Model.Telefono?.Trim(),
+                Direccion = Model.Direccion?.Trim(),
+                IdLocalidad = Model.IdLocalidad,
+                FechaIngreso = EsEmpleado ? (Model.FechaIngreso ?? DateOnly.FromDateTime(DateTime.Today)) : null,
+                Estado = true
+            };
+
+            await PersonaApi.CreateAsync(dto);
+            await JS.InvokeVoidAsync("alert", "✅ Persona creada correctamente.");
+            Nav.NavigateTo("/persona");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"❌ Error al crear: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Cancelar() => Nav.NavigateTo("/persona");
+
+    private async Task OnProvinciaChanged(ChangeEventArgs _)
+    {
+        Model.IdLocalidad = null;
+        await Task.CompletedTask;
+    }
+
+    private Task OnRolChanged(ChangeEventArgs _)
+    {
+        if (!EsEmpleado)
+            Model.FechaIngreso = null;
+        return Task.CompletedTask;
+    }
+}

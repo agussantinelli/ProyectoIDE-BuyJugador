@@ -133,7 +133,7 @@
         mostrarActivos = esActivo;
     }
 
-    private void Nuevo() => navigationManager.NavigateTo("/persona/nuevo");
+    private void Nuevo() => navigationManager.NavigateTo("/persona/crear");
 
     private void Editar(PersonaDTO p) => navigationManager.NavigateTo($"/persona/editar/{p.IdPersona}");
 

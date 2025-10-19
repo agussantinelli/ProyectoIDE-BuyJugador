@@ -1,0 +1,225 @@
+﻿@page "/persona/editar/{Id:int}"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject PersonaApiClient PersonaApi
+@inject ProvinciaApiClient ProvinciaApi
+@inject LocalidadApiClient LocalidadApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<link href="css/forms.css" rel="stylesheet" />
+
+<div class="form-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando persona...
+        </div>
+    }
+    else if (Model is null)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-inbox"></i> No se encontró la persona.
+        </div>
+    }
+    else
+    {
+        <div class="form-header">
+            <h3 class="form-title">Editando: @Model.NombreCompleto</h3>
+            <button class="btn btn-secondary" @onclick="Cancelar">
+                <i class="bi bi-arrow-left"></i><span>Volver</span>
+            </button>
+        </div>
+
+        <EditForm EditContext="@editContext" OnValidSubmit="@Guardar">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="nombre">Nombre completo</label>
+                <InputText id="nombre" class="form-control" @bind-Value="Model.NombreCompleto" readonly />
+            </div>
+
+            <div class="form-group">
+                <label for="dni">DNI</label>
+                <InputNumber id="dni" class="form-control" @bind-Value="Model.Dni" readonly />
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <InputText id="email" type="email" class="form-control" @bind-Value="Model.Email" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Email)" />
+                </div>
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <InputText id="telefono" class="form-control" @bind-Value="Model.Telefono" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Telefono)" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección</label>
+                <InputText id="direccion" class="form-control" @bind-Value="Model.Direccion" />
+                <ValidationMessage class="validation-message" For="@(() => Model.Direccion)" />
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="provincia">Provincia</label>
+                    <InputSelect id="provincia" class="form-select" @bind-Value="IdProvincia" @onchange="OnProvinciaChanged">
+                        <option value="">-- Seleccionar provincia --</option>
+                        @foreach (var p in Provincias)
+                        {
+                            <option value="@p.IdProvincia">@p.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage class="validation-message" For="@(() => IdProvincia)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="localidad">Localidad</label>
+                    <InputSelect id="localidad" class="form-select" @bind-Value="Model.IdLocalidad" disabled="@(!LocalidadesFiltradas.Any())">
+                        <option value="">-- Seleccionar localidad --</option>
+                        @foreach (var l in LocalidadesFiltradas)
+                        {
+                            <option value="@l.IdLocalidad">@l.Nombre</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage class="validation-message" For="@(() => Model.IdLocalidad)" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    <i class="bi bi-save"></i><span>@(isSaving ? "Guardando..." : "Guardar cambios")</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar" disabled="@isSaving">
+                    <i class="bi bi-x-circle"></i><span>Cancelar</span>
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    public class PersonaEditModel
+    {
+        public int IdPersona { get; set; }
+
+        [Required] public string? NombreCompleto { get; set; }
+
+        [Required, Range(1, int.MaxValue)]
+        public int Dni { get; set; }
+
+        [Required, EmailAddress]
+        public string? Email { get; set; }
+
+        [StringLength(30)]
+        public string? Telefono { get; set; }
+
+        [StringLength(200)]
+        public string? Direccion { get; set; }
+
+        [Required] public int? IdLocalidad { get; set; }
+    }
+
+    private PersonaEditModel? Model;
+    private EditContext? editContext;
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    private List<ProvinciaDTO> Provincias = new();
+    private List<LocalidadDTO> LocalidadesTodas = new();
+    private int? IdProvincia;
+
+    private List<LocalidadDTO> LocalidadesFiltradas =>
+        (IdProvincia is null) ? new() : LocalidadesTodas.Where(l => l.IdProvincia == IdProvincia).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var dto = await PersonaApi.GetByIdAsync(Id);
+            Provincias = await ProvinciaApi.GetAllAsync() ?? new();
+            LocalidadesTodas = await LocalidadApi.GetAllOrderedAsync() ?? new();
+
+            if (dto is null)
+            {
+                Model = null;
+                return;
+            }
+
+            if (dto.IdLocalidad.HasValue)
+            {
+                var loc = await LocalidadApi.GetByIdAsync(dto.IdLocalidad.Value);
+                IdProvincia = loc?.IdProvincia;
+            }
+
+            Model = new PersonaEditModel
+            {
+                IdPersona = dto.IdPersona,
+                NombreCompleto = dto.NombreCompleto,
+                Dni = dto.Dni,
+                Email = dto.Email,
+                Telefono = dto.Telefono,
+                Direccion = dto.Direccion,
+                IdLocalidad = dto.IdLocalidad
+            };
+
+            editContext = new EditContext(Model);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (Model is null) return;
+
+        var ok = await JS.InvokeAsync<bool>("confirm", "⚠️ Se modificarán los datos de la persona.\n¿Desea continuar?");
+        if (!ok) return;
+
+        isSaving = true;
+        try
+        {
+            var dto = new PersonaDTO
+            {
+                IdPersona = Model.IdPersona,
+                NombreCompleto = Model.NombreCompleto,
+                Dni = Model.Dni,
+                Email = Model.Email?.Trim(),
+                Telefono = Model.Telefono?.Trim(),
+                Direccion = Model.Direccion?.Trim(),
+                IdLocalidad = Model.IdLocalidad
+            };
+
+            await PersonaApi.UpdateAsync(Id, dto);
+            await JS.InvokeVoidAsync("alert", "✅ Persona actualizada exitosamente.");
+            Nav.NavigateTo("/persona");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"❌ Error al actualizar: {ex.Message}");
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private Task OnProvinciaChanged(ChangeEventArgs _)
+    {
+        Model!.IdLocalidad = null;
+        return Task.CompletedTask;
+    }
+
+    private void Cancelar() => Nav.NavigateTo("/persona");
+}
