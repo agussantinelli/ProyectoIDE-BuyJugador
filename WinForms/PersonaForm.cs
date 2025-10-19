@@ -33,6 +33,7 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnVerVentas);
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
 
@@ -137,7 +138,6 @@ namespace WinForms
             }
         }
 
-        // # REFACTORIZADO para MDI
         private void btnEditar_Click(object sender, EventArgs e)
         {
             var persona = ObtenerSeleccionado(dgvActivos);
@@ -221,6 +221,24 @@ namespace WinForms
 
         private void btnVolver_Click(object sender, EventArgs e) => Close();
 
+        private void btnVerVentas_Click(object sender, EventArgs e)
+        {
+            var esTabActivos = tabControlPersonas.SelectedTab == tabPageActivos;
+            var persona = esTabActivos ? ObtenerSeleccionado(dgvActivos) : ObtenerSeleccionado(dgvInactivos);
+            if (persona == null)
+            {
+                MessageBox.Show("Seleccione una persona.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var ventaApi = _serviceProvider.GetRequiredService<VentaApiClient>();
+            var form = new VentasPersonaForm(ventaApi, persona, _serviceProvider)
+            {
+                MdiParent = this.MdiParent
+            };
+            form.Show();
+        }
+
         private void ActualizarVisibilidadBotones()
         {
             bool esTabActivos = tabControlPersonas.SelectedTab == tabPageActivos;
@@ -230,6 +248,8 @@ namespace WinForms
             btnEditar.Visible = esTabActivos && activoSeleccionado;
             btnEliminar.Visible = esTabActivos && activoSeleccionado;
             btnReactivar.Visible = !esTabActivos && inactivoSeleccionado;
+            btnVerVentas.Visible = activoSeleccionado || inactivoSeleccionado;
+            btnVerVentas.Enabled = btnVerVentas.Visible;
         }
 
         private void dgvActivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();

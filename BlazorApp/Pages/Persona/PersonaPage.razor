@@ -43,33 +43,37 @@
             </button>
         </div>
 
-        <div class="tbl-wrapper">
-            <table class="tbl table-striped table-hover">
+        <div class="tbl-wrapper personas-wrapper">
+            <table class="tbl personas-table">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>DNI</th>
-                        <th>Rol</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                        <th>Localidad</th>
-                        <th>Provincia</th>
-                        <th class="tbl-text-end">Acciones</th>
+                        <th class="col-nombre">Nombre</th>
+                        <th class="col-dni">DNI</th>
+                        <th class="col-rol">Rol</th>
+                        <th class="col-email">Email</th>
+                        <th class="col-tel">Teléfono</th>
+                        <th class="col-loc">Localidad</th>
+                        <th class="col-prov">Provincia</th>
+                        <th class="col-acciones">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var p in PersonasFiltradas)
                     {
                         <tr>
-                            <td class="tbl-truncate">@p.NombreCompleto</td>
-                            <td>@p.Dni</td>
-                            <td>@p.Rol</td>
-                            <td class="tbl-truncate">@p.Email</td>
-                            <td>@p.Telefono</td>
-                            <td>@p.LocalidadNombre</td>
-                            <td>@p.ProvinciaNombre</td>
-                            <td class="tbl-text-end">
-                                <div class="tbl-actions">
+                            <td class="col-nombre tbl-truncate">@p.NombreCompleto</td>
+                            <td class="col-dni">@p.Dni</td>
+                            <td class="col-rol">@p.Rol</td>
+                            <td class="col-email tbl-truncate">@p.Email</td>
+                            <td class="col-tel">@p.Telefono</td>
+                            <td class="col-loc">@p.LocalidadNombre</td>
+                            <td class="col-prov">@p.ProvinciaNombre</td>
+                            <td class="col-acciones">
+                                <div class="personas-actions">
+                                    <button class="tbl-icon-btn" title="Ver ventas" @onclick="() => VerVentas(p)">
+                                        <i class="bi bi-receipt"></i>
+                                    </button>
+
                                     @if (mostrarActivos)
                                     {
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
@@ -77,9 +81,6 @@
                                         </button>
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar baja" @onclick="() => DarBaja(p)">
                                             <i class="bi bi-trash3"></i>
-                                        </button>
-                                        <button class="tbl-icon-btn" title="Ver ventas" @onclick="() => VerVentas(p)">
-                                            <i class="bi bi-receipt"></i>
                                         </button>
                                     }
                                     else
@@ -90,11 +91,14 @@
                                     }
                                 </div>
                             </td>
+
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
+
+
     }
 </div>
 

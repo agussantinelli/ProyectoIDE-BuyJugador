@@ -1,0 +1,85 @@
+﻿.ventas-card {
+    max-width: 980px;
+    margin: 2rem auto;
+    padding: 1.25rem 1.25rem 1rem;
+    border-radius: 12px;
+}
+
+.ventas-header {
+    justify-content: flex-start; 
+    gap: .75rem;
+    flex-wrap: wrap;
+    margin-bottom: .75rem;
+}
+
+.ventas-title {
+    margin: 0;
+    color: #e7eefc; 
+    letter-spacing: .2px;
+}
+
+.ventas-back {
+    padding-inline: .9rem;
+}
+
+.ventas-wrapper {
+    overflow-x: visible !important;
+    overflow-y: visible;
+}
+
+.ventas-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+    .ventas-table th,
+    .ventas-table td {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .ventas-table .col-total {
+        text-align: right;
+        width: 160px;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ventas-table .col-acciones {
+        text-align: center;
+        width: 110px;
+    }
+
+    .ventas-table tbody tr > td {
+        padding-top: .6rem;
+        padding-bottom: .6rem;
+    }
+
+    .ventas-table .tbl-icon-btn {
+        padding: .35rem .5rem;
+        line-height: 1;
+    }
+
+@media (max-width: 992px) {
+    .ventas-card {
+        max-width: 92vw;
+    }
+
+    .ventas-table th:nth-child(2),
+    .ventas-table td:nth-child(2) {
+        width: 160px;
+    }
+    .ventas-table th:nth-child(3),
+    .ventas-table td:nth-child(3) {
+        width: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ventas-back span {
+        display: none;
+    }
+
+    .ventas-table .col-acciones {
+        width: 90px;
+    }
+}

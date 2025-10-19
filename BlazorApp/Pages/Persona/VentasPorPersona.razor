@@ -9,16 +9,16 @@
 
 <link href="css/forms.css" rel="stylesheet" />
 
-<div class="form-container">
+<div class="form-container ventas-card">
     @if (isLoading)
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando ventas...</div>
     }
     else
     {
-        <div class="form-header">
-            <h3 class="form-title">Ventas de @nombrePersona (@ventas.Count)</h3>
-            <button class="btn btn-secondary" @onclick="Volver">
+        <div class="form-header ventas-header">
+            <h3 class="form-title ventas-title">Ventas de @nombrePersona (@ventas.Count)</h3>
+            <button class="btn btn-secondary ventas-back" @onclick="Volver">
                 <i class="bi bi-arrow-left"></i><span>Volver</span>
             </button>
         </div>
@@ -29,15 +29,15 @@
         }
         else
         {
-            <div class="tbl-wrapper">
-                <table class="tbl table-striped table-hover">
+            <div class="tbl-wrapper ventas-wrapper">
+                <table class="tbl table-striped table-hover ventas-table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Fecha</th>
                             <th>Estado</th>
-                            <th class="tbl-text-end">Total</th>
-                            <th class="tbl-text-end">Acciones</th>
+                            <th class="col-total">Total</th>
+                            <th class="col-acciones">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -47,8 +47,8 @@
                                 <td>@v.IdVenta</td>
                                 <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                                 <td>@v.Estado</td>
-                                <td class="tbl-text-end">@v.Total.ToString("C")</td>
-                                <td class="tbl-text-end">
+                                <td class="col-total">@v.Total.ToString("C")</td>
+                                <td class="col-acciones">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => NavegarDetalle(v.IdVenta)">
                                         <i class="bi bi-eye"></i>
                                     </button>
@@ -84,5 +84,5 @@
     }
 
     private void Volver() => Nav.NavigateTo("/persona");
-    private void NavegarDetalle(int idVenta) => Nav.NavigateTo($"/ventas/{idVenta}");
+    private void NavegarDetalle(int idVenta) => Nav.NavigateTo($"/venta/{idVenta}");
 }

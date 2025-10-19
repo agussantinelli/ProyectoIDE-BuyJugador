@@ -18,6 +18,7 @@ namespace WinForms
         private DataGridView dgvActivos;
         private DataGridView dgvInactivos;
         private Button btnReactivar;
+        private Button btnVerVentas;
 
         protected override void Dispose(bool disposing)
         {
@@ -31,6 +32,7 @@ namespace WinForms
             txtBuscar = new TextBox();
             btnNuevo = new Button();
             btnEditar = new Button();
+            btnVerVentas = new Button();
             btnEliminar = new Button();
             btnVolver = new Button();
             lblBuscar = new Label();
@@ -166,6 +168,16 @@ namespace WinForms
             btnReactivar.Text = "Reactivar";
             btnReactivar.UseVisualStyleBackColor = true;
             btnReactivar.Click += btnReactivar_Click;
+            //
+            // btnVerVentas
+            //
+            btnVerVentas.Location = new Point(620, 480);
+            btnVerVentas.Name = "btnVerVentas";
+            btnVerVentas.Size = new Size(110, 30);
+            btnVerVentas.TabIndex = 8;
+            btnVerVentas.Text = "Ver Ventas";
+            btnVerVentas.UseVisualStyleBackColor = true;
+            btnVerVentas.Click += btnVerVentas_Click;
             // 
             // PersonaForm
             // 
@@ -178,6 +190,7 @@ namespace WinForms
             Controls.Add(btnVolver);
             Controls.Add(tabControlPersonas);
             Controls.Add(txtBuscar);
+            Controls.Add(btnVerVentas);
             Controls.Add(lblBuscar);
             Name = "PersonaForm";
             Text = "Gestión de Personal";
