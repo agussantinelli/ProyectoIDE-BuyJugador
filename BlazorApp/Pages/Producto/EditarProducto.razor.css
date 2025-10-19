@@ -1,0 +1,10 @@
+﻿.producto-form .inline-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .85rem;
+}
+
+.producto-form .form-group .form-control,
+.producto-form .form-group .form-select {
+    width: 100%;
+}

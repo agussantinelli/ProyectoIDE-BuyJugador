@@ -1,0 +1,106 @@
+﻿@page "/producto/{Id:int}"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject ProductoApiClient ProductoApi
+@inject NavigationManager Nav
+
+<link href="css/Form.css" rel="stylesheet" />
+<link href="css/Table.css" rel="stylesheet" />
+
+
+<div class="form-container producto-detalle">
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando...</div>
+    }
+    else if (Producto is null)
+    {
+        <div class="tbl-state"><i class="bi bi-inbox"></i> Producto no encontrado.</div>
+    }
+    else
+    {
+        <div class="form-header detalle-header">
+            <h3 class="form-title">Detalle de @Producto.Nombre</h3>
+            <div class="detalle-actions">
+                <button class="btn btn-secondary" @onclick="@(() => Nav.NavigateTo("/producto"))">
+                    <i class="bi bi-arrow-left"></i><span>Volver</span>
+                </button>
+                <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo($"/producto/editar/{Producto.IdProducto}"))">
+                    <i class="bi bi-pencil-square"></i><span>Editar</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="inline-2 detalle-grid">
+            <div class="form-group">
+                <label>Nombre</label>
+                <div class="readonly">@Producto.Nombre</div>
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <div class="readonly">@Producto.TipoProductoDescripcion</div>
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <div class="readonly">@Producto.Descripcion</div>
+            </div>
+            <div class="form-group">
+                <label>Stock</label>
+                <div class="readonly">@Producto.Stock</div>
+            </div>
+            <div class="form-group">
+                <label>Precio actual</label>
+                <div class="readonly">@((Producto.PrecioActual ?? 0m).ToString("C"))</div>
+            </div>
+        </div>
+
+        <h5 class="mt-3">Historial de precios</h5>
+        @if (Producto.Precios?.Any() == true)
+        {
+            <div class="tbl-wrapper detalle-wrapper">
+                <table class="tbl table-striped table-hover detalle-table">
+                    <thead>
+                        <tr>
+                            <th>Desde</th>
+                            <th class="tbl-text-end">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var pr in Producto.Precios.OrderByDescending(p => p.FechaDesde))
+                        {
+                            <tr>
+                                <td>@pr.FechaDesde.ToString("dd/MM/yyyy")</td>
+                                <td class="tbl-text-end">@pr.Monto.ToString("C")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="tbl-state"><i class="bi bi-inbox"></i> Sin historial.</div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private bool isLoading = true;
+    private ProductoDTO? Producto;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Producto = await ProductoApi.GetByIdAsync(Id);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

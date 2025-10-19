@@ -1,0 +1,147 @@
+﻿@page "/producto/crear"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@inject ProductoApiClient ProductoApi
+@inject TipoProductoApiClient TipoApi
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+
+<link href="css/Table.css" rel="stylesheet" />
+<link href="css/Form.css" rel="stylesheet" />
+
+<div class="form-container producto-form">
+    <div class="form-header">
+        <h3 class="form-title">Nuevo Producto</h3>
+        <button class="btn btn-secondary" @onclick="Volver">
+            <i class="bi bi-arrow-left"></i><span>Volver</span>
+        </button>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando...</div>
+    }
+    else
+    {
+        <EditForm EditContext="@editContext" OnValidSubmit="Guardar">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="nombre">Nombre</label>
+                <InputText id="nombre" class="form-control" @bind-Value="Model.Nombre" />
+                <ValidationMessage class="validation-message" For="@(() => Model.Nombre)" />
+            </div>
+
+            <div class="form-group">
+                <label for="desc">Descripción</label>
+                <InputText id="desc" class="form-control" @bind-Value="Model.Descripcion" />
+                <ValidationMessage class="validation-message" For="@(() => Model.Descripcion)" />
+            </div>
+
+            <div class="inline-2">
+                <div class="form-group">
+                    <label for="tipo">Tipo de producto</label>
+                    <InputSelect id="tipo" class="form-select" @bind-Value="Model.IdTipoProducto">
+                        <option value="">-- Seleccionar --</option>
+                        @foreach (var t in Tipos)
+                        {
+                            <option value="@t.IdTipoProducto">@t.Descripcion</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage class="validation-message" For="@(() => Model.IdTipoProducto)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="stock">Stock inicial</label>
+                    <InputNumber id="stock" class="form-control" @bind-Value="Model.Stock" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.Stock)" />
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    <i class="bi bi-save"></i><span>@(isSaving ? "Guardando..." : "Guardar")</span>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" @onclick="Volver" disabled="@isSaving">
+                    <i class="bi bi-x-circle"></i><span>Cancelar</span>
+                </button>
+            </div>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private class ProductoCreateVM
+    {
+        [Required, StringLength(100)]
+        public string? Nombre { get; set; }
+
+        [StringLength(255)]
+        public string? Descripcion { get; set; }
+
+        [Required(ErrorMessage = "Seleccione un tipo")]
+        public int? IdTipoProducto { get; set; }
+
+        [Range(0, int.MaxValue)]
+        public int Stock { get; set; } = 0;
+    }
+
+    private ProductoCreateVM Model = new();
+    private EditContext? editContext;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private List<TipoProductoDTO> Tipos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        editContext = new EditContext(Model);
+        try
+        {
+            Tipos = await TipoApi.GetAllAsync() ?? new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task Guardar()
+    {
+        if (!await JS.InvokeAsync<bool>("confirm", "⚠️ Se creará el producto.\n¿Desea continuar?")) return;
+
+        isSaving = true;
+        try
+        {
+            var dto = new ProductoDTO
+            {
+                Nombre = Model.Nombre!.Trim(),
+                Descripcion = Model.Descripcion?.Trim(),
+                IdTipoProducto = Model.IdTipoProducto,
+                Stock = Model.Stock
+            };
+
+            var resp = await ProductoApi.CreateAsync(dto);
+            if (resp.IsSuccessStatusCode)
+            {
+                await JS.InvokeVoidAsync("alert", "✅ Producto creado.");
+                Nav.NavigateTo("/producto");
+            }
+            else
+            {
+                var msg = await resp.Content.ReadAsStringAsync();
+                await JS.InvokeVoidAsync("alert", $"❌ Error: {msg}");
+            }
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void Volver() => Nav.NavigateTo("/producto");
+}

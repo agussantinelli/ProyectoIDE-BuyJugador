@@ -1,0 +1,40 @@
+﻿.detalle-header {
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.detalle-actions {
+    display: inline-flex;
+    gap: .5rem;
+}
+
+.detalle-grid {
+    grid-template-columns: 1fr 1fr;
+}
+
+.readonly {
+    padding: .55rem .75rem;
+    border: 1px solid #2a2f3d;
+    border-radius: 6px;
+    background: rgba(255,255,255,.04);
+}
+
+.detalle-wrapper {
+    overflow-x: auto;
+}
+
+.detalle-table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+    .detalle-table th:first-child, .detalle-table td:first-child {
+        width: 180px;
+        white-space: nowrap;
+    }
+
+    .detalle-table th:nth-child(2), .detalle-table td:nth-child(2) {
+        width: 160px;
+        white-space: nowrap;
+    }

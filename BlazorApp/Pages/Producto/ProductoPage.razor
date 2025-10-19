@@ -4,6 +4,7 @@
 @using ApiClient
 @using DTOs
 @inject ProductoApiClient productoApiClient
+@inject NavigationManager Nav
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -173,7 +174,18 @@
         if (response.IsSuccessStatusCode) await CargarTodosProductos();
     }
 
-    private void NuevoProducto() => Console.WriteLine("Nuevo producto");
-    private void VerDetalle(ProductoDTO p) => Console.WriteLine($"Ver {p.Nombre}");
-    private void Editar(ProductoDTO p) => Console.WriteLine($"Editar {p.Nombre}");
+    private void NuevoProducto() => Nav.NavigateTo("/producto/crear");
+
+    private void VerDetalle(ProductoDTO p)
+    {
+        if (p is null) return;
+        Nav.NavigateTo($"/producto/{p.IdProducto}");
+    }
+
+    private void Editar(ProductoDTO p)
+    {
+        if (p is null) return;
+        Nav.NavigateTo($"/producto/editar/{p.IdProducto}");
+    }
+
 }
