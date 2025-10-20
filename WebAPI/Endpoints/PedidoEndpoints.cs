@@ -36,6 +36,22 @@ public static class PedidoEndpoints
             }
         });
 
+        group.MapGet("/cantidad-pendientes", async (PedidoService pedidoService) =>
+        {
+            try
+            {
+                var cantidad = await pedidoService.GetCantidadPedidosPendientesAsync();
+                return Results.Ok(cantidad);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        })
+        .RequireAuthorization()
+        .WithTags("Pedidos");
+
+
         group.MapDelete("/{id}", async (int id, PedidoService service) =>
         {
             try
@@ -89,5 +105,6 @@ public static class PedidoEndpoints
                 return Results.BadRequest(new { message = ex.Message });
             }
         });
+
     }
 }

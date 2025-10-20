@@ -76,6 +76,16 @@ namespace WebAPI.Endpoints
                 return Results.Created($"/api/productos/{nuevoDto.IdProducto}", nuevoDto);
             });
 
+            app.MapGet("/api/productos/bajo-stock/{limiteStock:int}",
+                async (int limiteStock, ProductoService productoService) =>
+                {
+                    var productosEntidad = await productoService.GetProductosBajoStockAsync(limiteStock);
+                    var productosDTO = productosEntidad
+                        .Select(p => ProductoDTO.FromDominio(p))
+                        .ToList();
+                    return Results.Ok(productosDTO);
+                });
+
             app.MapPut("/api/productos/{id}", async (int id, ProductoDTO productoDto, ProductoService productoService) =>
             {
                 if (id != productoDto.IdProducto) return Results.BadRequest();
@@ -95,8 +105,11 @@ namespace WebAPI.Endpoints
                 await productoService.ReactivarAsync(id);
                 return Results.NoContent();
             });
+            
 
             return app;
         }
+
+
     }
 }

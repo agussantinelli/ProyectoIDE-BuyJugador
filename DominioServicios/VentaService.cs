@@ -186,6 +186,23 @@ namespace DominioServicios
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<decimal> GetTotalVentasHoyAsync()
+        {
+            var hoy = DateTime.Today;
+            var mañana = hoy.AddDays(1);
+
+                // 1. Filtramos las Ventas que ocurrieron hoy.
+                // 2. Usamos SelectMany para obtener TODAS las LineaVenta de esas ventas.
+                // 3. Sumamos el (Cantidad * PrecioUnitario) de cada línea.
+
+            var total = await _context.Ventas
+                .Where(v => v.Fecha >= hoy && v.Fecha < mañana)
+                .SelectMany(v => v.LineaVenta) 
+                .SumAsync(lv => lv.Cantidad * lv.PrecioUnitario);
+
+            return total;
+        }
     }
 }
 

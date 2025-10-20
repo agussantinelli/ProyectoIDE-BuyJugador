@@ -107,5 +107,14 @@ namespace DominioServicios
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task<List<Producto>> GetProductosBajoStockAsync(int limiteStock)
+        {
+            var productos = await _context.Productos
+                .Where(p => p.Stock <= limiteStock && p.Stock > 0 && p.Activo)
+                .OrderBy(p => p.Stock)
+                .ToListAsync();
+
+            return productos;
+        }
     }
 }
