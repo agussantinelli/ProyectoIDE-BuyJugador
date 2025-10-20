@@ -78,7 +78,6 @@
 
 
 @code {
-    // #CORRECCIÓN: Se usa el nuevo DTO optimizado.
     private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
     private bool isLoadingReporte = false;
@@ -86,7 +85,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // #CORRECCIÓN: Se llama al nuevo método optimizado.
         personas = await personaApiClient.GetPersonasActivasParaReporteAsync() ?? new List<PersonaSimpleDTO>();
     }
 
