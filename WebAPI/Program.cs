@@ -9,11 +9,10 @@ using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Configuración de la Base de Datos ---
+
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
 
-// --- 2. Registro de Servicios de Dominio ---
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
@@ -28,6 +27,7 @@ builder.Services.AddScoped<VentaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<ReporteService>();
+builder.Services.AddScoped<PdfReportService>(); // #CORRECCIÓN: Se registra el nuevo servicio de PDF.
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -61,6 +61,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

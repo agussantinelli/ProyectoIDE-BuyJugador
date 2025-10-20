@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace DominioServicios
 {
+    // #NUEVO: Servicio dedicado a la generación de reportes con ADO.NET.
+    // #Principio: Separación de responsabilidades. Mantenemos EF Core para el CRUD
+    // #y usamos ADO.NET para consultas complejas o reportes específicos.
     public class ReporteService
     {
         private readonly string _connectionString;
@@ -21,7 +24,9 @@ namespace DominioServicios
             var reportes = new List<ReporteVentasDTO>();
             var fechaDesde = DateTime.UtcNow.AddDays(-7);
 
-            // #CORRECCIÓN: Se utilizan los nombres de tabla correctos y pluralizados (Ventas, Personas, LineaVentas).
+            // #Intención: Crear una consulta SQL segura y eficiente con ADO.NET.
+            // #Seguridad: Se usan parámetros (@IdPersona, @FechaDesde) para prevenir inyección SQL.
+            // #CORRECCIÓN: Se usan los nombres de tabla correctos (Ventas, Personas, LineaVentas).
             const string query = @"
                 SELECT
                     v.IdVenta,

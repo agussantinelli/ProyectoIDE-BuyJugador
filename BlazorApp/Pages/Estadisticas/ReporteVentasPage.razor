@@ -5,6 +5,7 @@
 @using DTOs
 @inject PersonaApiClient personaApiClient
 @inject ReporteApiClient reporteApiClient
+@inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -19,15 +20,30 @@
     }
     else
     {
-        <div class="mb-3">
-            <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
-            <select id="vendedor" class="form-select" @onchange="OnVendedorSeleccionado">
-                <option value="0">-- Por favor, elija un vendedor --</option>
-                @foreach (var persona in personas)
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div style="min-width: 320px; flex-grow: 1;">
+                <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
+                <select id="vendedor" class="form-select" @onchange="OnVendedorSeleccionado" disabled="@(isLoadingReporte || isDownloadingPdf)">
+                    <option value="0">-- Por favor, elija un vendedor --</option>
+                    @foreach (var persona in personas)
+                    {
+                        <option value="@persona.IdPersona">@persona.NombreCompleto</option>
+                    }
+                </select>
+            </div>
+
+            <button class="btn btn-success align-self-end" @onclick="DescargarPdf" disabled="@(selectedPersonaId == 0 || reporteData == null || !reporteData.Any() || isDownloadingPdf)">
+                @if (isDownloadingPdf)
                 {
-                    <option value="@persona.IdPersona">@persona.NombreCompleto</option>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Generando...</span>
                 }
-            </select>
+                else
+                {
+                    <i class="bi bi-file-earmark-pdf me-1"></i>
+                    <span>Descargar PDF</span>
+                }
+            </button>
         </div>
 
         @if (isLoadingReporte)
@@ -76,11 +92,11 @@
     }
 </div>
 
-
 @code {
     private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
     private bool isLoadingReporte = false;
+    private bool isDownloadingPdf = false;
     private int selectedPersonaId = 0;
 
     protected override async Task OnInitializedAsync()
@@ -94,6 +110,7 @@
         {
             isLoadingReporte = true;
             reporteData = null;
+            StateHasChanged();
 
             reporteData = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
 
@@ -102,6 +119,28 @@
         else
         {
             reporteData = null;
+        }
+    }
+
+    private async Task DescargarPdf()
+    {
+        if (selectedPersonaId == 0 || isDownloadingPdf) return;
+
+        isDownloadingPdf = true;
+        try
+        {
+            var pdfBytes = await reporteApiClient.GetReporteVentasPdfAsync(selectedPersonaId);
+            if (pdfBytes != null)
+            {
+                var selectedPersona = personas?.FirstOrDefault(p => p.IdPersona == selectedPersonaId);
+                var fileName = $"ReporteVentas_{selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario"}_{DateTime.Now:yyyyMMdd}.pdf";
+                var base64 = Convert.ToBase64String(pdfBytes);
+                await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, base64);
+            }
+        }
+        finally
+        {
+            isDownloadingPdf = false;
         }
     }
 }

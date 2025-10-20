@@ -1,8 +1,6 @@
 ﻿using DTOs;
 using PdfSharp.Drawing;
-using PdfSharp.Fonts;
 using PdfSharp.Pdf;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,118 +9,81 @@ namespace DominioServicios
 {
     public class PdfReportService
     {
-        // #CORRECCIÓN: Se añade un constructor estático para configurar el resolver de fuentes.
-        // #Razón: La librería PDFsharp necesita ayuda para encontrar las fuentes del sistema (como Arial)
-        // #cuando se ejecuta en un entorno .NET Core/.NET 8. Esto asegura que funcione correctamente.
-        static PdfReportService()
+        public byte[] GenerateVentasPdf(List<ReporteVentasDTO> reporteData, string nombreVendedor)
         {
-            GlobalFontSettings.FontResolver = new FontResolver();
-        }
-
-        public byte[] GenerateVentasPdf(IEnumerable<ReporteVentasDTO> reporteData, string nombreVendedor)
-        {
+            // #Intención: Configurar el documento y las fuentes a utilizar.
+            // #Corrección: Se utiliza XFontStyleEx en lugar de XFontStyle para compatibilidad con las versiones modernas de PDFsharp.
             var document = new PdfDocument();
+            document.Info.Title = $"Reporte de Ventas - {nombreVendedor}";
             var page = document.AddPage();
             var gfx = XGraphics.FromPdfPage(page);
 
-            var fontTitle = new XFont("Arial", 18, XFontStyle.Bold);
-            var fontHeader = new XFont("Arial", 10, XFontStyle.Bold);
-            var fontBody = new XFont("Arial", 9, XFontStyle.Regular);
-            var fontTotal = new XFont("Arial", 10, XFontStyle.Bold);
+            var fontTitle = new XFont("Arial", 16, XFontStyleEx.Bold);
+            var fontHeader = new XFont("Arial", 12, XFontStyleEx.Bold);
+            var fontBody = new XFont("Arial", 10, XFontStyleEx.Regular);
+            var fontTotal = new XFont("Arial", 12, XFontStyleEx.Bold);
 
-            double yPos = 60;
-            double xMargin = 40;
+            double yPos = 40;
+            double leftMargin = 40;
+            double rightMargin = page.Width - 40;
 
-            // Título
-            gfx.DrawString("Reporte de Ventas (Últimos 7 días)", fontTitle, XBrushes.Black, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
+            // --- Título ---
+            gfx.DrawString($"Reporte de Ventas: {nombreVendedor}", fontTitle, XBrushes.Black, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
             yPos += 30;
-            gfx.DrawString($"Vendedor: {nombreVendedor}", new XFont("Arial", 12, XFontStyle.Regular), XBrushes.Black, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
+            gfx.DrawString($"Últimos 7 días - Generado el {System.DateTime.Now:dd/MM/yyyy HH:mm}", fontBody, XBrushes.Gray, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
             yPos += 40;
 
-            // Cabeceras de la tabla
-            double[] columnWidths = { 80, 150, 120, 120 };
+            // --- Cabecera de la Tabla ---
+            double[] columnWidths = { 80, 150, 120, 150 };
             string[] headers = { "ID Venta", "Fecha", "Estado", "Total" };
+            double currentX = leftMargin;
 
             for (int i = 0; i < headers.Length; i++)
             {
-                var xPos = xMargin + columnWidths.Take(i).Sum();
-                gfx.DrawRectangle(XBrushes.LightGray, xPos, yPos, columnWidths[i], 20);
-                gfx.DrawString(headers[i], fontHeader, XBrushes.Black, new XRect(xPos + 5, yPos + 3, columnWidths[i] - 10, 20), XStringFormats.TopLeft);
+                var format = (i == headers.Length - 1) ? XStringFormats.TopRight : XStringFormats.TopLeft;
+                gfx.DrawString(headers[i], fontHeader, XBrushes.Black, new XRect(currentX, yPos, columnWidths[i], 0), format);
+                currentX += columnWidths[i];
             }
             yPos += 20;
+            gfx.DrawLine(XPens.Gray, leftMargin, yPos, rightMargin, yPos);
+            yPos += 10;
 
-            // Filas de datos
+            // --- Filas de Datos ---
             foreach (var item in reporteData)
             {
-                if (yPos > page.Height - 80) // Salto de página si no hay espacio
+                currentX = leftMargin;
+                gfx.DrawString(item.IdVenta.ToString(), fontBody, XBrushes.Black, new XRect(currentX, yPos, columnWidths[0], 0), XStringFormats.TopLeft);
+                currentX += columnWidths[0];
+                gfx.DrawString(item.Fecha.ToString("dd/MM/yyyy HH:mm"), fontBody, XBrushes.Black, new XRect(currentX, yPos, columnWidths[1], 0), XStringFormats.TopLeft);
+                currentX += columnWidths[1];
+                gfx.DrawString(item.Estado, fontBody, XBrushes.Black, new XRect(currentX, yPos, columnWidths[2], 0), XStringFormats.TopLeft);
+                currentX += columnWidths[2];
+                gfx.DrawString(item.TotalVenta.ToString("C2"), fontBody, XBrushes.Black, new XRect(currentX, yPos, columnWidths[3], 0), XStringFormats.TopRight);
+                yPos += 25;
+
+                if (yPos > page.Height - 80)
                 {
                     page = document.AddPage();
                     gfx = XGraphics.FromPdfPage(page);
-                    yPos = 60;
+                    yPos = 40; // Reiniciar en la nueva página
                 }
-
-                string[] rowData = {
-                    item.IdVenta.ToString(),
-                    item.Fecha.ToString("dd/MM/yyyy HH:mm"),
-                    item.Estado,
-                    item.TotalVenta.ToString("C2")
-                };
-
-                for (int i = 0; i < rowData.Length; i++)
-                {
-                    var xPos = xMargin + columnWidths.Take(i).Sum();
-                    gfx.DrawRectangle(XPens.Gray, xPos, yPos, columnWidths[i], 20);
-                    XStringFormat format = (i == 3) ? XStringFormats.TopRight : XStringFormats.TopLeft;
-                    gfx.DrawString(rowData[i], fontBody, XBrushes.Black, new XRect(xPos + 5, yPos + 4, columnWidths[i] - 10, 20), format);
-                }
-                yPos += 20;
             }
 
-            // Fila de Total
+            // --- Línea y Total General ---
+            yPos += 10;
+            gfx.DrawLine(XPens.Black, leftMargin, yPos, rightMargin, yPos);
+            yPos += 15;
+
             var totalGeneral = reporteData.Sum(r => r.TotalVenta);
-            var totalXPosLabel = xMargin + columnWidths.Take(3).Sum() - 5; // Posición para "Total General:"
-            var totalXPosValue = xMargin + columnWidths.Sum(); // Posición para el valor
+            gfx.DrawString("Total General:", fontTotal, XBrushes.Black, new XRect(leftMargin, yPos, page.Width - leftMargin - rightMargin, 0), XStringFormats.TopRight);
+            gfx.DrawString(totalGeneral.ToString("C2"), fontTotal, XBrushes.Black, new XRect(rightMargin - columnWidths[3], yPos, columnWidths[3], 0), XStringFormats.TopRight);
 
-            gfx.DrawString("Total General:", fontTotal, XBrushes.Black, new XRect(0, yPos + 5, totalXPosLabel, 20), XStringFormats.TopRight);
-            gfx.DrawString(totalGeneral.ToString("C2"), fontTotal, XBrushes.Black, new XRect(0, yPos + 5, totalXPosValue - 5, 20), XStringFormats.TopRight);
-
+            // --- Guardar en memoria ---
             using (var stream = new MemoryStream())
             {
                 document.Save(stream, false);
                 return stream.ToArray();
             }
-        }
-    }
-
-    // #NUEVO: Implementación de IFontResolver para que PDFsharp encuentre las fuentes del sistema.
-    public class FontResolver : IFontResolver
-    {
-        public byte[] GetFont(string faceName)
-        {
-            // Busca la fuente en las carpetas de fuentes comunes de Windows y Linux
-            var fontPaths = new[]
-            {
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "arial.ttf"), // Windows
-                "/usr/share/fonts/truetype/msttcorefonts/Arial.ttf", // Linux (Debian/Ubuntu)
-                "/usr/share/fonts/corefonts/Arial.ttf", // Linux (CentOS/RHEL)
-            };
-
-            var fontPath = fontPaths.FirstOrDefault(File.Exists);
-            if (fontPath != null)
-            {
-                return File.ReadAllBytes(fontPath);
-            }
-
-            // Si no se encuentra, podrías lanzar una excepción o devolver una fuente de respaldo.
-            // Por simplicidad, devolvemos un array vacío, lo que podría causar un error si no se encuentra Arial.
-            return Array.Empty<byte>();
-        }
-
-        public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
-        {
-            // Para este ejemplo simple, no manejamos negrita/cursiva de forma especial.
-            // PDFsharp intentará simularlos si no encuentra la fuente específica.
-            return new FontResolverInfo(familyName);
         }
     }
 }
