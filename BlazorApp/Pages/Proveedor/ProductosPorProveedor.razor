@@ -1,0 +1,110 @@
+﻿@page "/proveedor/{IdProveedor:int}/productos"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject ProductoProveedorApiClient productoProveedorApiClient
+@inject ProveedorApiClient proveedorApiClient
+@inject NavigationManager navigationManager
+
+<div class="tbl-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando productos...
+        </div>
+    }
+    else if (proveedor != null)
+    {
+        <div class="tbl-header">
+            <h2 class="tbl-title">Productos de @proveedor.RazonSocial</h2>
+            <div class="tbl-search">
+                <button class="btn btn-secondary" @onclick="VolverAProveedores">
+                    <i class="bi bi-arrow-left-circle"></i> Volver a Proveedores
+                </button>
+            </div>
+        </div>
+
+        @if (productos.Any())
+        {
+            <div class="tbl-wrapper">
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Descripción</th>
+                            <th class="tbl-text-end">Precio Compra</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var producto in productos)
+                        {
+                            <tr>
+                                <td>@producto.IdProducto</td>
+                                <td class="tbl-truncate">@producto.Nombre</td>
+                                <td class="tbl-truncate">@producto.Descripcion</td>
+                                <td class="tbl-text-end">@producto.PrecioCompra.ToString("C2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="tbl-state">
+                Este proveedor no tiene productos asignados.
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-danger">
+            No se encontró el proveedor especificado. Puedes volver a la lista de proveedores.
+        </div>
+        <div class="form-actions mt-3">
+            <button class="btn btn-secondary" @onclick="VolverAProveedores">
+                <i class="bi bi-arrow-left-circle"></i> Volver a Proveedores
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int IdProveedor { get; set; }
+
+    private ProveedorDTO? proveedor;
+    private List<ProductoAsignadoDTO> productos = new();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Se inyecta también el proveedorApiClient para obtener el nombre del proveedor.
+            var proveedorTask = proveedorApiClient.GetByIdAsync(IdProveedor);
+            var productosTask = productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(IdProveedor);
+
+            await Task.WhenAll(proveedorTask, productosTask);
+
+            proveedor = proveedorTask.Result;
+            productos = productosTask.Result ?? new List<ProductoAsignadoDTO>();
+        }
+        catch (Exception)
+        {
+            proveedor = null;
+            productos = new List<ProductoAsignadoDTO>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void VolverAProveedores()
+    {
+        navigationManager.NavigateTo("/proveedor");
+    }
+}

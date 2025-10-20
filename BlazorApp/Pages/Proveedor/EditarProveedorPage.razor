@@ -99,6 +99,9 @@
                 </div>
 
                 <div class="form-actions">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="VerProductos">
+                        <i class="bi bi-box-seam"></i> Ver Productos
+                    </button>
                     <button type="button" class="btn btn-secondary" @onclick="Volver">
                         <i class="bi bi-arrow-left-circle"></i> Volver
                     </button>
@@ -245,6 +248,11 @@
         {
             isSaving = false;
         }
+    }
+
+    private void VerProductos()
+    {
+        navigationManager.NavigateTo($"/proveedor/{IdProveedor}/productos");
     }
 
     private void Volver()
