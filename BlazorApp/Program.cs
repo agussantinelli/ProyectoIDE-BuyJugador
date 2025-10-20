@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System.Globalization;
+using System;
+using System.Net.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -28,24 +32,15 @@ var apiBase = builder.Configuration["ApiBaseUrl"]
 var apiUri = new Uri(apiBase);
 
 // --- 3. Configuración de Servicios de Autenticación y Sesión ---
-// # Intención: Registrar el nuevo servicio de sesión en memoria.
-// # Será una única instancia por sesión de usuario en una pestaña.
 builder.Services.AddScoped<InMemoryUserSession>();
-
-// # Mantenemos BlazoredLocalStorage por si otras partes de la app (como el panel de bienvenida) lo usan,
-// # pero ya no se utiliza para la autenticación.
 builder.Services.AddBlazoredLocalStorage();
-
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<UserSessionService>();
-builder.Services.AddScoped<TokenMessageHandler>(); // Registramos el manejador de tokens
+builder.Services.AddScoped<TokenMessageHandler>();
 
 // --- 4. Configuración Centralizada de HttpClient ---
-// Cliente SIN autenticación para el endpoint de login.
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
-
-// Cliente CON autenticación que será usado por todos los ApiClients.
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
               .AddHttpMessageHandler<TokenMessageHandler>();
 
@@ -63,6 +58,7 @@ builder.Services.AddScoped(sp => new ProductoProveedorApiClient(sp.GetRequiredSe
 builder.Services.AddScoped(sp => new LineaVentaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PedidoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new LineaPedidoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
+builder.Services.AddScoped(sp => new ReporteApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 

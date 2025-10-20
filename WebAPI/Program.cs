@@ -9,10 +9,11 @@ using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// --- 1. Configuración de la Base de Datos ---
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
 
+// --- 2. Registro de Servicios de Dominio ---
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
@@ -26,6 +27,7 @@ builder.Services.AddScoped<PedidoService>();
 builder.Services.AddScoped<VentaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
+builder.Services.AddScoped<ReporteService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -37,8 +39,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorApp",
         builder => builder.WithOrigins("https://localhost:7035")
-                           .AllowAnyHeader()
-                           .AllowAnyMethod());
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -59,7 +61,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
 
 if (app.Environment.IsDevelopment())
 {
@@ -93,5 +94,7 @@ app.MapPedidoEndpoints();
 app.MapVentaEndpoints();
 app.MapLineaPedidoEndpoints();
 app.MapLineaVentaEndpoints();
+app.MapReporteEndpoints();
 
 app.Run();
+

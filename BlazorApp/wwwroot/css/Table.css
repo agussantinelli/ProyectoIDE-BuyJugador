@@ -198,3 +198,15 @@
 .tbl-state .spin {
     animation: tbl-spin 1s linear infinite;
 }
+
+.tbl tfoot .tbl-total-row {
+    border-top: 2px solid var(--border-strong);
+    background-color: var(--surface-2);
+    font-weight: bold;
+}
+
+    .tbl tfoot .tbl-total-row td {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        color: var(--text-emphasis);
+    }

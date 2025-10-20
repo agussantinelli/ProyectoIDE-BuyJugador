@@ -24,58 +24,25 @@ namespace WinForms
 
                     Action<HttpClient> configureClient = client => client.BaseAddress = apiBaseAddress;
 
-                    services.AddHttpClient<PersonaApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
 
-                    services.AddHttpClient<ProductoApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
+                    var handler = new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true };
 
-                    services.AddHttpClient<ProveedorApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<PersonaApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<ProductoApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<ProveedorApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<PedidoApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<VentaApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<LineaPedidoApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<LineaVentaApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<LocalidadApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<PrecioCompraApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<PrecioVentaApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<ProductoProveedorApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<ProvinciaApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<TipoProductoApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
+                    services.AddHttpClient<ReporteApiClient>(configureClient).ConfigurePrimaryHttpMessageHandler(() => handler).AddHttpMessageHandler<TokenMessageHandler>();
 
-                    services.AddHttpClient<PedidoApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<VentaApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<LineaPedidoApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<LineaVentaApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<LocalidadApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<PrecioCompraApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<PrecioVentaApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<ProductoProveedorApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<ProvinciaApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
-                    services.AddHttpClient<TipoProductoApiClient>(configureClient)
-                        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, __, ___, ____) => true })
-                        .AddHttpMessageHandler<TokenMessageHandler>();
-
+                    // #Intención: Registrar todos los formularios para inyección de dependencias.
                     services.AddTransient<LoginForm>();
                     services.AddTransient<MainForm>();
                     services.AddTransient<PersonaForm>();
@@ -105,6 +72,7 @@ namespace WinForms
                     services.AddTransient<AñadirProductoPedidoForm>();
                     services.AddTransient<VerProductosProveedorForm>();
                     services.AddTransient<VerProveedoresProductoForm>();
+                    services.AddTransient<ReporteVentasForm>();
                 })
                 .Build();
 
@@ -125,13 +93,14 @@ namespace WinForms
                     Application.Run(mainForm);
                 }
 
+                // #Lógica Restaurada: Se mantiene tu flujo original para el ciclo de la aplicación.
                 if (userSessionService.CurrentUser == null)
                 {
-                    continue;
+                    continue; // El usuario cerró sesión, volver al login.
                 }
                 else
                 {
-                    break;
+                    break; // El usuario cerró la ventana principal, terminar la aplicación.
                 }
             }
         }
