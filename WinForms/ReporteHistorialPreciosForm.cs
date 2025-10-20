@@ -10,11 +10,11 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    public partial class HistorialPreciosForm : BaseForm
+    public partial class ReporteHistorialPreciosForm : BaseForm
     {
         private readonly PrecioVentaApiClient _precioApiClient;
 
-        public HistorialPreciosForm(PrecioVentaApiClient precioApiClient)
+        public ReporteHistorialPreciosForm(PrecioVentaApiClient precioApiClient)
         {
             InitializeComponent();
             _precioApiClient = precioApiClient;

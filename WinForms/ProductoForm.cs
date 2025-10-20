@@ -205,14 +205,14 @@ namespace WinForms
 
         private void btnReportePrecios_Click(object sender, EventArgs e)
         {
-            var existingForm = this.MdiParent?.MdiChildren.OfType<HistorialPreciosForm>().FirstOrDefault();
+            var existingForm = this.MdiParent?.MdiChildren.OfType<ReporteHistorialPreciosForm>().FirstOrDefault();
             if (existingForm != null)
             {
                 existingForm.BringToFront();
             }
             else
             {
-                var form = new HistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>());
+                var form = new ReporteHistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>());
                 form.MdiParent = this.MdiParent;
                 form.Show();
             }

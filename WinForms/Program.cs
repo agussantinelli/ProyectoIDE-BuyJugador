@@ -92,7 +92,7 @@ namespace WinForms
                     services.AddTransient<ProveedorForm>();
                     services.AddTransient<CrearProveedorForm>();
                     services.AddTransient<EditarProveedorForm>();
-                    services.AddTransient<HistorialPreciosForm>();
+                    services.AddTransient<ReporteHistorialPreciosForm>();
                     services.AddTransient<EditarPrecioForm>();
                     services.AddTransient<VentaForm>();
                     services.AddTransient<CrearVentaForm>();

@@ -1,6 +1,6 @@
 ﻿namespace WinForms
 {
-    partial class HistorialPreciosForm
+    partial class ReporteHistorialPreciosForm
     {
         private System.ComponentModel.IContainer components = null;
         private ScottPlot.WinForms.FormsPlot formsPlot1; // # Reemplazamos los controles anteriores por el gráfico.
