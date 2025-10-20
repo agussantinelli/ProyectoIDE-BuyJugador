@@ -245,11 +245,9 @@ namespace DominioServicios
 
         public async Task<int> GetCantidadPedidosPendientesAsync()
         {
-            var estadosFinalizados = new[] { "Completado", "Cancelado" };
-
             var cantidad = await _context.Pedidos
-                .CountAsync(p => !estadosFinalizados.Contains(p.Estado));
-
+                .CountAsync(p => p.Estado == "Pendiente");
+            
             return cantidad;
         }
 
