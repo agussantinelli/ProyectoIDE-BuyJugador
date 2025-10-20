@@ -1,105 +1,283 @@
-﻿
-.form-container {
-    max-width: 720px;
-    margin: 1.5rem auto;
-    padding: 1.5rem;
-    background: #fff;
-    border: 1px solid #e8e8e8;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+﻿/* Variables para colores base */
+:root {
+    --primary-color: #007bff; /* Azul vibrante para elementos principales */
+    --secondary-color: #6c757d; /* Gris para acciones secundarias */
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --text-dark: #343a40; /* Texto principal oscuro */
+    --text-light: #f8f9fa; /* Texto claro (si se usa en fondos oscuros) */
+    --bg-light: #ffffff; /* Fondo claro para componentes */
+    --bg-dark: #f0f2f5; /* Fondo general de la página (un gris muy claro) */
+    --border-color: #ced4da; /* Color de borde estándar */
+    --input-bg: #e9ecef; /* Fondo de inputs, ligeramente gris para contraste */
+    --input-border: #ced4da; /* Borde de input */
+    --input-focus-border: #80bdff; /* Borde de input en focus */
+    --shadow-light: rgba(0, 0, 0, 0.1); /* Sombra ligera */
 }
 
-.form-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    margin-bottom: 1rem;
+
+body {
+    /* Establece un color de fondo general para la página */
+    background-color: var(--bg-dark);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-dark); /* Color de texto base */
+}
+
+.form-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2.5rem; /* Un poco más de padding */
+    background-color: var(--bg-light); /* Fondo blanco para el formulario */
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 8px 24px var(--shadow-light); /* Sombra más pronunciada pero suave */
 }
 
 .form-title {
-    margin: 0;
-    font-size: 1.4rem;
-    font-weight: 600;
+    color: var(--text-dark); /* Título oscuro */
+    text-align: center;
+    margin-bottom: 2.5rem; /* Más espacio debajo del título */
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.8rem; /* Más padding para el borde */
+    display: block; /* Para centrar el borde */
+    font-size: 2rem; /* Tamaño de fuente del título */
+    font-weight: 700;
 }
 
 .form-group {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
     .form-group label {
         display: block;
-        margin-bottom: .45rem;
-        font-weight: 500;
+        margin-bottom: 0.6rem; /* Más espacio debajo de la etiqueta */
+        font-weight: 600;
+        color: var(--text-dark); /* Etiquetas oscuras */
+        font-size: 0.95rem; /* Tamaño de fuente ligeramente más grande para etiquetas */
     }
 
-.form-control, .form-select {
+/* Estilo para todos los inputs, selects y textareas */
+.form-control,
+.form-container input[type="text"],
+.form-container input[type="number"],
+.form-container select {
     width: 100%;
-    padding: .55rem .75rem;
-    border: 1px solid #cfcfcf;
-    border-radius: 6px;
-    font-size: 1rem;
+    padding: 0.8rem 1rem; /* Más padding */
+    font-size: 1rem; /* Tamaño de fuente estándar */
+    line-height: 1.5;
+    color: var(--text-dark); /* Texto de input oscuro */
+    background-color: var(--input-bg); /* Fondo de input ligeramente gris */
+    background-clip: padding-box;
+    border: 1px solid var(--input-border); /* Borde de input */
+    border-radius: 0.5rem; /* Bordes redondeados para inputs */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    -webkit-appearance: none; /* Para limpiar estilos por defecto en WebKit */
+    -moz-appearance: none; /* Para limpiar estilos por defecto en Mozilla */
+    appearance: none;
 }
 
-    .form-control[readonly] {
-        background: #f5f6f7;
-        color: #6b6f76;
+    .form-control:focus,
+    .form-container input[type="text"]:focus,
+    .form-container input[type="number"]:focus,
+    .form-container select:focus {
+        color: var(--text-dark);
+        background-color: var(--bg-light); /* Fondo blanco al enfocar */
+        border-color: var(--input-focus-border); /* Borde azul al enfocar */
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Sombra de enfoque */
     }
 
-.inline-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: .85rem;
+/* Estilo para los select que se ven oscuros */
+.form-container select {
+    /* Quitar la flecha por defecto en algunos navegadores para controlarla con un background-image si es necesario */
+    /* -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none; */
+    /* Si decides quitar la flecha, puedes añadir una personalizada con background-image */
 }
 
-.inline-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: .85rem;
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem; /* Más espacio entre columnas */
+    align-items: flex-start;
 }
+
+    .form-row .form-group {
+        flex: 1 1 auto;
+        margin-bottom: 0; /* Quitar margen inferior si está dentro de form-row */
+    }
+
+    .form-row .col-3 {
+        flex-basis: calc(25% - 1rem);
+    }
+    /* Ajustar para el gap */
+    .form-row .col-6 {
+        flex-basis: calc(50% - 0.75rem);
+    }
+/* Ajustar para el gap */
+
 
 .form-actions {
-    margin-top: 1.25rem;
+    margin-top: 2.5rem; /* Más espacio superior */
     display: flex;
-    gap: .75rem;
+    gap: 1rem;
     justify-content: flex-end;
 }
 
-.tbl-state {
-    text-align: center;
-    color: #6c757d;
-    padding: 2rem 1rem;
+/* Botones */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.5rem; /* Padding uniforme */
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    border-radius: 0.5rem; /* Bordes redondeados para botones */
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
 }
 
-.spin {
-    display: inline-block;
-    margin-right: .35rem;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0)
+    .btn i {
+        margin-right: 0.5rem; /* Espacio entre icono y texto */
+        font-size: 1.1rem;
     }
 
-    to {
-        transform: rotate(360deg)
+.btn-primary {
+    color: var(--text-light); /* Texto blanco */
+    background-color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3; /* Un azul más oscuro al pasar el mouse */
+        border-color: #0056b3;
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
     }
+
+.btn-secondary {
+    color: var(--text-light);
+    background-color: var(--secondary-color);
+    border: 1px solid var(--secondary-color);
 }
 
-.validation-message {
-    color: #b42318;
-    font-size: .9rem;
-    margin-top: .35rem;
-}
-
-.btn i {
-    margin-right: .4rem;
-}
-
-
-@keyframes tbl-spin {
-    to {
-        transform: rotate(360deg);
+    .btn-secondary:hover {
+        background-color: #545b62;
+        border-color: #545b62;
     }
+
+.btn-outline-secondary {
+    color: var(--secondary-color);
+    background-color: transparent;
+    border: 1px solid var(--secondary-color);
 }
+
+    .btn-outline-secondary:hover {
+        color: var(--text-light);
+        background-color: var(--secondary-color);
+    }
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Estilo para la línea divisoria */
+hr {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para los títulos de sección (como "Agregar Productos") */
+h5 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Checkbox (para "Marcar como recibido") */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    width: 1.25em;
+    height: 1.25em;
+    margin-top: 0.25em;
+    vertical-align: top;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    appearance: none; /* Elimina el estilo predeterminado del navegador */
+    border-radius: 0.25em;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .form-check-input:focus {
+        border-color: var(--input-focus-border);
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    }
+
+.form-check-label {
+    margin-left: 0.75rem;
+    cursor: pointer;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+/* Alertas */
+.alert {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.btn-close {
+    padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem auto;
+    background-color: transparent;
+    border: 0;
+    opacity: 0.5;
+    font-size: 1.25rem; /* Tamaño de la 'x' */
+    cursor: pointer;
+    color: inherit; /* Hereda el color del texto del alert */
+}
+
+    .btn-close:hover {
+        opacity: 0.75;
+    }
