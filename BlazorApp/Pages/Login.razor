@@ -4,9 +4,12 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Web
 @using BlazorApp.Auth
+@using DTOs
+@using Blazored.LocalStorage
 @inject IHttpClientFactory HttpFactory
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
+@inject ILocalStorageService LocalStorage
 
 <div class="login-page-wrapper">
     <div class="login-card">
@@ -97,13 +100,20 @@
                 return;
             }
 
+            // --- INICIO DE CAMBIOS ---
+            // 1. Guardamos el token en Local Storage
+            await LocalStorage.SetItemAsync("authToken", token);
+
+            // 2. Notificamos al AuthenticationStateProvider que el usuario se ha logueado.
+            //    Esto actualizará el estado de la aplicación.
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
-            await customAuthStateProvider.MarkUserAsLoggedInAsync(token);
+            customAuthStateProvider.NotifyUserAuthentication(token);
+            // --- FIN DE CAMBIOS ---
 
             var uri = new Uri(Nav.Uri);
             var returnUrl = HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
 
-            Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
+            Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl, forceLoad: true);
         }
         catch (Exception ex)
         {
@@ -130,4 +140,3 @@
         public string? Token { get; set; }
     }
 }
-

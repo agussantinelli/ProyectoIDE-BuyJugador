@@ -37,7 +37,7 @@ public static class DbSeeder
     public static async Task SeedAsync(BuyJugadorContext context)
     {
         // # Descomenta esta línea para forzar la recreación de la BD cada vez que inicias
-       //await context.Database.EnsureDeletedAsync(); 
+        //await context.Database.EnsureDeletedAsync(); 
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())

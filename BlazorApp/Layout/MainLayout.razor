@@ -1,7 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@using BlazorApp.Auth
+@using Blazored.LocalStorage
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
-@inject IJSRuntime JS
+@inject ILocalStorageService LocalStorage
 
 <div class="app-shell @(isCollapsed ? "collapsed" : "")">
     <aside class="sidebar">
@@ -12,48 +14,46 @@
         </div>
 
         <nav class="sidebar-nav">
-            <nav class="sidebar-nav">
-                <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
-                    <span class="bi bi-house-door"></span>
-                    <span class="nav-label">Inicio</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/producto">
-                    <span class="bi bi-bag"></span>
-                    <span class="nav-label">Productos</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/venta">
-                    <span class="bi bi-receipt"></span>
-                    <span class="nav-label">Ventas</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/pedido">
-                    <span class="bi bi-truck"></span>
-                    <span class="nav-label">Pedidos</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/proveedor">
-                    <span class="bi bi-building"></span>
-                    <span class="nav-label">Proveedores</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/persona">
-                    <span class="bi bi-person-lines-fill"></span>
-                    <span class="nav-label">Personas</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/tipo-producto">
-                    <span class="bi bi-tags"></span>
-                    <span class="nav-label">Tipos de producto</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/provincia">
-                    <span class="bi bi-geo-alt"></span>
-                    <span class="nav-label">Provincias</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/localidad">
-                    <span class="bi bi-geo"></span>
-                    <span class="nav-label">Localidades</span>
-                </NavLink>
-                <NavLink class="nav-item" href="/estadisticas">
-                    <span class="bi bi-graph-up"></span>
-                    <span class="nav-label">Estadísticas</span>
-                </NavLink>
-            </nav>
+            <NavLink class="nav-item" href="/" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door"></span>
+                <span class="nav-label">Inicio</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/producto">
+                <span class="bi bi-bag"></span>
+                <span class="nav-label">Productos</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/venta">
+                <span class="bi bi-receipt"></span>
+                <span class="nav-label">Ventas</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/pedido">
+                <span class="bi bi-truck"></span>
+                <span class="nav-label">Pedidos</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/proveedor">
+                <span class="bi bi-building"></span>
+                <span class="nav-label">Proveedores</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/persona">
+                <span class="bi bi-person-lines-fill"></span>
+                <span class="nav-label">Personas</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/tipo-producto">
+                <span class="bi bi-tags"></span>
+                <span class="nav-label">Tipos de producto</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/provincia">
+                <span class="bi bi-geo-alt"></span>
+                <span class="nav-label">Provincias</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/localidad">
+                <span class="bi bi-geo"></span>
+                <span class="nav-label">Localidades</span>
+            </NavLink>
+            <NavLink class="nav-item" href="/estadisticas">
+                <span class="bi bi-graph-up"></span>
+                <span class="nav-label">Estadísticas</span>
+            </NavLink>
         </nav>
     </aside>
 
@@ -73,7 +73,7 @@
                     </div>
                 </Authorized>
                 <NotAuthorized>
-                    <RedirectTo Url="/login" />
+                    @* Redirección implícita manejada por el Router *@
                 </NotAuthorized>
             </AuthorizeView>
         </header>
@@ -94,10 +94,18 @@
 
     private async Task Logout()
     {
+        // --- INICIO DE CAMBIOS ---
+        // 1. Limpiamos el token del Local Storage
+        await LocalStorage.RemoveItemAsync("authToken");
+
+        // 2. Notificamos al AuthenticationStateProvider que el usuario ha cerrado sesión.
         if (AuthStateProvider is CustomAuthenticationStateProvider provider)
         {
-            await provider.MarkUserAsLoggedOutAsync();
-            Nav.NavigateTo("/login");
+            provider.NotifyUserLogout();
         }
+
+        // 3. Redirigimos al login
+        Nav.NavigateTo("/login", forceLoad: true);
+        // --- FIN DE CAMBIOS ---
     }
 }

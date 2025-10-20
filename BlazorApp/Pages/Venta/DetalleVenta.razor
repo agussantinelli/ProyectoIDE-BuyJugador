@@ -1,6 +1,5 @@
 ﻿@page "/venta/detalle/{VentaId:int}"
 @attribute [Authorize]
-@implements IDisposable
 @using System.ComponentModel
 @using DTOs
 @using ApiClient
@@ -40,33 +39,37 @@
             <div class="col-md-4"><strong>Estado:</strong> @venta.Estado</div>
         </div>
 
-        <!-- Buscador de Productos (solo si se puede editar) -->
+        <!-- Sección para Agregar Productos (solo si se puede editar) -->
         @if (puedeEditar)
         {
             <div class="card mb-4 bg-transparent border-secondary">
                 <div class="card-header"><strong>Añadir Producto</strong></div>
                 <div class="card-body">
-                    <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Buscar por nombre..."
-                               value="@terminoBusqueda"
-                               @oninput="HandleSearchInput" />
+                    <div class="d-flex align-items-end gap-3">
+                        <div class="form-group flex-grow-1">
+                            <label for="producto">Producto:</label>
+                            <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                                <option value="0">-- Seleccione un producto --</option>
+                                @foreach (var p in productosDisponibles)
+                                {
+                                    <option value="@p.IdProducto">@p.Nombre (@p.PrecioActual?.ToString("C")) - Stock: @p.Stock</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="form-group" style="min-width: 100px;">
+                            <label for="cantidad">Cantidad:</label>
+                            <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                                <i class="bi bi-plus-circle"></i> Agregar
+                            </button>
+                        </div>
                     </div>
-                    @if (productosEncontrados != null && productosEncontrados.Any())
-                    {
-                        <ul class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
-                            @foreach (var prod in productosEncontrados)
-                            {
-                                <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-dark text-white"
-                                    @onclick="() => AgregarProducto(prod)" style="cursor: pointer;">
-                                    <div><strong>@prod.Nombre</strong> (@prod.Stock en stock)</div>
-                                    <span class="badge bg-primary rounded-pill">@prod.PrecioActual?.ToString("C")</span>
-                                </li>
-                            }
-                        </ul>
-                    }
                 </div>
             </div>
         }
+
 
         <!-- Líneas de Venta -->
         <div class="tbl-wrapper">
@@ -157,22 +160,25 @@
     [Parameter]
     public int VentaId { get; set; }
 
+    // Estado de la venta y sus líneas
     private VentaDTO? venta;
     private List<LineaVentaDTO> lineasDeVenta = new();
-    private List<ProductoDTO> todosLosProductos = new();
-    private List<ProductoDTO>? productosEncontrados;
-    private Timer? searchTimer;
 
+    // Productos para el selector
+    private List<ProductoDTO> todosLosProductos = new();
+    private List<ProductoDTO> productosDisponibles = new();
+    private LineaVentaDTO lineaActual = new() { Cantidad = 1 };
+
+    // Estado de la UI
     private bool isLoading = true;
     private bool isSaving = false;
     private bool finalizando = false;
     private bool esAdmin = false;
     private bool puedeEditar = false;
     private bool datosModificados = false;
-
-    private string terminoBusqueda = string.Empty;
     private string? errorMessage;
 
+    // Propiedad computada para el total
     private decimal TotalVenta => lineasDeVenta.Sum(l => l.Subtotal);
 
     protected override async Task OnInitializedAsync()
@@ -192,6 +198,12 @@
             {
                 lineasDeVenta = new List<LineaVentaDTO>(venta.Lineas ?? new List<LineaVentaDTO>());
                 puedeEditar = esAdmin && "Pendiente".Equals(venta.Estado, StringComparison.OrdinalIgnoreCase);
+
+                // Si se puede editar, preparamos la lista de productos disponibles
+                if (puedeEditar)
+                {
+                    ActualizarProductosDisponibles();
+                }
             }
         }
         catch (Exception ex)
@@ -204,50 +216,61 @@
         }
     }
 
-    private void HandleSearchInput(ChangeEventArgs e)
+    // #region Lógica para agregar y quitar productos (Refactorizada)
+
+    private void ActualizarProductosDisponibles()
     {
-        terminoBusqueda = e.Value?.ToString() ?? string.Empty;
-        searchTimer?.Dispose();
-        searchTimer = new Timer(SearchProducts, null, 300, Timeout.Infinite);
+        // Obtenemos los IDs de los productos que ya están en la venta
+        var idsEnVenta = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
+
+        // Filtramos la lista de todos los productos para mostrar solo los que no están en la venta, tienen stock y precio
+        productosDisponibles = todosLosProductos
+            .Where(p => p.Stock > 0 && p.PrecioActual.HasValue && !idsEnVenta.Contains(p.IdProducto))
+            .OrderBy(p => p.Nombre)
+            .ToList();
     }
 
-    private void SearchProducts(object? state)
+    private void AgregarLinea()
     {
-        InvokeAsync(() =>
+        errorMessage = null;
+        if (lineaActual.IdProducto == 0)
         {
-            if (string.IsNullOrWhiteSpace(terminoBusqueda))
-            {
-                productosEncontrados = null;
-            }
-            else
-            {
-                var idsEnVenta = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
-                productosEncontrados = todosLosProductos
-                    .Where(p => p.Nombre.Contains(terminoBusqueda, StringComparison.OrdinalIgnoreCase)
-                                && p.Stock > 0
-                                && p.PrecioActual.HasValue
-                                && !idsEnVenta.Contains(p.IdProducto))
-                    .Take(10)
-                    .ToList();
-            }
-            StateHasChanged();
-        });
-    }
+            errorMessage = "Debe seleccionar un producto.";
+            return;
+        }
+        if (lineaActual.Cantidad <= 0)
+        {
+            errorMessage = "La cantidad debe ser mayor a 0.";
+            return;
+        }
 
-    private void AgregarProducto(ProductoDTO producto)
-    {
+        var productoSeleccionado = todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaActual.IdProducto);
+        if (productoSeleccionado == null)
+        {
+            errorMessage = "El producto seleccionado no es válido.";
+            return;
+        }
+
+        if (lineaActual.Cantidad > productoSeleccionado.Stock)
+        {
+            errorMessage = $"La cantidad solicitada ({lineaActual.Cantidad}) supera el stock disponible ({productoSeleccionado.Stock}).";
+            return;
+        }
+
+        // Creamos y añadimos la nueva línea de venta
         lineasDeVenta.Add(new LineaVentaDTO
         {
             IdVenta = VentaId,
-            IdProducto = producto.IdProducto,
-            NombreProducto = producto.Nombre,
-            Cantidad = 1,
-            PrecioUnitario = producto.PrecioActual ?? 0,
-            EsNueva = true
+            IdProducto = productoSeleccionado.IdProducto,
+            NombreProducto = productoSeleccionado.Nombre,
+            Cantidad = lineaActual.Cantidad,
+            PrecioUnitario = productoSeleccionado.PrecioActual ?? 0,
+            EsNueva = true // Marcamos como nueva para el backend
         });
 
-        terminoBusqueda = string.Empty;
-        productosEncontrados = null;
+        // Actualizamos la UI
+        ActualizarProductosDisponibles();
+        lineaActual = new() { Cantidad = 1 }; // Reseteamos el formulario de nueva línea
         MarcarComoModificado();
         StateHasChanged();
     }
@@ -255,9 +278,14 @@
     private void EliminarLinea(LineaVentaDTO linea)
     {
         lineasDeVenta.Remove(linea);
+
+        // Al eliminar una línea, actualizamos la lista de productos disponibles para que vuelva a aparecer
+        ActualizarProductosDisponibles();
         MarcarComoModificado();
         StateHasChanged();
     }
+
+    // #endregion
 
     private void MarcarComoModificado(ChangeEventArgs? e = null)
     {
@@ -309,10 +337,4 @@
     }
 
     private void Volver() => NavigationManager.NavigateTo("/venta");
-
-    public void Dispose()
-    {
-        searchTimer?.Dispose();
-    }
 }
-
