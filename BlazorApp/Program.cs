@@ -23,12 +23,19 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 // --- 2. Configuración de la URL base de la API ---
 var apiBase = builder.Configuration["ApiBaseUrl"]
-              ?? Environment.GetEnvironmentVariable("API_BASE_URL")
-              ?? "https://localhost:7145/";
+                 ?? Environment.GetEnvironmentVariable("API_BASE_URL")
+                 ?? "https://localhost:7145/";
 var apiUri = new Uri(apiBase);
 
-// --- 3. Configuración de Servicios de Autenticación y Local Storage ---
+// --- 3. Configuración de Servicios de Autenticación y Sesión ---
+// # Intención: Registrar el nuevo servicio de sesión en memoria.
+// # Será una única instancia por sesión de usuario en una pestaña.
+builder.Services.AddScoped<InMemoryUserSession>();
+
+// # Mantenemos BlazoredLocalStorage por si otras partes de la app (como el panel de bienvenida) lo usan,
+// # pero ya no se utiliza para la autenticación.
 builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<UserSessionService>();
@@ -39,14 +46,10 @@ builder.Services.AddScoped<TokenMessageHandler>(); // Registramos el manejador d
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
 
 // Cliente CON autenticación que será usado por todos los ApiClients.
-// ---- MODIFICACIÓN CLAVE ----
-// Usamos una función de fábrica para asegurar la correcta resolución del handler.
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
-                .AddHttpMessageHandler(sp => sp.GetRequiredService<TokenMessageHandler>());
+              .AddHttpMessageHandler<TokenMessageHandler>();
 
 // --- 5. Registro Unificado de todos los ApiClients ---
-// Todos los ApiClients se registran para usar el IHttpClientFactory y obtener el cliente "Api"
-// que ya está configurado para la autenticación.
 builder.Services.AddScoped(sp => new VentaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PersonaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new ProductoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
@@ -60,7 +63,6 @@ builder.Services.AddScoped(sp => new ProductoProveedorApiClient(sp.GetRequiredSe
 builder.Services.AddScoped(sp => new LineaVentaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PedidoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new LineaPedidoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
-
 
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 

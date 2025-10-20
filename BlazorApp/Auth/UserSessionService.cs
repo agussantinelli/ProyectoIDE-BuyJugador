@@ -1,6 +1,5 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace BlazorApp.Auth
@@ -8,12 +7,12 @@ namespace BlazorApp.Auth
     public class UserSessionService
     {
         private readonly AuthenticationStateProvider _authProvider;
-        private readonly ILocalStorageService _localStorage;
+        private readonly InMemoryUserSession _userSession;
 
-        public UserSessionService(AuthenticationStateProvider authProvider, ILocalStorageService localStorage)
+        public UserSessionService(AuthenticationStateProvider authProvider, InMemoryUserSession userSession)
         {
             _authProvider = authProvider;
-            _localStorage = localStorage;
+            _userSession = userSession;
         }
 
         public async Task<ClaimsPrincipal> GetUserAsync()
@@ -34,9 +33,10 @@ namespace BlazorApp.Auth
             return user.Identity?.Name;
         }
 
-        public async Task<string?> GetTokenAsync()
+        // # Se actualiza para leer desde el servicio en memoria. Ya no es asíncrono.
+        public string? GetToken()
         {
-            return await _localStorage.GetItemAsync<string>("authToken");
+            return _userSession.Token;
         }
 
         public async Task<bool> EstaLogueadoAsync()
@@ -50,7 +50,6 @@ namespace BlazorApp.Auth
             var user = await GetUserAsync();
             if (user.Identity?.IsAuthenticated == true)
             {
-                // Buscamos el claim "NameIdentifier", que por convención contiene el ID del usuario.
                 var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
                 if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
                 {
@@ -59,6 +58,6 @@ namespace BlazorApp.Auth
             }
             return null;
         }
-
     }
 }
+

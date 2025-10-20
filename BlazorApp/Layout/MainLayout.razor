@@ -59,7 +59,7 @@
 
     <section class="main">
         <header class="topbar">
-            <div class="brand-centered" @onclick="@(() => Nav.NavigateTo("/"))">
+            <div class="brand-centered" @onclick='() => Nav.NavigateTo("/")' style="cursor: pointer;">
                 <img src="inventario.png" alt="Logo" class="brand-logo" />
                 <strong class="brand-title">Inventario</strong>
             </div>
@@ -69,11 +69,13 @@
                     <div class="user-area">
                         <span class="text-muted">Hola,</span>
                         <strong>@(context.User.Identity?.Name ?? "Usuario")</strong>
-                        <button class="btn btn-link" @onclick="Logout">Logout</button>
+                        <button class="btn btn-outline-danger ms-2" @onclick="Logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span class="d-none d-sm-inline ms-1">Salir</span>
+                        </button>
                     </div>
                 </Authorized>
                 <NotAuthorized>
-                    @* Redirección implícita manejada por el Router *@
                 </NotAuthorized>
             </AuthorizeView>
         </header>
@@ -94,18 +96,14 @@
 
     private async Task Logout()
     {
-        // --- INICIO DE CAMBIOS ---
-        // 1. Limpiamos el token del Local Storage
+
         await LocalStorage.RemoveItemAsync("authToken");
 
-        // 2. Notificamos al AuthenticationStateProvider que el usuario ha cerrado sesión.
         if (AuthStateProvider is CustomAuthenticationStateProvider provider)
         {
             provider.NotifyUserLogout();
         }
 
-        // 3. Redirigimos al login
-        Nav.NavigateTo("/login", forceLoad: true);
-        // --- FIN DE CAMBIOS ---
+        Nav.NavigateTo("/login");
     }
 }

@@ -1,34 +1,49 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
-    <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
-            <NotAuthorized>
-                <RedirectToLogin />
-            </NotAuthorized>
-            <Authorizing>
+﻿@* # Intención: Devolver App.razor a una configuración estándar y correcta, eliminando los errores de compilación. *@
+@using BlazorApp.Shared
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    @* # Este bloque se activa para rutas protegidas (ej: /pedidos) si el usuario no está logueado. *@
+                    @if (context.User.Identity?.IsAuthenticated == false)
+                    {
+                        <RedirectToLogin />
+                    }
+                    else
+                    {
+                        <LayoutView Layout="@typeof(Layout.MainLayout)">
+                            <div class="alert alert-danger m-4">
+                                <h3>Acceso Denegado</h3>
+                                <p>No tienes los permisos necesarios para acceder a este recurso.</p>
+                            </div>
+                        </LayoutView>
+                    }
+                </NotAuthorized>
+                <Authorizing>
+                    <div class="splash">
+                        <div class="splash-card">
+                            <h3>Autorizando...</h3>
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>No encontrado</PageTitle>
+            <LayoutView Layout="@typeof(Layout.EmptyLayout)">
                 <div class="splash">
                     <div class="splash-card">
-                        <div class="splash-logo"><span class="bi bi-box-seam" aria-hidden="true"></span></div>
-                        <h3>Cargando panel</h3>
-                        <p class="muted">Verificando sesión...</p>
-                        <div class="spinner"><div></div><div></div><div></div></div>
+                        <h3>Página no encontrada</h3>
+                        <p class="muted">Lo sentimos, no hay nada en esta dirección.</p>
+                        <a href="/" class="btn btn-primary">Volver al inicio</a>
                     </div>
                 </div>
-            </Authorizing>
-        </AuthorizeRouteView>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-    <NotFound>
-        <PageTitle>No encontrado</PageTitle>
-        <LayoutView Layout="@typeof(Layout.EmptyLayout)">
-            <div class="splash">
-                <div class="splash-card">
-                    <div class="splash-logo"><span class="bi bi-exclamation-triangle" aria-hidden="true"></span></div>
-                    <h3>Página no encontrada</h3>
-                    <p class="muted">Lo sentimos, no hay nada en esta dirección.</p>
-                    <a href="/" class="btn btn-primary">Volver al inicio</a>
-                </div>
-            </div>
-        </LayoutView>
-    </NotFound>
-</Router>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
 

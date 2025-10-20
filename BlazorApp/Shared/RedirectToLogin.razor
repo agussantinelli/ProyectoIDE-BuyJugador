@@ -1,16 +1,25 @@
-﻿@inject NavigationManager Nav
-
-<div class="p-3">
-    Necesitás iniciar sesión. Redirigiendo…
-</div>
+﻿@inject NavigationManager NavigationManager
+@inject ILogger<RedirectToLogin> Logger
 
 @code {
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            Nav.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Nav.Uri)}", forceLoad: false);
+            Logger.LogInformation("RedirectToLogin: Component has been rendered (OnAfterRenderAsync).");
+
+            var returnUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+
+            var loginUrl = (string.IsNullOrWhiteSpace(returnUrl) || returnUrl == "/")
+                ? "login"
+                : $"login?returnUrl={returnUrl}";
+
+            Logger.LogInformation("RedirectToLogin: Attempting to navigate to {LoginUrl}", loginUrl);
+
+            NavigationManager.NavigateTo(loginUrl);
         }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 }
 
