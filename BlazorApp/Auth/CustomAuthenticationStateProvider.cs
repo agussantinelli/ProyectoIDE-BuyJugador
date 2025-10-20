@@ -1,44 +1,52 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.Extensions.Logging; // # 1. Importar el servicio de Logging
 
 namespace BlazorApp.Auth
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly InMemoryUserSession _userSession;
-        private readonly ILogger<CustomAuthenticationStateProvider> _logger; // # 2. Declarar el Logger
+        private readonly ILocalStorageService _localStorage;
+        private readonly InMemoryUserSession _inMemorySession;
 
-        // # 3. Inyectar ILogger en el constructor
-        public CustomAuthenticationStateProvider(InMemoryUserSession userSession, ILogger<CustomAuthenticationStateProvider> logger)
+        public CustomAuthenticationStateProvider(ILocalStorageService localStorage, InMemoryUserSession inMemorySession)
         {
-            _userSession = userSession;
-            _logger = logger;
+            _localStorage = localStorage;
+            _inMemorySession = inMemorySession;
         }
 
-        public override Task<AuthenticationState> GetAuthenticationStateAsync()
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = _userSession.Token;
+            string? token = null;
+            try
+            {
+                // # Intención: Priorizar la sesión persistente.
+                // # Primero, intentamos obtener el token del LocalStorage.
+                token = await _localStorage.GetItemAsync<string>("authToken");
+            }
+            catch
+            {
+                // Ignorar errores si el LocalStorage no está disponible (ej. prerendering).
+            }
+
+            // # Intención: Si no hay sesión persistente, buscamos una sesión temporal.
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                token = _inMemorySession.Token;
+            }
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                // # 4. Añadir Log de diagnóstico
-                _logger.LogInformation("GetAuthenticationStateAsync: No token found. Returning anonymous user.");
-                return Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())); // Usuario anónimo
             }
 
-            _logger.LogInformation("GetAuthenticationStateAsync: Token found. Returning authenticated user.");
             var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
             var user = new ClaimsPrincipal(identity);
 
-            return Task.FromResult(new AuthenticationState(user));
+            return new AuthenticationState(user);
         }
 
-        // ... El resto de los métodos (NotifyUserAuthentication, etc.) no necesitan cambios ...
         public void NotifyUserAuthentication(string token)
         {
             var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
@@ -64,26 +72,24 @@ namespace BlazorApp.Auth
 
             if (keyValuePairs != null)
             {
-                keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
+                keyValuePairs.TryGetValue(ClaimTypes.Role, out object? roles);
                 if (roles != null)
                 {
-                    if (roles.ToString()?.Trim().StartsWith("[") == true)
+                    if (roles.ToString()!.Trim().StartsWith("["))
                     {
-                        var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
-                        if (parsedRoles != null)
+                        var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString()!);
+                        foreach (var parsedRole in parsedRoles!)
                         {
-                            foreach (var parsedRole in parsedRoles)
-                            {
-                                claims.Add(new Claim(ClaimTypes.Role, parsedRole));
-                            }
+                            claims.Add(new Claim(ClaimTypes.Role, parsedRole));
                         }
                     }
                     else
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+                        claims.Add(new Claim(ClaimTypes.Role, roles.ToString()!));
                     }
+                    keyValuePairs.Remove(ClaimTypes.Role);
                 }
-                claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty)));
+                claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()!)));
             }
             return claims;
         }
@@ -95,7 +101,7 @@ namespace BlazorApp.Auth
                 case 2: base64 += "=="; break;
                 case 3: base64 += "="; break;
             }
-            return System.Convert.FromBase64String(base64);
+            return Convert.FromBase64String(base64);
         }
     }
 }

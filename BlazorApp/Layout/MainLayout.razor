@@ -4,6 +4,7 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject ILocalStorageService LocalStorage
+@inject InMemoryUserSession InMemorySession
 
 <div class="app-shell @(isCollapsed ? "collapsed" : "")">
     <aside class="sidebar">
@@ -59,7 +60,7 @@
 
     <section class="main">
         <header class="topbar">
-            <div class="brand-centered" @onclick='() => Nav.NavigateTo("/")' style="cursor: pointer;">
+            <div class="brand-centered" @onclick="@(() => Nav.NavigateTo("/"))" style="cursor: pointer;">
                 <img src="inventario.png" alt="Logo" class="brand-logo" />
                 <strong class="brand-title">Inventario</strong>
             </div>
@@ -69,14 +70,12 @@
                     <div class="user-area">
                         <span class="text-muted">Hola,</span>
                         <strong>@(context.User.Identity?.Name ?? "Usuario")</strong>
-                        <button class="btn btn-outline-danger ms-2" @onclick="Logout">
-                            <i class="bi bi-box-arrow-right"></i>
-                            <span class="d-none d-sm-inline ms-1">Salir</span>
+                        <button class="btn btn-outline-danger btn-sm ms-2" @onclick="Logout">
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            <span>Salir</span>
                         </button>
                     </div>
                 </Authorized>
-                <NotAuthorized>
-                </NotAuthorized>
             </AuthorizeView>
         </header>
 
@@ -96,14 +95,20 @@
 
     private async Task Logout()
     {
-
+        // # Intención: Asegurar un cierre de sesión completo y limpio.
+        // # 1. Limpiamos el token de la sesión persistente.
         await LocalStorage.RemoveItemAsync("authToken");
+        // # 2. Limpiamos el token de la sesión temporal.
+        InMemorySession.Token = null;
 
+        // # 3. Notificamos al sistema que el estado de autenticación ha cambiado.
         if (AuthStateProvider is CustomAuthenticationStateProvider provider)
         {
             provider.NotifyUserLogout();
         }
 
+        // # 4. Redirigimos al login con una navegación del lado del cliente.
         Nav.NavigateTo("/login");
     }
 }
+

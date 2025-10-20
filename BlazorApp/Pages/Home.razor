@@ -1,5 +1,4 @@
 ﻿@page "/"
-@* # IMPORTANTE: Esta página es pública y actúa como un "despachador". *@
 
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
@@ -175,7 +174,7 @@ else if (_isAuthenticated)
 
     private async Task LoadKpiData()
     {
-        await Task.Delay(500); // Simulación reducida para una carga más rápida
+        await Task.Delay(500); 
         var random = new Random();
         _kpiData = new KpiData
         {

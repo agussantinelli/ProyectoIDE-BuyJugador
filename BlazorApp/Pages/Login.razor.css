@@ -1,5 +1,4 @@
-﻿
-.login-page-wrapper {
+﻿.login-page-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,7 +55,7 @@
     border-radius: 8px;
     border: 1px solid #30363d;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
     .login-page-wrapper .input-group:focus-within {
@@ -72,15 +71,15 @@
     }
 
     .login-page-wrapper .input-group .form-floating {
-        flex: 1 1 auto; 
+        flex: 1 1 auto;
     }
 
         .login-page-wrapper .input-group .form-floating .form-control {
             background-color: #0d1117;
             color: #c9d1d9;
             border: none;
-            border-radius: 0; 
-            height: calc(3.5rem + 2px); 
+            border-radius: 0;
+            height: calc(3.5rem + 2px);
         }
 
         .login-page-wrapper .input-group .form-floating > label {
@@ -127,3 +126,67 @@
         transform: none;
         box-shadow: none;
     }
+
+/* --- ESTILOS FINALES Y DEFINITIVOS PARA EL CHECKBOX --- */
+.form-check-wrapper {
+    text-align: left;
+    margin-top: 1rem;
+}
+
+.form-check-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    color: #8b949e;
+    gap: 0.75rem;
+}
+
+    .form-check-label:hover {
+        color: #c9d1d9;
+    }
+
+.form-check-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.checkbox-custom {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #30363d;
+    background-color: #0d1117;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.form-check-label:hover .checkbox-custom {
+    border-color: #2f81f7;
+}
+
+/* # Intención: Al marcar, hacer el fondo y el borde transparentes. */
+.form-check-input:checked ~ .checkbox-custom {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+    /* # Intención: Dibujar la tilde ("check") de color verde. */
+    .form-check-input:checked ~ .checkbox-custom::after {
+        content: '';
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid #2ea043; /* # Color verde */
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+.checkbox-text {
+    line-height: 1;
+}

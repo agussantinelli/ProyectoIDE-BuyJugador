@@ -5,10 +5,13 @@
 @using System.Web
 @using BlazorApp.Auth
 @using DTOs
+@using Blazored.LocalStorage
+
 @inject IHttpClientFactory HttpFactory
 @inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager Nav
 @inject InMemoryUserSession UserSession
+@inject ILocalStorageService LocalStorage
 
 <div class="login-page-wrapper">
     <div class="login-card">
@@ -45,6 +48,16 @@
                 <div class="validation-message-container">
                     <ValidationMessage For="@(() => _model.Password)" />
                 </div>
+
+                @* --- ESTRUCTURA FINAL Y CORREGIDA PARA EL CHECKBOX --- *@
+                <div class="form-check-wrapper">
+                    <label class="form-check-label" for="rememberMe">
+                        <InputCheckbox @bind-Value="_model.RememberMe" id="rememberMe" class="form-check-input" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">Recordar sesión</span>
+                    </label>
+                </div>
+
                 <div class="d-grid mt-4">
                     <button type="submit" class="btn btn-primary btn-lg" disabled="@_loading">
                         @if (_loading)
@@ -99,19 +112,21 @@
                 return;
             }
 
-            // # 1. Guardamos el token en nuestro servicio de sesión en memoria.
-            UserSession.Token = token;
-
-            // # 2. Notificamos al AuthenticationStateProvider que el usuario se ha logueado.
-            if (AuthStateProvider is CustomAuthenticationStateProvider customAuthStateProvider)
+            if (_model.RememberMe)
             {
-                customAuthStateProvider.NotifyUserAuthentication(token);
+                await LocalStorage.SetItemAsync("authToken", token);
             }
+            else
+            {
+                UserSession.Token = token;
+            }
+
+            var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+            customAuthStateProvider.NotifyUserAuthentication(token);
 
             var uri = new Uri(Nav.Uri);
             var returnUrl = HttpUtility.ParseQueryString(uri.Query).Get("returnUrl");
 
-            // # 3. Navegamos sin forzar la recarga de la página.
             Nav.NavigateTo(string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl);
         }
         catch (Exception ex)
@@ -132,6 +147,8 @@
 
         [Required(ErrorMessage = "La contraseña es obligatoria.")]
         public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
     }
 
     public class LoginResponse

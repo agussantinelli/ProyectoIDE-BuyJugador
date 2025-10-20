@@ -1,27 +1,40 @@
-﻿using System;
-using System.Net.Http;
+﻿using Blazored.LocalStorage;
 using System.Net.Http.Headers;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace BlazorApp.Auth
 {
     public class TokenMessageHandler : DelegatingHandler
     {
-        // # Intención: Cambiar la dependencia al servicio de sesión en memoria.
-        private readonly InMemoryUserSession _userSession;
+        private readonly ILocalStorageService _localStorage;
+        private readonly InMemoryUserSession _inMemorySession;
 
-        public TokenMessageHandler(InMemoryUserSession userSession)
+        public TokenMessageHandler(ILocalStorageService localStorage, InMemoryUserSession inMemorySession)
         {
-            _userSession = userSession;
+            _localStorage = localStorage;
+            _inMemorySession = inMemorySession;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             try
             {
-                // # Leemos el token desde el servicio en memoria. Es síncrono, no se necesita 'await'.
-                var token = _userSession.Token;
+                string? token = null;
+
+                try
+                {
+                    // # Intención: Priorizar la sesión persistente.
+                    token = await _localStorage.GetItemAsync<string>("authToken", cancellationToken);
+                }
+                catch
+                {
+                    // Ignorar errores de LocalStorage.
+                }
+
+                // # Intención: Si no hay token persistente, buscar uno temporal.
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    token = _inMemorySession.Token;
+                }
 
                 if (!string.IsNullOrWhiteSpace(token))
                 {
@@ -30,7 +43,6 @@ namespace BlazorApp.Auth
             }
             catch (Exception ex)
             {
-                // # Es una buena práctica registrar el error en la consola para depuración.
                 Console.WriteLine($"Error al adjuntar el token de autorización: {ex.Message}");
             }
 

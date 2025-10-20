@@ -1,12 +1,10 @@
-﻿@* # Intención: Devolver App.razor a una configuración estándar y correcta, eliminando los errores de compilación. *@
-@using BlazorApp.Shared
+﻿@using BlazorApp.Shared
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    @* # Este bloque se activa para rutas protegidas (ej: /pedidos) si el usuario no está logueado. *@
                     @if (context.User.Identity?.IsAuthenticated == false)
                     {
                         <RedirectToLogin />
