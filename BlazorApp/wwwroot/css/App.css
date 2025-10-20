@@ -16,6 +16,8 @@
     --primary: #3b82f6;
     --primary-600: #2563eb;
     --row-hover: rgba(59,130,246,.10);
+    --bs-link-decoration: none;
+    --bs-link-hover-decoration: none;
 }
 
 html, body {
@@ -419,4 +421,16 @@ button, .btn {
 
 .tbl-state .spin {
     animation: tbl-spin 1s linear infinite;
+}
+
+a,
+a:link,
+a:visited,
+a:hover,
+a:active,
+.btn-link,
+.btn-link:hover,
+.nav-link,
+.nav-link:hover {
+    text-decoration: none !important;
 }

@@ -190,7 +190,7 @@
     }
 
         .user-area .btn-link:hover {
-            text-decoration: underline;
+            text-decoration: none;
         }
 
 .content {
@@ -225,3 +225,28 @@
         display: none;
     }
 }
+
+.sidebar-nav a,
+.sidebar-nav a:link,
+.sidebar-nav a:visited,
+.sidebar-nav a:hover,
+.sidebar-nav a:active,
+.sidebar-nav a:focus {
+    color: #e2e8f0 !important;
+    text-decoration: none !important;
+}
+
+    .sidebar-nav a .nav-label,
+    .sidebar-nav a .bi {
+        text-decoration: none !important;
+    }
+
+    .sidebar-nav a:hover {
+        background: rgba(59,130,246,.15);
+        color: #fff !important;
+    }
+
+    .sidebar-nav a.active {
+        background: rgba(59,130,246,.25);
+        color: #fff !important;
+    }
