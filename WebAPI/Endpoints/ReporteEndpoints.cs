@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace WebAPI.Endpoints
@@ -22,8 +23,6 @@ namespace WebAPI.Endpoints
             .WithName("GetReporteVentasPorVendedor")
             .WithTags("Reportes");
 
-            // #CORRECCIÓN: Se añaden los atributos [FromServices] para indicar explícitamente que los
-            // parámetros son servicios inyectados y no vienen del cuerpo de la petición.
             group.MapGet("/ventas-vendedor/{idPersona:int}/pdf", async (
                 int idPersona,
                 [FromServices] ReporteService reporteService,
@@ -41,7 +40,9 @@ namespace WebAPI.Endpoints
 
                 var pdfBytes = pdfService.GenerateVentasPdf(reporteData, nombreVendedor);
 
-                var fileName = $"ReporteVentas_{nombreVendedor.Replace(" ", "_")}_{System.DateTime.Now:yyyyMMdd}.pdf";
+                // #CORRECCIÓN: Se ajusta el nombre del archivo según el formato solicitado.
+                // #Nota: Se usan guiones en la fecha para compatibilidad entre sistemas operativos.
+                var fileName = $"{nombreVendedor.Replace(" ", "_")} Reporte {System.DateTime.Now:dd-MM-yyyy}.pdf";
                 return Results.File(pdfBytes, "application/pdf", fileName);
             })
             .Produces(StatusCodes.Status200OK, typeof(FileContentResult))
@@ -51,4 +52,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-
