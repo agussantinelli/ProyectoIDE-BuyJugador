@@ -6,6 +6,7 @@
 @inject VentaApiClient ventaApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -93,6 +94,11 @@
     private string textoFiltro = string.Empty;
     private bool esAdmin;
 
+    private bool isLoading = false;
+    private string? errorMessage;
+    private int ventaSiendoFinalizada = 0; // Para saber qué fila mostrar el spinner
+
+
     private string FormatCurrency(decimal amount)
     {
         return amount.ToString("C");
@@ -121,14 +127,92 @@
 
     private async Task Eliminar(VentaDTO venta)
     {
-        var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
-        if (resp.IsSuccessStatusCode) await CargarVentas();
+        // Pedir confirmación
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro que desea eliminar la venta #{venta.IdVenta}?");
+        if (!confirm) return;
+
+        isLoading = true;
+        errorMessage = null;
+
+        try
+        {
+            var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
+            if (resp.IsSuccessStatusCode)
+            {
+                await CargarVentas();
+            }
+            else
+            {
+                errorMessage = $"Error al eliminar: {await resp.Content.ReadAsStringAsync()}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task Finalizar(VentaDTO venta)
     {
-        var resp = await ventaApiClient.FinalizarVentaAsync(venta.IdVenta);
-        if (resp.IsSuccessStatusCode) await CargarVentas();
+        // 0. Preguntar y establecer estado de carga
+        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Desea marcar la venta #{venta.IdVenta} como FINALIZADA?");
+        if (!confirm) return;
+
+        isLoading = true;
+        errorMessage = null;
+        ventaSiendoFinalizada = venta.IdVenta; // Para el spinner en la fila
+        StateHasChanged(); // Forzar actualización de UI
+
+        try
+        {
+            // 1. Obtener la venta completa con sus líneas (como en VentaForm.cs)
+            var ventaCompleta = await ventaApiClient.GetByIdAsync(venta.IdVenta);
+            if (ventaCompleta == null || !ventaCompleta.IdPersona.HasValue)
+            {
+                errorMessage = $"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.";
+                isLoading = false;
+                ventaSiendoFinalizada = 0;
+                return;
+            }
+
+            // 2. Crear el DTO para la actualización (exactamente como en VentaForm.cs)
+            var dto = new CrearVentaCompletaDTO
+            {
+                IdVenta = ventaCompleta.IdVenta,
+                IdPersona = ventaCompleta.IdPersona.Value,
+                Lineas = ventaCompleta.Lineas ?? new List<LineaVentaDTO>(),
+                Finalizada = true // <-- Esta es la acción clave
+            };
+
+            // 3. Llamar al método de ACTUALIZACIÓN (Update), no al de FinalizarVentaAsync
+            // (Basado en VentaApiClient.cs y VentaForm.cs)
+            var response = await ventaApiClient.UpdateCompletaAsync(dto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // 4. Recargar la grilla
+                await CargarVentas();
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Error al finalizar la venta: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            ventaSiendoFinalizada = 0;
+            StateHasChanged(); // Asegurar que la UI se limpie
+        }
     }
 }
 
