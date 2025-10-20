@@ -10,7 +10,6 @@
 
 <link href="css/Table.css" rel="stylesheet" />
 
-
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Proveedores</h2>
@@ -70,6 +69,12 @@
                                         <button class="tbl-icon-btn" title="Ver Productos" @onclick="() => VerProductos(p)">
                                             <i class="bi bi-box-seam"></i>
                                         </button>
+
+                                        // #NUEVO: Botón para navegar a la página de asignación de productos.
+                                        <button class="tbl-icon-btn" title="Asignar Productos" @onclick="() => AsignarProductos(p)">
+                                            <i class="bi bi-cart-plus"></i>
+                                        </button>
+
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
@@ -158,6 +163,12 @@
     private void VerProductos(ProveedorRow proveedor)
     {
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/productos");
+    }
+
+    // #NUEVO: Método para navegar a la página de asignación.
+    private void AsignarProductos(ProveedorRow proveedor)
+    {
+        navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/asignar-productos");
     }
 
     private async Task Eliminar(ProveedorRow proveedor)
