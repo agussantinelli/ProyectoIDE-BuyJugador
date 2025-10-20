@@ -1,0 +1,107 @@
+﻿@page "/reporte/ventas"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject PersonaApiClient personaApiClient
+@inject ReporteApiClient reporteApiClient
+
+<link href="css/Table.css" rel="stylesheet" />
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Reporte de Ventas por Vendedor (Últimos 7 días)</h2>
+    </div>
+
+    @if (personas == null)
+    {
+        <div class="tbl-state">Cargando vendedores...</div>
+    }
+    else
+    {
+        <div class="mb-3" style="max-width: 400px;">
+            <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
+            <select id="vendedor" class="form-select" @onchange="OnVendedorSeleccionado">
+                <option value="0">-- Por favor, elija un vendedor --</option>
+                @foreach (var persona in personas.Where(p => p.FechaIngreso.HasValue).OrderBy(p => p.NombreCompleto))
+                {
+                    <option value="@persona.IdPersona">@persona.NombreCompleto</option>
+                }
+            </select>
+        </div>
+
+        @if (isLoadingReporte)
+        {
+            <div class="tbl-state mt-4"><i class="bi bi-arrow-repeat spin"></i> Generando reporte...</div>
+        }
+        else if (reporteData != null)
+        {
+            if (reporteData.Any())
+            {
+                <div class="tbl-wrapper mt-4">
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th class="tbl-text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in reporteData)
+                            {
+                                <tr>
+                                    <td>@item.IdVenta</td>
+                                    <td>@item.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@item.Estado</td>
+                                    <td class="tbl-text-end">@item.TotalVenta.ToString("C2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="tbl-total-row">
+                                <td colspan="3" class="tbl-text-end"><strong>Total General:</strong></td>
+                                <td class="tbl-text-end"><strong>@reporteData.Sum(r => r.TotalVenta).ToString("C2")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="tbl-state mt-4">No se encontraron ventas para este vendedor en los últimos 7 días.</div>
+            }
+        }
+    }
+</div>
+
+
+@code {
+    private List<PersonaDTO>? personas;
+    private List<ReporteVentasDTO>? reporteData;
+    private bool isLoadingReporte = false;
+    private int selectedPersonaId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        personas = await personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
+    }
+
+    private async Task OnVendedorSeleccionado(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out selectedPersonaId) && selectedPersonaId > 0)
+        {
+            isLoadingReporte = true;
+            reporteData = null; // Limpia datos anteriores
+
+            reporteData = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
+
+            isLoadingReporte = false;
+        }
+        else
+        {
+            reporteData = null; // Limpia si no hay selección válida
+        }
+    }
+}

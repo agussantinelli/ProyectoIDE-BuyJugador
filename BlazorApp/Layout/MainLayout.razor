@@ -55,6 +55,11 @@
                 <span class="bi bi-graph-up"></span>
                 <span class="nav-label">Estadísticas</span>
             </NavLink>
+
+            <NavLink class="nav-item" href="/reporte/ventas">
+                <span class="bi bi-file-earmark-bar-graph"></span>
+                <span class="nav-label">Reporte Ventas</span>
+            </NavLink>
         </nav>
     </aside>
 
@@ -95,20 +100,14 @@
 
     private async Task Logout()
     {
-        // # Intención: Asegurar un cierre de sesión completo y limpio.
-        // # 1. Limpiamos el token de la sesión persistente.
         await LocalStorage.RemoveItemAsync("authToken");
-        // # 2. Limpiamos el token de la sesión temporal.
         InMemorySession.Token = null;
 
-        // # 3. Notificamos al sistema que el estado de autenticación ha cambiado.
         if (AuthStateProvider is CustomAuthenticationStateProvider provider)
         {
             provider.NotifyUserLogout();
         }
 
-        // # 4. Redirigimos al login con una navegación del lado del cliente.
         Nav.NavigateTo("/login");
     }
 }
-
