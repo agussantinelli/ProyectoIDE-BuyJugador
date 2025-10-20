@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace ApiClient
 {
-    // #NUEVO: ApiClient para consumir los endpoints de reportes.
     public class ReporteApiClient
     {
         private readonly HttpClient _httpClient;
@@ -20,5 +19,17 @@ namespace ApiClient
         {
             return await _httpClient.GetFromJsonAsync<List<ReporteVentasDTO>>($"api/reportes/ventas-vendedor/{idPersona}");
         }
+
+        // #NUEVO: Método para descargar el PDF como un array de bytes.
+        public async Task<byte[]?> GetReporteVentasPdfAsync(int idPersona)
+        {
+            var response = await _httpClient.GetAsync($"api/reportes/ventas-vendedor/{idPersona}/pdf");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsByteArrayAsync();
+            }
+            return null;
+        }
     }
 }
+
