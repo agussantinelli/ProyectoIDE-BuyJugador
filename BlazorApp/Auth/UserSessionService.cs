@@ -33,7 +33,6 @@ namespace BlazorApp.Auth
             return user.Identity?.Name;
         }
 
-        // # Se actualiza para leer desde el servicio en memoria. Ya no es asíncrono.
         public string? GetToken()
         {
             return _userSession.Token;

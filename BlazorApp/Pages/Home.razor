@@ -11,7 +11,6 @@
 
 @if (_isCheckingAuth)
 {
-    @* Muestra una pantalla de carga MIENTRAS se verifica la autenticación *@
     <div class="splash">
         <div class="splash-card">
             <h3>Verificando sesión...</h3>
@@ -21,7 +20,6 @@
 }
 else if (_isAuthenticated)
 {
-    @* Si el usuario está autenticado, muestra el panel de control. *@
     <div class="home-wrap">
         @if (showWelcome)
         {

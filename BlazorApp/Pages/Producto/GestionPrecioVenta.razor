@@ -67,7 +67,6 @@
     }
 </div>
 
-@* Modal para editar el precio *@
 @if (productoSeleccionado != null)
 {
     <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);">
@@ -111,7 +110,6 @@
     private bool isLoading = true;
     private bool isSaving = false;
 
-    // --- Lógica del Modal ---
     private ProductoDTO? productoSeleccionado;
     private decimal nuevoPrecio;
     private string? modalErrorMessage;

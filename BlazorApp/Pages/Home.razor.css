@@ -1,9 +1,8 @@
 ﻿.home-wrap {
     display: grid;
-    gap: 1.5rem; /* Increased gap */
+    gap: 1.5rem;
 }
 
-/* --- Welcome Panel Styles --- */
 .welcome-panel {
     background: linear-gradient(180deg, rgba(17,26,47,.72), rgba(17,26,47,.58));
     border: 1px solid var(--border);
@@ -35,7 +34,6 @@
         font-weight: 600;
     }
 
-/* --- KPI Cards Styles --- */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -79,7 +77,6 @@
     color: var(--text-muted);
 }
 
-/* Loading Placeholder Styles */
 .kpi-card.is-loading .kpi-icon,
 .kpi-card.is-loading .kpi-value,
 .kpi-card.is-loading .kpi-label {
@@ -100,7 +97,6 @@
         height: 0.85rem;
     }
 
-/* --- Stock Alert Panel --- */
 .stock-alert-panel {
     background: linear-gradient(145deg, rgba(239, 68, 68, 0.05), rgba(239, 68, 68, 0.1));
     border: 1px solid rgba(239, 68, 68, 0.2);
@@ -160,7 +156,6 @@
 }
 
 
-/* --- Quick Access Card Styles --- */
 .quick-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));

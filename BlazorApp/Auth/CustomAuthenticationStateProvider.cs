@@ -21,8 +21,7 @@ namespace BlazorApp.Auth
             string? token = null;
             try
             {
-                // # Intención: Priorizar la sesión persistente.
-                // # Primero, intentamos obtener el token del LocalStorage.
+
                 token = await _localStorage.GetItemAsync<string>("authToken");
             }
             catch
@@ -30,7 +29,6 @@ namespace BlazorApp.Auth
                 // Ignorar errores si el LocalStorage no está disponible (ej. prerendering).
             }
 
-            // # Intención: Si no hay sesión persistente, buscamos una sesión temporal.
             if (string.IsNullOrWhiteSpace(token))
             {
                 token = _inMemorySession.Token;

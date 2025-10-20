@@ -136,7 +136,7 @@
     [Inject] private ProductoProveedorApiClient productoProveedorApiClient { get; set; } = default!;
 
     private CrearPedidoCompletoDTO pedidoDto = new();
-    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 }; // Inicia con cantidad 1
+    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 }; 
 
     private List<ProveedorDTO> proveedores = new();
     private List<ProductoAsignadoDTO> productosDisponibles = new();
@@ -147,7 +147,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Cargar la lista de proveedores para el dropdown inicial
         try
         {
             proveedores = await proveedorApiClient.GetAllAsync() ?? new();
@@ -164,7 +163,6 @@
         int.TryParse(e.Value?.ToString(), out int idProveedor);
         pedidoDto.IdProveedor = idProveedor;
 
-        // Limpiar la lista de productos y líneas de pedido anteriores
         productosDisponibles.Clear();
         pedidoDto.LineasPedido.Clear();
         lineaActual = new() { Cantidad = 1 };
@@ -172,7 +170,6 @@
 
         if (idProveedor > 0)
         {
-            // Cargar los productos asignados a este proveedor
             try
             {
                 productosDisponibles = await productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(idProveedor) ?? new();
@@ -203,24 +200,19 @@
             return;
         }
 
-        // Verificar si el producto ya está en la lista
         var lineaExistente = pedidoDto.LineasPedido.FirstOrDefault(l => l.IdProducto == lineaActual.IdProducto);
 
         if (lineaExistente != null)
         {
-            // Si ya existe, solo suma la cantidad
             lineaExistente.Cantidad += lineaActual.Cantidad;
         }
         else
         {
-            // Si es nuevo, lo agrega a la lista
-            // Asignamos el precio solo para la UI, el backend lo recalculará
             lineaActual.PrecioUnitario = GetPrecioProducto(lineaActual.IdProducto);
             lineaActual.NroLineaPedido = nroLineaCounter++;
             pedidoDto.LineasPedido.Add(lineaActual);
         }
 
-        // Resetea la línea actual para la próxima carga
         lineaActual = new() { Cantidad = 1 };
     }
 
@@ -229,7 +221,6 @@
         pedidoDto.LineasPedido.Remove(linea);
     }
 
-    // --- Funciones Helper para la UI ---
     private string GetNombreProducto(int idProducto)
     {
         return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.Nombre ?? "Producto no encontrado";
@@ -237,7 +228,6 @@
 
     private decimal GetPrecioProducto(int idProducto)
     {
-        // El precio de compra se usa como precio unitario en el pedido
         return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.PrecioCompra ?? 0;
     }
 
@@ -246,7 +236,6 @@
         return pedidoDto.LineasPedido.Sum(l => l.Cantidad * GetPrecioProducto(l.IdProducto));
     }
 
-    // --- Acciones del Formulario ---
     private async Task HandleValidSubmit()
     {
         mensajeError = null;
@@ -258,9 +247,6 @@
             return;
         }
 
-        // El backend recalcula los precios, por lo que solo enviamos IdProducto y Cantidad.
-        // El DTO `pedidoDto` ya tiene esta estructura.
-
         try
         {
             var resp = await pedidoApiClient.CreateAsync(pedidoDto);
@@ -268,7 +254,7 @@
             if (resp.IsSuccessStatusCode)
             {
                 mensajeExito = "Pedido creado exitosamente. Redirigiendo...";
-                await Task.Delay(2000); // Espera 2 seg para que se lea el mensaje
+                await Task.Delay(2000); 
                 NavigationManager.NavigateTo("/pedido");
             }
             else

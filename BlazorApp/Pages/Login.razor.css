@@ -127,7 +127,6 @@
         box-shadow: none;
     }
 
-/* --- ESTILOS FINALES Y DEFINITIVOS PARA EL CHECKBOX --- */
 .form-check-wrapper {
     text-align: left;
     margin-top: 1rem;
@@ -168,13 +167,11 @@
     border-color: #2f81f7;
 }
 
-/* # Intención: Al marcar, hacer el fondo y el borde transparentes. */
 .form-check-input:checked ~ .checkbox-custom {
     background-color: transparent;
     border-color: transparent;
 }
 
-    /* # Intención: Dibujar la tilde ("check") de color verde. */
     .form-check-input:checked ~ .checkbox-custom::after {
         content: '';
         position: absolute;
@@ -182,7 +179,7 @@
         top: 2px;
         width: 5px;
         height: 10px;
-        border: solid #2ea043; /* # Color verde */
+        border: solid #2ea043; 
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
     }
