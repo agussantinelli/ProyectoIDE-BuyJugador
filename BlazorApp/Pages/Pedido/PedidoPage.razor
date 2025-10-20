@@ -162,21 +162,21 @@ pedidos;
     {
         pedidosFiltrados = pedidos?
 .Where(p =>
-                string.IsNullOrWhiteSpace(textoFiltro)
-                || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList() ??
+              string.IsNullOrWhiteSpace(textoFiltro)
+              || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+        .ToList() ??
 new();
     }
 
     // MODIFICADO: Funcionalidad de navegación
     private void NuevoPedido()
     {
-        NavigationManager.NavigateTo("/pedido/nuevo"); // Asumiendo que tendrás una página para esto
+        NavigationManager.NavigateTo("/pedido/crear"); // Asumiendo que tendrás una página para esto
     }
 
     private void VerDetalle(PedidoDTO p)
     {
-        NavigationManager.NavigateTo($"/pedido/{p.IdPedido}"); // Asumiendo una página de detalle
+        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}"); // NAVEGACIÓN ACTUALIZADA
     }
 
     private async Task Eliminar(PedidoDTO p)
