@@ -12,7 +12,6 @@
         private System.Windows.Forms.TextBox txtBuscarProveedor;
         private System.Windows.Forms.Label lblBuscar;
         private System.Windows.Forms.ComboBox cmbFiltroGasto;
-        // # REFACTORIZACIÓN: Se añade un panel para agrupar los botones, igual que en VentaForm.
         private System.Windows.Forms.Panel panelBotones;
 
         protected override void Dispose(bool disposing)
@@ -87,7 +86,7 @@
             btnFinalizarPedido.Name = "btnFinalizarPedido";
             btnFinalizarPedido.Size = new Size(160, 34);
             btnFinalizarPedido.TabIndex = 3;
-            btnFinalizarPedido.Text = "Marcar como Recibido";
+            btnFinalizarPedido.Text = "Recibido";
             btnFinalizarPedido.UseVisualStyleBackColor = true;
             btnFinalizarPedido.Click += btnFinalizarPedido_Click;
             // 

@@ -3,7 +3,7 @@
     partial class ReporteHistorialPreciosForm
     {
         private System.ComponentModel.IContainer components = null;
-        private ScottPlot.WinForms.FormsPlot formsPlot1; // # Reemplazamos los controles anteriores por el gráfico.
+        private ScottPlot.WinForms.FormsPlot formsPlot1;
 
         protected override void Dispose(bool disposing)
         {
@@ -21,7 +21,7 @@
             // 
             // formsPlot1
             // 
-            this.formsPlot1.Dock = System.Windows.Forms.DockStyle.Fill; // # Hacemos que el gráfico ocupe todo el formulario.
+            this.formsPlot1.Dock = System.Windows.Forms.DockStyle.Fill; 
             this.formsPlot1.Location = new System.Drawing.Point(0, 0);
             this.formsPlot1.Name = "formsPlot1";
             this.formsPlot1.Size = new System.Drawing.Size(800, 450);
