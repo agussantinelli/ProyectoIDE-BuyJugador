@@ -76,7 +76,6 @@ namespace DominioServicios
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // # CORRECCIÓN: El estado se determina por el DTO.
                     var nuevoPedido = new Pedido
                     {
                         Fecha = DateTime.UtcNow,
@@ -112,7 +111,6 @@ namespace DominioServicios
                             PrecioUnitario = montoPrecioCompra
                         });
 
-                        // # CORRECCIÓN: El stock solo se actualiza si el pedido se marca como recibido.
                         if (crearPedidoDto.MarcarComoRecibido)
                         {
                             producto.Stock += lineaDto.Cantidad;
@@ -133,7 +131,6 @@ namespace DominioServicios
             });
         }
 
-        // ... (resto de los métodos sin cambios)
         public async Task UpdatePedidoCompletoAsync(int id, PedidoDTO pedidoDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -198,7 +195,6 @@ namespace DominioServicios
             if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
             if (pedido.Estado == "Recibido") throw new InvalidOperationException("El pedido ya fue recibido.");
 
-            // # Lógica para actualizar el stock al recibir el pedido.
             var idsProductos = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
             var productosAfectados = await _context.Productos.Where(p => idsProductos.Contains(p.IdProducto)).ToDictionaryAsync(p => p.IdProducto);
 
@@ -223,7 +219,6 @@ namespace DominioServicios
                 var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
                 if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
 
-                // Si el pedido ya fue recibido, se revierte el stock.
                 if (pedido.Estado == "Recibido")
                 {
                     foreach (var linea in pedido.LineasPedido)

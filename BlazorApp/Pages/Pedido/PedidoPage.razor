@@ -46,7 +46,7 @@ text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
     }
-    else if (pedidos != null) // Solo mostramos la tabla si pedidos no es null
+    else if (pedidos != null) 
     {
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
@@ -117,7 +117,7 @@ pedidos;
     private List<PedidoDTO> pedidosFiltrados = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-    private string? errorMensaje; // <-- AÑADIDO: Para mostrar errores
+    private string? errorMensaje; 
 
     private string FormatCurrency(decimal amount)
     {
@@ -132,22 +132,19 @@ pedidos;
 
     private async Task CargarPedidos()
     {
-        errorMensaje = null; // Limpiamos errores previos
-        pedidos = null; // Ponemos en modo "cargando"
+        errorMensaje = null; 
+        pedidos = null; 
 
         try
         {
-            // MODIFICADO: Se quita el '?? new()' para adaptarlo a la firma
-            // no-nullable del PedidoApiClient.
             pedidos = await pedidoApiClient.GetAllAsync();
             AplicarFiltro();
         }
         catch (Exception ex)
         {
-            // MODIFICADO: Guardamos el error para mostrarlo en la UI
             errorMensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
             Console.WriteLine($"[ERROR] {errorMensaje}");
-            pedidos = new(); // Asignamos lista vacía para que el filtro no falle
+            pedidos = new(); 
         }
     }
 
@@ -161,22 +158,21 @@ pedidos;
     private void AplicarFiltro()
     {
         pedidosFiltrados = pedidos?
-.Where(p =>
-              string.IsNullOrWhiteSpace(textoFiltro)
-              || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-        .ToList() ??
-new();
+            .Where(p =>
+                string.IsNullOrWhiteSpace(textoFiltro)
+                || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList() ??
+            new();
     }
 
-    // MODIFICADO: Funcionalidad de navegación
     private void NuevoPedido()
     {
-        NavigationManager.NavigateTo("/pedido/crear"); // Asumiendo que tendrás una página para esto
+        NavigationManager.NavigateTo("/pedido/crear"); 
     }
 
     private void VerDetalle(PedidoDTO p)
     {
-        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}"); // NAVEGACIÓN ACTUALIZADA
+        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}"); 
     }
 
     private async Task Eliminar(PedidoDTO p)
@@ -186,7 +182,6 @@ new();
         {
             var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
 
-            // MODIFICADO: Verificar respuesta y recargar
             if (resp.IsSuccessStatusCode)
             {
                 await CargarPedidos();
@@ -209,14 +204,12 @@ new();
         {
             var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
 
-            // MODIFICADO: Verificar respuesta y recargar
             if (resp.IsSuccessStatusCode)
             {
                 await CargarPedidos();
             }
             else
             {
-                // Esto te mostrará el error 404 si la ruta del backend sigue incorrecta
                 errorMensaje = $"Error al finalizar el pedido {p.IdPedido}: {resp.StatusCode} ({resp.ReasonPhrase})";
             }
         }

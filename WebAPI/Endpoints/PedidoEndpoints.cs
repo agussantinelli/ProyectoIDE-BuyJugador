@@ -1,106 +1,97 @@
 ﻿using DominioServicios;
 using DTOs;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
-namespace WebAPI.Endpoints
+public static class PedidoEndpoints
 {
-    public static class PedidoEndpoints
+    public static void MapPedidoEndpoints(this WebApplication app)
     {
-        public static void MapPedidoEndpoints(this WebApplication app)
+        var group = app.MapGroup("/api/pedidos");
+
+        group.MapGet("/", async (PedidoService pedidoService) =>
         {
-            var group = app.MapGroup("/api/pedidos").RequireAuthorization();
+            var pedidos = await pedidoService.GetAllPedidosDetalladosAsync();
+            return Results.Ok(pedidos);
+        });
 
-            group.MapGet("/", async (PedidoService pedidoService) =>
+        group.MapGet("/{id}", async (int id, PedidoService pedidoService) =>
+        {
+            var pedido = await pedidoService.GetPedidoDetalladoByIdAsync(id);
+            return pedido is not null ? Results.Ok(pedido) : Results.NotFound();
+        });
+
+        group.MapPost("/completo", async (PedidoService pedidoService, [FromBody] CrearPedidoCompletoDTO pedidoDto) =>
+        {
+            try
             {
-                var pedidos = await pedidoService.GetAllPedidosDetalladosAsync();
-                return Results.Ok(pedidos);
-            });
+                var nuevoPedido = await pedidoService.CrearPedidoCompletoAsync(pedidoDto);
+                if (nuevoPedido == null)
+                    return Results.BadRequest(new { message = "No se pudo crear el pedido. Verifique los datos." });
 
-            group.MapGet("/{id}", async (int id, PedidoService pedidoService) =>
+                return Results.Created($"/api/pedidos/{nuevoPedido.IdPedido}", nuevoPedido);
+            }
+            catch (Exception ex)
             {
-                var pedido = await pedidoService.GetPedidoDetalladoByIdAsync(id);
-                return pedido is not null ? Results.Ok(pedido) : Results.NotFound();
-            });
+                return Results.BadRequest(new { message = $"Error al crear el pedido: {ex.Message}" });
+            }
+        })
+        .RequireAuthorization();
 
-            group.MapPost("/completo", async (PedidoService pedidoService, [FromBody] CrearPedidoCompletoDTO pedidoDto) =>
+        group.MapDelete("/{id}", async (int id, PedidoService service) =>
+        {
+            try
             {
-                try
-                {
-                    var nuevoPedido = await pedidoService.CrearPedidoCompletoAsync(pedidoDto);
-                    if (nuevoPedido == null)
-                    {
-                        return Results.BadRequest(new { message = "No se pudo crear el pedido. Verifique los datos." });
-                    }
-                    return Results.Created($"/api/pedidos/{nuevoPedido.IdPedido}", nuevoPedido);
-                }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = $"Error al crear el pedido: {ex.Message}" });
-                }
-            });
-
-            group.MapDelete("/{id}", async (int id, PedidoService service) =>
+                await service.DeletePedidoCompletoAsync(id);
+                return Results.NoContent();
+            }
+            catch (KeyNotFoundException)
             {
-                try
-                {
-                    await service.DeletePedidoCompletoAsync(id);
-                    return Results.NoContent();
-                }
-                catch (KeyNotFoundException)
-                {
-                    return Results.NotFound();
-                }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = ex.Message });
-                }
-            });
-
-            group.MapPut("/recibir/{id}", async (int id, PedidoService service) =>
+                return Results.NotFound();
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    await service.MarcarComoRecibidoAsync(id);
-                    return Results.Ok(new { message = "Pedido marcado como recibido." });
-                }
-                catch (KeyNotFoundException)
-                {
-                    return Results.NotFound(new { message = "Pedido no encontrado." });
-                }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = ex.Message });
-                }
-            });
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        })
+        .RequireAuthorization();
 
-            group.MapPut("/{id}", async (int id, PedidoDTO pedidoDto, PedidoService service) =>
+        group.MapPut("/recibir/{id}", async (int id, PedidoService service) =>
+        {
+            try
             {
-                if (id != pedidoDto.IdPedido)
-                {
-                    return Results.BadRequest("El ID de la URL no coincide con el del cuerpo de la solicitud.");
-                }
+                await service.MarcarComoRecibidoAsync(id);
+                return Results.Ok(new { message = "Pedido marcado como recibido." });
+            }
+            catch (KeyNotFoundException)
+            {
+                return Results.NotFound(new { message = "Pedido no encontrado." });
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        })
+        .RequireAuthorization();
 
-                try
-                {
-                    await service.UpdatePedidoCompletoAsync(id, pedidoDto);
-                    return Results.NoContent();
-                }
-                catch (KeyNotFoundException)
-                {
-                    return Results.NotFound();
-                }
-                catch (Exception ex)
-                {
-                    return Results.BadRequest(new { message = ex.Message });
-                }
-            });
-        }
+        group.MapPut("/{id}", async (int id, PedidoDTO pedidoDto, PedidoService service) =>
+        {
+            if (id != pedidoDto.IdPedido)
+                return Results.BadRequest("El ID de la URL no coincide con el del cuerpo de la solicitud.");
+
+            try
+            {
+                await service.UpdatePedidoCompletoAsync(id, pedidoDto);
+                return Results.NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return Results.NotFound();
+            }
+            catch (Exception ex)
+            {
+                return Results.BadRequest(new { message = ex.Message });
+            }
+        })
+        .RequireAuthorization();
     }
 }
-
