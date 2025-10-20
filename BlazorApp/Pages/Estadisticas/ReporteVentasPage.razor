@@ -19,11 +19,11 @@
     }
     else
     {
-        <div class="mb-3" style="max-width: 400px;">
+        <div class="mb-3">
             <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
             <select id="vendedor" class="form-select" @onchange="OnVendedorSeleccionado">
                 <option value="0">-- Por favor, elija un vendedor --</option>
-                @foreach (var persona in personas.Where(p => p.FechaIngreso.HasValue).OrderBy(p => p.NombreCompleto))
+                @foreach (var persona in personas)
                 {
                     <option value="@persona.IdPersona">@persona.NombreCompleto</option>
                 }
@@ -38,7 +38,7 @@
         {
             if (reporteData.Any())
             {
-                <div class="tbl-wrapper mt-4">
+                <div class="tbl-wrapper">
                     <table class="tbl">
                         <thead>
                             <tr>
@@ -78,14 +78,16 @@
 
 
 @code {
-    private List<PersonaDTO>? personas;
+    // #CORRECCIÓN: Se usa el nuevo DTO optimizado.
+    private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
     private bool isLoadingReporte = false;
     private int selectedPersonaId = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        personas = await personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
+        // #CORRECCIÓN: Se llama al nuevo método optimizado.
+        personas = await personaApiClient.GetPersonasActivasParaReporteAsync() ?? new List<PersonaSimpleDTO>();
     }
 
     private async Task OnVendedorSeleccionado(ChangeEventArgs e)
@@ -93,7 +95,7 @@
         if (int.TryParse(e.Value?.ToString(), out selectedPersonaId) && selectedPersonaId > 0)
         {
             isLoadingReporte = true;
-            reporteData = null; // Limpia datos anteriores
+            reporteData = null;
 
             reporteData = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
 
@@ -101,7 +103,8 @@
         }
         else
         {
-            reporteData = null; // Limpia si no hay selección válida
+            reporteData = null;
         }
     }
 }
+

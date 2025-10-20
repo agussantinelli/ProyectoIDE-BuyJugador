@@ -21,6 +21,7 @@
             this.cmbVendedores = new System.Windows.Forms.ComboBox();
             this.dgvReporte = new System.Windows.Forms.DataGridView();
             this.lblInfo = new System.Windows.Forms.Label();
+            this.lblTotal = new System.Windows.Forms.Label(); // #NUEVO
             ((System.ComponentModel.ISupportInitialize)(this.dgvReporte)).BeginInit();
             this.SuspendLayout();
             // 
@@ -52,6 +53,7 @@
             this.dgvReporte.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvReporte.Location = new System.Drawing.Point(16, 60);
             this.dgvReporte.Name = "dgvReporte";
+            this.dgvReporte.ReadOnly = true;
             this.dgvReporte.RowTemplate.Height = 25;
             this.dgvReporte.Size = new System.Drawing.Size(756, 350);
             this.dgvReporte.TabIndex = 2;
@@ -65,24 +67,35 @@
             this.lblInfo.Name = "lblInfo";
             this.lblInfo.Size = new System.Drawing.Size(0, 16);
             this.lblInfo.TabIndex = 3;
+            //
+            // lblTotal
+            // #NUEVO: Se añade y configura la etiqueta para el total.
+            this.lblTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTotal.Font = new System.Drawing.Font("Century Gothic", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTotal.Location = new System.Drawing.Point(472, 417);
+            this.lblTotal.Name = "lblTotal";
+            this.lblTotal.Size = new System.Drawing.Size(300, 19);
+            this.lblTotal.TabIndex = 4;
+            this.lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // ReporteVentasForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 441);
+            this.Controls.Add(this.lblTotal); // Se añade el control al formulario.
             this.Controls.Add(this.lblInfo);
             this.Controls.Add(this.dgvReporte);
             this.Controls.Add(this.cmbVendedores);
             this.Controls.Add(this.lblVendedor);
             this.Font = new System.Drawing.Font("Century Gothic", 9F);
+            this.MinimumSize = new System.Drawing.Size(600, 300);
             this.Name = "ReporteVentasForm";
             this.Text = "Reporte de Ventas";
             this.Load += new System.EventHandler(this.ReporteVentasForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dgvReporte)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
@@ -91,5 +104,7 @@
         private System.Windows.Forms.ComboBox cmbVendedores;
         private System.Windows.Forms.DataGridView dgvReporte;
         private System.Windows.Forms.Label lblInfo;
+        private System.Windows.Forms.Label lblTotal; // #NUEVO
     }
 }
+
