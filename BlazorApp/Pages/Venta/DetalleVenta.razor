@@ -1,0 +1,318 @@
+﻿@page "/venta/detalle/{VentaId:int}"
+@attribute [Authorize]
+@implements IDisposable
+@using System.ComponentModel
+@using DTOs
+@using ApiClient
+@using System.Threading
+@inject VentaApiClient ventaApiClient
+@inject ProductoApiClient productoApiClient
+@inject UserSessionService userSession
+@inject NavigationManager NavigationManager
+
+<div class="form-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando detalle de la venta...</div>
+    }
+    else if (venta == null)
+    {
+        <div class="alert alert-danger">No se encontró la venta especificada.</div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver al Listado
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="form-title mb-0">Detalle de Venta #@venta.IdVenta</h3>
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver al Listado
+            </button>
+        </div>
+
+        <!-- Información de la Venta -->
+        <div class="row mb-4">
+            <div class="col-md-4"><strong>Vendedor:</strong> @venta.NombreVendedor</div>
+            <div class="col-md-4"><strong>Fecha:</strong> @venta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
+            <div class="col-md-4"><strong>Estado:</strong> @venta.Estado</div>
+        </div>
+
+        <!-- Buscador de Productos (solo si se puede editar) -->
+        @if (puedeEditar)
+        {
+            <div class="card mb-4 bg-transparent border-secondary">
+                <div class="card-header"><strong>Añadir Producto</strong></div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Buscar por nombre..."
+                               value="@terminoBusqueda"
+                               @oninput="HandleSearchInput" />
+                    </div>
+                    @if (productosEncontrados != null && productosEncontrados.Any())
+                    {
+                        <ul class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
+                            @foreach (var prod in productosEncontrados)
+                            {
+                                <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center bg-dark text-white"
+                                    @onclick="() => AgregarProducto(prod)" style="cursor: pointer;">
+                                    <div><strong>@prod.Nombre</strong> (@prod.Stock en stock)</div>
+                                    <span class="badge bg-primary rounded-pill">@prod.PrecioActual?.ToString("C")</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Líneas de Venta -->
+        <div class="tbl-wrapper">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="tbl-text-end">Precio Unit.</th>
+                        <th style="width: 120px;" class="tbl-text-end">Cantidad</th>
+                        <th class="tbl-text-end">Subtotal</th>
+                        @if (puedeEditar)
+                        {
+                            <th class="tbl-actions">Acción</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var linea in lineasDeVenta)
+                    {
+                        <tr>
+                            <td>@linea.NombreProducto</td>
+                            <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
+                            <td class="tbl-text-end">
+                                <InputNumber class="form-control form-control-sm text-end" @bind-Value="linea.Cantidad" min="1" disabled="@(!puedeEditar)" @oninput="MarcarComoModificado" />
+                            </td>
+                            <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
+                            @if (puedeEditar)
+                            {
+                                <td class="tbl-actions">
+                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarLinea(linea)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="tbl-total-row">
+                        <td colspan="@(puedeEditar ? 4 : 3)" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                        <td class="tbl-text-end"><strong>@TotalVenta.ToString("C")</strong></td>
+                        @if (puedeEditar)
+                        {
+                            <td></td>
+                        }
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+
+        <!-- Acciones -->
+        @if (puedeEditar)
+        {
+            <div class="form-actions mt-4">
+                <button class="btn btn-success" @onclick="GuardarCambios" disabled="@(!datosModificados || isSaving)">
+                    @if (isSaving && !finalizando)
+                    {
+                        <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
+                    }
+                    else
+                    {
+
+                        <span><i class="bi bi-save"></i> Guardar Cambios</span>
+                    }
+                </button>
+                <button class="btn btn-primary" @onclick="FinalizarVenta" disabled="@isSaving">
+                    @if (isSaving && finalizando)
+                    {
+                        <span><span class="spinner-border spinner-border-sm"></span> Finalizando...</span>
+                    }
+                    else
+                    {
+
+                        <span><i class="bi bi-check2-circle"></i> Finalizar Venta</span>
+                    }
+                </button>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int VentaId { get; set; }
+
+    private VentaDTO? venta;
+    private List<LineaVentaDTO> lineasDeVenta = new();
+    private List<ProductoDTO> todosLosProductos = new();
+    private List<ProductoDTO>? productosEncontrados;
+    private Timer? searchTimer;
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool finalizando = false;
+    private bool esAdmin = false;
+    private bool puedeEditar = false;
+    private bool datosModificados = false;
+
+    private string terminoBusqueda = string.Empty;
+    private string? errorMessage;
+
+    private decimal TotalVenta => lineasDeVenta.Sum(l => l.Subtotal);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            esAdmin = await userSession.EsAdminAsync();
+            var ventaTask = ventaApiClient.GetByIdAsync(VentaId);
+            var productosTask = productoApiClient.GetAllAsync();
+
+            await Task.WhenAll(ventaTask, productosTask);
+
+            venta = ventaTask.Result;
+            todosLosProductos = productosTask.Result ?? new List<ProductoDTO>();
+
+            if (venta != null)
+            {
+                lineasDeVenta = new List<LineaVentaDTO>(venta.Lineas ?? new List<LineaVentaDTO>());
+                puedeEditar = esAdmin && "Pendiente".Equals(venta.Estado, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar los datos: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void HandleSearchInput(ChangeEventArgs e)
+    {
+        terminoBusqueda = e.Value?.ToString() ?? string.Empty;
+        searchTimer?.Dispose();
+        searchTimer = new Timer(SearchProducts, null, 300, Timeout.Infinite);
+    }
+
+    private void SearchProducts(object? state)
+    {
+        InvokeAsync(() =>
+        {
+            if (string.IsNullOrWhiteSpace(terminoBusqueda))
+            {
+                productosEncontrados = null;
+            }
+            else
+            {
+                var idsEnVenta = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
+                productosEncontrados = todosLosProductos
+                    .Where(p => p.Nombre.Contains(terminoBusqueda, StringComparison.OrdinalIgnoreCase)
+                                && p.Stock > 0
+                                && p.PrecioActual.HasValue
+                                && !idsEnVenta.Contains(p.IdProducto))
+                    .Take(10)
+                    .ToList();
+            }
+            StateHasChanged();
+        });
+    }
+
+    private void AgregarProducto(ProductoDTO producto)
+    {
+        lineasDeVenta.Add(new LineaVentaDTO
+        {
+            IdVenta = VentaId,
+            IdProducto = producto.IdProducto,
+            NombreProducto = producto.Nombre,
+            Cantidad = 1,
+            PrecioUnitario = producto.PrecioActual ?? 0,
+            EsNueva = true
+        });
+
+        terminoBusqueda = string.Empty;
+        productosEncontrados = null;
+        MarcarComoModificado();
+        StateHasChanged();
+    }
+
+    private void EliminarLinea(LineaVentaDTO linea)
+    {
+        lineasDeVenta.Remove(linea);
+        MarcarComoModificado();
+        StateHasChanged();
+    }
+
+    private void MarcarComoModificado(ChangeEventArgs? e = null)
+    {
+        datosModificados = true;
+        StateHasChanged();
+    }
+
+    private async Task GuardarCambios() => await Guardar(finalizar: false);
+    private async Task FinalizarVenta() => await Guardar(finalizar: true);
+
+    private async Task Guardar(bool finalizar)
+    {
+        if (venta?.IdPersona == null) return;
+
+        isSaving = true;
+        finalizando = finalizar;
+        errorMessage = null;
+
+        var dto = new CrearVentaCompletaDTO
+        {
+            IdVenta = venta.IdVenta,
+            IdPersona = venta.IdPersona.Value,
+            Lineas = lineasDeVenta.ToList(),
+            Finalizada = finalizar
+        };
+
+        try
+        {
+            var response = await ventaApiClient.UpdateCompletaAsync(dto);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/venta");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Error al guardar: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            finalizando = false;
+        }
+    }
+
+    private void Volver() => NavigationManager.NavigateTo("/venta");
+
+    public void Dispose()
+    {
+        searchTimer?.Dispose();
+    }
+}
+

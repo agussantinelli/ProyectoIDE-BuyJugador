@@ -1,0 +1,199 @@
+﻿@page "/precios-venta"
+@attribute [Authorize]
+
+@using DTOs
+@using ApiClient
+@inject ProductoApiClient productoApiClient
+@inject PrecioVentaApiClient precioVentaApiClient
+@inject NavigationManager navigationManager
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">Gestión de Precios de Venta</h2>
+        <div class="tbl-search">
+            <button class="btn btn-secondary" @onclick="VolverAProductos">
+                <i class="bi bi-arrow-left-circle"></i> Volver a Productos
+            </button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando productos...</div>
+    }
+    else if (productos != null && productos.Any())
+    {
+        <div class="tbl-wrapper">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="tbl-text-end">Precio Actual</th>
+                        <th class="tbl-text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var producto in productos)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@producto.Nombre</strong>
+                                <div class="tbl-muted tbl-truncate">@producto.Descripcion</div>
+                            </td>
+                            <td class="tbl-text-end">
+                                @if (producto.PrecioActual.HasValue)
+                                {
+                                    <span>@producto.PrecioActual.Value.ToString("C2")</span>
+                                }
+                                else
+                                {
+                                    <span class="tbl-muted">No asignado</span>
+                                }
+                            </td>
+                            <td class="tbl-text-end">
+                                <button class="btn btn-primary btn-sm" @onclick="() => AbrirModalEdicion(producto)">
+                                    <i class="bi bi-pencil-square"></i> Actualizar Precio
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron productos.</div>
+    }
+</div>
+
+@* Modal para editar el precio *@
+@if (productoSeleccionado != null)
+{
+    <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Actualizar Precio de @productoSeleccionado.Nombre</h5>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(modalErrorMessage))
+                    {
+                        <div class="alert alert-danger">@modalErrorMessage</div>
+                    }
+                    <div class="form-group">
+                        <label>Nuevo Precio de Venta</label>
+                        <InputNumber @bind-Value="nuevoPrecio" class="form-control" placeholder="Ingrese el nuevo monto" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="GuardarNuevoPrecio" disabled="@isSaving">
+                        @if (isSaving)
+                        {
+                            <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
+                        }
+                        else
+                        {
+                            <span><i class="bi bi-save"></i> Guardar Precio</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private List<ProductoDTO>? productos;
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    // --- Lógica del Modal ---
+    private ProductoDTO? productoSeleccionado;
+    private decimal nuevoPrecio;
+    private string? modalErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarProductos();
+    }
+
+    private async Task CargarProductos()
+    {
+        isLoading = true;
+        try
+        {
+            productos = await productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
+        }
+        catch (Exception)
+        {
+            productos = new List<ProductoDTO>();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void AbrirModalEdicion(ProductoDTO producto)
+    {
+        productoSeleccionado = producto;
+        nuevoPrecio = producto.PrecioActual ?? 0;
+        modalErrorMessage = null;
+    }
+
+    private void CerrarModal()
+    {
+        productoSeleccionado = null;
+    }
+
+    private async Task GuardarNuevoPrecio()
+    {
+        if (productoSeleccionado == null || nuevoPrecio <= 0)
+        {
+            modalErrorMessage = "El precio debe ser un monto mayor a cero.";
+            return;
+        }
+
+        isSaving = true;
+        modalErrorMessage = null;
+
+        try
+        {
+            var nuevoPrecioDto = new PrecioVentaDTO
+            {
+                IdProducto = productoSeleccionado.IdProducto,
+                Monto = nuevoPrecio,
+                FechaDesde = DateTime.UtcNow
+            };
+
+            var response = await precioVentaApiClient.CreateAsync(nuevoPrecioDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                CerrarModal();
+                await CargarProductos(); // Recargar la lista para mostrar el precio actualizado
+            }
+            else
+            {
+                modalErrorMessage = $"Error al guardar el precio: {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            modalErrorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void VolverAProductos()
+    {
+        navigationManager.NavigateTo("/producto");
+    }
+}

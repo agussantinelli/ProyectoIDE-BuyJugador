@@ -8,230 +8,204 @@
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
 
-<link href="css/Table.css" rel="stylesheet" />
-<link href="css/Form.css" rel="stylesheet" />
-
 <div class="form-container">
-    <div class="form-header">
-        <h3 class="form-title">Nueva Venta</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="form-title mb-0">Nueva Venta</h3>
         <button class="btn btn-secondary" @onclick="Cancelar">
             <i class="bi bi-arrow-left"></i>
             <span>Volver al Listado</span>
         </button>
     </div>
 
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong>Buscar Producto</strong>
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            @mensajeError
+            <button type="button" class="btn-close" @onclick="() => mensajeError = null" aria-label="Close"></button>
         </div>
-        <div class="card-body">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Buscar por nombre..."
-                       @bind="terminoBusqueda"
-                       @oninput="BuscarProductos" />
-                <button class="btn btn-outline-secondary" type="button" @onclick="BuscarProductos">
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
+    }
 
-            @if (productosEncontrados != null && productosEncontrados.Any())
-            {
-                <ul class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
-                    @foreach (var prod in productosEncontrados)
-                    {
-                        <li class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                            @onclick="() => AgregarProducto(prod)" style="cursor: pointer;">
-                            <div>
-                                <strong>@prod.Nombre</strong> (@prod.Stock en stock)
-                            </div>
-                            <span class="badge bg-primary rounded-pill">@prod.PrecioActual?.ToString("C")</span>
-                        </li>
-                    }
-                </ul>
-            }
-            else if (!string.IsNullOrWhiteSpace(terminoBusqueda))
-            {
-                <div class="text-muted mt-2">No se encontraron productos o no hay stock.</div>
-            }
+    <!-- Sección para Agregar Productos -->
+    <div class="card mb-4 bg-transparent border-secondary">
+        <div class="card-header"><strong>Añadir Producto</strong></div>
+        <div class="card-body">
+            <div class="d-flex align-items-end gap-3">
+                <div class="form-group flex-grow-1">
+                    <label for="producto">Producto:</label>
+                    <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                        <option value="0">-- Seleccione un producto --</option>
+                        @foreach (var p in productosDisponibles)
+                        {
+                            <option value="@p.IdProducto">@p.Nombre (@p.PrecioActual?.ToString("C")) - Stock: @p.Stock</option>
+                        }
+                    </InputSelect>
+                </div>
+                <div class="form-group" style="min-width: 100px;">
+                    <label for="cantidad">Cantidad:</label>
+                    <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" />
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                        <i class="bi bi-plus-circle"></i> Agregar
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <strong>Detalle de Venta</strong>
-        </div>
-        <div class="card-body">
-            @if (venta.Lineas.Any())
-            {
-                <div class="tbl-wrapper">
-                    <table class="tbl table-striped">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th class="tbl-text-end">Precio Unit.</th>
-                                <th class="tbl-text-end" style="width: 120px;">Cantidad</th>
-                                <th class="tbl-text-end">Subtotal</th>
-                                <th class="tbl-actions">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var linea in venta.Lineas)
-                            {
-                                <tr>
-                                    <td>@linea.NombreProducto</td>
-                                    <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
-                                    <td class="tbl-text-end">
-                                        <InputNumber class="form-control form-control-sm text-end"
-                                                     @bind-Value="linea.Cantidad" 
-                                                     min="1" />
-                                        @* Aquí podrías añadir validación de stock si lo deseas *@
-                                    </td>
-                                    <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
-                                    <td class="tbl-actions">
-                                        <button class="btn-icon" title="Eliminar" @onclick="() => EliminarLinea(linea)">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="tbl-total-row">
-                                <td colspan="3" class="tbl-text-end"><strong>TOTAL:</strong></td>
-                                <td class="tbl-text-end"><strong>@TotalVenta.ToString("C")</strong></td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="tbl-state">
-                    <i class="bi bi-cart-plus"></i> Agregue productos desde el buscador.
-                </div>
-            }
-        </div>
+    <!-- Tabla de Líneas de Venta -->
+    <div class="tbl-wrapper">
+        <table class="tbl">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th class="tbl-text-end">Precio Unit.</th>
+                    <th class="tbl-text-end">Cantidad</th>
+                    <th class="tbl-text-end">Subtotal</th>
+                    <th class="tbl-actions">Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (venta.Lineas.Any())
+                {
+                    @foreach (var linea in venta.Lineas)
+                    {
+                        <tr>
+                            <td>@linea.NombreProducto</td>
+                            <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
+                            <td class="tbl-text-end">@linea.Cantidad</td>
+                            <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
+                            <td class="tbl-actions">
+                                <button class="tbl-icon-btn tbl-icon-btn--danger" title="Quitar" @onclick="() => QuitarLinea(linea)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="tbl-state text-center d-block">
+                                <i class="bi bi-cart-plus"></i> Agregue productos para continuar.
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr class="tbl-total-row">
+                    <td colspan="4" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                    <td class="tbl-text-end"><strong>@TotalVenta.ToString("C")</strong></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 
     <div class="form-actions mt-3">
-        @if (!string.IsNullOrWhiteSpace(mensajeError))
-        {
-            <div class="alert alert-danger">@mensajeError</div>
-        }
-        
-        <button type="button" class="btn btn-primary" @onclick="GuardarVenta" disabled="@(venta.Lineas.Count == 0)">
-            <i class="bi bi-save"></i>
-            <span>Guardar Venta (Pendiente)</span>
+        <button type="button" class="btn btn-primary" @onclick="GuardarVenta" disabled="@(!venta.Lineas.Any() || isSaving)">
+            @if (isSaving)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span> Guardando...</span>
+            }
+            else
+            {
+                <i class="bi bi-save"></i>
+                <span>Guardar Venta</span>
+            }
         </button>
     </div>
-
 </div>
 
 @code {
     private CrearVentaCompletaDTO venta = new();
-    private List<ProductoDTO>? todosLosProductos;
-    private List<ProductoDTO>? productosEncontrados;
-    private string terminoBusqueda = string.Empty;
+    private LineaVentaDTO lineaActual = new() { Cantidad = 1 };
+    private List<ProductoDTO> todosLosProductos = new();
+    private List<ProductoDTO> productosDisponibles = new();
+
     private string? mensajeError;
+    private bool isSaving = false;
 
     private decimal TotalVenta => venta.Lineas.Sum(l => l.Subtotal);
 
     protected override async Task OnInitializedAsync()
     {
-        // 1. Obtener el ID del vendedor (usuario logueado)
         var userId = await userSession.GetUserIdAsync();
-        if (userId.HasValue)
+        if (!userId.HasValue)
         {
-            venta.IdPersona = userId.Value;
-        }
-        else
-        {
-            // Si no hay usuario, no debería estar aquí
             NavigationManager.NavigateTo("/login");
             return;
         }
-
-        // 2. Cargar todos los productos para el buscador
+        venta.IdPersona = userId.Value;
         todosLosProductos = await productoApiClient.GetAllAsync() ?? new();
+        productosDisponibles = todosLosProductos.Where(p => p.Stock > 0 && p.PrecioActual.HasValue).OrderBy(p => p.Nombre).ToList();
     }
 
-    private void BuscarProductos()
+    private void AgregarLinea()
     {
-        if (string.IsNullOrWhiteSpace(terminoBusqueda))
-        {
-            productosEncontrados = null;
-        }
-        else
-        {
-            productosEncontrados = todosLosProductos?
-                .Where(p => p.Nombre.Contains(terminoBusqueda, StringComparison.OrdinalIgnoreCase) 
-                            && p.Stock > 0 
-                            && p.PrecioActual.HasValue)
-                .Take(10) // Limitar resultados para performance
-                .ToList();
-        }
-    }
-
-    private void AgregarProducto(ProductoDTO producto)
-    {
-        // Verificar si ya existe en el carrito
-        var lineaExistente = venta.Lineas.FirstOrDefault(l => l.IdProducto == producto.IdProducto);
-
-        if (lineaExistente != null)
-        {
-            // Incrementar cantidad si hay stock
-            if (lineaExistente.Cantidad < producto.Stock)
-            {
-                lineaExistente.Cantidad++;
-            }
-            else
-            {
-                mensajeError = $"No hay más stock para '{producto.Nombre}'.";
-            }
-        }
-        else
-        {
-            // Añadir nueva línea
-            venta.Lineas.Add(new LineaVentaDTO
-            {
-                IdProducto = producto.IdProducto,
-                NombreProducto = producto.Nombre,
-                PrecioUnitario = producto.PrecioActual ?? 0,
-                Cantidad = 1,
-                EsNueva = true // Flag para el backend
-            });
-        }
-
-        // Limpiar búsqueda
-        terminoBusqueda = string.Empty;
-        productosEncontrados = null;
         mensajeError = null;
+        if (lineaActual.IdProducto == 0)
+        {
+            mensajeError = "Debe seleccionar un producto.";
+            return;
+        }
+        if (lineaActual.Cantidad <= 0)
+        {
+            mensajeError = "La cantidad debe ser mayor a 0.";
+            return;
+        }
+
+        var productoSeleccionado = todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaActual.IdProducto);
+        if (productoSeleccionado == null)
+        {
+            mensajeError = "El producto seleccionado no es válido.";
+            return;
+        }
+
+        if (lineaActual.Cantidad > productoSeleccionado.Stock)
+        {
+            mensajeError = $"La cantidad solicitada ({lineaActual.Cantidad}) supera el stock disponible ({productoSeleccionado.Stock}).";
+            return;
+        }
+
+        venta.Lineas.Add(new LineaVentaDTO
+        {
+            IdProducto = productoSeleccionado.IdProducto,
+            NombreProducto = productoSeleccionado.Nombre,
+            PrecioUnitario = productoSeleccionado.PrecioActual ?? 0,
+            Cantidad = lineaActual.Cantidad,
+            EsNueva = true
+        });
+
+        // Actualizar UI
+        productosDisponibles.Remove(productoSeleccionado);
+        lineaActual = new() { Cantidad = 1 };
     }
 
-    private void EliminarLinea(LineaVentaDTO linea)
+    private void QuitarLinea(LineaVentaDTO linea)
     {
         venta.Lineas.Remove(linea);
-        mensajeError = null;
+        var productoRestaurado = todosLosProductos.FirstOrDefault(p => p.IdProducto == linea.IdProducto);
+        if (productoRestaurado != null)
+        {
+            productosDisponibles.Add(productoRestaurado);
+            productosDisponibles = productosDisponibles.OrderBy(p => p.Nombre).ToList();
+        }
     }
 
     private async Task GuardarVenta()
     {
+        isSaving = true;
         mensajeError = null;
         if (!venta.Lineas.Any())
         {
             mensajeError = "Debe agregar al menos un producto a la venta.";
+            isSaving = false;
             return;
         }
 
-        // Asignar NroLineaVenta secuencialmente
-        int nroLinea = 1;
-        foreach (var linea in venta.Lineas)
-        {
-            linea.NroLineaVenta = nroLinea++;
-        }
-
-        // Marcar como no finalizada (Pendiente)
         venta.Finalizada = false;
 
         try
@@ -243,12 +217,17 @@
             }
             else
             {
-                mensajeError = $"Error al crear la venta: {response.ReasonPhrase}";
+                var error = await response.Content.ReadAsStringAsync();
+                mensajeError = $"Error al crear la venta: {error}";
             }
         }
         catch (Exception ex)
         {
-            mensajeError = $"Error de excepción: {ex.Message}";
+            mensajeError = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
         }
     }
 
@@ -257,3 +236,4 @@
         NavigationManager.NavigateTo("/venta");
     }
 }
+

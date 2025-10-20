@@ -4,18 +4,21 @@
 @using ApiClient
 @using DTOs
 @inject ProductoApiClient productoApiClient
-@inject NavigationManager Nav
-
-<link href="css/Table.css" rel="stylesheet" />
+@inject NavigationManager navigationManager
 
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Productos</h2>
-
         <div class="tbl-search">
-            <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
+            <span class="bi bi-search tbl-search-icon"></span>
             <input class="tbl-input" type="text" placeholder="Buscar producto..."
-                   @bind="TextoBusqueda" @bind:event="oninput" />
+                   @bind="textoFiltro" @bind:event="oninput" />
+
+            @* Botón añadido para navegar a la gestión de precios *@
+            <button class="btn btn-outline-secondary" @onclick="IrAGestionPrecios">
+                <i class="bi bi-tags"></i> Gestionar Precios de Venta
+            </button>
+
             <button class="btn btn-primary" @onclick="NuevoProducto">
                 <i class="bi bi-plus-circle"></i>
                 <span>Nuevo</span>
@@ -23,61 +26,54 @@
         </div>
     </div>
 
-    <div class="view-selector mb-3">
-        <button class="btn @(vistaActual == Vista.Activos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Activos)">
-            <i class="bi bi-check-circle"></i> Activos (@(productosActivos?.Count ?? 0))
-        </button>
-        <button class="btn @(vistaActual == Vista.Inactivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarVista(Vista.Inactivos)">
-            <i class="bi bi-archive"></i> Inactivos (@(productosInactivos?.Count ?? 0))
-        </button>
-    </div>
-
-    @if (productosFiltrados is null)
+    @if (isLoading)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando productos...
         </div>
     }
-    else if (!productosFiltrados.Any())
-    {
-        <div class="tbl-state">
-            <i class="bi bi-inbox"></i> No se encontraron productos.
-        </div>
-    }
     else
     {
-        <div class="tbl-wrapper productos-wrapper">
-            <table class="tbl table-striped table-hover productos-table">
+        <div class="view-selector mb-3">
+            <button class="btn @(mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(true)">
+                <i class="bi bi-check-circle"></i> Activos (@(activos?.Count ?? 0))
+            </button>
+            <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
+                <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
+            </button>
+        </div>
+
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
                 <thead>
                     <tr>
-                        <th class="col-nombre">Nombre</th>
-                        <th class="col-desc">Descripción</th>
-                        <th class="col-tipo">Tipo</th>
-                        <th class="tbl-text-end col-precio">Precio</th>
-                        <th class="tbl-text-end col-stock">Stock</th>
-                        <th class="col-acciones">Acciones</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th class="col-tipo">Tipo Producto</th>
+                        <th class="col-stock tbl-text-end">Stock</th>
+                        <th class="tbl-text-end">Precio Venta</th>
+                        <th class="tbl-text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var p in productosFiltrados)
+                    @foreach (var p in ProductosFiltrados)
                     {
                         <tr>
-                            <td class="tbl-truncate">@p.Nombre</td>
-                            <td class="tbl-muted tbl-truncate">@p.Descripcion</td>
-                            <td class="tbl-truncate">@p.TipoProductoDescripcion</td>
-                            <td class="tbl-text-end">@FormatCurrency(p.PrecioActual ?? 0m)</td>
-                            <td class="tbl-text-end">@p.Stock</td>
-                            <td class="col-acciones">
+                            <td>@p.Nombre</td>
+                            <td class="tbl-truncate">@p.Descripcion</td>
+                            <td class="tbl-muted col-tipo">@p.TipoProductoDescripcion</td>
+                            <td class="tbl-muted col-stock tbl-text-end">@p.Stock</td>
+                            <td class="tbl-muted tbl-text-end">
+                                @(p.PrecioActual.HasValue? p.PrecioActual.Value.ToString("C") : "N/A")
+                            </td>
+                            <td class="tbl-text-end">
                                 <div class="tbl-actions">
-                                    @if (vistaActual == Vista.Activos)
+                                    @if (mostrarActivos)
                                     {
-                                        <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de Baja" @onclick="() => DarDeBaja(p)">
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     }
@@ -98,94 +94,72 @@
 </div>
 
 @code {
-    private enum Vista { Activos, Inactivos }
-    private Vista vistaActual = Vista.Activos;
-
-    private List<ProductoDTO>? productosActivos;
-    private List<ProductoDTO>? productosInactivos;
-    private List<ProductoDTO>? productosFiltrados;
-
-    private string _textoBusqueda = string.Empty;
-    private string TextoBusqueda
-    {
-        get => _textoBusqueda;
-        set
-        {
-            _textoBusqueda = value ?? string.Empty;
-            AplicarFiltro();
-        }
-    }
-
-    private string FormatCurrency(decimal amount) => amount.ToString("C");
+    private List<ProductoDTO>? activos;
+    private List<ProductoDTO>? inactivos;
+    private bool mostrarActivos = true;
+    private string textoFiltro = string.Empty;
+    private bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
-        await CargarTodosProductos();
+        await CargarDatos();
     }
 
-    private async Task CargarTodosProductos()
+    private async Task CargarDatos()
     {
-        productosFiltrados = null;
-        var activosTask = productoApiClient.GetAllAsync();
-        var inactivosTask = productoApiClient.GetAllInactivosAsync();
-
-        await Task.WhenAll(activosTask, inactivosTask);
-
-        productosActivos = await activosTask ?? new();
-        productosInactivos = await inactivosTask ?? new();
-
-        AplicarFiltro();
-    }
-
-    private void AplicarFiltro()
-    {
-        var fuente = vistaActual == Vista.Activos ? productosActivos : productosInactivos;
-
-        if (string.IsNullOrWhiteSpace(_textoBusqueda))
+        isLoading = true;
+        try
         {
-            productosFiltrados = fuente;
-            return;
+            var activosTask = productoApiClient.GetAllAsync();
+            var inactivosTask = productoApiClient.GetAllInactivosAsync();
+            await Task.WhenAll(activosTask, inactivosTask);
+            activos = activosTask.Result ?? new();
+            inactivos = inactivosTask.Result ?? new();
         }
-
-        var f = _textoBusqueda.Trim();
-        productosFiltrados = fuente?
-            .Where(p =>
-                (p.Nombre ?? "").Contains(f, StringComparison.OrdinalIgnoreCase) ||
-                (p.Descripcion ?? "").Contains(f, StringComparison.OrdinalIgnoreCase) ||
-                (p.TipoProductoDescripcion ?? "").Contains(f, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        catch
+        {
+            activos = new();
+            inactivos = new();
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
-    private void CambiarVista(Vista nuevaVista)
+    private IEnumerable<ProductoDTO> ProductosFiltrados =>
+        (mostrarActivos ? activos : inactivos)?
+        .Where(p =>
+            string.IsNullOrWhiteSpace(textoFiltro)
+            || (p.Nombre?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.Descripcion?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+            || (p.TipoProductoDescripcion?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+        ) ?? Enumerable.Empty<ProductoDTO>();
+
+    private void CambiarTab(bool esActivo)
     {
-        vistaActual = nuevaVista;
-        AplicarFiltro();
+        mostrarActivos = esActivo;
     }
 
-    private async Task DarDeBaja(ProductoDTO p)
+    private async Task Eliminar(ProductoDTO producto)
     {
-        var response = await productoApiClient.DeleteAsync(p.IdProducto);
-        if (response.IsSuccessStatusCode) await CargarTodosProductos();
+        var resp = await productoApiClient.DeleteAsync(producto.IdProducto);
+        if (resp.IsSuccessStatusCode) await CargarDatos();
     }
 
-    private async Task Reactivar(ProductoDTO p)
+    private async Task Reactivar(ProductoDTO producto)
     {
-        var response = await productoApiClient.ReactivarAsync(p.IdProducto);
-        if (response.IsSuccessStatusCode) await CargarTodosProductos();
+        var resp = await productoApiClient.ReactivarAsync(producto.IdProducto);
+        if (resp.IsSuccessStatusCode) await CargarDatos();
     }
 
-    private void NuevoProducto() => Nav.NavigateTo("/producto/crear");
+    private void NuevoProducto() => navigationManager.NavigateTo("/producto/nuevo");
+    private void Editar(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/editar/{producto.IdProducto}");
 
-    private void VerDetalle(ProductoDTO p)
+    // # Nuevo método para navegar a la página de gestión de precios
+    private void IrAGestionPrecios()
     {
-        if (p is null) return;
-        Nav.NavigateTo($"/producto/{p.IdProducto}");
+        navigationManager.NavigateTo("/precios-venta");
     }
-
-    private void Editar(ProductoDTO p)
-    {
-        if (p is null) return;
-        Nav.NavigateTo($"/producto/editar/{p.IdProducto}");
-    }
-
 }
+
