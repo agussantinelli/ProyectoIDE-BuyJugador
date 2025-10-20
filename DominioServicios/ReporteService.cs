@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace DominioServicios
 {
-    // #Intención: Servicio dedicado a la generación de reportes con ADO.NET.
-    // #Principio: Separación de responsabilidades.
+
     public class ReporteService
     {
         private readonly string _connectionString;
@@ -23,8 +22,6 @@ namespace DominioServicios
             var reportes = new List<ReporteVentasDTO>();
             var fechaDesde = DateTime.UtcNow.AddDays(-7);
 
-            // #Intención: Crear una consulta SQL segura y eficiente con ADO.NET.
-            // #Seguridad: Se usan parámetros para prevenir inyección SQL.
             const string query = @"
                 SELECT
                     v.IdVenta,

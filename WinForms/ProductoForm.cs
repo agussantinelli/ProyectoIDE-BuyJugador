@@ -212,7 +212,7 @@ namespace WinForms
             }
             else
             {
-                var form = new ReporteHistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>());
+                var form = new ReporteHistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>(), _serviceProvider.GetRequiredService<ReporteApiClient>());
                 form.MdiParent = this.MdiParent;
                 form.Show();
             }

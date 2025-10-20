@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-// --- 1. Configuración de Cultura para formato de moneda ARS ---
 var cultureInfo = new CultureInfo("es-AR");
 NumberFormatInfo numberFormat = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
 numberFormat.CurrencySymbol = "$";
@@ -25,13 +24,11 @@ CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// --- 2. Configuración de la URL base de la API ---
 var apiBase = builder.Configuration["ApiBaseUrl"]
                  ?? Environment.GetEnvironmentVariable("API_BASE_URL")
                  ?? "https://localhost:7145/";
 var apiUri = new Uri(apiBase);
 
-// --- 3. Configuración de Servicios de Autenticación y Sesión ---
 builder.Services.AddScoped<InMemoryUserSession>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();
@@ -39,12 +36,10 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<UserSessionService>();
 builder.Services.AddScoped<TokenMessageHandler>();
 
-// --- 4. Configuración Centralizada de HttpClient ---
 builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
               .AddHttpMessageHandler<TokenMessageHandler>();
 
-// --- 5. Registro Unificado de todos los ApiClients ---
 builder.Services.AddScoped(sp => new VentaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PersonaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new ProductoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));

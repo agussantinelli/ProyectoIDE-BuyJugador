@@ -36,13 +36,12 @@ namespace WinForms
                 var personas = await _personaApiClient.GetPersonasActivasParaReporteAsync();
                 if (personas != null)
                 {
-                    // #CORRECCIÓN: Añadir un item placeholder al inicio de la lista.
                     personas.Insert(0, new PersonaSimpleDTO { IdPersona = 0, NombreCompleto = "-- Seleccione un Vendedor --" });
 
                     cmbVendedores.DataSource = personas;
                     cmbVendedores.DisplayMember = "NombreCompleto";
                     cmbVendedores.ValueMember = "IdPersona";
-                    cmbVendedores.SelectedIndex = 0; // #CORRECCIÓN: Mostrar el placeholder por defecto.
+                    cmbVendedores.SelectedIndex = 0; 
                 }
             }
             catch (Exception ex)
@@ -53,7 +52,6 @@ namespace WinForms
 
         private async void cmbVendedores_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // #CORRECCIÓN: Asegurarse de que no se procese el placeholder (ID 0).
             if (cmbVendedores.SelectedValue is int idPersona && idPersona > 0)
             {
                 try
@@ -86,7 +84,6 @@ namespace WinForms
             }
             else
             {
-                // #NUEVO: Limpiar el reporte si se selecciona el placeholder.
                 dgvReporte.DataSource = null;
                 _currentReportData = null;
                 lblInfo.Text = "Seleccione un vendedor para generar el reporte.";
