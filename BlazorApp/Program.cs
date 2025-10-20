@@ -40,6 +40,21 @@ builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
 builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
                .AddHttpMessageHandler<BlazorApp.Auth.TokenMessageHandler>();
 
+builder.Services.AddHttpClient<ProveedorApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!);
+}).AddHttpMessageHandler<TokenMessageHandler>();
+
+builder.Services.AddHttpClient<ProductoProveedorApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!);
+}).AddHttpMessageHandler<TokenMessageHandler>();
+
+builder.Services.AddHttpClient<PedidoApiClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"]!);
+}).AddHttpMessageHandler<TokenMessageHandler>();
+
 builder.Services.AddScoped(sp => new ProductoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new ProveedorApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PedidoApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));

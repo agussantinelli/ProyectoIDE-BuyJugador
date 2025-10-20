@@ -1,0 +1,290 @@
+﻿@page "/pedido/nuevo"
+@attribute [Authorize]
+
+@using DTOs
+@using ApiClient
+@inject PedidoApiClient pedidoApiClient
+@inject ProveedorApiClient provedorApiClient
+@inject ProductoProveedorApiClient productoProvedorApiClient
+@inject NavigationManager NavigationManager
+
+<link href="css/Form.css" rel="stylesheet" />
+<link href="css/Table.css" rel="stylesheet" />
+
+<div class="form-container">
+    <h2 class="form-title">Nuevo Pedido</h2>
+
+    @if (!string.IsNullOrEmpty(mensajeError))
+    {
+        <div class="alert alert-danger" role="alert">
+            @mensajeError
+            <button type="button" class="btn-close" @onclick="() => mensajeError = null" aria-label="Close"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(mensajeExito))
+    {
+        <div class="alert alert-success" role="alert">@mensajeExito</div>
+    }
+
+    <div class="form-group">
+        <label for="proveedor">Proveedor:</label>
+        <InputSelect id="proveedor" class="form-control" @bind-Value="pedidoDto.IdProveedor" @oninput="OnProveedorChanged">
+            <option value="0">-- Seleccione un proveedor --</option>
+            @if (proveedores.Any())
+            {
+                @foreach (var p in proveedores)
+                {
+                    <option value="@p.IdProveedor">@p.RazonSocial</option>
+                }
+            }
+        </InputSelect>
+    </div>
+
+    @if (pedidoDto.IdProveedor > 0)
+    {
+        <hr />
+        <h5>Agregar Productos</h5>
+        <div class="form-row">
+            <div class="form-group col-6">
+                <label for="producto">Producto:</label>
+                <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                    <option value="0">-- Seleccione un producto --</option>
+                    @if (productosDisponibles.Any())
+                    {
+                        @foreach (var p in productosDisponibles)
+                        {
+                            <option value="@p.IdProducto">@p.Nombre (@p.PrecioCompra.ToString("C"))</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            <div class="form-group col-3">
+                <label for="cantidad">Cantidad:</label>
+                <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" />
+            </div>
+            <div class="form-group col-3 d-flex align-items-end">
+                <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                    <i class="bi bi-plus-circle"></i> Agregar
+                </button>
+            </div>
+        </div>
+
+        @if (pedidoDto.LineasPedido.Any())
+        {
+            <div class="tbl-wrapper">
+                <table class="tbl table-striped">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th class="tbl-text-end">Precio Unit.</th>
+                            <th class="tbl-text-end">Subtotal</th>
+                            <th class="tbl-text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var linea in pedidoDto.LineasPedido)
+                        {
+                            <tr>
+                                <td>@GetNombreProducto(linea.IdProducto)</td>
+                                <td>@linea.Cantidad</td>
+                                <td class="tbl-text-end">@GetPrecioProducto(linea.IdProducto).ToString("C")</td>
+                                <td class="tbl-text-end">@((linea.Cantidad * GetPrecioProducto(linea.IdProducto)).ToString("C"))</td>
+                                <td class="tbl-text-end">
+                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Quitar" @onclick="() => QuitarLinea(linea)">
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="tbl-text-end"><strong>Total:</strong></td>
+                            <td class="tbl-text-end"><strong>@CalcularTotal().ToString("C")</strong></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+    }
+
+    <hr />
+    <EditForm Model="pedidoDto" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="form-check mb-3">
+            <InputCheckbox id="marcarRecibido" class="form-check-input" @bind-Value="pedidoDto.MarcarComoRecibido" />
+            <label class="form-check-label" for="marcarRecibido">Marcar como recibido al crear</label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" disabled="@(!pedidoDto.LineasPedido.Any())">
+                <i class="bi bi-save"></i> Guardar Pedido
+            </button>
+            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+                Cancelar
+            </button>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    [Inject] private ProveedorApiClient proveedorApiClient { get; set; } = default!;
+    [Inject] private ProductoProveedorApiClient productoProveedorApiClient { get; set; } = default!;
+
+    private CrearPedidoCompletoDTO pedidoDto = new();
+    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 }; // Inicia con cantidad 1
+
+    private List<ProveedorDTO> proveedores = new();
+    private List<ProductoAsignadoDTO> productosDisponibles = new();
+
+    private string? mensajeError;
+    private string? mensajeExito;
+    private int nroLineaCounter = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Cargar la lista de proveedores para el dropdown inicial
+        try
+        {
+            proveedores = await proveedorApiClient.GetAllAsync() ?? new();
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error al cargar proveedores: {ex.Message}";
+        }
+    }
+
+    private async Task OnProveedorChanged(ChangeEventArgs e)
+    {
+        mensajeError = null;
+        int.TryParse(e.Value?.ToString(), out int idProveedor);
+        pedidoDto.IdProveedor = idProveedor;
+
+        // Limpiar la lista de productos y líneas de pedido anteriores
+        productosDisponibles.Clear();
+        pedidoDto.LineasPedido.Clear();
+        lineaActual = new() { Cantidad = 1 };
+        nroLineaCounter = 1;
+
+        if (idProveedor > 0)
+        {
+            // Cargar los productos asignados a este proveedor
+            try
+            {
+                productosDisponibles = await productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(idProveedor) ?? new();
+                if (!productosDisponibles.Any())
+                {
+                    mensajeError = "Este proveedor no tiene productos asignados.";
+                }
+            }
+            catch (Exception ex)
+            {
+                mensajeError = $"Error al cargar productos: {ex.Message}";
+            }
+        }
+    }
+
+    private void AgregarLinea()
+    {
+        mensajeError = null;
+
+        if (lineaActual.IdProducto == 0)
+        {
+            mensajeError = "Debe seleccionar un producto.";
+            return;
+        }
+        if (lineaActual.Cantidad <= 0)
+        {
+            mensajeError = "La cantidad debe ser mayor a 0.";
+            return;
+        }
+
+        // Verificar si el producto ya está en la lista
+        var lineaExistente = pedidoDto.LineasPedido.FirstOrDefault(l => l.IdProducto == lineaActual.IdProducto);
+
+        if (lineaExistente != null)
+        {
+            // Si ya existe, solo suma la cantidad
+            lineaExistente.Cantidad += lineaActual.Cantidad;
+        }
+        else
+        {
+            // Si es nuevo, lo agrega a la lista
+            // Asignamos el precio solo para la UI, el backend lo recalculará
+            lineaActual.PrecioUnitario = GetPrecioProducto(lineaActual.IdProducto);
+            lineaActual.NroLineaPedido = nroLineaCounter++;
+            pedidoDto.LineasPedido.Add(lineaActual);
+        }
+
+        // Resetea la línea actual para la próxima carga
+        lineaActual = new() { Cantidad = 1 };
+    }
+
+    private void QuitarLinea(LineaPedidoDTO linea)
+    {
+        pedidoDto.LineasPedido.Remove(linea);
+    }
+
+    // --- Funciones Helper para la UI ---
+    private string GetNombreProducto(int idProducto)
+    {
+        return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.Nombre ?? "Producto no encontrado";
+    }
+
+    private decimal GetPrecioProducto(int idProducto)
+    {
+        // El precio de compra se usa como precio unitario en el pedido
+        return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.PrecioCompra ?? 0;
+    }
+
+    private decimal CalcularTotal()
+    {
+        return pedidoDto.LineasPedido.Sum(l => l.Cantidad * GetPrecioProducto(l.IdProducto));
+    }
+
+    // --- Acciones del Formulario ---
+    private async Task HandleValidSubmit()
+    {
+        mensajeError = null;
+        mensajeExito = null;
+
+        if (!pedidoDto.LineasPedido.Any())
+        {
+            mensajeError = "Debe agregar al menos un producto al pedido.";
+            return;
+        }
+
+        // El backend recalcula los precios, por lo que solo enviamos IdProducto y Cantidad.
+        // El DTO `pedidoDto` ya tiene esta estructura.
+
+        try
+        {
+            var resp = await pedidoApiClient.CreateAsync(pedidoDto);
+
+            if (resp.IsSuccessStatusCode)
+            {
+                mensajeExito = "Pedido creado exitosamente. Redirigiendo...";
+                await Task.Delay(2000); // Espera 2 seg para que se lea el mensaje
+                NavigationManager.NavigateTo("/pedido");
+            }
+            else
+            {
+                var errorApi = await resp.Content.ReadAsStringAsync();
+                mensajeError = $"Error al crear el pedido: {resp.ReasonPhrase} ({errorApi})";
+            }
+        }
+        catch (Exception ex)
+        {
+            mensajeError = $"Error de conexión: {ex.Message}";
+        }
+    }
+
+    private void Cancelar()
+    {
+        NavigationManager.NavigateTo("/pedido");
+    }
+}
