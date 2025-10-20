@@ -16,7 +16,7 @@ public class GraficosController : ControllerBase
     public GraficosController(PrecioVentaService svc) => _svc = svc;
 
     [HttpGet("historial-precios.png")]
-    [AllowAnonymous] // quítalo si no lo necesitás
+    [AllowAnonymous]
     public async Task<IActionResult> HistorialPrecios(
         [FromQuery] DateTime? from,
         [FromQuery] DateTime? to,

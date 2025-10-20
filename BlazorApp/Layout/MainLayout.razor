@@ -19,47 +19,70 @@
                 <span class="bi bi-house-door"></span>
                 <span class="nav-label">Inicio</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/producto">
                 <span class="bi bi-bag"></span>
                 <span class="nav-label">Productos</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/venta">
                 <span class="bi bi-receipt"></span>
                 <span class="nav-label">Ventas</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/pedido">
                 <span class="bi bi-truck"></span>
                 <span class="nav-label">Pedidos</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/proveedor">
                 <span class="bi bi-building"></span>
                 <span class="nav-label">Proveedores</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/persona">
                 <span class="bi bi-person-lines-fill"></span>
                 <span class="nav-label">Personas</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/tipo-producto">
                 <span class="bi bi-tags"></span>
                 <span class="nav-label">Tipos de producto</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/provincia">
                 <span class="bi bi-geo-alt"></span>
                 <span class="nav-label">Provincias</span>
             </NavLink>
+
             <NavLink class="nav-item" href="/localidad">
                 <span class="bi bi-geo"></span>
                 <span class="nav-label">Localidades</span>
             </NavLink>
-            <NavLink class="nav-item" href="/estadisticas">
-                <span class="bi bi-graph-up"></span>
-                <span class="nav-label">Estadísticas</span>
-            </NavLink>
-            <NavLink class="nav-item" href="/reporte/ventas">
-                <span class="bi bi-file-earmark-bar-graph"></span>
-                <span class="nav-label">Reporte Ventas</span>
-            </NavLink>
+
+            <button type="button"
+                    class="nav-item nav-collapsible @(IsStatsActive ? "active" : null)"
+                    @onclick="ToggleStats">
+                <div class="nav-collapsible-left">
+                    <span class="bi bi-graph-up"></span>
+                    <span class="nav-label">Estadísticas</span>
+                </div>
+                <span class="bi bi-chevron-down caret @(statsOpen ? "open" : null)"></span>
+            </button>
+
+            <div class="submenu @(statsOpen ? "open" : null)">
+                <NavLink class="nav-item sub-item" href="/reporte/precios">
+                    <span class="bi bi-activity"></span>
+                    <span class="nav-label">Historial de precios</span>
+                </NavLink>
+
+                <NavLink class="nav-item sub-item" href="/reporte/ventas">
+                    <span class="bi bi-file-earmark-bar-graph"></span>
+                    <span class="nav-label">Reporte Ventas</span>
+                </NavLink>
+            </div>
         </nav>
+
     </aside>
 
     <section class="main">
@@ -90,9 +113,21 @@
 </div>
 
 @code {
-    private bool isCollapsed = false;
 
+    private bool isCollapsed = false;
     private void ToggleSidebar() => isCollapsed = !isCollapsed;
+
+    private bool statsOpen;
+    private bool IsStatsActive =>
+        Nav.Uri.Contains("/reporte/precios", StringComparison.OrdinalIgnoreCase) ||
+        Nav.Uri.Contains("/reporte/ventas", StringComparison.OrdinalIgnoreCase);
+
+    protected override void OnParametersSet()
+    {
+        if (IsStatsActive) statsOpen = true;
+    }
+
+    private void ToggleStats() => statsOpen = !statsOpen;
 
     private async Task Logout()
     {
@@ -100,9 +135,7 @@
         InMemorySession.Token = null;
 
         if (AuthStateProvider is CustomAuthenticationStateProvider provider)
-        {
             provider.NotifyUserLogout();
-        }
 
         Nav.NavigateTo("/login");
     }
