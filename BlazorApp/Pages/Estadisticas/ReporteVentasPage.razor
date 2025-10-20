@@ -133,7 +133,10 @@
             if (pdfBytes != null)
             {
                 var selectedPersona = personas?.FirstOrDefault(p => p.IdPersona == selectedPersonaId);
-                var fileName = $"ReporteVentas_{selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario"}_{DateTime.Now:yyyyMMdd}.pdf";
+                // #CORRECCIÓN: Se ajusta el nombre del archivo según el formato solicitado.
+                // #Nota: Se usan guiones en la fecha para compatibilidad.
+                var nombreVendedor = selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario";
+                var fileName = $"{nombreVendedor} Reporte {DateTime.Now:dd-MM-yyyy}.pdf";
                 var base64 = Convert.ToBase64String(pdfBytes);
                 await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, base64);
             }
@@ -144,4 +147,3 @@
         }
     }
 }
-

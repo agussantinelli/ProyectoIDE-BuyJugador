@@ -4,15 +4,22 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using PdfSharp.Fonts;
 using System.Text;
 using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// #NUEVO: Configuración global para PDFsharp.
+// #Intención: Se debe registrar el proveedor de codificación y asignar nuestro
+// #FontResolver personalizado al inicio de la aplicación.
+PdfReportService.Configure();
+GlobalFontSettings.FontResolver = new FontResolver();
 
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
 
+// #Intención: Registro de todos los servicios de la aplicación.
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();
@@ -27,9 +34,10 @@ builder.Services.AddScoped<VentaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<ReporteService>();
-builder.Services.AddScoped<PdfReportService>(); // #CORRECCIÓN: Se registra el nuevo servicio de PDF.
+builder.Services.AddScoped<PdfReportService>();
 
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "BuyJugador API", Version = "v1" });

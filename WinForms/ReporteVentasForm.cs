@@ -2,7 +2,6 @@
 using DTOs;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -37,10 +36,13 @@ namespace WinForms
                 var personas = await _personaApiClient.GetPersonasActivasParaReporteAsync();
                 if (personas != null)
                 {
+                    // #CORRECCIÓN: Añadir un item placeholder al inicio de la lista.
+                    personas.Insert(0, new PersonaSimpleDTO { IdPersona = 0, NombreCompleto = "-- Seleccione un Vendedor --" });
+
                     cmbVendedores.DataSource = personas;
                     cmbVendedores.DisplayMember = "NombreCompleto";
                     cmbVendedores.ValueMember = "IdPersona";
-                    cmbVendedores.SelectedIndex = -1;
+                    cmbVendedores.SelectedIndex = 0; // #CORRECCIÓN: Mostrar el placeholder por defecto.
                 }
             }
             catch (Exception ex)
@@ -51,7 +53,8 @@ namespace WinForms
 
         private async void cmbVendedores_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbVendedores.SelectedValue is int idPersona)
+            // #CORRECCIÓN: Asegurarse de que no se procese el placeholder (ID 0).
+            if (cmbVendedores.SelectedValue is int idPersona && idPersona > 0)
             {
                 try
                 {
@@ -81,6 +84,15 @@ namespace WinForms
                     lblInfo.Text = "Error al generar el reporte.";
                 }
             }
+            else
+            {
+                // #NUEVO: Limpiar el reporte si se selecciona el placeholder.
+                dgvReporte.DataSource = null;
+                _currentReportData = null;
+                lblInfo.Text = "Seleccione un vendedor para generar el reporte.";
+                lblTotal.Text = "";
+                btnDescargarPdf.Enabled = false;
+            }
         }
 
         private void ConfigurarColumnas()
@@ -98,7 +110,8 @@ namespace WinForms
             {
                 DataPropertyName = "Fecha",
                 HeaderText = "Fecha y Hora",
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" }
             });
             dgvReporte.Columns.Add(new DataGridViewTextBoxColumn
             {
@@ -123,7 +136,7 @@ namespace WinForms
 
         private async void btnDescargarPdf_Click(object sender, EventArgs e)
         {
-            if (cmbVendedores.SelectedValue is not int idPersona || _currentReportData == null || !_currentReportData.Any())
+            if (cmbVendedores.SelectedValue is not int idPersona || idPersona == 0 || _currentReportData == null || !_currentReportData.Any())
             {
                 MessageBox.Show("No hay datos para exportar.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -133,7 +146,9 @@ namespace WinForms
             {
                 saveFileDialog.Filter = "PDF Document (*.pdf)|*.pdf";
                 var selectedPersona = cmbVendedores.SelectedItem as PersonaSimpleDTO;
-                saveFileDialog.FileName = $"ReporteVentas_{selectedPersona?.NombreCompleto?.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd}.pdf";
+
+                var nombreVendedor = selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario";
+                saveFileDialog.FileName = $"{nombreVendedor} Reporte {DateTime.Now:dd-MM-yyyy}.pdf";
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {

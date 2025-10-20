@@ -4,24 +4,28 @@ using PdfSharp.Pdf;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DominioServicios
 {
     public class PdfReportService
     {
+        public static void Configure()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        }
+
         public byte[] GenerateVentasPdf(List<ReporteVentasDTO> reporteData, string nombreVendedor)
         {
-            // #Intención: Configurar el documento y las fuentes a utilizar.
-            // #Corrección: Se utiliza XFontStyleEx en lugar de XFontStyle para compatibilidad con las versiones modernas de PDFsharp.
             var document = new PdfDocument();
             document.Info.Title = $"Reporte de Ventas - {nombreVendedor}";
             var page = document.AddPage();
             var gfx = XGraphics.FromPdfPage(page);
 
-            var fontTitle = new XFont("Arial", 16, XFontStyleEx.Bold);
-            var fontHeader = new XFont("Arial", 12, XFontStyleEx.Bold);
-            var fontBody = new XFont("Arial", 10, XFontStyleEx.Regular);
-            var fontTotal = new XFont("Arial", 12, XFontStyleEx.Bold);
+            var fontTitle = new XFont("DejaVu Sans", 16, XFontStyleEx.Bold);
+            var fontHeader = new XFont("DejaVu Sans", 12, XFontStyleEx.Bold);
+            var fontBody = new XFont("DejaVu Sans", 10, XFontStyleEx.Regular);
+            var fontTotal = new XFont("DejaVu Sans", 12, XFontStyleEx.Bold);
 
             double yPos = 40;
             double leftMargin = 40;
@@ -65,7 +69,7 @@ namespace DominioServicios
                 {
                     page = document.AddPage();
                     gfx = XGraphics.FromPdfPage(page);
-                    yPos = 40; // Reiniciar en la nueva página
+                    yPos = 40;
                 }
             }
 
@@ -75,8 +79,15 @@ namespace DominioServicios
             yPos += 15;
 
             var totalGeneral = reporteData.Sum(r => r.TotalVenta);
-            gfx.DrawString("Total General:", fontTotal, XBrushes.Black, new XRect(leftMargin, yPos, page.Width - leftMargin - rightMargin, 0), XStringFormats.TopRight);
-            gfx.DrawString(totalGeneral.ToString("C2"), fontTotal, XBrushes.Black, new XRect(rightMargin - columnWidths[3], yPos, columnWidths[3], 0), XStringFormats.TopRight);
+
+            // #CORRECCIÓN: Se calcula la posición del texto y el total de forma segura para evitar valores negativos.
+            // #Intención: Dibujar la etiqueta "Total General:" a la izquierda del valor numérico.
+            double totalLabelWidth = 120; // Ancho para la etiqueta "Total General:"
+            double totalValueX = rightMargin - columnWidths[3];
+            double totalLabelX = totalValueX - totalLabelWidth - 5; // Posicionar etiqueta a la izquierda del valor con un espacio de 5.
+
+            gfx.DrawString("Total General:", fontTotal, XBrushes.Black, new XRect(totalLabelX, yPos, totalLabelWidth, 0), XStringFormats.TopRight);
+            gfx.DrawString(totalGeneral.ToString("C2"), fontTotal, XBrushes.Black, new XRect(totalValueX, yPos, columnWidths[3], 0), XStringFormats.TopRight);
 
             // --- Guardar en memoria ---
             using (var stream = new MemoryStream())
