@@ -34,8 +34,7 @@ public static class PedidoEndpoints
             {
                 return Results.BadRequest(new { message = $"Error al crear el pedido: {ex.Message}" });
             }
-        })
-        .RequireAuthorization();
+        });
 
         group.MapDelete("/{id}", async (int id, PedidoService service) =>
         {
@@ -52,8 +51,7 @@ public static class PedidoEndpoints
             {
                 return Results.BadRequest(new { message = ex.Message });
             }
-        })
-        .RequireAuthorization();
+        });
 
         group.MapPut("/recibir/{id}", async (int id, PedidoService service) =>
         {
@@ -70,8 +68,7 @@ public static class PedidoEndpoints
             {
                 return Results.BadRequest(new { message = ex.Message });
             }
-        })
-        .RequireAuthorization();
+        });
 
         group.MapPut("/{id}", async (int id, PedidoDTO pedidoDto, PedidoService service) =>
         {
@@ -91,7 +88,6 @@ public static class PedidoEndpoints
             {
                 return Results.BadRequest(new { message = ex.Message });
             }
-        })
-        .RequireAuthorization();
+        });
     }
 }
