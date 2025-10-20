@@ -33,6 +33,12 @@ namespace ApiClient
             return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas");
         }
 
+        // #NUEVO: Método para llamar al endpoint optimizado del reporte.
+        public async Task<List<PersonaSimpleDTO>?> GetPersonasActivasParaReporteAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<List<PersonaSimpleDTO>>("api/personas/activos-reporte");
+        }
+
         public async Task<List<PersonaDTO>?> GetInactivosAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<PersonaDTO>>("api/personas/inactivos");

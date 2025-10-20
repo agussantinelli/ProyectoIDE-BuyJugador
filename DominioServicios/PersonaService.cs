@@ -3,6 +3,9 @@ using DominioModelo;
 using DTOs;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DominioServicios
 {
@@ -21,6 +24,23 @@ namespace DominioServicios
                 .Include(p => p.IdLocalidadNavigation)
                     .ThenInclude(l => l.IdProvinciaNavigation)
                 .Select(p => PersonaDTO.FromDominio(p))
+                .ToListAsync();
+        }
+
+        // #NUEVO: Método optimizado para obtener todas las personas activas para el reporte.
+        // #Intención: Crear una consulta explícita y eficiente que ignora los filtros globales
+        // #para asegurar que traemos TODAS las personas con Estado = true, incluidos los administradores.
+        public async Task<IEnumerable<PersonaSimpleDTO>> GetPersonasActivasParaReporteAsync()
+        {
+            return await _context.Personas
+                .IgnoreQueryFilters() // Ignoramos el filtro global por si acaso y aplicamos el nuestro.
+                .Where(p => p.Estado == true)
+                .OrderBy(p => p.NombreCompleto)
+                .Select(p => new PersonaSimpleDTO
+                {
+                    IdPersona = p.IdPersona,
+                    NombreCompleto = p.NombreCompleto
+                })
                 .ToListAsync();
         }
 
@@ -111,13 +131,14 @@ namespace DominioServicios
 
             if (persona == null || !persona.Estado || !BCrypt.Net.BCrypt.Verify(password, persona.Password))
             {
-                return null; 
+                return null;
             }
 
             var personaDto = PersonaDTO.FromDominio(persona);
-            personaDto.Password = null; 
+            personaDto.Password = null;
 
             return personaDto;
         }
     }
 }
+

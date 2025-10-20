@@ -17,6 +17,7 @@
 		</PackageReference>
 		<PackageReference Include="ScottPlot" Version="5.1.57" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
 	</ItemGroup>
 
 	<ItemGroup>

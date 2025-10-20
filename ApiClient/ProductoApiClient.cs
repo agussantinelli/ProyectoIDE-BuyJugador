@@ -65,5 +65,11 @@ namespace ApiClient
             var response = await _httpClient.PostAsync($"api/productos/{id}/reactivar", null);
             return response;
         }
+
+        public async Task<List<ProductoDTO>?> GetProductosBajoStockAsync(int limiteStock)
+        {
+            return await _httpClient.GetFromJsonAsync<List<ProductoDTO>?>(
+                $"api/productos/bajo-stock/{limiteStock}");
+        }
     }
 }

@@ -170,22 +170,45 @@ else if (_isAuthenticated)
         _isCheckingAuth = false;
     }
 
+    // --- MÉTODO ADAPTADO ---
     private async Task LoadKpiData()
     {
-        await Task.Delay(500); 
-        var random = new Random();
-        _kpiData = new KpiData
+        try
         {
-            VentasHoy = (decimal)(random.Next(500, 5000) + random.NextDouble()),
-            PedidosPendientes = random.Next(0, 8),
-            ProductosBajoStock = new List<DTOs.ProductoDTO>
+            // Define un límite para "bajo stock" (ej. 5 unidades)
+            const int LIMITE_BAJO_STOCK = 5;
+
+            // 1. Definir las tareas de API usando los ApiClients
+            var ventasTask = VentaApiClient.GetTotalVentasHoyAsync();
+            var pedidosTask = PedidoApiClient.GetCantidadPedidosPendientesAsync();
+            var stockTask = ProductoApiClient.GetProductosBajoStockAsync(LIMITE_BAJO_STOCK);
+
+            // 2. Ejecutar todas las tareas en paralelo para mayor eficiencia
+            await Task.WhenAll(ventasTask, pedidosTask, stockTask);
+
+            // 3. Asignar los resultados a _kpiData
+            _kpiData = new KpiData
             {
-                new() { Nombre = "Producto Ejemplo A", Stock = 3 },
-                new() { Nombre = "Producto Ejemplo B", Stock = 1 },
-                new() { Nombre = "Producto Ejemplo C", Stock = 5 }
-            }
-        };
+                VentasHoy = await ventasTask,
+                PedidosPendientes = await pedidosTask,
+                // Si la tarea de stock devuelve nulo, creamos una lista vacía para evitar errores
+                ProductosBajoStock = (await stockTask) ?? new List<DTOs.ProductoDTO>()
+            };
+        }
+        catch (Exception ex)
+        {
+            // Es buena práctica manejar errores de API para que la app no se rompa
+            Console.WriteLine($"Error al cargar datos del dashboard: {ex.Message}");
+            // Inicializar con valores por defecto en caso de error
+            _kpiData = new KpiData
+            {
+                VentasHoy = 0,
+                PedidosPendientes = 0,
+                ProductosBajoStock = new List<DTOs.ProductoDTO>()
+            };
+        }
     }
+    // --- FIN DEL MÉTODO ADAPTADO ---
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -214,4 +237,3 @@ else if (_isAuthenticated)
         catch { }
     }
 }
-

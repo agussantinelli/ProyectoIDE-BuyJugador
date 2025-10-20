@@ -57,6 +57,21 @@ public static class VentaEndpoints
             }
         });
 
+        group.MapGet("/total-hoy", async (VentaService ventaService) =>
+        {
+            try
+            {
+                var total = await ventaService.GetTotalVentasHoyAsync();
+                return Results.Ok(total);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+        })
+        .RequireAuthorization()
+        .WithTags("Ventas");
+
         group.MapPut("/completa/{id:int}", async (int id, CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>
         {
             if (id != ventaDto.IdVenta)
@@ -105,5 +120,6 @@ public static class VentaEndpoints
             var result = await ventaService.DeleteVentaAsync(id);
             return result ? Results.NoContent() : Results.NotFound();
         });
+
     }
 }

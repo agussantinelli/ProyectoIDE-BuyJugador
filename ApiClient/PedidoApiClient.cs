@@ -44,6 +44,11 @@ namespace ApiClient
         {
             return await _httpClient.PutAsJsonAsync($"api/pedidos/{id}", pedido);
         }
+
+        public async Task<int> GetCantidadPedidosPendientesAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<int?>("api/pedidos/cantidad-pendientes") ?? 0;
+        }
     }
 }
 

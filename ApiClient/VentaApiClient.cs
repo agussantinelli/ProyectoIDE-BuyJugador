@@ -36,5 +36,11 @@ namespace ApiClient
 
         public async Task<HttpResponseMessage> FinalizarVentaAsync(int id)
             => await _httpClient.PutAsync($"api/ventas/{id}/finalizar", null);
+
+        public async Task<decimal> GetTotalVentasHoyAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<decimal?>("api/ventas/total-hoy") ?? 0;
+        }
+
     }
 }

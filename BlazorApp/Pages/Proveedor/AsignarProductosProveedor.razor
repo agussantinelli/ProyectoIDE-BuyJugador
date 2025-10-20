@@ -1,0 +1,272 @@
+﻿@page "/proveedor/{IdProveedor:int}/asignar-productos"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject ProveedorApiClient proveedorApiClient
+@inject ProductoApiClient productoApiClient
+@inject ProductoProveedorApiClient productoProveedorApiClient
+@inject PrecioCompraApiClient precioCompraApiClient
+@inject NavigationManager navigationManager
+
+<link href="/css/Form.css" rel="stylesheet" />
+<link href="css/Table.css" rel="stylesheet" />
+<link href="/Pages/Proveedor/AsignarProductosProveedor.razor.css" rel="stylesheet" />
+
+@if (isLoading)
+{
+    <div class="tbl-state">
+        <i class="bi bi-arrow-repeat spin"></i> Cargando datos de asignación...
+    </div>
+}
+else if (proveedor != null)
+{
+    <div class="form-container">
+        <h2 class="form-title">Asignar Productos a @proveedor.RazonSocial</h2>
+
+        <div class="assignment-container">
+            <!-- Columna de Productos Disponibles -->
+            <div class="product-column">
+                <h3 class="column-title">Productos Disponibles</h3>
+                <div class="tbl-wrapper">
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="tbl-text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var producto in productosDisponibles)
+                            {
+                                <tr>
+                                    <td class="tbl-truncate">@producto.Nombre</td>
+                                    <td class="tbl-text-end">
+                                        <button class="btn btn-sm btn-success" @onclick="() => IniciarAsignacion(producto)">
+                                            <i class="bi bi-arrow-right-circle"></i> Asignar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Columna de Productos Asignados -->
+            <div class="product-column">
+                <h3 class="column-title">Productos Asignados</h3>
+                <div class="tbl-wrapper">
+                    <table class="tbl">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="tbl-text-end">Precio Compra</th>
+                                <th class="tbl-text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var producto in productosAsignados)
+                            {
+                                <tr>
+                                    <td class="tbl-truncate">@producto.Nombre</td>
+                                    <td class="tbl-text-end">@producto.PrecioCompra.ToString("C2")</td>
+                                    <td class="tbl-text-end">
+                                        <button class="btn btn-sm btn-danger" @onclick="() => QuitarProducto(producto)">
+                                            <i class="bi bi-arrow-left-circle"></i> Quitar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions mt-4">
+            <button class="btn btn-primary" @onclick="GuardarCambios" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Guardando...</span>
+                }
+                else
+                {
+                    <i class="bi bi-save"></i>
+                    <span> Guardar Cambios</span>
+                }
+            </button>
+            <button class="btn btn-secondary" @onclick="VolverAProveedores">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">Proveedor no encontrado.</div>
+}
+
+<AsignarPrecioModal IsVisible="isPrecioModalVisible"
+                    OnCancel="CancelarAsignacion"
+                    OnConfirm="ConfirmarAsignacion"
+                    ProductoNombre="@productoParaAsignar?.Nombre"
+                    ProveedorNombre="@proveedor?.RazonSocial" />
+
+@code {
+    [Parameter]
+    public int IdProveedor { get; set; }
+
+    private ProveedorDTO? proveedor;
+    private List<ProductoDisponibleRow> productosDisponibles = new();
+    private List<ProductoAsignadoRow> productosAsignados = new();
+    private HashSet<int> _initialAssignedIds = new();
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    // Estado del modal
+    private bool isPrecioModalVisible = false;
+    private ProductoDisponibleRow? productoParaAsignar;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var proveedorTask = proveedorApiClient.GetByIdAsync(IdProveedor);
+            var todosLosProductosTask = productoApiClient.GetAllAsync();
+            var productosAsignadosTask = productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(IdProveedor);
+
+            await Task.WhenAll(proveedorTask, todosLosProductosTask, productosAsignadosTask);
+
+            proveedor = proveedorTask.Result;
+            if (proveedor == null) return;
+
+            var todosLosProductos = todosLosProductosTask.Result ?? new();
+            var productosAsignadosConPrecio = productosAsignadosTask.Result ?? new();
+
+            _initialAssignedIds = new HashSet<int>(productosAsignadosConPrecio.Select(p => p.IdProducto));
+
+            productosDisponibles = todosLosProductos
+                .Where(p => !_initialAssignedIds.Contains(p.IdProducto))
+                .Select(p => new ProductoDisponibleRow { IdProducto = p.IdProducto, Nombre = p.Nombre })
+                .ToList();
+
+            productosAsignados = productosAsignadosConPrecio
+                .Select(p => new ProductoAsignadoRow { IdProducto = p.IdProducto, Nombre = p.Nombre, PrecioCompra = p.PrecioCompra })
+                .ToList();
+        }
+        catch (Exception)
+        {
+            // Manejar error (e.g., mostrar un mensaje)
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void IniciarAsignacion(ProductoDisponibleRow producto)
+    {
+        productoParaAsignar = producto;
+        isPrecioModalVisible = true;
+    }
+
+    private void ConfirmarAsignacion(decimal precio)
+    {
+        if (productoParaAsignar != null)
+        {
+            // Mover producto de disponible a asignado
+            productosDisponibles.Remove(productoParaAsignar);
+            productosAsignados.Add(new ProductoAsignadoRow
+            {
+                IdProducto = productoParaAsignar.IdProducto,
+                Nombre = productoParaAsignar.Nombre,
+                PrecioCompra = precio
+            });
+        }
+        CancelarAsignacion();
+    }
+
+    private void CancelarAsignacion()
+    {
+        isPrecioModalVisible = false;
+        productoParaAsignar = null;
+    }
+
+    private void QuitarProducto(ProductoAsignadoRow producto)
+    {
+        // Mover producto de asignado a disponible
+        productosAsignados.Remove(producto);
+        productosDisponibles.Add(new ProductoDisponibleRow
+        {
+            IdProducto = producto.IdProducto,
+            Nombre = producto.Nombre
+        });
+    }
+
+    private async Task GuardarCambios()
+    {
+        isSaving = true;
+
+        try
+        {
+            var finalAssignedIds = new HashSet<int>(productosAsignados.Select(p => p.IdProducto));
+
+            // 1. Identificar y eliminar productos desasignados
+            var idsToRemove = _initialAssignedIds.Except(finalAssignedIds).ToList();
+            foreach (var idProducto in idsToRemove)
+            {
+                await productoProveedorApiClient.DeleteAsync(idProducto, IdProveedor);
+            }
+
+            // 2. Identificar y crear nuevas asignaciones
+            var idsToAdd = finalAssignedIds.Except(_initialAssignedIds).ToList();
+            foreach (var idProducto in idsToAdd)
+            {
+                var productoAsignado = productosAsignados.First(p => p.IdProducto == idProducto);
+                await productoProveedorApiClient.CreateAsync(new ProductoProveedorDTO { IdProducto = idProducto, IdProveedor = IdProveedor });
+                await precioCompraApiClient.CreateAsync(new PrecioCompraDTO { IdProducto = idProducto, IdProveedor = IdProveedor, Monto = productoAsignado.PrecioCompra });
+            }
+
+            // 3. Identificar y actualizar precios de productos que ya estaban asignados (opcional pero buena práctica)
+            var idsToUpdate = _initialAssignedIds.Intersect(finalAssignedIds).ToList();
+            foreach (var idProducto in idsToUpdate)
+            {
+                var productoEnUI = productosAsignados.First(p => p.IdProducto == idProducto);
+                // Aquí podrías comparar con el precio inicial si lo guardaste, y solo actualizar si cambió.
+                await precioCompraApiClient.UpdateAsync(idProducto, IdProveedor, new PrecioCompraDTO { Monto = productoEnUI.PrecioCompra });
+            }
+
+            navigationManager.NavigateTo("/proveedor");
+        }
+        catch (Exception)
+        {
+            // Manejar error (e.g., mostrar una notificación)
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void VolverAProveedores()
+    {
+        navigationManager.NavigateTo("/proveedor");
+    }
+
+    // Clases internas para manejar el estado de la UI
+    private class ProductoDisponibleRow
+    {
+        public int IdProducto { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+    }
+
+    private class ProductoAsignadoRow
+    {
+        public int IdProducto { get; set; }
+        public string Nombre { get; set; } = string.Empty;
+        public decimal PrecioCompra { get; set; }
+    }
+}

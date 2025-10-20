@@ -1,0 +1,64 @@
+﻿@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show" tabindex="-1" style="display: block;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Asignar Precio de Compra</h5>
+                    <button type="button" class="btn-close" @onclick="OnCancel"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Establezca el precio de compra para el producto <strong>@ProductoNombre</strong> del proveedor <strong>@ProveedorNombre</strong>.</p>
+                    <div class="mb-3">
+                        <label for="precioCompra" class="form-label">Precio de Compra</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" id="precioCompra" class="form-control" @bind="precio" min="0.01" step="0.01" />
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancel">Cancelar</button>
+                    <button type="button" class="btn btn-primary" @onclick="Confirmar">Guardar Precio</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public string? ProductoNombre { get; set; }
+
+    [Parameter]
+    public string? ProveedorNombre { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    [Parameter]
+    public EventCallback<decimal> OnConfirm { get; set; }
+
+    private decimal precio;
+    private string? errorMessage;
+
+    private void Confirmar()
+    {
+        if (precio <= 0)
+        {
+            errorMessage = "El precio debe ser un valor positivo.";
+            return;
+        }
+        errorMessage = null;
+        OnConfirm.InvokeAsync(precio);
+        precio = 0; // Reset
+    }
+}

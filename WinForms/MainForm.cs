@@ -33,6 +33,8 @@ namespace WinForms
                 }
             }
 
+            InitializeReportButton();
+
             this.MdiChildActivate += MainForm_MdiChildActivate;
         }
 
@@ -45,6 +47,44 @@ namespace WinForms
             {
                 menuPanel.Visible = true;
             }
+        }
+
+        private void InitializeReportButton()
+        {
+            var reportButton = new Button
+            {
+                Text = "Reporte de Ventas",
+                Font = new Font("Century Gothic", 8F, FontStyle.Regular),
+                Size = new Size(140, 30),
+                BackColor = Color.FromArgb(60, 70, 85),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+                Cursor = Cursors.Hand
+            };
+            reportButton.FlatAppearance.BorderSize = 0;
+            reportButton.Click += (s, e) => AbrirFormulario<ReporteVentasForm>();
+
+            // #CORRECCIÓN: Se agrega el botón al formulario principal, no al MdiClient.
+            this.Controls.Add(reportButton);
+            // #CORRECCIÓN: Se trae el botón al frente para que sea visible sobre el MdiClient.
+            reportButton.BringToFront();
+
+            // #Intención: Reposicionar el botón cuando el formulario cambie de tamaño.
+            this.Resize += (s, e) =>
+            {
+                reportButton.Location = new Point(
+                    this.ClientSize.Width - reportButton.Width - 10,
+                    this.ClientSize.Height - reportButton.Height - 10
+                );
+                reportButton.BringToFront();
+            };
+
+            // #Intención: Asegurar la posición inicial correcta.
+            reportButton.Location = new Point(
+                this.ClientSize.Width - reportButton.Width - 10,
+                this.ClientSize.Height - reportButton.Height - 10
+            );
         }
 
         private void MainForm_MdiChildActivate(object sender, EventArgs e)
@@ -79,8 +119,6 @@ namespace WinForms
             provinciasMenuItem.Click += (s, e) => AbrirFormulario<ProvinciaForm>();
             localidadesMenuItem.Click += (s, e) => AbrirFormulario<LocalidadForm>();
             verMenuItem.DropDownItems.AddRange(new ToolStripItem[] { provinciasMenuItem, localidadesMenuItem });
-
-            // # Menú "Ventanas" eliminado como se solicitó.
 
             var btnCerrarSesion = new ToolStripMenuItem("Cerrar Sesión")
             {
