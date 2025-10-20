@@ -33,7 +33,8 @@ namespace WinForms
                 }
             }
 
-            InitializeReportButton();
+            // --- PASO 1: Eliminar la llamada al método antiguo ---
+            // InitializeReportButton(); // ESTA LÍNEA SE ELIMINA
 
             this.MdiChildActivate += MainForm_MdiChildActivate;
         }
@@ -49,43 +50,14 @@ namespace WinForms
             }
         }
 
+        // --- PASO 2: Eliminar este método por completo ---
+        /*
         private void InitializeReportButton()
         {
-            var reportButton = new Button
-            {
-                Text = "Reporte de Ventas",
-                Font = new Font("Century Gothic", 8F, FontStyle.Regular),
-                Size = new Size(140, 30),
-                BackColor = Color.FromArgb(60, 70, 85),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                Cursor = Cursors.Hand
-            };
-            reportButton.FlatAppearance.BorderSize = 0;
-            reportButton.Click += (s, e) => AbrirFormulario<ReporteVentasForm>();
-
-            // #CORRECCIÓN: Se agrega el botón al formulario principal, no al MdiClient.
-            this.Controls.Add(reportButton);
-            // #CORRECCIÓN: Se trae el botón al frente para que sea visible sobre el MdiClient.
-            reportButton.BringToFront();
-
-            // #Intención: Reposicionar el botón cuando el formulario cambie de tamaño.
-            this.Resize += (s, e) =>
-            {
-                reportButton.Location = new Point(
-                    this.ClientSize.Width - reportButton.Width - 10,
-                    this.ClientSize.Height - reportButton.Height - 10
-                );
-                reportButton.BringToFront();
-            };
-
-            // #Intención: Asegurar la posición inicial correcta.
-            reportButton.Location = new Point(
-                this.ClientSize.Width - reportButton.Width - 10,
-                this.ClientSize.Height - reportButton.Height - 10
-            );
+            // TODO: Este método se elimina.
+            // Su funcionalidad se moverá a CreateAdminButtons
         }
+        */
 
         private void MainForm_MdiChildActivate(object sender, EventArgs e)
         {
@@ -143,7 +115,8 @@ namespace WinForms
         {
             menuPanel = new Panel
             {
-                Size = new Size(800, 500),
+                // Ajustamos el tamaño para la nueva fila de botones
+                Size = new Size(800, 600),
                 BackColor = Color.FromArgb(45, 55, 70),
                 Anchor = AnchorStyles.None
             };
@@ -162,8 +135,7 @@ namespace WinForms
             TableLayoutPanel buttonGrid = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
-                Padding = new Padding(20),
-                RowCount = 3
+                Padding = new Padding(20)
             };
             menuPanel.Controls.Add(buttonGrid);
             buttonGrid.BringToFront();
@@ -173,16 +145,23 @@ namespace WinForms
 
             if (_userSessionService.EsAdmin)
             {
+                // --- PASO 3: Ajustar la cuadrícula para el Admin ---
                 buttonGrid.ColumnCount = 2;
+                buttonGrid.RowCount = 4; // Cambiado de 3 a 4 filas
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
-                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33F));
+
+                // Distribuir el espacio en 4 filas
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+                buttonGrid.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
+
                 CreateAdminButtons(buttonGrid);
             }
             else
             {
+                // El empleado mantiene el diseño original
                 buttonGrid.ColumnCount = 2;
                 buttonGrid.RowCount = 2;
                 buttonGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
@@ -199,7 +178,7 @@ namespace WinForms
             {
                 int x = (this.ClientSize.Width - menuPanel.Width) / 2;
                 int y = ((this.ClientSize.Height - menuStrip1.Height) - menuPanel.Height) / 2 + menuStrip1.Height;
-                menuPanel.Location = new Point(x, y);
+                menuPanel.Location = new Point(Math.Max(x, 0), Math.Max(y, menuStrip1.Height));
             }
         }
 
@@ -210,12 +189,20 @@ namespace WinForms
 
         private void CreateAdminButtons(TableLayoutPanel grid)
         {
+            // Fila 1
             grid.Controls.Add(CreateMenuButton("btnVentas", "Ventas"), 0, 0);
             grid.Controls.Add(CreateMenuButton("btnPedidos", "Pedidos"), 1, 0);
+            // Fila 2
             grid.Controls.Add(CreateMenuButton("btnPersonas", "Personas"), 0, 1);
             grid.Controls.Add(CreateMenuButton("btnTiposProducto", "Tipos de Productos"), 1, 1);
+            // Fila 3
             grid.Controls.Add(CreateMenuButton("btnProductos", "Productos"), 0, 2);
             grid.Controls.Add(CreateMenuButton("btnProveedores", "Proveedores"), 1, 2);
+
+            // --- PASO 4: Añadir los nuevos botones de reportes ---
+            // Fila 4
+            grid.Controls.Add(CreateMenuButton("btnReporteVentas", "Reporte de Ventas"), 0, 3);
+            grid.Controls.Add(CreateMenuButton("btnReportePrecios", "Reporte Hist. Precios"), 1, 3);
         }
 
         private void CreateEmpleadoButtons(TableLayoutPanel grid)
@@ -252,12 +239,18 @@ namespace WinForms
             {
                 switch (clickedButton.Name)
                 {
+                    // Botones existentes
                     case "btnVentas": AbrirFormulario<VentaForm>(); break;
                     case "btnPedidos": AbrirFormulario<PedidoForm>(); break;
                     case "btnProductos": AbrirFormulario<ProductoForm>(); break;
                     case "btnPersonas": AbrirFormulario<PersonaForm>(); break;
                     case "btnTiposProducto": AbrirFormulario<TipoProductoForm>(); break;
                     case "btnProveedores": AbrirFormulario<ProveedorForm>(); break;
+
+                    // --- PASO 5: Añadir los casos para los nuevos botones ---
+                    case "btnReporteVentas": AbrirFormulario<ReporteVentasForm>(); break;
+                    case "btnReportePrecios": AbrirFormulario<ReporteHistorialPreciosForm>(); break;
+
                     default: MessageBox.Show($"Funcionalidad no definida."); break;
                 }
             }
@@ -286,6 +279,7 @@ namespace WinForms
         }
     }
 
+    // --- El Renderer (sin cambios) ---
     public class DarkMenuRenderer : ToolStripProfessionalRenderer
     {
         public DarkMenuRenderer() : base(new DarkMenuColors()) { }
@@ -302,4 +296,3 @@ namespace WinForms
         }
     }
 }
-
