@@ -50,7 +50,7 @@ public class GraficosController : ControllerBase
             double[] ys = puntos.Select(p => (double)p.Monto).ToArray();
 
             var sc = plt.Add.Scatter(xs, ys);
-            sc.LegendText = prod.NombreProducto;
+            sc.Label = prod.NombreProducto;
             sc.LineWidth = 2;
             sc.MarkerSize = 2;
         }

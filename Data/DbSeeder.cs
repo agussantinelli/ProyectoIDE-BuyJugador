@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using BCrypt.Net;
 
 public static class DbSeeder
 {
@@ -37,7 +38,7 @@ public static class DbSeeder
     public static async Task SeedAsync(BuyJugadorContext context)
     {
         // # Descomenta esta línea para forzar la recreación de la BD cada vez que inicias
-        //await context.Database.EnsureDeletedAsync(); 
+        //await context.Database.EnsureDeletedAsync();  
         await context.Database.EnsureCreatedAsync();
 
         if (await context.Productos.AnyAsync())
@@ -441,12 +442,12 @@ public static class DbSeeder
                 bool sube = _random.Next(0, 10) > 2;
                 if (sube)
                 {
-                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m; 
+                    decimal factor = 1 + (decimal)_random.Next(10, 101) / 1000m;
                     precioActual *= factor;
                 }
                 else
                 {
-                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m; 
+                    decimal factor = 1 - (decimal)_random.Next(10, 51) / 1000m;
                     precioActual *= factor;
                 }
             }
@@ -514,4 +515,3 @@ public static class DbSeeder
     private class MunicipioAPI { public string Nombre { get; set; } public ProvinciaAPI Provincia { get; set; } }
     #endregion
 }
-

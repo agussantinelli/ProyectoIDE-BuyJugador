@@ -1,120 +1,90 @@
 ﻿using Data;
 using DominioModelo;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DominioServicios
 {
     public class ProductoService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public ProductoService(BuyJugadorContext context)
+        public ProductoService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<Producto>> GetAllAsync()
         {
-            return await _context.Productos
-                .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.PreciosVenta)
-                .ToListAsync();
+            return await _unitOfWork.ProductoRepository.GetAllAsync();
         }
 
         public async Task<List<Producto>> GetAllInactivosAsync()
         {
-            return await _context.Productos
-                .IgnoreQueryFilters()
-                .Where(p => !p.Activo)
-                .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.PreciosVenta)
-                .ToListAsync();
+            return await _unitOfWork.ProductoRepository.GetAllInactivosAsync();
         }
 
         public async Task<Producto?> GetByIdAsync(int id)
         {
-            return await _context.Productos
-                .IgnoreQueryFilters()
-                .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.PreciosVenta)
-                .FirstOrDefaultAsync(p => p.IdProducto == id);
+            return await _unitOfWork.ProductoRepository.GetByIdAsync(id);
         }
 
         public async Task<List<Producto>> GetByProveedorIdAsync(int idProveedor)
         {
-            return await _context.Productos
-                .Where(p => p.ProductoProveedores.Any(pp => pp.IdProveedor == idProveedor))
-                .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.PreciosCompra)
-                .Include(p => p.PreciosVenta)
-                .ToListAsync();
+            return await _unitOfWork.ProductoRepository.GetByProveedorIdAsync(idProveedor);
         }
 
         public async Task<List<Producto>> GetByTipoProductoIdAsync(int idTipoProducto)
         {
-            return await _context.Productos
-                .Where(p => p.IdTipoProducto == idTipoProducto)
-                .Include(p => p.IdTipoProductoNavigation)
-                .Include(p => p.PreciosVenta)
-                .ToListAsync();
+            return await _unitOfWork.ProductoRepository.GetByTipoProductoIdAsync(idTipoProducto);
         }
 
         public async Task<Producto> CreateAsync(Producto producto)
         {
-            _context.Productos.Add(producto);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.ProductoRepository.AddAsync(producto);
+            await _unitOfWork.SaveChangesAsync();
             return producto;
         }
 
         public async Task UpdateAsync(Producto producto)
         {
-            var existing = await _context.Productos
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProducto == producto.IdProducto);
-
+            var existing = await _unitOfWork.ProductoRepository.GetByIdAsync(producto.IdProducto);
             if (existing != null)
             {
-                _context.Entry(existing).CurrentValues.SetValues(producto);
-                await _context.SaveChangesAsync();
+                // Copia los valores del objeto entrante al objeto que EF está rastreando.
+                existing.Nombre = producto.Nombre;
+                existing.Descripcion = producto.Descripcion;
+                existing.Stock = producto.Stock;
+                existing.Activo = producto.Activo;
+                existing.IdTipoProducto = producto.IdTipoProducto;
+
+                _unitOfWork.ProductoRepository.Update(existing);
+                await _unitOfWork.SaveChangesAsync();
             }
         }
 
         public async Task DeleteAsync(int id)
         {
-            var producto = await _context.Productos
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProducto == id);
-
+            var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(id);
             if (producto != null)
             {
                 producto.Activo = false;
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
         }
 
         public async Task ReactivarAsync(int id)
         {
-            var producto = await _context.Productos
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProducto == id);
-
+            var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(id);
             if (producto != null)
             {
                 producto.Activo = true;
-                await _context.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
         }
         public async Task<List<Producto>> GetProductosBajoStockAsync(int limiteStock)
         {
-            var productos = await _context.Productos
-                .Where(p => p.Stock <= limiteStock && p.Stock > 0 && p.Activo)
-                .OrderBy(p => p.Stock)
-                .ToListAsync();
-
-            return productos;
+            return await _unitOfWork.ProductoRepository.GetProductosBajoStockAsync(limiteStock);
         }
     }
 }

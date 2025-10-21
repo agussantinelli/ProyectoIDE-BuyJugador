@@ -1,7 +1,7 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
+// #CORRECCIÓN: Se mantiene el using, pero se ajustan las llamadas a los métodos.
 using BCrypt.Net;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,58 +11,38 @@ namespace DominioServicios
 {
     public class PersonaService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public PersonaService(BuyJugadorContext context)
+        public PersonaService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<PersonaDTO>> GetAllAsync()
         {
-            return await _context.Personas
-                .Include(p => p.IdLocalidadNavigation)
-                    .ThenInclude(l => l.IdProvinciaNavigation)
-                .Select(p => PersonaDTO.FromDominio(p))
-                .ToListAsync();
+            var personas = await _unitOfWork.PersonaRepository.GetAllAsync();
+            return personas.Select(p => PersonaDTO.FromDominio(p));
         }
 
-        // #NUEVO: Método optimizado para obtener todas las personas activas para el reporte.
-        // #Intención: Crear una consulta explícita y eficiente que ignora los filtros globales
-        // #para asegurar que traemos TODAS las personas con Estado = true, incluidos los administradores.
         public async Task<IEnumerable<PersonaSimpleDTO>> GetPersonasActivasParaReporteAsync()
         {
-            return await _context.Personas
-                .IgnoreQueryFilters() // Ignoramos el filtro global por si acaso y aplicamos el nuestro.
-                .Where(p => p.Estado == true)
-                .OrderBy(p => p.NombreCompleto)
-                .Select(p => new PersonaSimpleDTO
-                {
-                    IdPersona = p.IdPersona,
-                    NombreCompleto = p.NombreCompleto
-                })
-                .ToListAsync();
+            var personas = await _unitOfWork.PersonaRepository.GetPersonasActivasParaReporteAsync();
+            return personas.Select(p => new PersonaSimpleDTO
+            {
+                IdPersona = p.IdPersona,
+                NombreCompleto = p.NombreCompleto
+            });
         }
 
         public async Task<IEnumerable<PersonaDTO>> GetInactivosAsync()
         {
-            return await _context.Personas
-                .IgnoreQueryFilters()
-                .Where(p => !p.Estado)
-                .Include(p => p.IdLocalidadNavigation)
-                    .ThenInclude(l => l.IdProvinciaNavigation)
-                .Select(p => PersonaDTO.FromDominio(p))
-                .ToListAsync();
+            var personas = await _unitOfWork.PersonaRepository.GetInactivosAsync();
+            return personas.Select(PersonaDTO.FromDominio);
         }
 
         public async Task<PersonaDTO?> GetByIdAsync(int id)
         {
-            var persona = await _context.Personas
-                .IgnoreQueryFilters()
-                .Include(p => p.IdLocalidadNavigation)
-                    .ThenInclude(l => l.IdProvinciaNavigation)
-                .FirstOrDefaultAsync(p => p.IdPersona == id);
-
+            var persona = await _unitOfWork.PersonaRepository.GetByIdAsync(id);
             return persona != null ? PersonaDTO.FromDominio(persona) : null;
         }
 
@@ -73,6 +53,7 @@ namespace DominioServicios
                 NombreCompleto = personaDto.NombreCompleto,
                 Dni = personaDto.Dni,
                 Email = personaDto.Email,
+                // #CORRECCIÓN: Se utiliza la clase estática BCrypt dentro del namespace BCrypt.Net
                 Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
                 Telefono = personaDto.Telefono,
                 Direccion = personaDto.Direccion,
@@ -81,8 +62,9 @@ namespace DominioServicios
                 Estado = true
             };
 
-            _context.Personas.Add(persona);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.PersonaRepository.AddAsync(persona);
+            await _unitOfWork.SaveChangesAsync();
+
             var dtoCreado = PersonaDTO.FromDominio(persona);
             dtoCreado.Password = null;
             return dtoCreado;
@@ -90,7 +72,7 @@ namespace DominioServicios
 
         public async Task<bool> UpdateAsync(int id, PersonaDTO personaDto)
         {
-            var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
+            var persona = await _unitOfWork.PersonaRepository.GetByIdAsync(id);
             if (persona == null) return false;
 
             persona.Email = personaDto.Email;
@@ -98,37 +80,39 @@ namespace DominioServicios
             persona.Direccion = personaDto.Direccion;
             persona.IdLocalidad = personaDto.IdLocalidad;
 
-            await _context.SaveChangesAsync();
+            _unitOfWork.PersonaRepository.Update(persona);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var persona = await _context.Personas.FindAsync(id);
+            var persona = await _unitOfWork.PersonaRepository.GetByIdAsync(id);
             if (persona == null) return false;
 
+            // #Lógica: Se cambia el estado a inactivo en lugar de eliminar.
             persona.Estado = false;
-            await _context.SaveChangesAsync();
+            _unitOfWork.PersonaRepository.Update(persona);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> ReactivarAsync(int id)
         {
-            var persona = await _context.Personas.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.IdPersona == id);
+            var persona = await _unitOfWork.PersonaRepository.GetByIdToReactivateAsync(id);
             if (persona == null) return false;
 
             persona.Estado = true;
-            await _context.SaveChangesAsync();
+            _unitOfWork.PersonaRepository.Update(persona);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<PersonaDTO?> LoginAsync(int dni, string password)
         {
-            var persona = await _context.Personas
-                .IgnoreQueryFilters()
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Dni == dni);
+            var persona = await _unitOfWork.PersonaRepository.GetByDniAsync(dni);
 
+            // #CORRECCIÓN: Se utiliza la clase estática BCrypt para el método Verify.
             if (persona == null || !persona.Estado || !BCrypt.Net.BCrypt.Verify(password, persona.Password))
             {
                 return null;
@@ -136,7 +120,6 @@ namespace DominioServicios
 
             var personaDto = PersonaDTO.FromDominio(persona);
             personaDto.Password = null;
-
             return personaDto;
         }
     }

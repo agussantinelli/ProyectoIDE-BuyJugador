@@ -1,7 +1,6 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,52 +9,35 @@ namespace DominioServicios
 {
     public class ProveedorService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public ProveedorService(BuyJugadorContext context)
+        public ProveedorService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<ProveedorDTO>> GetAllAsync()
         {
-            return await _context.Proveedores
-                .Where(p => p.Activo) // Asegurar que solo trae activos
-                .Select(p => ProveedorDTO.FromDominio(p)!)
-                .ToListAsync();
+            var proveedores = await _unitOfWork.ProveedorRepository.GetAllAsync();
+            return proveedores.Select(p => ProveedorDTO.FromDominio(p)!).ToList();
         }
 
         public async Task<List<ProveedorDTO>> GetInactivosAsync()
         {
-            return await _context.Proveedores
-                .IgnoreQueryFilters()
-                .Where(p => !p.Activo)
-                .Select(p => ProveedorDTO.FromDominio(p)!)
-                .ToListAsync();
+            var proveedores = await _unitOfWork.ProveedorRepository.GetInactivosAsync();
+            return proveedores.Select(p => ProveedorDTO.FromDominio(p)!).ToList();
         }
 
         public async Task<ProveedorDTO?> GetByIdAsync(int id)
         {
-            var p = await _context.Proveedores.FirstOrDefaultAsync(p => p.IdProveedor == id);
-            if (p == null) return null;
-
-            return ProveedorDTO.FromDominio(p);
+            var p = await _unitOfWork.ProveedorRepository.GetByIdAsync(id);
+            return p != null ? ProveedorDTO.FromDominio(p) : null;
         }
 
         public async Task<List<ProveedorDTO>> GetByProductoIdAsync(int idProducto)
         {
-            return await _context.Proveedores
-                // CAMBIO CLAVE: Se añade el filtro p.Activo
-                .Where(p => p.Activo && p.ProductoProveedores.Any(pp => pp.IdProducto == idProducto))
-                .Select(p => ProveedorDTO.FromDominio(p)!)
-                .ToListAsync();
-        }
-
-        private async Task<Proveedor?> FindProveedorByIdAsync(int id)
-        {
-            return await _context.Proveedores
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProveedor == id);
+            var proveedores = await _unitOfWork.ProveedorRepository.GetByProductoIdAsync(idProducto);
+            return proveedores.Select(p => ProveedorDTO.FromDominio(p)!).ToList();
         }
 
         public async Task<ProveedorDTO> CreateAsync(ProveedorDTO dto)
@@ -71,8 +53,8 @@ namespace DominioServicios
                 Activo = true
             };
 
-            _context.Proveedores.Add(proveedor);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.ProveedorRepository.AddAsync(proveedor);
+            await _unitOfWork.SaveChangesAsync();
 
             dto.IdProveedor = proveedor.IdProveedor;
             return dto;
@@ -80,11 +62,8 @@ namespace DominioServicios
 
         public async Task<bool> UpdateAsync(int id, ProveedorDTO dto)
         {
-            var proveedor = await FindProveedorByIdAsync(id);
-            if (proveedor == null)
-            {
-                return false;
-            }
+            var proveedor = await _unitOfWork.ProveedorRepository.GetByIdIgnorandoFiltrosAsync(id);
+            if (proveedor == null) return false;
 
             proveedor.RazonSocial = dto.RazonSocial;
             proveedor.Cuit = dto.Cuit;
@@ -93,38 +72,29 @@ namespace DominioServicios
             proveedor.Direccion = dto.Direccion;
             proveedor.IdLocalidad = dto.IdLocalidad;
 
-            await _context.SaveChangesAsync();
+            _unitOfWork.ProveedorRepository.Update(proveedor);
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var proveedor = await _context.Proveedores.FindAsync(id);
-            if (proveedor == null)
-            {
-                return false;
-            }
+            var proveedor = await _unitOfWork.ProveedorRepository.GetByIdAsync(id);
+            if (proveedor == null) return false;
 
             proveedor.Activo = false;
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> ReactivarAsync(int id)
         {
-            var proveedor = await _context.Proveedores
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(p => p.IdProveedor == id);
-
-            if (proveedor == null)
-            {
-                return false;
-            }
+            var proveedor = await _unitOfWork.ProveedorRepository.GetByIdIgnorandoFiltrosAsync(id);
+            if (proveedor == null) return false;
 
             proveedor.Activo = true;
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
             return true;
         }
     }
 }
-

@@ -4,20 +4,17 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-	  <UserSecretsId>7d86a38b-12ee-4c1d-9e6e-c192c14ffa54</UserSecretsId>
-  </PropertyGroup>
+		<UserSecretsId>7d86a38b-12ee-4c1d-9e6e-c192c14ffa54</UserSecretsId>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.7">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="ScottPlot" Version="5.1.57" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-		<PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+		<PackageReference Include="ScottPlot" Version="5.0.21" />
 	</ItemGroup>
 
 	<ItemGroup>

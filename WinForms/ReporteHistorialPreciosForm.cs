@@ -14,8 +14,8 @@ namespace WinForms
         private readonly ReporteApiClient _reporteApiClient;
 
         private DateTime _today = DateTime.Today;
-        private readonly DateTime _hardMin = new DateTime(2022, 1, 1); 
-        private DateTime? _minFromByData;                              
+        private readonly DateTime _hardMin = new DateTime(2022, 1, 1);
+        private DateTime? _minFromByData;
         private DateTime EffectiveMinFrom =>
             (_minFromByData.HasValue && _minFromByData.Value > _hardMin)
                 ? _minFromByData.Value.Date
@@ -25,7 +25,7 @@ namespace WinForms
         private DateTime _to;
 
         public ReporteHistorialPreciosForm(PrecioVentaApiClient precioApiClient,
-                                           ReporteApiClient reporteApiClient)
+                                             ReporteApiClient reporteApiClient)
         {
             InitializeComponent();
             _precioApiClient = precioApiClient;
@@ -53,8 +53,8 @@ namespace WinForms
                 _from = _today.AddDays(-180);
                 if (_from < EffectiveMinFrom) _from = EffectiveMinFrom;
 
-                _to = _today; 
-                NormalizeCoherence(); 
+                _to = _today;
+                NormalizeCoherence();
             }
             catch
             {
@@ -153,7 +153,7 @@ namespace WinForms
                         double[] montos = puntos.Select(p => (double)p.Monto).ToArray();
 
                         var scatter = formsPlot1.Plot.Add.Scatter(fechas, montos);
-                        scatter.LegendText = producto.NombreProducto;
+                        scatter.Label = producto.NombreProducto;
                         scatter.LineWidth = 2;
                         scatter.MarkerSize = 2;
                     }
@@ -175,3 +175,4 @@ namespace WinForms
         }
     }
 }
+

@@ -1,38 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Fonts\dejavusans-bold.ttf" />
-    <None Remove="Fonts\dejavusans-boldoblique.ttf" />
-    <None Remove="Fonts\dejavusans-oblique.ttf" />
-    <None Remove="Fonts\dejavusans.ttf" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Fonts\dejavusans-bold.ttf" />
+		<None Remove="Fonts\dejavusans-boldoblique.ttf" />
+		<None Remove="Fonts\dejavusans-oblique.ttf" />
+		<None Remove="Fonts\dejavusans.ttf" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Fonts\dejavusans-bold.ttf" />
-    <EmbeddedResource Include="Fonts\dejavusans-boldoblique.ttf" />
-    <EmbeddedResource Include="Fonts\dejavusans-oblique.ttf" />
-    <EmbeddedResource Include="Fonts\dejavusans.ttf" />
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Fonts\dejavusans-bold.ttf" />
+		<EmbeddedResource Include="Fonts\dejavusans-boldoblique.ttf" />
+		<EmbeddedResource Include="Fonts\dejavusans-oblique.ttf" />
+		<EmbeddedResource Include="Fonts\dejavusans.ttf" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Data\Data.csproj" />
-    <ProjectReference Include="..\DominioModelo\DominioModelo.csproj" />
-    <ProjectReference Include="..\DTOs\DTOs.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+		<PackageReference Include="PDFsharp" Version="6.1.0" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+	</ItemGroup>
 
-  <ItemGroup>
-	 <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-	 <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
-    <PackageReference Include="PDFsharp" Version="6.2.2" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Data\Data.csproj" />
+		<ProjectReference Include="..\DominioModelo\DominioModelo.csproj" />
+		<ProjectReference Include="..\DTOs\DTOs.csproj" />
+	</ItemGroup>
 
 </Project>
+

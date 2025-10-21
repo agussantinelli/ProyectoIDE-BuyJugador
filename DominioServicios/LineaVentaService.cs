@@ -1,7 +1,7 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,109 +10,83 @@ namespace DominioServicios
 {
     public class LineaVentaService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public LineaVentaService(BuyJugadorContext context)
+        public LineaVentaService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<LineaVentaDTO>> GetLineasByVentaIdAsync(int idVenta)
         {
-            var lineas = await _context.LineaVentas
-                .Where(l => l.IdVenta == idVenta)
-                .Include(l => l.IdProductoNavigation)
-                .AsNoTracking()
-                .ToListAsync();
-
+            var lineas = await _unitOfWork.LineaVentaRepository.GetLineasByVentaIdAsync(idVenta);
             return lineas.Select(LineaVentaDTO.FromDominio).ToList();
         }
 
-
         public async Task<List<LineaVentaDTO>> GetAllAsync()
         {
-            return await _context.LineaVentas
-                .Select(l => LineaVentaDTO.FromDominio(l))
-                .ToListAsync();
+            var lineas = await _unitOfWork.LineaVentaRepository.GetAllAsync();
+            return lineas.Select(LineaVentaDTO.FromDominio).ToList();
         }
 
         public async Task<LineaVentaDTO?> GetByIdAsync(int idVenta, int nroLineaVenta)
         {
-            var entidad = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
-            return LineaVentaDTO.FromDominio(entidad);
+            var entidad = await _unitOfWork.LineaVentaRepository.GetByIdAsync(idVenta, nroLineaVenta);
+            return entidad != null ? LineaVentaDTO.FromDominio(entidad) : null;
         }
 
         public async Task<LineaVentaDTO> CreateAsync(LineaVentaDTO dto)
         {
             var entidad = dto.ToDominio();
-            _context.LineaVentas.Add(entidad);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.LineaVentaRepository.AddAsync(entidad);
+            await _unitOfWork.SaveChangesAsync();
             return LineaVentaDTO.FromDominio(entidad);
         }
 
         public async Task UpdateAsync(int idVenta, int nroLineaVenta, LineaVentaDTO dto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var lineaExistente = await _unitOfWork.LineaVentaRepository.GetByIdAsync(idVenta, nroLineaVenta);
+            if (lineaExistente == null)
             {
-                var lineaExistente = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
-                if (lineaExistente == null)
-                {
-                    throw new System.Exception("La línea de venta no existe.");
-                }
-
-                var producto = await _context.Productos.FindAsync(lineaExistente.IdProducto);
-                if (producto == null)
-                {
-                    throw new System.Exception("El producto asociado no existe.");
-                }
-
-                int diferenciaCantidad = dto.Cantidad - lineaExistente.Cantidad;
-
-                if (producto.Stock < diferenciaCantidad)
-                {
-                    throw new System.Exception("Stock insuficiente para actualizar la cantidad.");
-                }
-
-                producto.Stock -= diferenciaCantidad;
-                lineaExistente.Cantidad = dto.Cantidad;
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                throw new Exception("La línea de venta no existe.");
             }
-            catch (System.Exception)
+
+            var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(lineaExistente.IdProducto.Value);
+            if (producto == null)
             {
-                await transaction.RollbackAsync();
-                throw;
+                throw new Exception("El producto asociado no existe.");
             }
+
+            int diferenciaCantidad = dto.Cantidad - lineaExistente.Cantidad;
+
+            if (producto.Stock < diferenciaCantidad)
+            {
+                throw new Exception("Stock insuficiente para actualizar la cantidad.");
+            }
+
+            producto.Stock -= diferenciaCantidad;
+            lineaExistente.Cantidad = dto.Cantidad;
+
+            // #CAMBIO: No se actualiza la línea directamente, se confía en que el DbContext
+            // #rastrea los cambios en la entidad 'lineaExistente'.
+            await _unitOfWork.SaveChangesAsync();
         }
-
 
         public async Task DeleteAsync(int idVenta, int nroLineaVenta)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var linea = await _unitOfWork.LineaVentaRepository.GetByIdAsync(idVenta, nroLineaVenta);
+            if (linea != null)
             {
-                var linea = await _context.LineaVentas.FindAsync(idVenta, nroLineaVenta);
-                if (linea != null)
+                if (linea.IdProducto.HasValue)
                 {
-                    if (linea.IdProducto.HasValue)
+                    var producto = await _unitOfWork.ProductoRepository.GetByIdAsync(linea.IdProducto.Value);
+                    if (producto != null)
                     {
-                        var producto = await _context.Productos.FindAsync(linea.IdProducto.Value);
-                        if (producto != null)
-                        {
-                            producto.Stock += linea.Cantidad;
-                        }
+                        producto.Stock += linea.Cantidad;
                     }
-                    _context.LineaVentas.Remove(linea);
-                    await _context.SaveChangesAsync();
                 }
-                await transaction.CommitAsync();
-            }
-            catch (System.Exception)
-            {
-                await transaction.RollbackAsync();
-                throw;
+                _unitOfWork.LineaVentaRepository.Remove(linea);
+                await _unitOfWork.SaveChangesAsync();
             }
         }
     }

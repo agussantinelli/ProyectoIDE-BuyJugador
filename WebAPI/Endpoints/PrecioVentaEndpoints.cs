@@ -3,12 +3,14 @@ using DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using ScottPlot;
 using ScottPlot.TickGenerators;
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,7 +42,7 @@ namespace WebAPI.Endpoints
             {
                 var creado = await service.CreateAsync(dto);
                 return Results.Created(
-                    $"/api/precios-venta/{creado.IdProducto}/{creado.FechaDesde.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)}",
+                    $"/api/precios-venta/{creado.IdProducto}/{creado.FechaDesde:yyyy-MM-ddTHH:mm:ss}",
                     creado);
             });
 
@@ -67,53 +69,7 @@ namespace WebAPI.Endpoints
                 if (h <= 0) h = 500;
 
                 var historial = await service.GetHistorialPreciosAsync();
-                if (historial is null || historial.Count == 0)
-                    return Results.NotFound("Sin datos");
-
-                var plt = new Plot();
-                plt.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.DateTimeAutomatic();
-                plt.Title("Evolución de precios");
-                plt.XLabel("Fecha");
-                plt.YLabel("Precio");
-
-                foreach (var prod in historial)
-                {
-                    var puntos = prod.Puntos
-                        .Where(p => (!from.HasValue || p.Fecha.Date >= from.Value.Date) &&
-                                    (!to.HasValue || p.Fecha.Date <= to.Value.Date))
-                        .OrderBy(p => p.Fecha)
-                        .ToList();
-
-                    if (puntos.Count < 2) continue;
-
-                    double[] xs = puntos.Select(p => p.Fecha.ToOADate()).ToArray();
-                    double[] ys = puntos.Select(p => (double)p.Monto).ToArray();
-
-                    var sc = plt.Add.Scatter(xs, ys);
-                    sc.LegendText = prod.NombreProducto;
-                    sc.LineWidth = 2;
-                    sc.MarkerSize = 2;
-                }
-
-                plt.ShowLegend(ScottPlot.Alignment.UpperLeft);
-
-                using var img = plt.GetImage(width: w, height: h);      
-                byte[] pngBytes = img.GetImageBytes(ImageFormat.Png);   
-                return Results.File(pngBytes, "image/png");
-            });
-
-            g.MapGet("/historial.pdf",
-            async Task<IResult> ([FromQuery] DateTime? from,
-                                    [FromQuery] DateTime? to,
-                                    [FromQuery] int w,
-                                    [FromQuery] int h,
-                                    PrecioVentaService service) =>
-            {
-                if (w <= 0) w = 1200;
-                if (h <= 0) h = 500;
-
-                var historial = await service.GetHistorialPreciosAsync();
-                if (historial is null || historial.Count == 0)
+                if (historial is null || !historial.Any())
                     return Results.NotFound("Sin datos");
 
                 var plt = new Plot();
@@ -126,7 +82,7 @@ namespace WebAPI.Endpoints
                 {
                     var puntos = prod.Puntos
                         .Where(p => (!from.HasValue || p.Fecha.Date >= from.Value.Date) &&
-                                    (!to.HasValue || p.Fecha.Date <= to.Value.Date))
+                                      (!to.HasValue || p.Fecha.Date <= to.Value.Date))
                         .OrderBy(p => p.Fecha)
                         .ToList();
 
@@ -136,14 +92,60 @@ namespace WebAPI.Endpoints
                     double[] ys = puntos.Select(p => (double)p.Monto).ToArray();
 
                     var sc = plt.Add.Scatter(xs, ys);
-                    sc.LegendText = prod.NombreProducto;
+                    sc.Label = prod.NombreProducto;
                     sc.LineWidth = 2;
                     sc.MarkerSize = 2;
                 }
 
-                plt.ShowLegend(ScottPlot.Alignment.UpperLeft);
+                plt.ShowLegend(Alignment.UpperLeft);
 
-                using var img = plt.GetImage(width: w, height: h); 
+                using var img = plt.GetImage(width: w, height: h);
+                byte[] pngBytes = img.GetImageBytes(ImageFormat.Png);
+                return Results.File(pngBytes, "image/png");
+            });
+
+            g.MapGet("/historial.pdf",
+            async Task<IResult> ([FromQuery] DateTime? from,
+                                 [FromQuery] DateTime? to,
+                                 [FromQuery] int w,
+                                 [FromQuery] int h,
+                                 PrecioVentaService service) =>
+            {
+                if (w <= 0) w = 1200;
+                if (h <= 0) h = 500;
+
+                var historial = await service.GetHistorialPreciosAsync();
+                if (historial is null || !historial.Any())
+                    return Results.NotFound("Sin datos");
+
+                var plt = new Plot();
+                plt.Axes.Bottom.TickGenerator = new DateTimeAutomatic();
+                plt.Title("Evolución de precios");
+                plt.XLabel("Fecha");
+                plt.YLabel("Precio");
+
+                foreach (var prod in historial)
+                {
+                    var puntos = prod.Puntos
+                        .Where(p => (!from.HasValue || p.Fecha.Date >= from.Value.Date) &&
+                                      (!to.HasValue || p.Fecha.Date <= to.Value.Date))
+                        .OrderBy(p => p.Fecha)
+                        .ToList();
+
+                    if (puntos.Count < 2) continue;
+
+                    double[] xs = puntos.Select(p => p.Fecha.ToOADate()).ToArray();
+                    double[] ys = puntos.Select(p => (double)p.Monto).ToArray();
+
+                    var sc = plt.Add.Scatter(xs, ys);
+                    sc.Label = prod.NombreProducto;
+                    sc.LineWidth = 2;
+                    sc.MarkerSize = 2;
+                }
+
+                plt.ShowLegend(Alignment.UpperLeft);
+
+                using var img = plt.GetImage(width: w, height: h);
                 byte[] pngBytes = img.GetImageBytes(ImageFormat.Png);
 
                 var document = new PdfDocument();
@@ -151,7 +153,7 @@ namespace WebAPI.Endpoints
 
                 var page = document.AddPage();
                 if (w > h)
-                    page.Orientation = PdfSharp.PageOrientation.Landscape;
+                    page.Orientation = PageOrientation.Landscape;
 
                 using (var gfx = XGraphics.FromPdfPage(page))
                 {
@@ -167,7 +169,7 @@ namespace WebAPI.Endpoints
                     gfx.DrawString($"Rango: {rango}", fontSub, XBrushes.DimGray,
                         new XRect(0, top, page.Width, 0), XStringFormats.TopCenter);
                     top += 20;
-                   
+
                     string generado = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
                     gfx.DrawString($"Generado el {generado}", fontSub, XBrushes.DimGray,
                         new XRect(0, top, page.Width, 0), XStringFormats.TopCenter);
@@ -192,9 +194,10 @@ namespace WebAPI.Endpoints
 
                 using var outStream = new MemoryStream();
                 document.Save(outStream, false);
-                var fileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf";
+                var fileName = $"Historial de precios {DateTime.Now:dd-MM-yyyy HH.mm}.pdf";
                 return Results.File(outStream.ToArray(), "application/pdf", fileName);
             });
         }
     }
 }
+

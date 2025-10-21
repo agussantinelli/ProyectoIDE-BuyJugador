@@ -1,7 +1,6 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,18 +11,13 @@ namespace DominioServicios
 {
     public class PedidoService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        // El constructor ya no necesita el TimeZoneService
-        public PedidoService(BuyJugadorContext context)
+        public PedidoService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        /// <summary>
-        /// Función de ayuda privada para obtener la hora de Argentina.
-        /// Se encarga de la compatibilidad entre Windows y Linux/macOS.
-        /// </summary>
         private DateTime GetCurrentArgentinaTime()
         {
             try
@@ -36,19 +30,13 @@ namespace DominioServicios
             }
             catch (TimeZoneNotFoundException)
             {
-                // Si la zona horaria no se encuentra, se usa un fallback de UTC-3.
                 return DateTime.UtcNow.AddHours(-3);
             }
         }
 
         public async Task<List<PedidoDTO>> GetAllPedidosDetalladosAsync()
         {
-            var pedidos = await _context.Pedidos
-                .AsNoTracking()
-                .Include(p => p.IdProveedorNavigation)
-                .Include(p => p.LineasPedido)
-                .OrderByDescending(p => p.Fecha)
-                .ToListAsync();
+            var pedidos = await _unitOfWork.PedidoRepository.GetAllPedidosDetalladosAsync();
 
             return pedidos.Select(p => new PedidoDTO
             {
@@ -63,13 +51,7 @@ namespace DominioServicios
 
         public async Task<PedidoDTO?> GetPedidoDetalladoByIdAsync(int id)
         {
-            var pedido = await _context.Pedidos
-                .AsNoTracking()
-                .Include(p => p.IdProveedorNavigation)
-                .Include(p => p.LineasPedido)
-                    .ThenInclude(lp => lp.IdProductoNavigation)
-                .FirstOrDefaultAsync(p => p.IdPedido == id);
-
+            var pedido = await _unitOfWork.PedidoRepository.GetPedidoDetalladoByIdAsync(id);
             if (pedido == null) return null;
 
             return new PedidoDTO
@@ -93,124 +75,92 @@ namespace DominioServicios
 
         public async Task<PedidoDTO?> CrearPedidoCompletoAsync(CrearPedidoCompletoDTO crearPedidoDto)
         {
-            var strategy = _context.Database.CreateExecutionStrategy();
-            return await strategy.ExecuteAsync(async () =>
+            var nuevoPedido = new Pedido
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
+                Fecha = GetCurrentArgentinaTime(),
+                Estado = crearPedidoDto.MarcarComoRecibido ? "Recibido" : "Pendiente",
+                IdProveedor = crearPedidoDto.IdProveedor
+            };
+            await _unitOfWork.PedidoRepository.AddAsync(nuevoPedido);
+            // Se debe guardar para obtener el ID del pedido
+            await _unitOfWork.SaveChangesAsync();
+
+            var idsProductos = crearPedidoDto.LineasPedido.Select(l => l.IdProducto).Distinct().ToList();
+            var productosAfectados = (await _unitOfWork.ProductoRepository.GetByIdsAsync(idsProductos))
+                .ToDictionary(p => p.IdProducto);
+
+            int nroLinea = 1;
+            foreach (var lineaDto in crearPedidoDto.LineasPedido)
+            {
+                if (!productosAfectados.TryGetValue(lineaDto.IdProducto, out var producto))
                 {
-                    var nuevoPedido = new Pedido
-                    {
-                        // ===== CAMBIO CLAVE AQUÍ =====
-                        Fecha = GetCurrentArgentinaTime(), // Usar hora de Argentina
-                        Estado = crearPedidoDto.MarcarComoRecibido ? "Recibido" : "Pendiente",
-                        IdProveedor = crearPedidoDto.IdProveedor
-                    };
-                    _context.Pedidos.Add(nuevoPedido);
-                    await _context.SaveChangesAsync();
-
-                    var idsProductos = crearPedidoDto.LineasPedido.Select(l => l.IdProducto).Distinct().ToList();
-                    var productosAfectados = await _context.Productos
-                        .Where(p => idsProductos.Contains(p.IdProducto) && p.Activo)
-                        .ToDictionaryAsync(p => p.IdProducto);
-
-                    var preciosCompra = await _context.PreciosCompra
-                        .Where(pc => pc.IdProveedor == crearPedidoDto.IdProveedor && idsProductos.Contains(pc.IdProducto))
-                        .ToDictionaryAsync(pc => pc.IdProducto, pc => pc.Monto);
-
-                    int nroLinea = 1;
-                    foreach (var lineaDto in crearPedidoDto.LineasPedido)
-                    {
-                        if (!productosAfectados.TryGetValue(lineaDto.IdProducto, out var producto) || !preciosCompra.TryGetValue(lineaDto.IdProducto, out var montoPrecioCompra))
-                        {
-                            throw new InvalidOperationException($"Datos inválidos para el producto ID {lineaDto.IdProducto}.");
-                        }
-
-                        _context.LineaPedidos.Add(new LineaPedido
-                        {
-                            IdPedido = nuevoPedido.IdPedido,
-                            NroLineaPedido = nroLinea++,
-                            IdProducto = lineaDto.IdProducto,
-                            Cantidad = lineaDto.Cantidad,
-                            PrecioUnitario = montoPrecioCompra
-                        });
-
-                        if (crearPedidoDto.MarcarComoRecibido)
-                        {
-                            producto.Stock += lineaDto.Cantidad;
-                        }
-                    }
-
-                    await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
-
-                    return await GetPedidoDetalladoByIdAsync(nuevoPedido.IdPedido);
+                    throw new InvalidOperationException($"Producto ID {lineaDto.IdProducto} no encontrado o inactivo.");
                 }
-                catch (Exception ex)
+
+                var montoPrecioCompra = await _unitOfWork.PrecioCompraRepository.GetMontoAsync(lineaDto.IdProducto, crearPedidoDto.IdProveedor);
+                if (!montoPrecioCompra.HasValue)
                 {
-                    await transaction.RollbackAsync();
-                    Console.WriteLine($"Error al crear pedido completo: {ex.Message}");
-                    return null;
+                    throw new InvalidOperationException($"Precio de compra no encontrado para el producto ID {lineaDto.IdProducto} y proveedor ID {crearPedidoDto.IdProveedor}.");
                 }
-            });
+
+                await _unitOfWork.PedidoRepository.AddLineaAsync(new LineaPedido
+                {
+                    IdPedido = nuevoPedido.IdPedido,
+                    NroLineaPedido = nroLinea++,
+                    IdProducto = lineaDto.IdProducto,
+                    Cantidad = lineaDto.Cantidad,
+                    PrecioUnitario = montoPrecioCompra.Value
+                });
+
+                if (crearPedidoDto.MarcarComoRecibido)
+                {
+                    producto.Stock += lineaDto.Cantidad;
+                }
+            }
+
+            await _unitOfWork.SaveChangesAsync();
+            return await GetPedidoDetalladoByIdAsync(nuevoPedido.IdPedido);
         }
-
-        // ... (resto de los métodos sin cambios) ...
 
         public async Task UpdatePedidoCompletoAsync(int id, PedidoDTO pedidoDto)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
+            var pedido = await _unitOfWork.PedidoRepository.GetByIdAsync(id);
+            if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
+            if (pedido.Estado != "Pendiente") throw new InvalidOperationException("Solo se pueden modificar pedidos en estado 'Pendiente'.");
+
+            _unitOfWork.PedidoRepository.RemoveLineas(pedido.LineasPedido);
+
+            var idsProductosNuevos = pedidoDto.LineasPedido.Select(l => l.IdProducto).ToList();
+            var productosNuevos = (await _unitOfWork.ProductoRepository.GetByIdsAsync(idsProductosNuevos))
+                                    .ToDictionary(p => p.IdProducto);
+
+            int nroLinea = 1;
+            foreach (var lineaDto in pedidoDto.LineasPedido)
             {
-                var pedido = await _context.Pedidos
-                    .Include(p => p.LineasPedido)
-                    .FirstOrDefaultAsync(p => p.IdPedido == id);
-
-                if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
-                if (pedido.Estado != "Pendiente") throw new InvalidOperationException("Solo se pueden modificar pedidos en estado 'Pendiente'.");
-
-                _context.LineaPedidos.RemoveRange(pedido.LineasPedido);
-                await _context.SaveChangesAsync();
-
-                var idsProductosNuevos = pedidoDto.LineasPedido.Select(l => l.IdProducto).ToList();
-                var productosNuevos = await _context.Productos
-                    .Where(p => idsProductosNuevos.Contains(p.IdProducto))
-                    .ToDictionaryAsync(p => p.IdProducto);
-
-                int nroLinea = 1;
-                foreach (var lineaDto in pedidoDto.LineasPedido)
+                if (productosNuevos.ContainsKey(lineaDto.IdProducto))
                 {
-                    if (productosNuevos.TryGetValue(lineaDto.IdProducto, out var producto))
+                    await _unitOfWork.PedidoRepository.AddLineaAsync(new LineaPedido
                     {
-                        _context.LineaPedidos.Add(new LineaPedido
-                        {
-                            IdPedido = pedido.IdPedido,
-                            NroLineaPedido = nroLinea++,
-                            IdProducto = lineaDto.IdProducto,
-                            Cantidad = lineaDto.Cantidad,
-                            PrecioUnitario = lineaDto.PrecioUnitario
-                        });
-                    }
+                        IdPedido = pedido.IdPedido,
+                        NroLineaPedido = nroLinea++,
+                        IdProducto = lineaDto.IdProducto,
+                        Cantidad = lineaDto.Cantidad,
+                        PrecioUnitario = lineaDto.PrecioUnitario
+                    });
                 }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task MarcarComoRecibidoAsync(int id)
         {
-            var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
+            var pedido = await _unitOfWork.PedidoRepository.GetByIdAsync(id);
             if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
             if (pedido.Estado == "Recibido") throw new InvalidOperationException("El pedido ya fue recibido.");
 
             var idsProductos = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
-            var productosAfectados = await _context.Productos.Where(p => idsProductos.Contains(p.IdProducto)).ToDictionaryAsync(p => p.IdProducto);
+            var productosAfectados = (await _unitOfWork.ProductoRepository.GetByIdsAsync(idsProductos))
+                                        .ToDictionary(p => p.IdProducto);
 
             foreach (var linea in pedido.LineasPedido)
             {
@@ -221,48 +171,36 @@ namespace DominioServicios
             }
 
             pedido.Estado = "Recibido";
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task DeletePedidoCompletoAsync(int id)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var pedido = await _context.Pedidos.Include(p => p.LineasPedido).FirstOrDefaultAsync(p => p.IdPedido == id);
-                if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
+            var pedido = await _unitOfWork.PedidoRepository.GetByIdAsync(id);
+            if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
 
-                if (pedido.Estado == "Recibido")
+            if (pedido.Estado == "Recibido")
+            {
+                var idsProductos = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
+                var productosAfectados = (await _unitOfWork.ProductoRepository.GetByIdsAsync(idsProductos))
+                                       .ToDictionary(p => p.IdProducto);
+
+                foreach (var linea in pedido.LineasPedido)
                 {
-                    foreach (var linea in pedido.LineasPedido)
+                    if (productosAfectados.TryGetValue(linea.IdProducto, out var producto))
                     {
-                        var producto = await _context.Productos.FindAsync(linea.IdProducto);
-                        if (producto != null)
-                        {
-                            producto.Stock -= linea.Cantidad;
-                            if (producto.Stock < 0) producto.Stock = 0;
-                        }
+                        producto.Stock -= linea.Cantidad;
+                        if (producto.Stock < 0) producto.Stock = 0;
                     }
                 }
-
-                _context.Pedidos.Remove(pedido);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
             }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
+            _unitOfWork.PedidoRepository.Remove(pedido);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<int> GetCantidadPedidosPendientesAsync()
         {
-            var cantidad = await _context.Pedidos
-                .CountAsync(p => p.Estado == "Pendiente");
-
-            return cantidad;
+            return await _unitOfWork.PedidoRepository.GetCantidadPedidosPendientesAsync();
         }
     }
 }
-

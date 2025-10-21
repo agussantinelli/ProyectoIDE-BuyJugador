@@ -1,6 +1,6 @@
 ﻿using Data;
+using DominioModelo;
 using DTOs;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,79 +9,57 @@ namespace DominioServicios
 {
     public class ProductoProveedorService
     {
-        private readonly BuyJugadorContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public ProductoProveedorService(BuyJugadorContext context)
+        public ProductoProveedorService(UnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<ProductoAsignadoDTO>> GetProductosByProveedorIdAsync(int idProveedor)
         {
-            var productosAsignados = await _context.ProductoProveedores
-                .Where(pp => pp.IdProveedor == idProveedor)
-                .Select(pp => new ProductoAsignadoDTO
-                {
-                    IdProducto = pp.Producto.IdProducto,
-                    Nombre = pp.Producto.Nombre,
-                    Descripcion = pp.Producto.Descripcion,
-                    PrecioCompra = pp.Producto.PreciosCompra
-                                      .Where(pc => pc.IdProveedor == idProveedor)
-                                      .Select(pc => pc.Monto)
-                                      .FirstOrDefault()
-                })
-                .ToListAsync();
+            var relaciones = await _unitOfWork.ProductoProveedorRepository.GetProductosByProveedorIdAsync(idProveedor);
 
-            return productosAsignados;
+            return relaciones.Select(pp => new ProductoAsignadoDTO
+            {
+                IdProducto = pp.Producto.IdProducto,
+                Nombre = pp.Producto.Nombre,
+                Descripcion = pp.Producto.Descripcion,
+                PrecioCompra = pp.Producto.PreciosCompra
+                                .Where(pc => pc.IdProveedor == idProveedor)
+                                .Select(pc => pc.Monto)
+                                .FirstOrDefault()
+            }).ToList();
         }
 
         public async Task CreateAsync(ProductoProveedorDTO dto)
         {
-            var newRelation = new DominioModelo.ProductoProveedor
+            var newRelation = new ProductoProveedor
             {
                 IdProducto = dto.IdProducto,
                 IdProveedor = dto.IdProveedor
             };
-            await _context.ProductoProveedores.AddAsync(newRelation);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.ProductoProveedorRepository.AddAsync(newRelation);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<bool> DeleteAsync(int idProducto, int idProveedor)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
+            var precioCompra = await _unitOfWork.PrecioCompraRepository.FindTrackedByIdAsync(idProducto, idProveedor);
+            if (precioCompra != null)
             {
-                var precioCompra = await _context.PreciosCompra
-                    .FirstOrDefaultAsync(pc => pc.IdProducto == idProducto && pc.IdProveedor == idProveedor);
-
-                if (precioCompra != null)
-                {
-                    _context.PreciosCompra.Remove(precioCompra);
-                }
-
-                var pp = await _context.ProductoProveedores
-                    .FirstOrDefaultAsync(x => x.IdProducto == idProducto && x.IdProveedor == idProveedor);
-
-                if (pp == null)
-                {
-                    await transaction.RollbackAsync();
-                    return false;
-                }
-
-                _context.ProductoProveedores.Remove(pp);
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return true;
+                _unitOfWork.PrecioCompraRepository.Remove(precioCompra);
             }
-            catch
+
+            var pp = await _unitOfWork.ProductoProveedorRepository.GetByIdAsync(idProducto, idProveedor);
+            if (pp == null)
             {
-                await transaction.RollbackAsync();
-                throw;
+                return false;
             }
+            _unitOfWork.ProductoProveedorRepository.Remove(pp);
+
+            await _unitOfWork.SaveChangesAsync();
+            return true;
         }
     }
 }
-
