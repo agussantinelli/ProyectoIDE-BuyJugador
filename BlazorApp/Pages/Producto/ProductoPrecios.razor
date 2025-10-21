@@ -1,0 +1,158 @@
+﻿@page "/producto/{id:int}/precios"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject PrecioVentaApiClient PrecioApi
+@inject ProductoApiClient ProductoApi
+@inject NavigationManager Nav
+
+<link href="css/Table.css" rel="stylesheet" />
+
+<div class="tbl-container">
+    <div class="tbl-header">
+        <h2 class="tbl-title">
+            Historial de Precios — @(nombreProducto is null ? $"Producto #{id}" : nombreProducto)
+        </h2>
+
+        <div class="tbl-search">
+            <span class="bi bi-search tbl-search-icon"></span>
+            <input class="tbl-input" type="text" placeholder="Buscar por fecha o monto..."
+                   @bind="Filtro" @bind:event="oninput" />
+
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+
+            <button class="btn btn-primary" @onclick="Refrescar" disabled="@cargando">
+                @if (cargando)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span class="ms-1">Actualizando…</span>
+                }
+                else
+                {
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span class="ms-1">Refrescar</span>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (cargando)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-arrow-repeat spin"></i> Cargando historial...
+        </div>
+    }
+    else if (filtrados is null || filtrados.Count == 0)
+    {
+        <div class="tbl-state">
+            <i class="bi bi-info-circle"></i> No se encontraron precios para este producto.
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrapper">
+            <table class="tbl table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 220px;">Fecha desde</th>
+                        <th class="tbl-text-end" style="width: 180px;">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in filtrados)
+                    {
+                        <tr>
+                            <td>@item.FechaDesde.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="tbl-text-end">@item.Monto.ToString("C2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int id { get; set; }
+
+    private string? nombreProducto;
+    private List<PrecioVentaDTO> historial = new();
+    private List<PrecioVentaDTO> filtrados = new();
+    private string filtro = string.Empty;
+    private bool cargando = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarNombreProducto();
+        await CargarHistorial();
+        AplicarFiltro();
+    }
+
+    private async Task CargarNombreProducto()
+    {
+        try
+        {
+            var productos = await ProductoApi.GetAllAsync() ?? new List<ProductoDTO>();
+            nombreProducto = productos.FirstOrDefault(p => p.IdProducto == id)?.Nombre;
+        }
+        catch
+        {
+            nombreProducto = null;
+        }
+    }
+
+    private async Task CargarHistorial()
+    {
+        try
+        {
+            cargando = true;
+
+            var todos = await PrecioApi.GetAllAsync() ?? new List<PrecioVentaDTO>();
+            historial = todos
+                .Where(p => p.IdProducto == id)
+                .OrderByDescending(p => p.FechaDesde)
+                .ToList();
+        }
+        finally
+        {
+            cargando = false;
+        }
+    }
+
+    private void AplicarFiltro()
+    {
+        if (string.IsNullOrWhiteSpace(filtro))
+        {
+            filtrados = historial.ToList();
+            return;
+        }
+
+        var f = filtro.Trim().ToLowerInvariant();
+        filtrados = historial.Where(p =>
+            p.FechaDesde.ToString("dd/MM/yyyy HH:mm").ToLowerInvariant().Contains(f)
+            || p.Monto.ToString("0.##").ToLowerInvariant().Contains(f)
+            || p.Monto.ToString("C2").ToLowerInvariant().Contains(f)
+        ).ToList();
+    }
+
+    private async Task Refrescar()
+    {
+        await CargarHistorial();
+        AplicarFiltro();
+    }
+
+    private void Volver() => Nav.NavigateTo("/producto");
+
+    private string Filtro
+    {
+        get => filtro;
+        set
+        {
+            filtro = value;
+            AplicarFiltro();
+        }
+    }
+}
