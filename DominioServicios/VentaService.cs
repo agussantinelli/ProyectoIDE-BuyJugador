@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace DominioServicios
@@ -18,6 +19,27 @@ namespace DominioServicios
             _context = context;
         }
 
+        /// <summary>
+        /// Función de ayuda privada para obtener la hora de Argentina.
+        /// Se encarga de la compatibilidad entre Windows y Linux/macOS.
+        /// </summary>
+        private DateTime GetCurrentArgentinaTime()
+        {
+            try
+            {
+                string timeZoneId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? "Argentina Standard Time"
+                    : "America/Argentina/Buenos_Aires";
+                TimeZoneInfo argentinaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, argentinaTimeZone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                // Si la zona horaria no se encuentra, se usa un fallback de UTC-3.
+                return DateTime.UtcNow.AddHours(-3);
+            }
+        }
+
         public async Task<Venta> CrearVentaCompletaAsync(CrearVentaCompletaDTO dto)
         {
             var strategy = _context.Database.CreateExecutionStrategy();
@@ -29,11 +51,11 @@ namespace DominioServicios
                     var nuevaVenta = new Venta
                     {
                         IdPersona = dto.IdPersona,
-                        Fecha = DateTime.UtcNow,
+                        Fecha = GetCurrentArgentinaTime(),
                         Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
                     };
                     _context.Ventas.Add(nuevaVenta);
-                    await _context.SaveChangesAsync(); 
+                    await _context.SaveChangesAsync();
 
                     var idsProductos = dto.Lineas.Where(l => l.IdProducto.HasValue).Select(l => l.IdProducto!.Value).Distinct().ToList();
                     var productosAfectados = await _context.Productos
@@ -189,16 +211,15 @@ namespace DominioServicios
 
         public async Task<decimal> GetTotalVentasHoyAsync()
         {
-            var hoy = DateTime.Today;
+            var ahoraEnArgentina = GetCurrentArgentinaTime();
+            var hoy = ahoraEnArgentina.Date;
             var mañana = hoy.AddDays(1);
 
-                // 1. Filtramos las Ventas que ocurrieron hoy.
-                // 2. Usamos SelectMany para obtener TODAS las LineaVenta de esas ventas.
-                // 3. Sumamos el (Cantidad * PrecioUnitario) de cada línea.
-
             var total = await _context.Ventas
-                .Where(v => v.Fecha >= hoy && v.Fecha < mañana)
-                .SelectMany(v => v.LineaVenta) 
+                // ===== CAMBIO CLAVE AQUÍ =====
+                // Filtramos por fecha Y por estado "Finalizada"
+                .Where(v => v.Fecha >= hoy && v.Fecha < mañana && v.Estado == "Finalizada")
+                .SelectMany(v => v.LineaVenta)
                 .SumAsync(lv => lv.Cantidad * lv.PrecioUnitario);
 
             return total;

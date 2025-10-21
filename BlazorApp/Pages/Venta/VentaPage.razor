@@ -54,6 +54,8 @@
                 <tbody>
                     @foreach (var v in VentasFiltradas)
                     {
+                        bool estaPendiente = v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true;
+
                         <tr>
                             <td>@v.IdVenta</td>
                             <td>@v.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
@@ -72,12 +74,20 @@
                                             <i class="bi bi-trash3"></i>
                                         </button>
 
-                                        @if (v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
-                                        {
-                                            <button class="tbl-icon-btn tbl-icon-btn--success" title="Finalizar venta" @onclick="() => Finalizar(v)">
+                                        <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                                title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
+                                                @onclick="() => Finalizar(v)"
+                                                disabled="@(!estaPendiente)">
+
+                                            @if (ventaSiendoFinalizada == v.IdVenta)
+                                            {
+                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            }
+                                            else
+                                            {
                                                 <i class="bi bi-check-circle"></i>
-                                            </button>
-                                        }
+                                            }
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -93,11 +103,9 @@
     private List<VentaDTO>? ventas;
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-
     private bool isLoading = false;
     private string? errorMessage;
-    private int ventaSiendoFinalizada = 0; // Para saber qué fila mostrar el spinner
-
+    private int ventaSiendoFinalizada = 0;
 
     private string FormatCurrency(decimal amount)
     {
@@ -127,13 +135,11 @@
 
     private async Task Eliminar(VentaDTO venta)
     {
-        // Pedir confirmación
         var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro que desea eliminar la venta #{venta.IdVenta}?");
         if (!confirm) return;
 
         isLoading = true;
         errorMessage = null;
-
         try
         {
             var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
@@ -158,43 +164,34 @@
 
     private async Task Finalizar(VentaDTO venta)
     {
-        // 0. Preguntar y establecer estado de carga
-        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Desea marcar la venta #{venta.IdVenta} como FINALIZADA?");
-        if (!confirm) return;
+        if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) != true) return;
 
         isLoading = true;
         errorMessage = null;
-        ventaSiendoFinalizada = venta.IdVenta; // Para el spinner en la fila
-        StateHasChanged(); // Forzar actualización de UI
+        ventaSiendoFinalizada = venta.IdVenta;
+        StateHasChanged();
 
         try
         {
-            // 1. Obtener la venta completa con sus líneas (como en VentaForm.cs)
             var ventaCompleta = await ventaApiClient.GetByIdAsync(venta.IdVenta);
             if (ventaCompleta == null || !ventaCompleta.IdPersona.HasValue)
             {
                 errorMessage = $"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.";
-                isLoading = false;
-                ventaSiendoFinalizada = 0;
                 return;
             }
 
-            // 2. Crear el DTO para la actualización (exactamente como en VentaForm.cs)
             var dto = new CrearVentaCompletaDTO
             {
                 IdVenta = ventaCompleta.IdVenta,
                 IdPersona = ventaCompleta.IdPersona.Value,
                 Lineas = ventaCompleta.Lineas ?? new List<LineaVentaDTO>(),
-                Finalizada = true // <-- Esta es la acción clave
+                Finalizada = true
             };
 
-            // 3. Llamar al método de ACTUALIZACIÓN (Update), no al de FinalizarVentaAsync
-            // (Basado en VentaApiClient.cs y VentaForm.cs)
             var response = await ventaApiClient.UpdateCompletaAsync(dto);
 
             if (response.IsSuccessStatusCode)
             {
-                // 4. Recargar la grilla
                 await CargarVentas();
             }
             else
@@ -211,8 +208,7 @@
         {
             isLoading = false;
             ventaSiendoFinalizada = 0;
-            StateHasChanged(); // Asegurar que la UI se limpie
+            StateHasChanged();
         }
     }
 }
-

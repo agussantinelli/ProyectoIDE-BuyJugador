@@ -34,8 +34,7 @@
             }
         </div>
 
-        <p class="tbl-subtitle
-text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
+        <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     </div>
 
     @if (pedidos == null && string.IsNullOrEmpty(errorMensaje))
@@ -46,7 +45,7 @@ text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
     }
-    else if (pedidos != null) 
+    else if (pedidos != null)
     {
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
@@ -66,6 +65,8 @@ text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
                 <tbody>
                     @foreach (var p in pedidosFiltrados)
                     {
+                        // Variable para legibilidad en el botón de finalizar
+                        bool estaPendiente = p.Estado == "Pendiente";
 
                         <tr>
                             <td>@p.IdPedido</td>
@@ -79,26 +80,21 @@ text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
                                 <div class="tbl-actions">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
                                         <i class="bi bi-eye"></i>
-
                                     </button>
 
                                     @if (esAdmin)
                                     {
-
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
-
                                         </button>
 
-                                        @if (p.Estado == "Pendiente")
-
-                                        {
-                                            <button class="tbl-icon-btn" title="Finalizar" @onclick="() => Finalizar(p)">
-
-                                                <i class="bi bi-check-circle"></i>
-                                            </button>
-                                        }
-
+                                        // CAMBIO: El botón ahora es condicionalmente deshabilitado
+                                        <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                                title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
+                                                @onclick="() => Finalizar(p)"
+                                                disabled="@(!estaPendiente)">
+                                            <i class="bi bi-check-circle"></i>
+                                        </button>
                                     }
                                 </div>
                             </td>
@@ -112,12 +108,11 @@ text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
 </div>
 
 @code {
-    private List<PedidoDTO>?
-pedidos;
+    private List<PedidoDTO>? pedidos;
     private List<PedidoDTO> pedidosFiltrados = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-    private string? errorMensaje; 
+    private string? errorMensaje;
 
     private string FormatCurrency(decimal amount)
     {
@@ -132,8 +127,8 @@ pedidos;
 
     private async Task CargarPedidos()
     {
-        errorMensaje = null; 
-        pedidos = null; 
+        errorMensaje = null;
+        pedidos = null;
 
         try
         {
@@ -144,14 +139,13 @@ pedidos;
         {
             errorMensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
             Console.WriteLine($"[ERROR] {errorMensaje}");
-            pedidos = new(); 
+            pedidos = new();
         }
     }
 
     private void OnFiltroChanged(ChangeEventArgs e)
     {
-        textoFiltro = e.Value?.ToString() ??
-"";
+        textoFiltro = e.Value?.ToString() ?? "";
         AplicarFiltro();
     }
 
@@ -167,16 +161,18 @@ pedidos;
 
     private void NuevoPedido()
     {
-        NavigationManager.NavigateTo("/pedido/crear"); 
+        NavigationManager.NavigateTo("/pedido/crear");
     }
 
     private void VerDetalle(PedidoDTO p)
     {
-        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}"); 
+        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}");
     }
 
     private async Task Eliminar(PedidoDTO p)
     {
+        // NOTA: Considera añadir una confirmación aquí, similar a la que eliminamos de VentaPage,
+        // ya que eliminar es una acción destructiva.
         errorMensaje = null;
         try
         {
@@ -199,6 +195,9 @@ pedidos;
 
     private async Task Finalizar(PedidoDTO p)
     {
+        // No hacer nada si ya no está pendiente (protección extra)
+        if (p.Estado != "Pendiente") return;
+
         errorMensaje = null;
         try
         {
