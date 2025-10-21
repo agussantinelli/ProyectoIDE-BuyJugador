@@ -3,6 +3,7 @@ using DTOs;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,6 +14,7 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
+        private readonly UserSessionService _userSessionService; // Inyectado para verificar el rol
 
         private List<ProductoDTO> _productosActivos = new();
         private List<ProductoDTO> _productosInactivos = new();
@@ -22,8 +24,9 @@ namespace WinForms
         public ProductoForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _serviceProvider = serviceProvider;
+            _productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
+            _userSessionService = _serviceProvider.GetRequiredService<UserSessionService>(); // Obtener el servicio de sesión
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -41,17 +44,36 @@ namespace WinForms
         {
             await CargarTodosProductos();
             AplicarFiltro();
+            ConfigurarVisibilidadControles(); // Llamar al método de configuración
+        }
+
+        // --- MÉTODO NUEVO PARA CENTRALIZAR LA LÓGICA DE ROLES ---
+        private void ConfigurarVisibilidadControles()
+        {
+            bool esAdmin = _userSessionService.EsAdmin;
+
+            // Botones que solo ve el admin
+            btnDarBaja.Visible = esAdmin;
+            btnReactivar.Visible = esAdmin;
+            btnEditarPrecio.Visible = esAdmin; // Un empleado no puede editar precios
+            btnReportePrecios.Visible = esAdmin; // El reporte general también es de admin
+
+            // Opciones del menú contextual que solo ve el admin
+            mnuEditarPrecio.Visible = esAdmin;
+            mnuVerHistorialPrecios.Visible = esAdmin;
         }
 
         private async Task CargarTodosProductos()
         {
             try
             {
-                var activos = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
-                var inactivos = await _productoApiClient.GetAllInactivosAsync() ?? new List<ProductoDTO>();
+                var activosTask = _productoApiClient.GetAllAsync();
+                var inactivosTask = _userSessionService.EsAdmin ? _productoApiClient.GetAllInactivosAsync() : Task.FromResult<List<ProductoDTO>?>(new List<ProductoDTO>());
 
-                _productosActivos = activos;
-                _productosInactivos = inactivos;
+                await Task.WhenAll(activosTask, inactivosTask);
+
+                _productosActivos = activosTask.Result ?? new List<ProductoDTO>();
+                _productosInactivos = inactivosTask.Result ?? new List<ProductoDTO>();
             }
             catch (Exception ex)
             {
@@ -114,7 +136,7 @@ namespace WinForms
                 ConfigurarColumnas(dgvActivos);
                 dgvActivos.DataSource = lista;
             }
-            else
+            else if (_userSessionService.EsAdmin)
             {
                 var lista = _productosInactivos
                     .Where(p => (string.IsNullOrWhiteSpace(f)
@@ -163,7 +185,8 @@ namespace WinForms
             {
                 var form = _serviceProvider.GetRequiredService<CrearProductoForm>();
                 form.MdiParent = this.MdiParent;
-                form.FormClosed += async (s, args) => {
+                form.FormClosed += async (s, args) =>
+                {
                     if (form.DialogResult == DialogResult.OK)
                     {
                         await CargarTodosProductos();
@@ -192,7 +215,8 @@ namespace WinForms
                 var form = new EditarProductoForm(producto.IdProducto, _productoApiClient, _serviceProvider.GetRequiredService<TipoProductoApiClient>());
                 form.Tag = producto.IdProducto;
                 form.MdiParent = this.MdiParent;
-                form.FormClosed += async (s, args) => {
+                form.FormClosed += async (s, args) =>
+                {
                     if (form.DialogResult == DialogResult.OK)
                     {
                         await CargarTodosProductos();
@@ -273,14 +297,17 @@ namespace WinForms
             bool seleccionadoActivos = dgvActivos.SelectedRows.Count > 0;
             bool seleccionadoInactivos = dgvInactivos.SelectedRows.Count > 0;
             bool haySeleccion = seleccionadoActivos || seleccionadoInactivos;
+            bool esAdmin = _userSessionService.EsAdmin;
 
             btnEditar.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
-            btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos;
-            btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos;
+            btnDarBaja.Enabled = (tabControl.SelectedTab == tabActivos) && seleccionadoActivos && esAdmin;
+            btnReactivar.Enabled = (tabControl.SelectedTab == tabInactivos) && seleccionadoInactivos && esAdmin;
 
-            btnReportePrecios.Enabled = true; 
-            btnEditarPrecio.Enabled = haySeleccion;
+            btnEditarPrecio.Enabled = haySeleccion && esAdmin;
             btnVerProveedores.Enabled = haySeleccion;
+
+            // El botón de historial de precios ya no depende de la selección.
+            btnReportePrecios.Enabled = esAdmin;
         }
 
         private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -300,7 +327,7 @@ namespace WinForms
                                 (tabControl.SelectedTab == tabInactivos && dgvInactivos.SelectedRows.Count > 0);
 
             mnuEditarPrecio.Enabled = haySeleccion;
-            mnuVerHistorialPrecios.Enabled = false; 
+            mnuVerHistorialPrecios.Enabled = true;
         }
 
         private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => btnReportePrecios_Click(sender, e);

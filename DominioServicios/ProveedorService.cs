@@ -20,6 +20,7 @@ namespace DominioServicios
         public async Task<List<ProveedorDTO>> GetAllAsync()
         {
             return await _context.Proveedores
+                .Where(p => p.Activo) // Asegurar que solo trae activos
                 .Select(p => ProveedorDTO.FromDominio(p)!)
                 .ToListAsync();
         }
@@ -44,7 +45,8 @@ namespace DominioServicios
         public async Task<List<ProveedorDTO>> GetByProductoIdAsync(int idProducto)
         {
             return await _context.Proveedores
-                .Where(p => p.ProductoProveedores.Any(pp => pp.IdProducto == idProducto))
+                // CAMBIO CLAVE: Se añade el filtro p.Activo
+                .Where(p => p.Activo && p.ProductoProveedores.Any(pp => pp.IdProducto == idProducto))
                 .Select(p => ProveedorDTO.FromDominio(p)!)
                 .ToListAsync();
         }

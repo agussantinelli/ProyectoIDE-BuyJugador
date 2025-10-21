@@ -3,10 +3,12 @@
 
 @using ApiClient
 @using DTOs
+@using BlazorApp.Auth
 @inject ProveedorApiClient proveedorApiClient
 @inject ProvinciaApiClient provinciaApiClient
 @inject LocalidadApiClient localidadApiClient
 @inject NavigationManager navigationManager
+@inject UserSessionService userSession
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -17,10 +19,13 @@
             <span class="bi bi-search tbl-search-icon"></span>
             <input class="tbl-input" type="text" placeholder="Buscar proveedor..."
                    @bind="textoFiltro" @bind:event="oninput" />
-            <button class="btn btn-primary" @onclick="NuevoProveedor">
-                <i class="bi bi-plus-circle"></i>
-                <span>Nuevo</span>
-            </button>
+            @if (esAdmin)
+            {
+                <button class="btn btn-primary" @onclick="NuevoProveedor">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>Nuevo</span>
+                </button>
+            }
         </div>
     </div>
 
@@ -36,9 +41,12 @@
             <button class="btn @(mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(true)">
                 <i class="bi bi-check-circle"></i> Activos (@(activos?.Count ?? 0))
             </button>
-            <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
-                <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
-            </button>
+            @if (esAdmin)
+            {
+                <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
+                    <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
+                </button>
+            }
         </div>
 
         <div class="tbl-wrapper">
@@ -69,24 +77,28 @@
                                         <button class="tbl-icon-btn" title="Ver Productos" @onclick="() => VerProductos(p)">
                                             <i class="bi bi-box-seam"></i>
                                         </button>
-
-                                        // #NUEVO: Botón para navegar a la página de asignación de productos.
                                         <button class="tbl-icon-btn" title="Asignar Productos" @onclick="() => AsignarProductos(p)">
                                             <i class="bi bi-cart-plus"></i>
                                         </button>
 
-                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
-                                            <i class="bi bi-trash3"></i>
-                                        </button>
+                                        @if (esAdmin)
+                                        {
+                                            <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                            <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
+                                                <i class="bi bi-trash3"></i>
+                                            </button>
+                                        }
                                     }
                                     else
                                     {
-                                        <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
+                                        @if (esAdmin)
+                                        {
+                                            <button class="tbl-icon-btn tbl-icon-btn--success" title="Reactivar" @onclick="() => Reactivar(p)">
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                            </button>
+                                        }
                                     }
                                 </div>
                             </td>
@@ -107,9 +119,11 @@
     private bool mostrarActivos = true;
     private string textoFiltro = string.Empty;
     private bool isLoading = true;
+    private bool esAdmin;
 
     protected override async Task OnInitializedAsync()
     {
+        esAdmin = await userSession.EsAdminAsync();
         await CargarDatos();
     }
 
@@ -119,7 +133,7 @@
         try
         {
             var activosTask = proveedorApiClient.GetAllAsync();
-            var inactivosTask = proveedorApiClient.GetInactivosAsync();
+            var inactivosTask = esAdmin ? proveedorApiClient.GetInactivosAsync() : Task.FromResult<List<ProveedorDTO>?>(new());
             var provinciasTask = provinciaApiClient.GetAllAsync();
             var localidadesTask = localidadApiClient.GetAllAsync();
 
@@ -165,7 +179,6 @@
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/productos");
     }
 
-    // #NUEVO: Método para navegar a la página de asignación.
     private void AsignarProductos(ProveedorRow proveedor)
     {
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/asignar-productos");

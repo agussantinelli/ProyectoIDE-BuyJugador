@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace WinForms
 {
@@ -18,6 +19,7 @@ namespace WinForms
         private readonly ProductoApiClient _productoApiClient;
         private readonly ProductoProveedorApiClient _productoProveedorApiClient;
         private readonly PrecioCompraApiClient _precioCompraApiClient;
+        private readonly UserSessionService _userSessionService;
 
         private BindingList<ProveedorRow> _activosBindingList;
         private BindingList<ProveedorRow> _inactivosBindingList;
@@ -37,6 +39,7 @@ namespace WinForms
             _productoApiClient = serviceProvider.GetRequiredService<ProductoApiClient>();
             _productoProveedorApiClient = serviceProvider.GetRequiredService<ProductoProveedorApiClient>();
             _precioCompraApiClient = serviceProvider.GetRequiredService<PrecioCompraApiClient>();
+            _userSessionService = serviceProvider.GetRequiredService<UserSessionService>();
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -46,14 +49,24 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnAsignarProductos);
-            StyleManager.ApplyButtonStyle(btnVerProductos); // # NUEVO
+            StyleManager.ApplyButtonStyle(btnVerProductos);
         }
 
         private async void ProveedorForm_Load(object sender, EventArgs e)
         {
             await CargarDatosIniciales();
             AplicarFiltro();
+            ConfigurarVisibilidadControles();
             ActualizarBotones();
+        }
+
+        private void ConfigurarVisibilidadControles()
+        {
+            bool esAdmin = _userSessionService.EsAdmin;
+            btnNuevo.Visible = esAdmin;
+            btnEditar.Visible = esAdmin;
+            btnEliminar.Visible = esAdmin;
+            btnReactivar.Visible = esAdmin;
         }
 
         private async Task CargarDatosIniciales()
@@ -61,7 +74,7 @@ namespace WinForms
             try
             {
                 var activosTask = _proveedorApiClient.GetAllAsync();
-                var inactivosTask = _proveedorApiClient.GetInactivosAsync();
+                var inactivosTask = _userSessionService.EsAdmin ? _proveedorApiClient.GetInactivosAsync() : Task.FromResult<List<ProveedorDTO>?>(new());
                 var provinciasTask = _provinciaApiClient.GetAllAsync();
                 var localidadesTask = _localidadApiClient.GetAllAsync();
 
@@ -78,7 +91,6 @@ namespace WinForms
             }
         }
 
-        // # NUEVO: Manejador del botón "Ver Productos"
         private void btnVerProductos_Click(object sender, EventArgs e)
         {
             var seleccionado = ObtenerSeleccionado(dgvActivos);
@@ -100,9 +112,6 @@ namespace WinForms
                 form.Show();
             }
         }
-
-
-        // ... (resto de los manejadores de eventos como btnNuevo, btnEditar, etc.)
 
         private void btnNuevo_Click(object sender, EventArgs e)
         {
@@ -266,7 +275,7 @@ namespace WinForms
                 dgvActivos.DataSource = _activosBindingList;
                 ConfigurarColumnas(dgvActivos);
             }
-            else
+            else if (_userSessionService.EsAdmin) // Solo mostrar inactivos a admin
             {
                 var filtrados = _inactivosCache
                     .Where(p => p.RazonSocial.ToLower().Contains(filtro) || p.Cuit.Contains(filtro))
@@ -295,16 +304,17 @@ namespace WinForms
 
         private void ActualizarBotones()
         {
+            bool esAdmin = _userSessionService.EsAdmin;
             bool esActivos = tabControlProveedores.SelectedTab == tabPageActivos;
             bool hayActivoSeleccionado = esActivos && dgvActivos.CurrentRow != null;
 
-            btnEditar.Visible = hayActivoSeleccionado;
-            btnEliminar.Visible = hayActivoSeleccionado;
+            btnEditar.Visible = hayActivoSeleccionado && esAdmin;
+            btnEliminar.Visible = hayActivoSeleccionado && esAdmin;
             btnAsignarProductos.Visible = hayActivoSeleccionado;
-            btnVerProductos.Visible = hayActivoSeleccionado; 
+            btnVerProductos.Visible = hayActivoSeleccionado;
 
             bool hayInactivoSeleccionado = !esActivos && dgvInactivos.CurrentRow != null;
-            btnReactivar.Visible = hayInactivoSeleccionado;
+            btnReactivar.Visible = hayInactivoSeleccionado && esAdmin;
         }
 
         private class ProveedorRow

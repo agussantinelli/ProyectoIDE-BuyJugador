@@ -3,12 +3,21 @@
 
 @using DTOs
 @using ApiClient
+@using BlazorApp.Auth
 @inject VentaApiClient ventaApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(errorMensaje))
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Error:</strong> @errorMensaje
+        <button type="button" class="btn-close" @onclick="() => errorMensaje = null" aria-label="Close"></button>
+    </div>
+}
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -17,27 +26,26 @@
         <div class="tbl-search">
             <span class="bi bi-search tbl-search-icon"></span>
             <input class="tbl-input" type="text" placeholder="Buscar vendedor..."
-                   @bind="textoFiltro" @bind:event="oninput" />
+                   value="@textoFiltro" @oninput="OnFiltroChanged" />
 
-            @if (esAdmin)
-            {
-                <button class="btn btn-primary" @onclick="NuevaVenta">
-                    <i class="bi bi-plus-circle"></i>
-                    <span>Nueva</span>
-                </button>
-            }
+            <button class="btn btn-primary" @onclick="NuevaVenta">
+                <i class="bi bi-plus-circle"></i>
+                <span>Nueva</span>
+            </button>
         </div>
     </div>
 
-    @if (ventas == null)
+    <p class="tbl-subtitle text-muted">Total ventas cargadas: <strong>@ventas?.Count</strong></p>
+
+    @if (ventas == null && string.IsNullOrEmpty(errorMensaje))
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando ventas...</div>
     }
-    else if (!VentasFiltradas.Any())
+    else if (ventas != null && !ventasFiltradas.Any() && string.IsNullOrEmpty(errorMensaje))
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron ventas.</div>
     }
-    else
+    else if (ventas != null)
     {
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
@@ -52,7 +60,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var v in VentasFiltradas)
+                    @foreach (var v in ventasFiltradas)
                     {
                         bool estaPendiente = v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true;
 
@@ -68,25 +76,32 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
+                                    @if (estaPendiente)
+                                    {
+                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => VerDetalle(v)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    }
+
+                                    <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                            title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
+                                            @onclick="() => Finalizar(v)"
+                                            disabled="@(!estaPendiente)">
+
+                                        @if (ventaSiendoFinalizada == v.IdVenta)
+                                        {
+                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-check-circle"></i>
+                                        }
+                                    </button>
+
                                     @if (esAdmin)
                                     {
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(v)">
                                             <i class="bi bi-trash3"></i>
-                                        </button>
-
-                                        <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
-                                                title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
-                                                @onclick="() => Finalizar(v)"
-                                                disabled="@(!estaPendiente)">
-
-                                            @if (ventaSiendoFinalizada == v.IdVenta)
-                                            {
-                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                            }
-                                            else
-                                            {
-                                                <i class="bi bi-check-circle"></i>
-                                            }
                                         </button>
                                     }
                                 </div>
@@ -101,16 +116,13 @@
 
 @code {
     private List<VentaDTO>? ventas;
+    private List<VentaDTO> ventasFiltradas = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-    private bool isLoading = false;
-    private string? errorMessage;
+    private string? errorMensaje;
     private int ventaSiendoFinalizada = 0;
 
-    private string FormatCurrency(decimal amount)
-    {
-        return amount.ToString("C");
-    }
+    private string FormatCurrency(decimal amount) => amount.ToString("C");
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,28 +130,47 @@
         await CargarVentas();
     }
 
-    private async Task CargarVentas() => ventas = await ventaApiClient.GetAllAsync() ?? new();
+    private async Task CargarVentas()
+    {
+        errorMensaje = null;
+        ventas = null;
+        try
+        {
+            ventas = await ventaApiClient.GetAllAsync() ?? new();
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"No se pudieron cargar las ventas: {ex.Message}";
+            ventas = new();
+        }
+    }
 
-    private IEnumerable<VentaDTO> VentasFiltradas =>
-        ventas?.Where(v =>
-            string.IsNullOrWhiteSpace(textoFiltro)
-            || (v.NombreVendedor?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-        ?? Enumerable.Empty<VentaDTO>();
+    private void OnFiltroChanged(ChangeEventArgs e)
+    {
+        textoFiltro = e.Value?.ToString() ?? "";
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        ventasFiltradas = ventas?
+            .Where(v =>
+                string.IsNullOrWhiteSpace(textoFiltro)
+                || (v.NombreVendedor?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .ToList() ?? new();
+    }
 
     private void NuevaVenta() => NavigationManager.NavigateTo("/venta/crear");
 
-    private void VerDetalle(VentaDTO venta)
-    {
-        NavigationManager.NavigateTo($"/venta/detalle/{venta.IdVenta}");
-    }
+    private void VerDetalle(VentaDTO venta) => NavigationManager.NavigateTo($"/venta/detalle/{venta.IdVenta}");
 
     private async Task Eliminar(VentaDTO venta)
     {
         var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro que desea eliminar la venta #{venta.IdVenta}?");
         if (!confirm) return;
 
-        isLoading = true;
-        errorMessage = null;
+        errorMensaje = null;
         try
         {
             var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
@@ -149,16 +180,12 @@
             }
             else
             {
-                errorMessage = $"Error al eliminar: {await resp.Content.ReadAsStringAsync()}";
+                errorMensaje = $"Error al eliminar: {await resp.Content.ReadAsStringAsync()}";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error de conexión: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
+            errorMensaje = $"Error de conexión: {ex.Message}";
         }
     }
 
@@ -166,8 +193,7 @@
     {
         if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) != true) return;
 
-        isLoading = true;
-        errorMessage = null;
+        errorMensaje = null;
         ventaSiendoFinalizada = venta.IdVenta;
         StateHasChanged();
 
@@ -176,7 +202,7 @@
             var ventaCompleta = await ventaApiClient.GetByIdAsync(venta.IdVenta);
             if (ventaCompleta == null || !ventaCompleta.IdPersona.HasValue)
             {
-                errorMessage = $"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.";
+                errorMensaje = $"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.";
                 return;
             }
 
@@ -197,18 +223,18 @@
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Error al finalizar la venta: {error}";
+                errorMensaje = $"Error al finalizar la venta: {error}";
             }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error de conexión: {ex.Message}";
+            errorMensaje = $"Error de conexión: {ex.Message}";
         }
         finally
         {
-            isLoading = false;
             ventaSiendoFinalizada = 0;
             StateHasChanged();
         }
     }
 }
+

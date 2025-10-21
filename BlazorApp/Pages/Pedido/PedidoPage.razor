@@ -3,6 +3,7 @@
 
 @using DTOs
 @using ApiClient
+@using BlazorApp.Auth
 @inject PedidoApiClient pedidoApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
@@ -25,17 +26,13 @@
             <input class="tbl-input" placeholder="Buscar proveedor..."
                    value="@textoFiltro" @oninput="OnFiltroChanged" />
 
-
-            @if (esAdmin)
-            {
-                <button class="btn btn-primary" @onclick="NuevoPedido">
-                    <i class="bi bi-plus-circle"></i><span>Nuevo</span>
-                </button>
-            }
+            <button class="btn btn-primary" @onclick="NuevoPedido">
+                <i class="bi bi-plus-circle"></i><span>Nuevo</span>
+            </button>
         </div>
-
-        <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
     </div>
+
+    <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
 
     @if (pedidos == null && string.IsNullOrEmpty(errorMensaje))
     {
@@ -49,37 +46,45 @@
     {
         <div class="tbl-wrapper">
             <table class="tbl table-striped table-hover">
-
                 <thead>
                     <tr>
                         <th>Nro Pedido</th>
                         <th>Fecha</th>
-
                         <th>Proveedor</th>
                         <th>Estado</th>
                         <th class="tbl-text-end">Total</th>
                         <th class="tbl-text-end">Acciones</th>
-
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var p in pedidosFiltrados)
                     {
-                        // Variable para legibilidad en el botón de finalizar
                         bool estaPendiente = p.Estado == "Pendiente";
 
                         <tr>
                             <td>@p.IdPedido</td>
                             <td>@p.Fecha.ToString("dd/MM/yyyy")</td>
                             <td>@p.ProveedorRazonSocial</td>
-
                             <td>@p.Estado</td>
                             <td class="tbl-text-end">@FormatCurrency(p.Total)</td>
                             <td class="tbl-text-end">
-
                                 <div class="tbl-actions">
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
                                         <i class="bi bi-eye"></i>
+                                    </button>
+
+                                    @if (estaPendiente)
+                                    {
+                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => VerDetalle(p)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    }
+
+                                    <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                            title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
+                                            @onclick="() => Finalizar(p)"
+                                            disabled="@(!estaPendiente)">
+                                        <i class="bi bi-check-circle"></i>
                                     </button>
 
                                     @if (esAdmin)
@@ -87,18 +92,9 @@
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
-
-                                        // CAMBIO: El botón ahora es condicionalmente deshabilitado
-                                        <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
-                                                title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
-                                                @onclick="() => Finalizar(p)"
-                                                disabled="@(!estaPendiente)">
-                                            <i class="bi bi-check-circle"></i>
-                                        </button>
                                     }
                                 </div>
                             </td>
-
                         </tr>
                     }
                 </tbody>
@@ -171,8 +167,6 @@
 
     private async Task Eliminar(PedidoDTO p)
     {
-        // NOTA: Considera añadir una confirmación aquí, similar a la que eliminamos de VentaPage,
-        // ya que eliminar es una acción destructiva.
         errorMensaje = null;
         try
         {
@@ -195,7 +189,6 @@
 
     private async Task Finalizar(PedidoDTO p)
     {
-        // No hacer nada si ya no está pendiente (protección extra)
         if (p.Estado != "Pendiente") return;
 
         errorMensaje = null;
@@ -218,3 +211,4 @@
         }
     }
 }
+

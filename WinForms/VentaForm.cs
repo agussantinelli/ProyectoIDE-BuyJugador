@@ -58,8 +58,11 @@ namespace WinForms
         private void ConfigurarVisibilidadControles()
         {
             bool esAdmin = _userSessionService.EsAdmin;
-            btnNuevaVenta.Visible = esAdmin;
             btnEliminar.Visible = esAdmin;
+
+            // Todos pueden crear ventas y finalizarlas
+            btnNuevaVenta.Visible = true;
+            btnFinalizarVenta.Visible = true;
         }
 
         private async Task CargarVentas()
@@ -299,13 +302,11 @@ namespace WinForms
 
             if (hayFilaSeleccionada && dataGridVentas.CurrentRow.DataBoundItem is VentaDTO selectedVenta)
             {
-                btnFinalizarVenta.Enabled = "Pendiente".Equals(selectedVenta.Estado, StringComparison.OrdinalIgnoreCase) && _userSessionService.EsAdmin;
-                btnFinalizarVenta.Visible = _userSessionService.EsAdmin;
+                btnFinalizarVenta.Enabled = "Pendiente".Equals(selectedVenta.Estado, StringComparison.OrdinalIgnoreCase);
             }
             else
             {
                 btnFinalizarVenta.Enabled = false;
-                btnFinalizarVenta.Visible = _userSessionService.EsAdmin;
             }
         }
 
@@ -315,4 +316,3 @@ namespace WinForms
         }
     }
 }
-
