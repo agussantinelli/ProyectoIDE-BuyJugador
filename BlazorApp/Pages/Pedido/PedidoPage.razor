@@ -3,6 +3,7 @@
 
 @using DTOs
 @using ApiClient
+@using BlazorApp.Auth
 @inject PedidoApiClient pedidoApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
@@ -25,17 +26,10 @@
             <input class="tbl-input" placeholder="Buscar proveedor..."
                    value="@textoFiltro" @oninput="OnFiltroChanged" />
 
-
-            @if (esAdmin)
-            {
-                <button class="btn btn-primary" @onclick="NuevoPedido">
-                    <i class="bi bi-plus-circle"></i><span>Nuevo</span>
-                </button>
-            }
+            <button class="btn btn-primary" @onclick="NuevoPedido">
+                <i class="bi bi-plus-circle"></i><span>Nuevo</span>
+            </button>
         </div>
-
-        @* ===== CAMBIO CLAVE AQUÍ ===== *@
-        @* El subtítulo se movió fuera del div "tbl-header" para coincidir con la página de Ventas *@
     </div>
 
     <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
@@ -78,16 +72,25 @@
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
                                         <i class="bi bi-eye"></i>
                                     </button>
+
+                                    @if (estaPendiente)
+                                    {
+                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => VerDetalle(p)">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    }
+
+                                    <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                            title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
+                                            @onclick="() => Finalizar(p)"
+                                            disabled="@(!estaPendiente)">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+
                                     @if (esAdmin)
                                     {
                                         <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
                                             <i class="bi bi-trash3"></i>
-                                        </button>
-                                        <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
-                                                title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
-                                                @onclick="() => Finalizar(p)"
-                                                disabled="@(!estaPendiente)">
-                                            <i class="bi bi-check-circle"></i>
                                         </button>
                                     }
                                 </div>
@@ -208,3 +211,4 @@
         }
     }
 }
+

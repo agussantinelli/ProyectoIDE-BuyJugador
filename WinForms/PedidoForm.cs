@@ -54,10 +54,12 @@ namespace WinForms
 
         private void ConfigurarVisibilidadControles()
         {
-            bool esAdmin = _userSessionService.EsAdmin;
-            btnNuevoPedido.Visible = esAdmin;
-            btnEliminar.Visible = esAdmin;
-            btnFinalizarPedido.Visible = esAdmin;
+            // Todos pueden crear y finalizar pedidos
+            btnNuevoPedido.Visible = true;
+            btnFinalizarPedido.Visible = true;
+
+            // Solo admin puede eliminar
+            btnEliminar.Visible = _userSessionService.EsAdmin;
         }
 
         private async Task CargarPedidos()
@@ -187,7 +189,7 @@ namespace WinForms
             if (dataGridPedidos.CurrentRow?.DataBoundItem is not PedidoDTO pedido) return;
 
             var confirmResult = MessageBox.Show($"¿Está seguro de que desea eliminar el pedido #{pedido.IdPedido}?\nEsta acción no se puede deshacer.",
-                                              "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                                            "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirmResult == DialogResult.Yes)
             {
@@ -223,7 +225,7 @@ namespace WinForms
             }
 
             var confirmResult = MessageBox.Show($"¿Desea marcar el pedido #{pedido.IdPedido} como 'Recibido'?",
-                                              "Confirmar Recepción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                                            "Confirmar Recepción", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (confirmResult == DialogResult.Yes)
             {
@@ -261,7 +263,7 @@ namespace WinForms
 
             if (hayFilaSeleccionada && dataGridPedidos.CurrentRow.DataBoundItem is PedidoDTO pedido)
             {
-                btnFinalizarPedido.Enabled = "Pendiente".Equals(pedido.Estado, StringComparison.OrdinalIgnoreCase) && _userSessionService.EsAdmin;
+                btnFinalizarPedido.Enabled = "Pendiente".Equals(pedido.Estado, StringComparison.OrdinalIgnoreCase);
             }
             else
             {

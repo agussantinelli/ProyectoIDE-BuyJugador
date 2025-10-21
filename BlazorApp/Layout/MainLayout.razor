@@ -5,6 +5,7 @@
 @inject NavigationManager Nav
 @inject ILocalStorageService LocalStorage
 @inject InMemoryUserSession InMemorySession
+@inject UserSessionService userSession
 
 <div class="app-shell @(isCollapsed ? "collapsed" : "")">
     <aside class="sidebar">
@@ -40,15 +41,18 @@
                 <span class="nav-label">Proveedores</span>
             </NavLink>
 
-            <NavLink class="nav-item" href="/persona">
-                <span class="bi bi-person-lines-fill"></span>
-                <span class="nav-label">Personas</span>
-            </NavLink>
+            @if (_esAdmin)
+            {
+                <NavLink class="nav-item" href="/persona">
+                    <span class="bi bi-person-lines-fill"></span>
+                    <span class="nav-label">Personas</span>
+                </NavLink>
 
-            <NavLink class="nav-item" href="/tipo-producto">
-                <span class="bi bi-tags"></span>
-                <span class="nav-label">Tipos de producto</span>
-            </NavLink>
+                <NavLink class="nav-item" href="/tipo-producto">
+                    <span class="bi bi-tags"></span>
+                    <span class="nav-label">Tipos de producto</span>
+                </NavLink>
+            }
 
             <NavLink class="nav-item" href="/provincia">
                 <span class="bi bi-geo-alt"></span>
@@ -60,27 +64,30 @@
                 <span class="nav-label">Localidades</span>
             </NavLink>
 
-            <button type="button"
-                    class="nav-item nav-collapsible @(IsStatsActive ? "active" : null)"
-                    @onclick="ToggleStats">
-                <div class="nav-collapsible-left">
-                    <span class="bi bi-graph-up"></span>
-                    <span class="nav-label">Estadísticas</span>
+            @if (_esAdmin)
+            {
+                <button type="button"
+                        class="nav-item nav-collapsible @(IsStatsActive ? "active" : null)"
+                        @onclick="ToggleStats">
+                    <div class="nav-collapsible-left">
+                        <span class="bi bi-graph-up"></span>
+                        <span class="nav-label">Estadísticas</span>
+                    </div>
+                    <span class="bi bi-chevron-down caret @(statsOpen ? "open" : null)"></span>
+                </button>
+
+                <div class="submenu @(statsOpen ? "open" : null)">
+                    <NavLink class="nav-item sub-item" href="/reporte/precios">
+                        <span class="bi bi-activity"></span>
+                        <span class="nav-label">Historial de precios</span>
+                    </NavLink> <br />
+
+                    <NavLink class="nav-item sub-item" href="/reporte/ventas">
+                        <span class="bi bi-file-earmark-bar-graph"></span>
+                        <span class="nav-label">Reporte Ventas</span>
+                    </NavLink>
                 </div>
-                <span class="bi bi-chevron-down caret @(statsOpen ? "open" : null)"></span>
-            </button>
-
-            <div class="submenu @(statsOpen ? "open" : null)">
-                <NavLink class="nav-item sub-item" href="/reporte/precios">
-                    <span class="bi bi-activity"></span>
-                    <span class="nav-label">Historial de precios</span>
-                </NavLink> <br />
-
-                <NavLink class="nav-item sub-item" href="/reporte/ventas">
-                    <span class="bi bi-file-earmark-bar-graph"></span>
-                    <span class="nav-label">Reporte Ventas</span>
-                </NavLink>
-            </div>
+            }
         </nav>
 
     </aside>
@@ -113,7 +120,7 @@
 </div>
 
 @code {
-
+    private bool _esAdmin;
     private bool isCollapsed = false;
     private void ToggleSidebar() => isCollapsed = !isCollapsed;
 
@@ -121,6 +128,12 @@
     private bool IsStatsActive =>
         Nav.Uri.Contains("/reporte/precios", StringComparison.OrdinalIgnoreCase) ||
         Nav.Uri.Contains("/reporte/ventas", StringComparison.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Verificamos si el usuario tiene el rol de Administrador al inicializar el layout.
+        _esAdmin = await userSession.EsAdminAsync();
+    }
 
     protected override void OnParametersSet()
     {
