@@ -1,6 +1,6 @@
 ﻿@page "/reporte/precios"
-
-@inject NavigationManager Nav
+@using ApiClient
+@inject ReporteApiClient Reportes
 
 @code {
     private string ApiBase => "https://localhost:7145";
@@ -14,7 +14,17 @@
                      $"&to={(to.HasValue ? to.Value.ToString("yyyy-MM-dd") : "")}" +
                      $"&w=1200&h=500&_={cacheBust}";
 
-    void Refrescar() { cacheBust++; }
+    void Refrescar() => cacheBust++;
+
+    [Inject] IJSRuntime JS { get; set; } = default!;
+
+    private async Task DescargarPdfAsync()
+    {
+        var bytes = await Reportes.GetHistorialPreciosPdfAsync(from, to, 1200, 500);
+        if (bytes is null) return;
+        var base64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("saveAsFile", $"HistorialPrecios_{DateTime.Now:yyyyMMdd}.pdf", base64);
+    }
 }
 
 <div class="ratio ratio-21x9">
@@ -26,5 +36,8 @@
     <InputDate @bind-Value="to" class="form-control" />
     <button class="btn btn-primary" @onclick="Refrescar">
         <i class="bi bi-arrow-repeat"></i> Actualizar
+    </button>
+    <button class="btn btn-success" @onclick="DescargarPdfAsync">
+        <i class="bi bi-file-earmark-pdf"></i> Descargar PDF
     </button>
 </div>

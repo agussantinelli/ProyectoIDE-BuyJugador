@@ -10,16 +10,12 @@ using WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// #NUEVO: Configuración global para PDFsharp.
-// #Intención: Se debe registrar el proveedor de codificación y asignar nuestro
-// #FontResolver personalizado al inicio de la aplicación.
 PdfReportService.Configure();
 GlobalFontSettings.FontResolver = new FontResolver();
 
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
 
-// #Intención: Registro de todos los servicios de la aplicación.
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
 builder.Services.AddScoped<ProveedorService>();

@@ -93,7 +93,6 @@ namespace WinForms
                     Application.Run(mainForm);
                 }
 
-                // #Lógica Restaurada: Se mantiene tu flujo original para el ciclo de la aplicación.
                 if (userSessionService.CurrentUser == null)
                 {
                     continue; // El usuario cerró sesión, volver al login.
