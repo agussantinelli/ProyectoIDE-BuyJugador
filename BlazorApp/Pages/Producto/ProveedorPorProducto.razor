@@ -1,0 +1,105 @@
+﻿@page "/producto/{IdProducto:int}/proveedores"
+@attribute [Authorize]
+
+@using ApiClient
+@using DTOs
+@inject ProveedorApiClient ProveedorApiClient
+@inject ProductoApiClient ProductoApiClient
+@inject NavigationManager NavigationManager
+
+<div class="tbl-container" style="max-width: 900px; margin: 2rem auto;">
+    @if (_producto == null && _isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando datos...</div>
+    }
+    else if (_producto != null)
+    {
+        <div class="tbl-header">
+            <h2 class="tbl-title">Proveedores de "@_producto.Nombre"</h2>
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver a Productos
+            </button>
+        </div>
+
+        @if (_proveedores == null)
+        {
+            <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando proveedores...</div>
+        }
+        else if (!_proveedores.Any())
+        {
+            <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron proveedores para este producto.</div>
+        }
+        else
+        {
+            <div class="tbl-wrapper mt-3">
+                <table class="tbl table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Razón Social</th>
+                            <th>CUIT</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in _proveedores)
+                        {
+                            <tr>
+                                <td>@p.RazonSocial</td>
+                                <td>@p.Cuit</td>
+                                <td>@p.Email</td>
+                                <td>@p.Telefono</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int IdProducto { get; set; }
+
+    private ProductoDTO? _producto;
+    private List<ProveedorDTO>? _proveedores;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Se obtienen los datos del producto y la lista de proveedores en paralelo para mayor eficiencia
+            var productoTask = ProductoApiClient.GetByIdAsync(IdProducto);
+            var proveedoresTask = ProveedorApiClient.GetProveedoresByProductoIdAsync(IdProducto);
+
+            await Task.WhenAll(productoTask, proveedoresTask);
+
+            _producto = await productoTask;
+            _proveedores = await proveedoresTask;
+
+            if (_producto == null)
+            {
+                // Si el producto no existe, es mejor redirigir al usuario de vuelta a la lista principal
+                NavigationManager.NavigateTo("/producto");
+            }
+        }
+        catch (System.Exception ex)
+        {
+            // Manejo de errores en caso de que falle la API
+            Console.WriteLine($"Error al cargar datos de proveedores por producto: {ex.Message}");
+            _proveedores = new List<ProveedorDTO>(); // Se inicializa para evitar errores en el renderizado
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void Volver()
+    {
+        NavigationManager.NavigateTo("/producto");
+    }
+}
+
