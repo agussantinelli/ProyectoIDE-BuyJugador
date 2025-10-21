@@ -25,7 +25,6 @@ else if (proveedor != null)
         <h2 class="form-title">Asignar Productos a @proveedor.RazonSocial</h2>
 
         <div class="assignment-container">
-            <!-- Columna de Productos Disponibles -->
             <div class="product-column">
                 <h3 class="column-title">Productos Disponibles</h3>
                 <div class="tbl-wrapper">
@@ -52,8 +51,6 @@ else if (proveedor != null)
                     </table>
                 </div>
             </div>
-
-            <!-- Columna de Productos Asignados -->
             <div class="product-column">
                 <h3 class="column-title">Productos Asignados</h3>
                 <div class="tbl-wrapper">
@@ -126,7 +123,6 @@ else
     private bool isLoading = true;
     private bool isSaving = false;
 
-    // Estado del modal
     private bool isPrecioModalVisible = false;
     private ProductoDisponibleRow? productoParaAsignar;
 
@@ -159,7 +155,6 @@ else
         }
         catch (Exception)
         {
-            // Manejar error (e.g., mostrar un mensaje)
         }
         finally
         {
@@ -177,7 +172,6 @@ else
     {
         if (productoParaAsignar != null)
         {
-            // Mover producto de disponible a asignado
             productosDisponibles.Remove(productoParaAsignar);
             productosAsignados.Add(new ProductoAsignadoRow
             {
@@ -197,7 +191,6 @@ else
 
     private void QuitarProducto(ProductoAsignadoRow producto)
     {
-        // Mover producto de asignado a disponible
         productosAsignados.Remove(producto);
         productosDisponibles.Add(new ProductoDisponibleRow
         {
@@ -214,14 +207,12 @@ else
         {
             var finalAssignedIds = new HashSet<int>(productosAsignados.Select(p => p.IdProducto));
 
-            // 1. Identificar y eliminar productos desasignados
             var idsToRemove = _initialAssignedIds.Except(finalAssignedIds).ToList();
             foreach (var idProducto in idsToRemove)
             {
                 await productoProveedorApiClient.DeleteAsync(idProducto, IdProveedor);
             }
 
-            // 2. Identificar y crear nuevas asignaciones
             var idsToAdd = finalAssignedIds.Except(_initialAssignedIds).ToList();
             foreach (var idProducto in idsToAdd)
             {
@@ -230,12 +221,10 @@ else
                 await precioCompraApiClient.CreateAsync(new PrecioCompraDTO { IdProducto = idProducto, IdProveedor = IdProveedor, Monto = productoAsignado.PrecioCompra });
             }
 
-            // 3. Identificar y actualizar precios de productos que ya estaban asignados (opcional pero buena práctica)
             var idsToUpdate = _initialAssignedIds.Intersect(finalAssignedIds).ToList();
             foreach (var idProducto in idsToUpdate)
             {
                 var productoEnUI = productosAsignados.First(p => p.IdProducto == idProducto);
-                // Aquí podrías comparar con el precio inicial si lo guardaste, y solo actualizar si cambió.
                 await precioCompraApiClient.UpdateAsync(idProducto, IdProveedor, new PrecioCompraDTO { Monto = productoEnUI.PrecioCompra });
             }
 
@@ -243,7 +232,6 @@ else
         }
         catch (Exception)
         {
-            // Manejar error (e.g., mostrar una notificación)
         }
         finally
         {
@@ -256,7 +244,6 @@ else
         navigationManager.NavigateTo("/proveedor");
     }
 
-    // Clases internas para manejar el estado de la UI
     private class ProductoDisponibleRow
     {
         public int IdProducto { get; set; }

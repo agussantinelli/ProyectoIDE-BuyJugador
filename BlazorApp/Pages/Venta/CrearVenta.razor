@@ -25,7 +25,6 @@
         </div>
     }
 
-    <!-- Sección para Agregar Productos -->
     <div class="card mb-4 bg-transparent border-secondary">
         <div class="card-header"><strong>Añadir Producto</strong></div>
         <div class="card-body">
@@ -52,8 +51,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Tabla de Líneas de Venta -->
     <div class="tbl-wrapper">
         <table class="tbl">
             <thead>
@@ -179,7 +176,6 @@
             EsNueva = true
         });
 
-        // Actualizar UI
         productosDisponibles.Remove(productoSeleccionado);
         lineaActual = new() { Cantidad = 1 };
     }

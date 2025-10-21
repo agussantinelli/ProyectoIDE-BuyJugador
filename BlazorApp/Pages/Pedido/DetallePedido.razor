@@ -31,14 +31,12 @@
             </button>
         </div>
 
-        <!-- Información del Pedido -->
         <div class="row mb-4">
             <div class="col-md-4"><strong>Proveedor:</strong> @pedido.ProveedorRazonSocial</div>
             <div class="col-md-4"><strong>Fecha:</strong> @pedido.Fecha.ToString("dd/MM/yyyy")</div>
             <div class="col-md-4"><strong>Estado:</strong> @pedido.Estado</div>
         </div>
 
-        <!-- Sección para Agregar Productos (solo si se puede editar) -->
         @if (puedeEditar)
         {
             <div class="card mb-4 bg-transparent border-secondary">
@@ -51,7 +49,6 @@
                                 <option value="0">-- Seleccione un producto --</option>
                                 @foreach (var p in productosDisponibles)
                                 {
-                                    // CORREGIDO: Usar 'PrecioCompra' en lugar de 'PrecioCompraActual'
                                     <option value="@p.IdProducto">@p.Nombre (@p.PrecioCompra.ToString("C"))</option>
                                 }
                             </InputSelect>
@@ -69,8 +66,6 @@
                 </div>
             </div>
         }
-
-        <!-- Líneas de Pedido -->
         <div class="tbl-wrapper">
             <table class="tbl">
                 <thead>
@@ -123,8 +118,6 @@
         {
             <div class="alert alert-danger mt-3">@errorMessage</div>
         }
-
-        <!-- Acciones -->
         @if (puedeEditar)
         {
             <div class="form-actions mt-4">
@@ -183,13 +176,11 @@
 
             if (pedido != null)
             {
-                // CORREGIDO: Usar 'LineasPedido' en lugar de 'Lineas'
                 lineasDePedido = new List<LineaPedidoDTO>(pedido.LineasPedido ?? new List<LineaPedidoDTO>());
                 puedeEditar = esAdmin && "Pendiente".Equals(pedido.Estado, StringComparison.OrdinalIgnoreCase);
 
                 if (puedeEditar && pedido.IdProveedor > 0)
                 {
-                    // CORREGIDO: Usar 'GetProductosAsignadosByProveedorIdAsync' en lugar de 'GetByProveedorIdAsync'
                     productosDelProveedor = await productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(pedido.IdProveedor) ?? new();
                     ActualizarProductosDisponibles();
                 }
@@ -209,7 +200,6 @@
     {
         var idsEnPedido = lineasDePedido.Select(l => l.IdProducto).ToHashSet();
         productosDisponibles = productosDelProveedor
-            // CORREGIDO: Usar 'PrecioCompra' en lugar de 'PrecioCompraActual' y no verificar si es nulo
             .Where(p => !idsEnPedido.Contains(p.IdProducto))
             .OrderBy(p => p.Nombre)
             .ToList();
@@ -242,7 +232,6 @@
             IdProducto = productoSeleccionado.IdProducto,
             NombreProducto = productoSeleccionado.Nombre,
             Cantidad = lineaActual.Cantidad,
-            // CORREGIDO: Usar 'PrecioCompra' en lugar de 'PrecioCompraActual'
             PrecioUnitario = productoSeleccionado.PrecioCompra,
             EsNueva = true
         });
@@ -280,7 +269,6 @@
             IdProveedor = pedido.IdProveedor,
             Fecha = pedido.Fecha,
             Estado = pedido.Estado,
-            // CORREGIDO: Usar 'LineasPedido' en lugar de 'Lineas'
             LineasPedido = lineasDePedido
         };
 

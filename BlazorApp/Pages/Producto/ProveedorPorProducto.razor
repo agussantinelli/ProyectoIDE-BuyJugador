@@ -70,7 +70,6 @@
     {
         try
         {
-            // Se obtienen los datos del producto y la lista de proveedores en paralelo para mayor eficiencia
             var productoTask = ProductoApiClient.GetByIdAsync(IdProducto);
             var proveedoresTask = ProveedorApiClient.GetProveedoresByProductoIdAsync(IdProducto);
 
@@ -81,15 +80,13 @@
 
             if (_producto == null)
             {
-                // Si el producto no existe, es mejor redirigir al usuario de vuelta a la lista principal
                 NavigationManager.NavigateTo("/producto");
             }
         }
         catch (System.Exception ex)
         {
-            // Manejo de errores en caso de que falle la API
             Console.WriteLine($"Error al cargar datos de proveedores por producto: {ex.Message}");
-            _proveedores = new List<ProveedorDTO>(); // Se inicializa para evitar errores en el renderizado
+            _proveedores = new List<ProveedorDTO>(); 
         }
         finally
         {

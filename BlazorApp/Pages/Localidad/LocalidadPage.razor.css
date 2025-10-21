@@ -1,6 +1,4 @@
-﻿/* // --- Estilos para la página de Localidades con Tema Oscuro --- */
-
-/* // Contenedor principal de la página. Se definen las variables del tema aquí para encapsularlas. */
+﻿
 .page-container {
     --bg-page: #0b1220;
     --text: #e6edf6;
@@ -18,7 +16,6 @@
     --primary: #3b82f6;
     --primary-600: #2563eb;
     --row-hover: rgba(59,130,246,.10);
-    /* // Estilos adaptados de .tbl-container */
     margin: 2rem auto;
     width: min(1100px, 100%);
     padding: 1.25rem;
@@ -28,7 +25,6 @@
     box-shadow: var(--shadow);
 }
 
-/* // Cabecera con título y barra de filtros */
 .page-header {
     display: flex;
     align-items: center;
@@ -45,7 +41,6 @@
     color: var(--text);
 }
 
-/* // Barra de filtros */
 .filter-bar {
     display: flex;
     gap: .6rem;
@@ -53,7 +48,6 @@
     flex-wrap: wrap;
 }
 
-/* // Contenedor del campo de búsqueda para posicionar el ícono */
 .search-container {
     position: relative;
     display: flex;
@@ -109,7 +103,6 @@
         box-shadow: 0 0 0 .2rem rgba(59,130,246,.18) !important;
     }
 
-/* // Contenedor de la tabla para permitir scroll */
 .table-wrapper {
     width: 100%;
     overflow: auto;
@@ -156,7 +149,6 @@
         background: #203765;
     }
 
-/* // Anchos fijos para las columnas */
 .col-id {
     width: 100px;
 }
@@ -175,7 +167,6 @@
     text-overflow: ellipsis;
 }
 
-/* // Indicadores de estado (Cargando, No hay datos) */
 .state-indicator {
     display: flex;
     gap: .6rem;
@@ -193,7 +184,6 @@
         margin-right: .5rem;
     }
 
-/* // Animación para el ícono de carga */
 .spin {
     animation: spin 1.5s linear infinite;
 }
@@ -208,7 +198,6 @@
     }
 }
 
-/* // Estilos responsivos para pantallas pequeñas */
 @media (max-width: 768px) {
     .page-header, .filter-bar {
         flex-direction: column;

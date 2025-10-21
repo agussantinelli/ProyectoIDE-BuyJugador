@@ -26,7 +26,6 @@ namespace BlazorApp.Auth
             }
             catch
             {
-                // Ignorar errores si el LocalStorage no está disponible (ej. prerendering).
             }
 
             if (string.IsNullOrWhiteSpace(token))
@@ -36,7 +35,7 @@ namespace BlazorApp.Auth
 
             if (string.IsNullOrWhiteSpace(token))
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())); // Usuario anónimo
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())); 
             }
 
             var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");

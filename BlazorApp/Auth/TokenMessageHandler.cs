@@ -26,7 +26,6 @@ namespace BlazorApp.Auth
                 }
                 catch
                 {
-                    // Ignorar errores de LocalStorage.
                 }
 
                 if (string.IsNullOrWhiteSpace(token))

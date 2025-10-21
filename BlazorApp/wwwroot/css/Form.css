@@ -1,19 +1,17 @@
-﻿/* Este archivo combina el diseño y espaciado del Form.css original 
-  con las variables de color del tema oscuro de App.css.
-*/
+﻿
 
 .form-container {
     max-width: 900px;
     margin: 2rem auto;
     padding: 2.5rem;
-    background-color: var(--card); /* Color de fondo oscuro */
+    background-color: var(--card); 
     border: 1px solid var(--border);
     border-radius: 12px;
     box-shadow: var(--shadow);
 }
 
 .form-title {
-    color: var(--text); /* Color de texto claro */
+    color: var(--text); 
     text-align: center;
     margin-bottom: 2.5rem;
     border-bottom: 2px solid var(--primary);
@@ -31,7 +29,7 @@
         display: block;
         margin-bottom: 0.6rem;
         font-weight: 600;
-        color: var(--text); /* Color de texto claro */
+        color: var(--text); 
         font-size: 0.95rem;
     }
 
