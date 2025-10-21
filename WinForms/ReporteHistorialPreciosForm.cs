@@ -13,6 +13,17 @@ namespace WinForms
         private readonly PrecioVentaApiClient _precioApiClient;
         private readonly ReporteApiClient _reporteApiClient;
 
+        private DateTime _today = DateTime.Today;
+        private readonly DateTime _hardMin = new DateTime(2022, 1, 1); 
+        private DateTime? _minFromByData;                              
+        private DateTime EffectiveMinFrom =>
+            (_minFromByData.HasValue && _minFromByData.Value > _hardMin)
+                ? _minFromByData.Value.Date
+                : _hardMin;
+
+        private DateTime _from;
+        private DateTime _to;
+
         public ReporteHistorialPreciosForm(PrecioVentaApiClient precioApiClient,
                                            ReporteApiClient reporteApiClient)
         {
@@ -23,17 +34,63 @@ namespace WinForms
 
         private async void HistorialPreciosForm_Load(object sender, EventArgs e)
         {
+            await InitRangeAsync();
+
             await CargarDatosDelGrafico();
+        }
+
+        private async Task InitRangeAsync()
+        {
+            try
+            {
+                var hist = await _precioApiClient.GetHistorialAsync();
+                _minFromByData = hist?
+                    .SelectMany(p => p.Puntos)
+                    .Select(p => (DateTime?)p.Fecha.Date)
+                    .OrderBy(d => d)
+                    .FirstOrDefault();
+
+                _from = _today.AddDays(-180);
+                if (_from < EffectiveMinFrom) _from = EffectiveMinFrom;
+
+                _to = _today; 
+                NormalizeCoherence(); 
+            }
+            catch
+            {
+                _from = _today.AddDays(-180);
+                if (_from < _hardMin) _from = _hardMin;
+                _to = _today;
+                NormalizeCoherence();
+            }
+        }
+
+        private void NormalizeFrom()
+        {
+            if (_from < EffectiveMinFrom) _from = EffectiveMinFrom;
+            if (_from > _to) _to = _from;
+        }
+
+        private void NormalizeTo()
+        {
+            if (_to > _today) _to = _today;
+            if (_to < _from) _from = _to;
+        }
+
+        private void NormalizeCoherence()
+        {
+            if (_from > _to) _from = _to;
         }
 
         private async void btnExportarPdf_Click(object sender, EventArgs e)
         {
             try
             {
-                var desde = DateTime.Today.AddMonths(-6);
-                var hasta = DateTime.Today;
+                NormalizeFrom();
+                NormalizeTo();
+                NormalizeCoherence();
 
-                var bytes = await _reporteApiClient.GetHistorialPreciosPdfAsync(desde, hasta, 1200, 500);
+                var bytes = await _reporteApiClient.GetHistorialPreciosPdfAsync(_from, _to, 1200, 500);
                 if (bytes is null)
                 {
                     MessageBox.Show("No se pudo generar el PDF.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -58,10 +115,10 @@ namespace WinForms
             }
         }
 
-
         private async Task CargarDatosDelGrafico()
         {
-            this.Cursor = Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
+
             formsPlot1.Plot.Title("Evolución de Precios de Venta");
             formsPlot1.Plot.XLabel("Fecha");
             formsPlot1.Plot.YLabel("Precio");
@@ -69,6 +126,10 @@ namespace WinForms
 
             try
             {
+                NormalizeFrom();
+                NormalizeTo();
+                NormalizeCoherence();
+
                 var historialProductos = await _precioApiClient.GetHistorialAsync();
                 if (historialProductos == null || !historialProductos.Any())
                 {
@@ -77,16 +138,24 @@ namespace WinForms
                     return;
                 }
 
+                formsPlot1.Plot.Clear();
+
                 foreach (var producto in historialProductos)
                 {
-                    if (producto.Puntos.Count > 1)
+                    var puntos = producto.Puntos
+                        .Where(p => p.Fecha.Date >= _from && p.Fecha.Date <= _to)
+                        .OrderBy(p => p.Fecha)
+                        .ToList();
+
+                    if (puntos.Count > 1)
                     {
-                        double[] fechas = producto.Puntos.Select(p => p.Fecha.ToOADate()).ToArray();
-                        double[] montos = producto.Puntos.Select(p => (double)p.Monto).ToArray();
+                        double[] fechas = puntos.Select(p => p.Fecha.ToOADate()).ToArray();
+                        double[] montos = puntos.Select(p => (double)p.Monto).ToArray();
 
                         var scatter = formsPlot1.Plot.Add.Scatter(fechas, montos);
                         scatter.LegendText = producto.NombreProducto;
                         scatter.LineWidth = 2;
+                        scatter.MarkerSize = 2;
                     }
                 }
 
@@ -101,7 +170,7 @@ namespace WinForms
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                Cursor = Cursors.Default;
             }
         }
     }

@@ -9,13 +9,11 @@
 @code {
     private string ApiBase => "https://localhost:7145";
 
-    // Límites
     DateTime Today = DateTime.Today;
     DateTime HardMin = new DateTime(2022, 1, 1);
-    DateTime? MinFrom; // mínima del historial
+    DateTime? MinFrom; 
     DateTime EffectiveMinFrom => (MinFrom.HasValue && MinFrom.Value > HardMin) ? MinFrom.Value.Date : HardMin;
 
-    // Rango
     DateTime? from;
     DateTime? to;
 
@@ -32,7 +30,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // mínima histórica
         var hist = await Precios.GetHistorialAsync();
         MinFrom = hist?
             .SelectMany(p => p.Puntos)
@@ -40,7 +37,6 @@
             .OrderBy(d => d)
             .FirstOrDefault();
 
-        // rango inicial
         from = Today.AddDays(-180);
         if (from < EffectiveMinFrom) from = EffectiveMinFrom;
         to = Today;
@@ -74,7 +70,6 @@
         cacheBust++;
         try
         {
-            // simulamos pequeña espera para que cambie la URL y recargue el <img>
             await Task.Delay(120);
         }
         finally
@@ -124,7 +119,6 @@
                     }
                 </button>
 
-                <!-- OJO: NO depende de loading -->
                 <button class="btn btn-primary"
                         @onclick="DescargarPdfAsync"
                         disabled="@(!CanExport)">
