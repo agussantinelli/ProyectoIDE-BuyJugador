@@ -175,8 +175,10 @@ namespace WebAPI.Endpoints
                         new XRect(0, top, page.Width, 0), XStringFormats.TopCenter);
                     top += 20;
 
-                    using var ms = new MemoryStream(pngBytes);
-                    using var xImg = XImage.FromStream(ms);
+                    var imageStream = new MemoryStream();
+                    imageStream.Write(pngBytes, 0, pngBytes.Length);
+                    imageStream.Position = 0;
+                    using var xImg = XImage.FromStream(imageStream);
 
                     double margin = 30;
                     double availW = page.Width - margin * 2;

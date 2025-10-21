@@ -40,7 +40,7 @@ namespace WebAPI.Endpoints
 
                 var pdfBytes = pdfService.GenerateVentasPdf(reporteData, nombreVendedor);
 
-                var fileName = $"Reporte {nombreVendedor} {System.DateTime.Now:dd-MM-yyyy}.pdf";
+                var fileName = $"Reporte {nombreVendedor.Replace(" ", "_")} {System.DateTime.Now:dd-MM-yyyy}.pdf";
                 return Results.File(pdfBytes, "application/pdf", fileName);
             })
             .Produces(StatusCodes.Status200OK, typeof(FileContentResult))
