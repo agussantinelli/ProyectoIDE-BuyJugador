@@ -192,7 +192,7 @@ namespace WinForms
             reportButtonsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 
             var btnReporteVentas = CreateMenuButton("btnReporteVentas", "Reporte de Ventas");
-            var btnReportePrecios = CreateMenuButton("btnReportePrecios", "Reporte Hist. Precios");
+            var btnReportePrecios = CreateMenuButton("btnReportePrecios", "Reporte Historial de Precios");
 
             btnReporteVentas.Margin = new Padding(15, 30, 15, 30);
             btnReportePrecios.Margin = new Padding(15, 30, 15, 30);
