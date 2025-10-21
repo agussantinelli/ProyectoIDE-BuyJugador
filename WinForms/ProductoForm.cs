@@ -14,7 +14,7 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
-        private readonly UserSessionService _userSessionService; 
+        private readonly UserSessionService _userSessionService;
 
         private List<ProductoDTO> _productosActivos = new();
         private List<ProductoDTO> _productosInactivos = new();
@@ -34,11 +34,12 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnEditar);
             StyleManager.ApplyButtonStyle(btnDarBaja);
             StyleManager.ApplyButtonStyle(btnReactivar);
-            StyleManager.ApplyButtonStyle(btnReportePrecios);
             StyleManager.ApplyButtonStyle(btnEditarPrecio);
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnVerProveedores);
+            StyleManager.ApplyButtonStyle(btnVerHistorial); 
         }
+
         private void cmOpciones_Opening(object sender, CancelEventArgs e)
         {
             bool haySeleccion = (tabControl.SelectedTab == tabActivos && dgvActivos.SelectedRows.Count > 0) ||
@@ -52,7 +53,7 @@ namespace WinForms
         {
             await CargarTodosProductos();
             AplicarFiltro();
-            ConfigurarVisibilidadControles(); 
+            ConfigurarVisibilidadControles();
         }
 
         private void ConfigurarVisibilidadControles()
@@ -61,11 +62,13 @@ namespace WinForms
 
             btnDarBaja.Visible = esAdmin;
             btnReactivar.Visible = esAdmin;
-            btnEditarPrecio.Visible = esAdmin; 
-            btnReportePrecios.Visible = esAdmin; 
+            btnEditarPrecio.Visible = esAdmin;
 
             mnuEditarPrecio.Visible = esAdmin;
-            mnuVerHistorialPrecios.Visible = esAdmin;
+
+            // Ver historial debe estar visible para todos
+            mnuVerHistorialPrecios.Visible = true;
+            btnVerHistorial.Visible = true;
         }
 
         private async Task CargarTodosProductos()
@@ -232,21 +235,6 @@ namespace WinForms
             }
         }
 
-        private void btnReportePrecios_Click(object sender, EventArgs e)
-        {
-            var existingForm = this.MdiParent?.MdiChildren.OfType<ReporteHistorialPreciosForm>().FirstOrDefault();
-            if (existingForm != null)
-            {
-                existingForm.BringToFront();
-            }
-            else
-            {
-                var form = new ReporteHistorialPreciosForm(_serviceProvider.GetRequiredService<PrecioVentaApiClient>(), _serviceProvider.GetRequiredService<ReporteApiClient>());
-                form.MdiParent = this.MdiParent;
-                form.Show();
-            }
-        }
-
         private void btnEditarPrecio_Click(object sender, EventArgs e)
         {
             DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
@@ -311,7 +299,7 @@ namespace WinForms
             btnEditarPrecio.Enabled = haySeleccion && esAdmin;
             btnVerProveedores.Enabled = haySeleccion;
 
-            btnReportePrecios.Enabled = esAdmin;
+            btnVerHistorial.Enabled = haySeleccion;
         }
 
         private void dgvProductos_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
@@ -359,7 +347,6 @@ namespace WinForms
             AbrirHistorialPreciosProducto(prod);
         }
 
-
         private void mnuVerHistorialPrecios_Click(object sender, EventArgs e)
         {
             DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
@@ -370,6 +357,13 @@ namespace WinForms
         }
 
         private void mnuEditarPrecio_Click(object sender, EventArgs e) => btnEditarPrecio_Click(sender, e);
+
+        private void btnVerHistorial_Click(object sender, EventArgs e)
+        {
+            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+            var prod = ObtenerSeleccionado(dgv);
+            if (prod is null) return;
+            AbrirHistorialPreciosProducto(prod);
+        }
     }
 }
-
