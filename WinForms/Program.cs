@@ -71,6 +71,7 @@ namespace WinForms
                     services.AddTransient<AsignarProductosProveedorForm>();
                     services.AddTransient<AñadirProductoPedidoForm>();
                     services.AddTransient<VerProductosProveedorForm>();
+                    services.AddTransient<HistorialPreciosForm>();
                     services.AddTransient<VerProveedoresProductoForm>();
                     services.AddTransient<ReporteVentasForm>();
                 })

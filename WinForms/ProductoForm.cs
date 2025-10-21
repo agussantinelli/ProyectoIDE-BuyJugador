@@ -14,7 +14,7 @@ namespace WinForms
     {
         private readonly ProductoApiClient _productoApiClient;
         private readonly IServiceProvider _serviceProvider;
-        private readonly UserSessionService _userSessionService; // Inyectado para verificar el rol
+        private readonly UserSessionService _userSessionService; 
 
         private List<ProductoDTO> _productosActivos = new();
         private List<ProductoDTO> _productosInactivos = new();
@@ -26,7 +26,7 @@ namespace WinForms
             InitializeComponent();
             _serviceProvider = serviceProvider;
             _productoApiClient = _serviceProvider.GetRequiredService<ProductoApiClient>();
-            _userSessionService = _serviceProvider.GetRequiredService<UserSessionService>(); // Obtener el servicio de sesión
+            _userSessionService = _serviceProvider.GetRequiredService<UserSessionService>();
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
@@ -39,26 +39,31 @@ namespace WinForms
             StyleManager.ApplyButtonStyle(btnVolver);
             StyleManager.ApplyButtonStyle(btnVerProveedores);
         }
+        private void cmOpciones_Opening(object sender, CancelEventArgs e)
+        {
+            bool haySeleccion = (tabControl.SelectedTab == tabActivos && dgvActivos.SelectedRows.Count > 0) ||
+                                (tabControl.SelectedTab == tabInactivos && dgvInactivos.SelectedRows.Count > 0);
+
+            mnuVerHistorialPrecios.Enabled = haySeleccion;
+            mnuEditarPrecio.Enabled = haySeleccion && _userSessionService.EsAdmin;
+        }
 
         private async void ProductoForm_Load(object sender, EventArgs e)
         {
             await CargarTodosProductos();
             AplicarFiltro();
-            ConfigurarVisibilidadControles(); // Llamar al método de configuración
+            ConfigurarVisibilidadControles(); 
         }
 
-        // --- MÉTODO NUEVO PARA CENTRALIZAR LA LÓGICA DE ROLES ---
         private void ConfigurarVisibilidadControles()
         {
             bool esAdmin = _userSessionService.EsAdmin;
 
-            // Botones que solo ve el admin
             btnDarBaja.Visible = esAdmin;
             btnReactivar.Visible = esAdmin;
-            btnEditarPrecio.Visible = esAdmin; // Un empleado no puede editar precios
-            btnReportePrecios.Visible = esAdmin; // El reporte general también es de admin
+            btnEditarPrecio.Visible = esAdmin; 
+            btnReportePrecios.Visible = esAdmin; 
 
-            // Opciones del menú contextual que solo ve el admin
             mnuEditarPrecio.Visible = esAdmin;
             mnuVerHistorialPrecios.Visible = esAdmin;
         }
@@ -306,7 +311,6 @@ namespace WinForms
             btnEditarPrecio.Enabled = haySeleccion && esAdmin;
             btnVerProveedores.Enabled = haySeleccion;
 
-            // El botón de historial de precios ya no depende de la selección.
             btnReportePrecios.Enabled = esAdmin;
         }
 
@@ -321,16 +325,50 @@ namespace WinForms
             }
         }
 
-        private void cmOpciones_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        private void AbrirHistorialPreciosProducto(ProductoDTO producto)
         {
-            bool haySeleccion = (tabControl.SelectedTab == tabActivos && dgvActivos.SelectedRows.Count > 0) ||
-                                (tabControl.SelectedTab == tabInactivos && dgvInactivos.SelectedRows.Count > 0);
+            if (producto is null) return;
 
-            mnuEditarPrecio.Enabled = haySeleccion;
-            mnuVerHistorialPrecios.Enabled = true;
+            var existing = this.MdiParent?.MdiChildren
+                .OfType<HistorialPreciosForm>()
+                .FirstOrDefault(f => f.Tag is int id && id == producto.IdProducto);
+
+            if (existing != null)
+            {
+                existing.BringToFront();
+                return;
+            }
+
+            var api = _serviceProvider.GetRequiredService<PrecioVentaApiClient>();
+            var frm = new HistorialPreciosForm(api, producto.IdProducto, producto.Nombre)
+            {
+                MdiParent = this.MdiParent,
+                Tag = producto.IdProducto
+            };
+            frm.Show();
         }
 
-        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e) => btnReportePrecios_Click(sender, e);
+        private void dgvProductos_CellDoubleClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            DataGridView dgv = ReferenceEquals(sender, dgvActivos) ? dgvActivos : dgvInactivos;
+            var prod = ObtenerSeleccionado(dgv);
+            if (prod is null) return;
+
+            AbrirHistorialPreciosProducto(prod);
+        }
+
+
+        private void mnuVerHistorialPrecios_Click(object sender, EventArgs e)
+        {
+            DataGridView dgv = (tabControl.SelectedTab == tabActivos) ? dgvActivos : dgvInactivos;
+            var prod = ObtenerSeleccionado(dgv);
+            if (prod is null) return;
+
+            AbrirHistorialPreciosProducto(prod);
+        }
+
         private void mnuEditarPrecio_Click(object sender, EventArgs e) => btnEditarPrecio_Click(sender, e);
     }
 }
