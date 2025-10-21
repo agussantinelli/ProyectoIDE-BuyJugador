@@ -1,13 +1,16 @@
 ﻿@using BlazorApp.Shared
+@using Microsoft.AspNetCore.Components.Authorization
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    @if (context.User.Identity?.IsAuthenticated == false)
+                    @if (context?.User?.Identity?.IsAuthenticated == false)
                     {
-                        <RedirectToLogin />
+                        <LayoutView Layout="@typeof(Layout.EmptyLayout)">
+                            <RedirectToLogin />
+                        </LayoutView>
                     }
                     else
                     {
@@ -19,17 +22,22 @@
                         </LayoutView>
                     }
                 </NotAuthorized>
+
                 <Authorizing>
-                    <div class="splash">
-                        <div class="splash-card">
-                            <h3>Autorizando...</h3>
-                            <div class="spinner"></div>
+                    <LayoutView Layout="@typeof(Layout.EmptyLayout)">
+                        <div class="splash">
+                            <div class="splash-card">
+                                <h3>Verificando sesión…</h3>
+                                <div class="spinner"><div></div><div></div><div></div></div>
+                            </div>
                         </div>
-                    </div>
+                    </LayoutView>
                 </Authorizing>
             </AuthorizeRouteView>
+
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
+
         <NotFound>
             <PageTitle>No encontrado</PageTitle>
             <LayoutView Layout="@typeof(Layout.EmptyLayout)">
@@ -44,4 +52,3 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
-

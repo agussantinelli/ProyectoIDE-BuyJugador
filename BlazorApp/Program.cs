@@ -5,18 +5,17 @@ using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using System.Globalization;
-using System;
-using System.Net.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Globalization;
+using System.Net.Http.Headers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 var cultureInfo = new CultureInfo("es-AR");
-NumberFormatInfo numberFormat = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
+var numberFormat = (NumberFormatInfo)cultureInfo.NumberFormat.Clone();
 numberFormat.CurrencySymbol = "$";
-numberFormat.CurrencyPositivePattern = 2;
+numberFormat.CurrencyPositivePattern = 2; 
 cultureInfo.NumberFormat = numberFormat;
 CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
 CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
@@ -25,8 +24,8 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBase = builder.Configuration["ApiBaseUrl"]
-                 ?? Environment.GetEnvironmentVariable("API_BASE_URL")
-                 ?? "https://localhost:7145/";
+             ?? Environment.GetEnvironmentVariable("API_BASE_URL")
+             ?? "https://localhost:7145/";
 var apiUri = new Uri(apiBase);
 
 builder.Services.AddScoped<InMemoryUserSession>();
@@ -36,9 +35,22 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<UserSessionService>();
 builder.Services.AddScoped<TokenMessageHandler>();
 
-builder.Services.AddHttpClient("NoAuth", c => c.BaseAddress = apiUri);
-builder.Services.AddHttpClient("Api", c => c.BaseAddress = apiUri)
-              .AddHttpMessageHandler<TokenMessageHandler>();
+
+builder.Services.AddHttpClient("NoAuth", c =>
+{
+    c.BaseAddress = apiUri;
+    c.DefaultRequestHeaders.Accept.Clear();
+    c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    c.Timeout = TimeSpan.FromSeconds(100);
+});
+
+builder.Services.AddHttpClient("Api", c =>
+{
+    c.BaseAddress = apiUri;
+    c.DefaultRequestHeaders.Accept.Clear();
+    c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    c.Timeout = TimeSpan.FromSeconds(100);
+}).AddHttpMessageHandler<TokenMessageHandler>();
 
 builder.Services.AddScoped(sp => new VentaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
 builder.Services.AddScoped(sp => new PersonaApiClient(sp.GetRequiredService<IHttpClientFactory>().CreateClient("Api")));
@@ -58,4 +70,3 @@ builder.Services.AddScoped(sp => new ReporteApiClient(sp.GetRequiredService<IHtt
 builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 await builder.Build().RunAsync();
-
