@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace DominioServicios
@@ -13,19 +14,41 @@ namespace DominioServicios
     {
         private readonly BuyJugadorContext _context;
 
+        // El constructor ya no necesita el TimeZoneService
         public PedidoService(BuyJugadorContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Función de ayuda privada para obtener la hora de Argentina.
+        /// Se encarga de la compatibilidad entre Windows y Linux/macOS.
+        /// </summary>
+        private DateTime GetCurrentArgentinaTime()
+        {
+            try
+            {
+                string timeZoneId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    ? "Argentina Standard Time"
+                    : "America/Argentina/Buenos_Aires";
+                TimeZoneInfo argentinaTimeZone = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, argentinaTimeZone);
+            }
+            catch (TimeZoneNotFoundException)
+            {
+                // Si la zona horaria no se encuentra, se usa un fallback de UTC-3.
+                return DateTime.UtcNow.AddHours(-3);
+            }
+        }
+
         public async Task<List<PedidoDTO>> GetAllPedidosDetalladosAsync()
         {
             var pedidos = await _context.Pedidos
-               .AsNoTracking()
-               .Include(p => p.IdProveedorNavigation)
-               .Include(p => p.LineasPedido)
-               .OrderByDescending(p => p.Fecha)
-               .ToListAsync();
+                .AsNoTracking()
+                .Include(p => p.IdProveedorNavigation)
+                .Include(p => p.LineasPedido)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
 
             return pedidos.Select(p => new PedidoDTO
             {
@@ -41,11 +64,11 @@ namespace DominioServicios
         public async Task<PedidoDTO?> GetPedidoDetalladoByIdAsync(int id)
         {
             var pedido = await _context.Pedidos
-               .AsNoTracking()
-               .Include(p => p.IdProveedorNavigation)
-               .Include(p => p.LineasPedido)
-                   .ThenInclude(lp => lp.IdProductoNavigation)
-               .FirstOrDefaultAsync(p => p.IdPedido == id);
+                .AsNoTracking()
+                .Include(p => p.IdProveedorNavigation)
+                .Include(p => p.LineasPedido)
+                    .ThenInclude(lp => lp.IdProductoNavigation)
+                .FirstOrDefaultAsync(p => p.IdPedido == id);
 
             if (pedido == null) return null;
 
@@ -78,7 +101,8 @@ namespace DominioServicios
                 {
                     var nuevoPedido = new Pedido
                     {
-                        Fecha = DateTime.UtcNow,
+                        // ===== CAMBIO CLAVE AQUÍ =====
+                        Fecha = GetCurrentArgentinaTime(), // Usar hora de Argentina
                         Estado = crearPedidoDto.MarcarComoRecibido ? "Recibido" : "Pendiente",
                         IdProveedor = crearPedidoDto.IdProveedor
                     };
@@ -131,6 +155,8 @@ namespace DominioServicios
             });
         }
 
+        // ... (resto de los métodos sin cambios) ...
+
         public async Task UpdatePedidoCompletoAsync(int id, PedidoDTO pedidoDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -143,18 +169,6 @@ namespace DominioServicios
                 if (pedido == null) throw new KeyNotFoundException("Pedido no encontrado.");
                 if (pedido.Estado != "Pendiente") throw new InvalidOperationException("Solo se pueden modificar pedidos en estado 'Pendiente'.");
 
-                var idsProductosOriginales = pedido.LineasPedido.Select(l => l.IdProducto).ToList();
-                var productosOriginales = await _context.Productos
-                    .Where(p => idsProductosOriginales.Contains(p.IdProducto))
-                    .ToDictionaryAsync(p => p.IdProducto);
-
-                foreach (var lineaOriginal in pedido.LineasPedido)
-                {
-                    if (productosOriginales.TryGetValue(lineaOriginal.IdProducto, out var producto))
-                    {
-                        // Si el pedido no había sido recibido, no se había sumado stock, así que no se resta nada.
-                    }
-                }
                 _context.LineaPedidos.RemoveRange(pedido.LineasPedido);
                 await _context.SaveChangesAsync();
 
@@ -210,7 +224,6 @@ namespace DominioServicios
             await _context.SaveChangesAsync();
         }
 
-
         public async Task DeletePedidoCompletoAsync(int id)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -247,9 +260,9 @@ namespace DominioServicios
         {
             var cantidad = await _context.Pedidos
                 .CountAsync(p => p.Estado == "Pendiente");
-            
+
             return cantidad;
         }
-
     }
 }
+
