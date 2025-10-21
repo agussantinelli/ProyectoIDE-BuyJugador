@@ -10,13 +10,14 @@
 
 <link href="css/Table.css" rel="stylesheet" />
 
-@if (!string.IsNullOrEmpty(errorMensaje))
+@if (!string.IsNullOrEmpty(_mensaje))
 {
-    <div class="alert alert-danger" role="alert">
-        <strong>Error:</strong> @errorMensaje
-        <button type="button" class="btn-close" @onclick="() => errorMensaje = null" aria-label="Close"></button>
+    <div class="alert @(_esError ? "alert-danger" : "alert-success")" role="alert">
+        @_mensaje
+        <button type="button" class="btn-close" @onclick="() => _mensaje = null" aria-label="Close"></button>
     </div>
 }
+
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Pedidos</h2>
@@ -34,11 +35,11 @@
 
     <p class="tbl-subtitle text-muted">Total pedidos cargados: <strong>@pedidos?.Count</strong></p>
 
-    @if (pedidos == null && string.IsNullOrEmpty(errorMensaje))
+    @if (pedidos == null && string.IsNullOrEmpty(_mensaje))
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedidos...</div>
     }
-    else if (pedidos != null && !pedidosFiltrados.Any() && string.IsNullOrEmpty(errorMensaje))
+    else if (pedidos != null && !pedidosFiltrados.Any() && string.IsNullOrEmpty(_mensaje))
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron pedidos.</div>
     }
@@ -73,12 +74,12 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    @if (estaPendiente)
-                                    {
-                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => VerDetalle(p)">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    }
+                                    <button class="tbl-icon-btn"
+                                            title="@(estaPendiente ? "Editar" : "No se puede editar un pedido recibido")"
+                                            @onclick="() => VerDetalle(p)"
+                                            disabled="@(!estaPendiente)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
 
                                     <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
                                             title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
@@ -89,7 +90,7 @@
 
                                     @if (esAdmin)
                                     {
-                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(p)">
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => AbrirModalConfirmacion(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     }
@@ -103,12 +104,30 @@
     }
 </div>
 
+<ConfirmationModal Title="Confirmar Eliminación"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="EliminarConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Eliminar">
+    @if (_pedidoParaEliminar != null)
+    {
+        <p>¿Estás seguro de que deseas eliminar el pedido Nro: <strong>@_pedidoParaEliminar.IdPedido</strong> para el proveedor <strong>@_pedidoParaEliminar.ProveedorRazonSocial</strong>?</p>
+    }
+</ConfirmationModal>
+
 @code {
     private List<PedidoDTO>? pedidos;
     private List<PedidoDTO> pedidosFiltrados = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-    private string? errorMensaje;
+    private string? _mensaje;
+    private bool _esError;
+
+    // State for modal
+    private bool _mostrarModalConfirmacion = false;
+    private bool _isEliminando = false;
+    private PedidoDTO? _pedidoParaEliminar;
 
     private string FormatCurrency(decimal amount)
     {
@@ -123,18 +142,19 @@
 
     private async Task CargarPedidos()
     {
-        errorMensaje = null;
+        _mensaje = null;
         pedidos = null;
 
         try
         {
-            pedidos = await pedidoApiClient.GetAllAsync();
+            pedidos = await pedidoApiClient.GetAllAsync() ?? new();
             AplicarFiltro();
         }
         catch (Exception ex)
         {
-            errorMensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
-            Console.WriteLine($"[ERROR] {errorMensaje}");
+            _mensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
+            _esError = true;
+            Console.WriteLine($"[ERROR] {_mensaje}");
             pedidos = new();
         }
     }
@@ -165,25 +185,54 @@
         NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}");
     }
 
-    private async Task Eliminar(PedidoDTO p)
+    private void AbrirModalConfirmacion(PedidoDTO pedido)
     {
-        errorMensaje = null;
+        _pedidoParaEliminar = pedido;
+        _mostrarModalConfirmacion = true;
+        StateHasChanged();
+    }
+
+    private void CerrarModalConfirmacion()
+    {
+        if (_isEliminando) return;
+        _mostrarModalConfirmacion = false;
+        _pedidoParaEliminar = null;
+        StateHasChanged();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (_pedidoParaEliminar == null) return;
+
+        _isEliminando = true;
+        _mensaje = null;
+
         try
         {
-            var resp = await pedidoApiClient.DeleteAsync(p.IdPedido);
+            var resp = await pedidoApiClient.DeleteAsync(_pedidoParaEliminar.IdPedido);
 
             if (resp.IsSuccessStatusCode)
             {
-                await CargarPedidos();
+                _mensaje = "Pedido eliminado correctamente.";
+                _esError = false;
+                await CargarPedidos(); // Recargar la lista
             }
             else
             {
-                errorMensaje = $"Error al eliminar el pedido {p.IdPedido}: {resp.ReasonPhrase}";
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
         catch (Exception ex)
         {
-            errorMensaje = $"Error al eliminar: {ex.Message}";
+            _mensaje = $"Error al eliminar el pedido: {ex.Message}";
+            _esError = true;
+        }
+        finally
+        {
+            _isEliminando = false;
+            CerrarModalConfirmacion();
+            StateHasChanged();
         }
     }
 
@@ -191,7 +240,7 @@
     {
         if (p.Estado != "Pendiente") return;
 
-        errorMensaje = null;
+        _mensaje = null;
         try
         {
             var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
@@ -202,12 +251,14 @@
             }
             else
             {
-                errorMensaje = $"Error al finalizar el pedido {p.IdPedido}: {resp.StatusCode} ({resp.ReasonPhrase})";
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
         catch (Exception ex)
         {
-            errorMensaje = $"Error al finalizar: {ex.Message}";
+            _mensaje = $"Error al finalizar el pedido: {ex.Message}";
+            _esError = true;
         }
     }
 }

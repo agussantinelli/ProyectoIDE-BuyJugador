@@ -11,6 +11,15 @@
 @inject UserSessionService userSession
 
 <link href="css/Table.css" rel="stylesheet" />
+<link href="css/ProveedorPage.razor.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(_mensaje))
+{
+    <div class="alert @(_esError ? "alert-danger" : "alert-success")" role="alert">
+        @_mensaje
+        <button type="button" class="btn-close" @onclick="() => _mensaje = null" aria-label="Close"></button>
+    </div>
+}
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -86,7 +95,7 @@
                                             <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                            <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
+                                            <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => AbrirModalConfirmacion(p)">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         }
@@ -110,6 +119,18 @@
     }
 </div>
 
+<ConfirmationModal Title="Confirmar Baja"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="EliminarConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Dar de Baja">
+    @if (_proveedorParaEliminar != null)
+    {
+        <p>¿Estás seguro de que deseas dar de baja al proveedor <strong>@_proveedorParaEliminar.RazonSocial</strong>?</p>
+    }
+</ConfirmationModal>
+
 @code {
     private List<ProveedorRow>? activos;
     private List<ProveedorRow>? inactivos;
@@ -120,6 +141,13 @@
     private string textoFiltro = string.Empty;
     private bool isLoading = true;
     private bool esAdmin;
+    private string? _mensaje;
+    private bool _esError;
+
+    // Modal state
+    private bool _mostrarModalConfirmacion = false;
+    private bool _isEliminando = false;
+    private ProveedorRow? _proveedorParaEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,6 +158,7 @@
     private async Task CargarDatos()
     {
         isLoading = true;
+        _mensaje = null;
         try
         {
             var activosTask = proveedorApiClient.GetAllAsync();
@@ -147,8 +176,10 @@
             activos = activosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
             inactivos = inactivosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
         }
-        catch
+        catch (Exception ex)
         {
+            _mensaje = $"Error al cargar los datos: {ex.Message}";
+            _esError = true;
             activos = new();
             inactivos = new();
         }
@@ -174,6 +205,80 @@
         mostrarActivos = esActivo;
     }
 
+    private void AbrirModalConfirmacion(ProveedorRow proveedor)
+    {
+        _proveedorParaEliminar = proveedor;
+        _mostrarModalConfirmacion = true;
+        StateHasChanged();
+    }
+
+    private void CerrarModalConfirmacion()
+    {
+        if (_isEliminando) return;
+        _mostrarModalConfirmacion = false;
+        _proveedorParaEliminar = null;
+        StateHasChanged();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (_proveedorParaEliminar == null) return;
+
+        _isEliminando = true;
+        _mensaje = null;
+
+        try
+        {
+            var resp = await proveedorApiClient.DeleteAsync(_proveedorParaEliminar.IdProveedor);
+            if (resp.IsSuccessStatusCode)
+            {
+                _mensaje = "Proveedor dado de baja correctamente.";
+                _esError = false;
+                await CargarDatos();
+            }
+            else
+            {
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensaje = $"Error al dar de baja: {ex.Message}";
+            _esError = true;
+        }
+        finally
+        {
+            _isEliminando = false;
+            CerrarModalConfirmacion();
+        }
+    }
+
+    private async Task Reactivar(ProveedorRow proveedor)
+    {
+        _mensaje = null;
+        try
+        {
+            var resp = await proveedorApiClient.ReactivarAsync(proveedor.IdProveedor);
+            if (resp.IsSuccessStatusCode)
+            {
+                _mensaje = "Proveedor reactivado correctamente.";
+                _esError = false;
+                await CargarDatos();
+            }
+            else
+            {
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensaje = $"Error al reactivar: {ex.Message}";
+            _esError = true;
+        }
+    }
+
     private void VerProductos(ProveedorRow proveedor)
     {
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/productos");
@@ -182,18 +287,6 @@
     private void AsignarProductos(ProveedorRow proveedor)
     {
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/asignar-productos");
-    }
-
-    private async Task Eliminar(ProveedorRow proveedor)
-    {
-        var resp = await proveedorApiClient.DeleteAsync(proveedor.IdProveedor);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
-    }
-
-    private async Task Reactivar(ProveedorRow proveedor)
-    {
-        var resp = await proveedorApiClient.ReactivarAsync(proveedor.IdProveedor);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
     }
 
     private void NuevoProveedor() => navigationManager.NavigateTo("/proveedor/nuevo");
@@ -224,3 +317,4 @@
         }
     }
 }
+

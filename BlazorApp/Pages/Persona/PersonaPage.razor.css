@@ -1,6 +1,5 @@
 ﻿.personas-wrapper {
     overflow-x: auto;
-    overflow-y: visible;
 }
 
 .personas-table {
@@ -8,61 +7,40 @@
     width: 100%;
 }
 
-    .personas-table th, .personas-table td {
-        vertical-align: middle;
-    }
+.col-nombre {
+    width: 220px;
+}
 
-    .personas-table .col-nombre {
-        min-width: 220px;
-    }
+.col-dni {
+    width: 110px;
+}
 
-    .personas-table .col-dni {
-        width: 110px;
-    }
+.col-rol {
+    width: 120px;
+}
 
-    .personas-table .col-rol {
-        width: 110px;
-    }
+.col-email {
+    width: 240px;
+}
 
-    .personas-table .col-email {
-        min-width: 400px;
-    }
+.col-tel {
+    width: 130px;
+}
 
-    .personas-table .col-tel {
-        width: 130px;
-    }
+.col-loc {
+    width: 150px;
+}
 
-    .personas-table .col-loc {
-        width: 150px;
-    }
+.col-prov {
+    width: 150px;
+}
 
-    .personas-table .col-prov {
-        width: 150px;
-    }
+.col-acciones {
+    width: 140px;
+    text-align: right;
+}
 
 .personas-actions {
     display: inline-flex;
-    gap: .45rem;
-    align-items: center;
-}
-
-    .personas-actions .tbl-icon-btn {
-        padding: .35rem .45rem;
-        line-height: 1;
-    }
-
-.personas-table td {
-    overflow: visible;
-}
-
-@media (max-width: 992px) {
-    .personas-table .col-email {
-        min-width: 160px;
-    }
-}
-
-@media (max-width: 768px) {
-    .personas-table .col-acciones {
-        width: 160px;
-    }
+    gap: 0.5rem;
 }

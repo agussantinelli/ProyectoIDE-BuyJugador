@@ -8,6 +8,16 @@
 @inject NavigationManager navigationManager
 @inject UserSessionService userSession
 
+<link href="css/ProductoPage.razor.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(_mensaje))
+{
+    <div class="alert @(_esError ? "alert-danger" : "alert-success")" role="alert">
+        @_mensaje
+        <button type="button" class="btn-close" @onclick="() => _mensaje = null" aria-label="Close"></button>
+    </div>
+}
+
 <div class="tbl-container">
     <div class="tbl-header">
         <h2 class="tbl-title">Gestión de Productos</h2>
@@ -71,7 +81,7 @@
                             <td class="tbl-muted col-tipo">@p.TipoProductoDescripcion</td>
                             <td class="tbl-muted col-stock tbl-text-end">@p.Stock</td>
                             <td class="tbl-muted tbl-text-end">
-                                @(p.PrecioActual.HasValue? p.PrecioActual.Value.ToString("C") : "N/A")
+                                @(p.PrecioActual.HasValue ? p.PrecioActual.Value.ToString("C") : "N/A")
                             </td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
@@ -89,10 +99,9 @@
                                             <i class="bi bi-graph-up"></i>
                                         </button>
 
-
                                         @if (esAdmin)
                                         {
-                                            <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
+                                            <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => AbrirModalConfirmacion(p)">
                                                 <i class="bi bi-trash3"></i>
                                             </button>
                                         }
@@ -116,6 +125,18 @@
     }
 </div>
 
+<ConfirmationModal Title="Confirmar Baja"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="EliminarConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Dar de Baja">
+    @if (_productoParaEliminar != null)
+    {
+        <p>¿Estás seguro de que deseas dar de baja el producto <strong>@_productoParaEliminar.Nombre</strong>?</p>
+    }
+</ConfirmationModal>
+
 @code {
     private List<ProductoDTO>? activos;
     private List<ProductoDTO>? inactivos;
@@ -123,6 +144,13 @@
     private string textoFiltro = string.Empty;
     private bool isLoading = true;
     private bool esAdmin;
+    private string? _mensaje;
+    private bool _esError;
+
+    // Modal state
+    private bool _mostrarModalConfirmacion = false;
+    private bool _isEliminando = false;
+    private ProductoDTO? _productoParaEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -133,6 +161,7 @@
     private async Task CargarDatos()
     {
         isLoading = true;
+        _mensaje = null;
         try
         {
             var activosTask = productoApiClient.GetAllAsync();
@@ -143,14 +172,17 @@
             activos = activosTask.Result ?? new();
             inactivos = inactivosTask.Result ?? new();
         }
-        catch
+        catch (Exception ex)
         {
+            _mensaje = $"Error al cargar los productos: {ex.Message}";
+            _esError = true;
             activos = new();
             inactivos = new();
         }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 
@@ -168,16 +200,78 @@
         mostrarActivos = esActivo;
     }
 
-    private async Task Eliminar(ProductoDTO producto)
+    private void AbrirModalConfirmacion(ProductoDTO producto)
     {
-        var resp = await productoApiClient.DeleteAsync(producto.IdProducto);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
+        _productoParaEliminar = producto;
+        _mostrarModalConfirmacion = true;
+        StateHasChanged();
+    }
+
+    private void CerrarModalConfirmacion()
+    {
+        if (_isEliminando) return;
+        _mostrarModalConfirmacion = false;
+        _productoParaEliminar = null;
+        StateHasChanged();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (_productoParaEliminar == null) return;
+        
+        _isEliminando = true;
+        _mensaje = null;
+        
+        try
+        {
+            var resp = await productoApiClient.DeleteAsync(_productoParaEliminar.IdProducto);
+            if (resp.IsSuccessStatusCode)
+            {
+                _mensaje = "Producto dado de baja correctamente.";
+                _esError = false;
+                await CargarDatos();
+            }
+            else
+            {
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
+            }
+        }
+        catch (Exception ex)
+        {
+            _mensaje = $"Error al dar de baja: {ex.Message}";
+            _esError = true;
+        }
+        finally
+        {
+            _isEliminando = false;
+            CerrarModalConfirmacion();
+        }
     }
 
     private async Task Reactivar(ProductoDTO producto)
     {
-        var resp = await productoApiClient.ReactivarAsync(producto.IdProducto);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
+        _mensaje = null;
+        try
+        {
+            var resp = await productoApiClient.ReactivarAsync(producto.IdProducto);
+            if (resp.IsSuccessStatusCode)
+            {
+                _mensaje = "Producto reactivado correctamente.";
+                _esError = false;
+                await CargarDatos();
+            }
+            else
+            {
+                 var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
+            }
+        }
+        catch(Exception ex)
+        {
+            _mensaje = $"Error al reactivar: {ex.Message}";
+            _esError = true;
+        }
     }
 
     private void NuevoProducto() => navigationManager.NavigateTo("/producto/crear");
@@ -185,6 +279,5 @@
     private void IrAGestionPrecios() => navigationManager.NavigateTo("/precios-venta");
     private void VerProveedores(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/{producto.IdProducto}/proveedores");
     private void VerHistorialPrecios(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/{producto.IdProducto}/precios");
-
 }
 

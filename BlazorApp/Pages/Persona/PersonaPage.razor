@@ -3,11 +3,21 @@
 
 @using ApiClient
 @using DTOs
+@using BlazorApp.Auth
+@using BlazorApp.Shared
 @inject PersonaApiClient personaApiClient
 @inject UserSessionService userSession
 @inject NavigationManager navigationManager
 
 <link href="css/Table.css" rel="stylesheet" />
+<link href="css/PersonaPage.razor.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(errorMensaje) && !isLoading)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Error:</strong> @errorMensaje
+    </div>
+}
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -28,7 +38,7 @@
         </div>
     </div>
 
-    @if (activos == null || inactivos == null)
+    @if (isLoading)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando personas...
@@ -40,9 +50,12 @@
             <button class="btn @(mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(true)">
                 <i class="bi bi-check-circle"></i> Activos (@(activos?.Count ?? 0))
             </button>
-            <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
-                <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
-            </button>
+            @if (esAdmin)
+            {
+                <button class="btn @(!mostrarActivos ? "btn-primary" : "btn-secondary")" @onclick="() => CambiarTab(false)">
+                    <i class="bi bi-archive"></i> Inactivos (@(inactivos?.Count ?? 0))
+                </button>
+            }
         </div>
 
         <div class="tbl-wrapper personas-wrapper">
@@ -81,7 +94,7 @@
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar baja" @onclick="() => DarBaja(p)">
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar baja" @onclick="() => AbrirModalConfirmacion(p)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     }
@@ -93,16 +106,25 @@
                                     }
                                 </div>
                             </td>
-
                         </tr>
                     }
                 </tbody>
             </table>
         </div>
-
-
     }
 </div>
+
+<ConfirmationModal Title="Confirmar Baja"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="DarBajaConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Dar de Baja">
+    @if (_personaParaBaja != null)
+    {
+        <p>¿Estás seguro de que deseas dar de baja a: <strong>@_personaParaBaja.NombreCompleto</strong>?</p>
+    }
+</ConfirmationModal>
 
 @code {
     private List<PersonaDTO>? activos;
@@ -113,12 +135,21 @@
             string.IsNullOrWhiteSpace(textoFiltro)
             || (p.NombreCompleto?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
             || (p.Dni.ToString().Contains(textoFiltro, StringComparison.OrdinalIgnoreCase))
-            || (p.Rol.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase))
-        ) ?? Enumerable.Empty<PersonaDTO>();
+            || (p.Rol?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
+        )
+        .OrderBy(p => p.NombreCompleto)
+        ?? Enumerable.Empty<PersonaDTO>();
 
     private bool mostrarActivos = true;
     private string textoFiltro = string.Empty;
     private bool esAdmin;
+    private bool isLoading = true;
+    private string? errorMensaje;
+
+    // State for confirmation modal
+    private bool _mostrarModalConfirmacion = false;
+    private PersonaDTO? _personaParaBaja;
+    private bool _isEliminando = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,28 +159,91 @@
 
     private async Task CargarDatos()
     {
-        var activosTask = personaApiClient.GetAllAsync();
-        var inactivosTask = personaApiClient.GetInactivosAsync();
+        isLoading = true;
+        errorMensaje = null;
+        activos = null;
+        inactivos = null;
+        StateHasChanged();
 
-        await Task.WhenAll(activosTask, inactivosTask);
+        try
+        {
+            var activosTask = personaApiClient.GetAllAsync();
+            var inactivosTask = esAdmin ? personaApiClient.GetInactivosAsync() : Task.FromResult<List<PersonaDTO>?>(new());
 
-        activos = await activosTask ?? new();
-        inactivos = await inactivosTask ?? new();
+            await Task.WhenAll(activosTask, inactivosTask);
+
+            activos = await activosTask ?? new();
+            inactivos = await inactivosTask ?? new();
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Error al cargar personas: {ex.Message}";
+            Console.WriteLine($"[ERROR] {errorMensaje}");
+            activos = new();
+            inactivos = new();
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 
     private void CambiarTab(bool esActivo)
     {
+        if (isLoading) return;
         mostrarActivos = esActivo;
+        textoFiltro = string.Empty;
     }
 
     private void Nuevo() => navigationManager.NavigateTo("/persona/crear");
 
     private void Editar(PersonaDTO p) => navigationManager.NavigateTo($"/persona/editar/{p.IdPersona}");
 
-    private async Task DarBaja(PersonaDTO p)
+    private void AbrirModalConfirmacion(PersonaDTO personaParaBaja)
     {
-        var resp = await personaApiClient.DeleteAsync(p.IdPersona);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
+        _personaParaBaja = personaParaBaja;
+        _mostrarModalConfirmacion = true;
+    }
+
+    private void CerrarModalConfirmacion()
+    {
+        _personaParaBaja = null;
+        _mostrarModalConfirmacion = false;
+        _isEliminando = false;
+    }
+
+    private async Task DarBajaConfirmado()
+    {
+        if (_personaParaBaja == null) return;
+
+        _isEliminando = true;
+        errorMensaje = null;
+
+        try
+        {
+            var resp = await personaApiClient.DeleteAsync(_personaParaBaja.IdPersona);
+            if (resp.IsSuccessStatusCode)
+            {
+                CerrarModalConfirmacion();
+                await CargarDatos();
+            }
+            else
+            {
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                errorMensaje = $"Error al dar de baja a {_personaParaBaja.NombreCompleto}: {resp.ReasonPhrase} ({resp.StatusCode}). {errorBody}";
+                Console.WriteLine($"[ERROR] {errorMensaje}");
+                _isEliminando = false;
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Error inesperado al dar de baja a {_personaParaBaja.NombreCompleto}: {ex.Message}";
+            Console.WriteLine($"[ERROR] {errorMensaje}");
+            _isEliminando = false;
+            StateHasChanged();
+        }
     }
 
     private void VerVentas(PersonaDTO p)
@@ -159,7 +253,33 @@
 
     private async Task Reactivar(PersonaDTO p)
     {
-        var resp = await personaApiClient.ReactivarAsync(p.IdPersona);
-        if (resp.IsSuccessStatusCode) await CargarDatos();
+        errorMensaje = null;
+        isLoading = true;
+        StateHasChanged();
+        try
+        {
+            var resp = await personaApiClient.ReactivarAsync(p.IdPersona);
+            if (resp.IsSuccessStatusCode)
+            {
+                await CargarDatos();
+            }
+            else
+            {
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                errorMensaje = $"Error al reactivar a {p.NombreCompleto}: {resp.ReasonPhrase} ({resp.StatusCode}). {errorBody}";
+                Console.WriteLine($"[ERROR] {errorMensaje}");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMensaje = $"Error inesperado al reactivar a {p.NombreCompleto}: {ex.Message}";
+            Console.WriteLine($"[ERROR] {errorMensaje}");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
     }
 }
+

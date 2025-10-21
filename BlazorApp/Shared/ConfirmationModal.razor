@@ -1,0 +1,63 @@
+﻿@namespace BlazorApp.Shared
+
+@if (IsVisible)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="OnCancelClicked" disabled="@IsProcessing"></button>
+                </div>
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="OnCancelClicked" disabled="@IsProcessing">
+                        @CancelButtonText
+                    </button>
+                    <button type="button" class="btn @ConfirmButtonClass" @onclick="OnConfirmClicked" disabled="@IsProcessing">
+                        @if (IsProcessing)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            <span class="ms-1">Procesando...</span>
+                        }
+                        else
+                        {
+                            <span>@ConfirmButtonText</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string Title { get; set; } = "Confirmación";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public bool IsProcessing { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public string ConfirmButtonText { get; set; } = "Confirmar";
+    [Parameter] public string CancelButtonText { get; set; } = "Cancelar";
+    [Parameter] public string ConfirmButtonClass { get; set; } = "btn-danger";
+
+    private async Task OnConfirmClicked()
+    {
+        if (OnConfirm.HasDelegate)
+        {
+            await OnConfirm.InvokeAsync();
+        }
+    }
+
+    private async Task OnCancelClicked()
+    {
+        if (OnCancel.HasDelegate)
+        {
+            await OnCancel.InvokeAsync();
+        }
+    }
+}

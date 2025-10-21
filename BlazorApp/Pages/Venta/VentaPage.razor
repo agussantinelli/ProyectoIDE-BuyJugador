@@ -7,15 +7,14 @@
 @inject VentaApiClient ventaApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
 
-@if (!string.IsNullOrEmpty(errorMensaje))
+@if (!string.IsNullOrEmpty(_mensaje))
 {
-    <div class="alert alert-danger" role="alert">
-        <strong>Error:</strong> @errorMensaje
-        <button type="button" class="btn-close" @onclick="() => errorMensaje = null" aria-label="Close"></button>
+    <div class="alert @(_esError ? "alert-danger" : "alert-success")" role="alert">
+        @_mensaje
+        <button type="button" class="btn-close" @onclick="() => _mensaje = null" aria-label="Close"></button>
     </div>
 }
 
@@ -37,11 +36,11 @@
 
     <p class="tbl-subtitle text-muted">Total ventas cargadas: <strong>@ventas?.Count</strong></p>
 
-    @if (ventas == null && string.IsNullOrEmpty(errorMensaje))
+    @if (ventas == null && string.IsNullOrEmpty(_mensaje))
     {
         <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando ventas...</div>
     }
-    else if (ventas != null && !ventasFiltradas.Any() && string.IsNullOrEmpty(errorMensaje))
+    else if (ventas != null && !ventasFiltradas.Any() && string.IsNullOrEmpty(_mensaje))
     {
         <div class="tbl-state"><i class="bi bi-inbox"></i> No se encontraron ventas.</div>
     }
@@ -76,17 +75,17 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    @if (estaPendiente)
-                                    {
-                                        <button class="tbl-icon-btn" title="Editar" @onclick="() => VerDetalle(v)">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    }
+                                    <button class="tbl-icon-btn"
+                                            title="@(estaPendiente ? "Editar" : "No se puede editar una venta finalizada")"
+                                            @onclick="() => VerDetalle(v)"
+                                            disabled="@(!estaPendiente)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
 
                                     <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
                                             title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
                                             @onclick="() => Finalizar(v)"
-                                            disabled="@(!estaPendiente)">
+                                            disabled="@(!estaPendiente || ventaSiendoFinalizada != 0)">
 
                                         @if (ventaSiendoFinalizada == v.IdVenta)
                                         {
@@ -100,7 +99,7 @@
 
                                     @if (esAdmin)
                                     {
-                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => Eliminar(v)">
+                                        <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => AbrirModalConfirmacion(v)">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     }
@@ -114,13 +113,31 @@
     }
 </div>
 
+<ConfirmationModal Title="Confirmar Eliminación"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="EliminarConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Eliminar">
+    @if (_ventaParaEliminar != null)
+    {
+        <p>¿Estás seguro de que deseas eliminar la venta <strong>#@_ventaParaEliminar.IdVenta</strong>?</p>
+    }
+</ConfirmationModal>
+
 @code {
     private List<VentaDTO>? ventas;
     private List<VentaDTO> ventasFiltradas = new();
     private string textoFiltro = string.Empty;
     private bool esAdmin;
-    private string? errorMensaje;
+    private string? _mensaje;
+    private bool _esError;
     private int ventaSiendoFinalizada = 0;
+
+    // Modal state
+    private bool _mostrarModalConfirmacion = false;
+    private bool _isEliminando = false;
+    private VentaDTO? _ventaParaEliminar;
 
     private string FormatCurrency(decimal amount) => amount.ToString("C");
 
@@ -132,7 +149,7 @@
 
     private async Task CargarVentas()
     {
-        errorMensaje = null;
+        _mensaje = null;
         ventas = null;
         try
         {
@@ -141,7 +158,8 @@
         }
         catch (Exception ex)
         {
-            errorMensaje = $"No se pudieron cargar las ventas: {ex.Message}";
+            _mensaje = $"No se pudieron cargar las ventas: {ex.Message}";
+            _esError = true;
             ventas = new();
         }
     }
@@ -165,27 +183,52 @@
 
     private void VerDetalle(VentaDTO venta) => NavigationManager.NavigateTo($"/venta/detalle/{venta.IdVenta}");
 
-    private async Task Eliminar(VentaDTO venta)
+    private void AbrirModalConfirmacion(VentaDTO venta)
     {
-        var confirm = await JSRuntime.InvokeAsync<bool>("confirm", $"¿Está seguro que desea eliminar la venta #{venta.IdVenta}?");
-        if (!confirm) return;
+        _ventaParaEliminar = venta;
+        _mostrarModalConfirmacion = true;
+        StateHasChanged();
+    }
 
-        errorMensaje = null;
+    private void CerrarModalConfirmacion()
+    {
+        if (_isEliminando) return;
+        _mostrarModalConfirmacion = false;
+        _ventaParaEliminar = null;
+        StateHasChanged();
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (_ventaParaEliminar == null) return;
+
+        _isEliminando = true;
+        _mensaje = null;
+
         try
         {
-            var resp = await ventaApiClient.DeleteAsync(venta.IdVenta);
+            var resp = await ventaApiClient.DeleteAsync(_ventaParaEliminar.IdVenta);
             if (resp.IsSuccessStatusCode)
             {
+                _mensaje = "Venta eliminada correctamente.";
+                _esError = false;
                 await CargarVentas();
             }
             else
             {
-                errorMensaje = $"Error al eliminar: {await resp.Content.ReadAsStringAsync()}";
+                var errorBody = await resp.Content.ReadAsStringAsync();
+                throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
         catch (Exception ex)
         {
-            errorMensaje = $"Error de conexión: {ex.Message}";
+            _mensaje = $"Error al eliminar: {ex.Message}";
+            _esError = true;
+        }
+        finally
+        {
+            _isEliminando = false;
+            CerrarModalConfirmacion();
         }
     }
 
@@ -193,7 +236,7 @@
     {
         if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) != true) return;
 
-        errorMensaje = null;
+        _mensaje = null;
         ventaSiendoFinalizada = venta.IdVenta;
         StateHasChanged();
 
@@ -202,8 +245,7 @@
             var ventaCompleta = await ventaApiClient.GetByIdAsync(venta.IdVenta);
             if (ventaCompleta == null || !ventaCompleta.IdPersona.HasValue)
             {
-                errorMensaje = $"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.";
-                return;
+                throw new Exception($"No se encontró la venta {venta.IdVenta} o no tiene un vendedor asignado.");
             }
 
             var dto = new CrearVentaCompletaDTO
@@ -218,17 +260,20 @@
 
             if (response.IsSuccessStatusCode)
             {
+                _mensaje = "Venta finalizada correctamente.";
+                _esError = false;
                 await CargarVentas();
             }
             else
             {
                 var error = await response.Content.ReadAsStringAsync();
-                errorMensaje = $"Error al finalizar la venta: {error}";
+                throw new Exception(string.IsNullOrWhiteSpace(error) ? response.ReasonPhrase : error);
             }
         }
         catch (Exception ex)
         {
-            errorMensaje = $"Error de conexión: {ex.Message}";
+            _mensaje = $"Error al finalizar la venta: {ex.Message}";
+            _esError = true;
         }
         finally
         {

@@ -15,15 +15,19 @@ public static class VentaEndpoints
 
         group.MapGet("/", async (VentaService ventaService) =>
         {
+            // // Se modifica la consulta para hacerla más robusta.
             var ventas = await ventaService.GetVentas()
                 .Include(v => v.LineaVenta)
+                // // Incluimos explícitamente la navegación a Persona
+                .Include(v => v.IdPersonaNavigation)
                 .Select(v => new VentaDTO
                 {
                     IdVenta = v.IdVenta,
                     Fecha = v.Fecha,
                     Estado = v.Estado,
                     IdPersona = v.IdPersona,
-                    NombreVendedor = v.IdPersonaNavigation.NombreCompleto,
+                    // // Se añade una comprobación para evitar NullReferenceException
+                    NombreVendedor = v.IdPersonaNavigation != null ? v.IdPersonaNavigation.NombreCompleto : "N/A",
                     Total = v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario)
                 })
                 .ToListAsync();
@@ -101,13 +105,15 @@ public static class VentaEndpoints
             var ventas = await ventaService.GetVentas()
                 .Where(v => v.IdPersona == idPersona)
                 .Include(v => v.LineaVenta)
+                // // Se añade la comprobación de nulos aquí también por seguridad
+                .Include(v => v.IdPersonaNavigation)
                 .Select(v => new VentaDTO
                 {
                     IdVenta = v.IdVenta,
                     Fecha = v.Fecha,
                     Estado = v.Estado,
                     IdPersona = v.IdPersona,
-                    NombreVendedor = v.IdPersonaNavigation.NombreCompleto,
+                    NombreVendedor = v.IdPersonaNavigation != null ? v.IdPersonaNavigation.NombreCompleto : "N/A",
                     Total = v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario)
                 })
                 .ToListAsync();

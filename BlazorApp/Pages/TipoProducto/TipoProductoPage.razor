@@ -5,9 +5,16 @@
 @using DTOs
 @inject TipoProductoApiClient tipoProductoApiClient
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JS
 
 <link href="css/Table.css" rel="stylesheet" />
+
+@if (!string.IsNullOrEmpty(_mensaje))
+{
+    <div class="alert @(_esError ? "alert-danger" : "alert-success")" role="alert">
+        @_mensaje
+        <button type="button" class="btn-close" @onclick="() => _mensaje = null" aria-label="Close"></button>
+    </div>
+}
 
 <div class="tbl-container">
     <div class="tbl-header">
@@ -24,7 +31,7 @@
         </div>
     </div>
 
-    @if (tiposProductoFiltrados == null)
+    @if (_tiposProducto == null)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando tipos de producto...
@@ -60,7 +67,7 @@
                                 <button class="btn-icon" title="Editar" @onclick="() => Editar(tipo)">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button class="btn-icon" title="Eliminar" @onclick="() => AbrirModalConfirmacion(tipo)">
+                                <button class="btn-icon btn-icon-danger" title="Eliminar" @onclick="() => AbrirModalConfirmacion(tipo)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </td>
@@ -72,48 +79,30 @@
     }
 </div>
 
-@if (mostrarModalConfirmacion && _tipoProductoParaEliminar != null)
-{
-    <div class="modal fade show" tabindex="-1" style="display: block;" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" @onclick="CerrarModalConfirmacion" disabled="@eliminando"></button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        ¿Estás seguro de que deseas eliminar el tipo de producto:
-                        <strong>@_tipoProductoParaEliminar.Descripcion</strong>?
-                    </p>
-                    <small class="text-muted d-block">
-                        (Si tiene productos asociados, no podrá eliminarse)
-                    </small>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CerrarModalConfirmacion" disabled="@eliminando">
-                        Cancelar
-                    </button>
-                    <button type="button" class="btn btn-danger" @onclick="EliminarConfirmado" disabled="@eliminando">
-                        @if (eliminando)
-                        {
-                            <span><i class="bi bi-arrow-repeat spin"></i> Eliminando...</span>
-                        }
-                        else
-                        {
-                            <span>Eliminar</span>
-                        }
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal-backdrop fade show"></div>
-}
+<ConfirmationModal Title="Confirmar Eliminación"
+                   IsVisible="_mostrarModalConfirmacion"
+                   OnConfirm="EliminarConfirmado"
+                   OnCancel="CerrarModalConfirmacion"
+                   IsProcessing="_isEliminando"
+                   ConfirmButtonText="Eliminar">
+    @if (_tipoProductoParaEliminar != null)
+    {
+        <p>
+            ¿Estás seguro de que deseas eliminar el tipo de producto:
+            <strong>@_tipoProductoParaEliminar.Descripcion</strong>?
+        </p>
+        <small class="text-muted d-block">
+            (Si tiene productos asociados, no podrá eliminarse)
+        </small>
+    }
+</ConfirmationModal>
+
 
 @code {
     private List<TipoProductoDTO>? _tiposProducto;
-    private List<TipoProductoDTO>? tiposProductoFiltrados;
+    private List<TipoProductoDTO> tiposProductoFiltrados = new();
+    private string? _mensaje;
+    private bool _esError;
 
     private string _textoBusqueda = string.Empty;
     private string TextoBusqueda
@@ -122,8 +111,8 @@
         set { _textoBusqueda = value ?? string.Empty; AplicarFiltro(); }
     }
 
-    private bool mostrarModalConfirmacion = false;
-    private bool eliminando = false;
+    private bool _mostrarModalConfirmacion = false;
+    private bool _isEliminando = false;
     private TipoProductoDTO? _tipoProductoParaEliminar;
 
     protected override async Task OnInitializedAsync()
@@ -133,12 +122,30 @@
 
     private async Task CargarTiposProducto()
     {
-        _tiposProducto = await tipoProductoApiClient.GetAllAsync() ?? new();
-        AplicarFiltro();
+        _mensaje = null;
+        _tiposProducto = null; // Forzar estado de carga
+        try
+        {
+            _tiposProducto = await tipoProductoApiClient.GetAllAsync() ?? new();
+            AplicarFiltro();
+        }
+        catch (Exception ex)
+        {
+            _mensaje = $"Error al cargar los tipos de producto: {ex.Message}";
+            _esError = true;
+            _tiposProducto = new(); // Evitar null reference
+        }
+        StateHasChanged();
     }
 
     private void AplicarFiltro()
     {
+        if (_tiposProducto == null)
+        {
+            tiposProductoFiltrados = new();
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(TextoBusqueda))
         {
             tiposProductoFiltrados = _tiposProducto;
@@ -146,11 +153,10 @@
         else
         {
             var f = TextoBusqueda.Trim();
-            tiposProductoFiltrados = _tiposProducto?
+            tiposProductoFiltrados = _tiposProducto
                 .Where(p => (p.Descripcion ?? string.Empty).Contains(f, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
-        StateHasChanged();
     }
 
     private void NuevoTipoProducto() => NavigationManager.NavigateTo("/tipo-producto/crear");
@@ -160,47 +166,47 @@
     private void AbrirModalConfirmacion(TipoProductoDTO tipo)
     {
         _tipoProductoParaEliminar = tipo;
-        mostrarModalConfirmacion = true;
+        _mostrarModalConfirmacion = true;
+        StateHasChanged();
     }
 
     private void CerrarModalConfirmacion()
     {
-        if (eliminando) return;
-        mostrarModalConfirmacion = false;
+        if (_isEliminando) return;
+        _mostrarModalConfirmacion = false;
         _tipoProductoParaEliminar = null;
-        eliminando = false;
+        StateHasChanged();
     }
 
     private async Task EliminarConfirmado()
     {
         if (_tipoProductoParaEliminar is null) return;
 
-        eliminando = true;
+        _isEliminando = true;
+        _mensaje = null;
+
         try
         {
+            // El ApiClient lanzará una excepción en caso de error (como conflicto 409)
             await tipoProductoApiClient.DeleteAsync(_tipoProductoParaEliminar.IdTipoProducto);
 
+            // Si no hay excepción, la eliminación fue exitosa
             _tiposProducto?.RemoveAll(t => t.IdTipoProducto == _tipoProductoParaEliminar.IdTipoProducto);
             AplicarFiltro();
-
-            await JS.InvokeVoidAsync("alert", "✅ Tipo de producto eliminado correctamente.");
-        }
-        catch (InvalidOperationException ex)
-        {
-            await JS.InvokeVoidAsync("alert", $"❌ No se puede eliminar: {ex.Message}");
-        }
-        catch (HttpRequestException ex)
-        {
-            await JS.InvokeVoidAsync("alert", $"❌ Error de conexión: {ex.Message}");
+            _mensaje = "Tipo de producto eliminado correctamente.";
+            _esError = false;
         }
         catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", $"❌ Error inesperado: {ex.Message}");
+            _mensaje = $"Error al eliminar: {ex.Message}";
+            _esError = true;
         }
         finally
         {
-            eliminando = false;
+            _isEliminando = false;
             CerrarModalConfirmacion();
+            StateHasChanged();
         }
     }
 }
+
