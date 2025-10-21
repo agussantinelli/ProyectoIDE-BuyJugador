@@ -83,7 +83,6 @@
     {
         try
         {
-            // Se inyecta también el proveedorApiClient para obtener el nombre del proveedor.
             var proveedorTask = proveedorApiClient.GetByIdAsync(IdProveedor);
             var productosTask = productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(IdProveedor);
 

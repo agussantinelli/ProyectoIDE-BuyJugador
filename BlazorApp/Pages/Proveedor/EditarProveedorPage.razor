@@ -38,9 +38,7 @@
                         @errorMessage
                     </div>
                 }
-
                 <div class="row">
-                    <!-- Columna Izquierda -->
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>ID Proveedor</label>
@@ -60,8 +58,6 @@
                             <ValidationMessage For="@(() => proveedor.Email)" />
                         </div>
                     </div>
-
-                    <!-- Columna Derecha -->
                     <div class="col-md-6">
                         <div class="form-group">
                             <label>Teléfono</label>
@@ -75,7 +71,6 @@
                         </div>
                         <div class="form-group">
                             <label>Provincia</label>
-                            @* Se utiliza Value, ValueExpression y ValueChanged para un control explícito del evento de cambio *@
                             <InputSelect class="form-control" Value="provinciaSeleccionadaIdString" ValueExpression="@(() => provinciaSeleccionadaIdString)" ValueChanged="@((string? value) => OnProvinciaChanged(value))">
                                 <option value="">Seleccione una provincia...</option>
                                 @foreach (var provincia in provincias)

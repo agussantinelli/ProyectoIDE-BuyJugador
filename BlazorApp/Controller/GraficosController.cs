@@ -57,8 +57,8 @@ public class GraficosController : ControllerBase
 
         plt.ShowLegend(ScottPlot.Alignment.UpperLeft);
 
-        using var img = plt.GetImage(width: w, height: h);        // ScottPlot.Image
-        byte[] pngBytes = img.GetImageBytes(ImageFormat.Png);     // ScottPlot.ImageFormat
+        using var img = plt.GetImage(width: w, height: h);       
+        byte[] pngBytes = img.GetImageBytes(ImageFormat.Png);     
         return File(pngBytes, "image/png");
 
     }

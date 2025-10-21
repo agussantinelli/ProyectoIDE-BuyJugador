@@ -131,7 +131,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // Verificamos si el usuario tiene el rol de Administrador al inicializar el layout.
         _esAdmin = await userSession.EsAdminAsync();
     }
 

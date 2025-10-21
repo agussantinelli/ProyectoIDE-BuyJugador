@@ -31,15 +31,11 @@
                 <i class="bi bi-arrow-left"></i> Volver al Listado
             </button>
         </div>
-
-        <!-- Información de la Venta -->
         <div class="row mb-4">
             <div class="col-md-4"><strong>Vendedor:</strong> @venta.NombreVendedor</div>
             <div class="col-md-4"><strong>Fecha:</strong> @venta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
             <div class="col-md-4"><strong>Estado:</strong> @venta.Estado</div>
         </div>
-
-        <!-- Sección para Agregar Productos (solo si se puede editar) -->
         @if (puedeEditar)
         {
             <div class="card mb-4 bg-transparent border-secondary">
@@ -69,9 +65,6 @@
                 </div>
             </div>
         }
-
-
-        <!-- Líneas de Venta -->
         <div class="tbl-wrapper">
             <table class="tbl">
                 <thead>
@@ -124,8 +117,6 @@
         {
             <div class="alert alert-danger mt-3">@errorMessage</div>
         }
-
-        <!-- Acciones -->
         @if (puedeEditar)
         {
             <div class="form-actions mt-4">
@@ -160,16 +151,12 @@
     [Parameter]
     public int VentaId { get; set; }
 
-    // Estado de la venta y sus líneas
     private VentaDTO? venta;
     private List<LineaVentaDTO> lineasDeVenta = new();
-
-    // Productos para el selector
     private List<ProductoDTO> todosLosProductos = new();
     private List<ProductoDTO> productosDisponibles = new();
     private LineaVentaDTO lineaActual = new() { Cantidad = 1 };
 
-    // Estado de la UI
     private bool isLoading = true;
     private bool isSaving = false;
     private bool finalizando = false;
@@ -178,7 +165,6 @@
     private bool datosModificados = false;
     private string? errorMessage;
 
-    // Propiedad computada para el total
     private decimal TotalVenta => lineasDeVenta.Sum(l => l.Subtotal);
 
     protected override async Task OnInitializedAsync()
@@ -199,7 +185,6 @@
                 lineasDeVenta = new List<LineaVentaDTO>(venta.Lineas ?? new List<LineaVentaDTO>());
                 puedeEditar = esAdmin && "Pendiente".Equals(venta.Estado, StringComparison.OrdinalIgnoreCase);
 
-                // Si se puede editar, preparamos la lista de productos disponibles
                 if (puedeEditar)
                 {
                     ActualizarProductosDisponibles();
@@ -216,14 +201,10 @@
         }
     }
 
-    // #region Lógica para agregar y quitar productos (Refactorizada)
-
     private void ActualizarProductosDisponibles()
     {
-        // Obtenemos los IDs de los productos que ya están en la venta
         var idsEnVenta = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
 
-        // Filtramos la lista de todos los productos para mostrar solo los que no están en la venta, tienen stock y precio
         productosDisponibles = todosLosProductos
             .Where(p => p.Stock > 0 && p.PrecioActual.HasValue && !idsEnVenta.Contains(p.IdProducto))
             .OrderBy(p => p.Nombre)
@@ -257,7 +238,6 @@
             return;
         }
 
-        // Creamos y añadimos la nueva línea de venta
         lineasDeVenta.Add(new LineaVentaDTO
         {
             IdVenta = VentaId,
@@ -265,12 +245,11 @@
             NombreProducto = productoSeleccionado.Nombre,
             Cantidad = lineaActual.Cantidad,
             PrecioUnitario = productoSeleccionado.PrecioActual ?? 0,
-            EsNueva = true // Marcamos como nueva para el backend
+            EsNueva = true 
         });
 
-        // Actualizamos la UI
         ActualizarProductosDisponibles();
-        lineaActual = new() { Cantidad = 1 }; // Reseteamos el formulario de nueva línea
+        lineaActual = new() { Cantidad = 1 }; 
         MarcarComoModificado();
         StateHasChanged();
     }
@@ -279,13 +258,10 @@
     {
         lineasDeVenta.Remove(linea);
 
-        // Al eliminar una línea, actualizamos la lista de productos disponibles para que vuelva a aparecer
         ActualizarProductosDisponibles();
         MarcarComoModificado();
         StateHasChanged();
     }
-
-    // #endregion
 
     private void MarcarComoModificado(ChangeEventArgs? e = null)
     {
