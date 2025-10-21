@@ -143,7 +143,7 @@
             btnFinalizarVenta.Name = "btnFinalizarVenta";
             btnFinalizarVenta.Size = new Size(115, 34);
             btnFinalizarVenta.TabIndex = 4;
-            btnFinalizarVenta.Text = "Finalizar Venta";
+            btnFinalizarVenta.Text = "Finalizado";
             btnFinalizarVenta.UseVisualStyleBackColor = true;
             btnFinalizarVenta.Click += btnFinalizarVenta_Click;
             // 
