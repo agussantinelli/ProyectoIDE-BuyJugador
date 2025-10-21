@@ -85,6 +85,11 @@
                                             <i class="bi bi-building"></i>
                                         </button>
 
+                                        <button class="tbl-icon-btn" title="Historial de Precios" @onclick="() => VerHistorialPrecios(p)">
+                                            <i class="bi bi-graph-up"></i>
+                                        </button>
+
+
                                         @if (esAdmin)
                                         {
                                             <button class="tbl-icon-btn tbl-icon-btn--danger" title="Dar de baja" @onclick="() => Eliminar(p)">
@@ -179,5 +184,7 @@
     private void Editar(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/editar/{producto.IdProducto}");
     private void IrAGestionPrecios() => navigationManager.NavigateTo("/precios-venta");
     private void VerProveedores(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/{producto.IdProducto}/proveedores");
+    private void VerHistorialPrecios(ProductoDTO producto) => navigationManager.NavigateTo($"/producto/{producto.IdProducto}/precios");
+
 }
 
