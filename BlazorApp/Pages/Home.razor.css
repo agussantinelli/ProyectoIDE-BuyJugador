@@ -169,7 +169,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.75rem;
-    margin-top: 2rem; /* separa los botones/quick-cards de la sección de KPIs */
+    margin-top: 2rem; 
 }
 
 .qcard {
