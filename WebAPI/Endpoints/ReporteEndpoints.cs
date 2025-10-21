@@ -40,8 +40,6 @@ namespace WebAPI.Endpoints
 
                 var pdfBytes = pdfService.GenerateVentasPdf(reporteData, nombreVendedor);
 
-                // #CORRECCIÓN: Se ajusta el nombre del archivo según el formato solicitado.
-                // #Nota: Se usan guiones en la fecha para compatibilidad entre sistemas operativos.
                 var fileName = $"{nombreVendedor.Replace(" ", "_")} Reporte {System.DateTime.Now:dd-MM-yyyy}.pdf";
                 return Results.File(pdfBytes, "application/pdf", fileName);
             })

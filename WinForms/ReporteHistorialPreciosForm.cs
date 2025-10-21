@@ -43,7 +43,7 @@ namespace WinForms
                 using var sfd = new SaveFileDialog
                 {
                     Filter = "PDF (*.pdf)|*.pdf",
-                    FileName = $"HistorialPrecios_{DateTime.Now:yyyyMMdd}.pdf"
+                    FileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf"
                 };
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
@@ -57,6 +57,7 @@ namespace WinForms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private async Task CargarDatosDelGrafico()
         {

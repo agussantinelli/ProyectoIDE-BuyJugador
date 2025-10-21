@@ -167,6 +167,11 @@ namespace WebAPI.Endpoints
                     gfx.DrawString($"Rango: {rango}", fontSub, XBrushes.DimGray,
                         new XRect(0, top, page.Width, 0), XStringFormats.TopCenter);
                     top += 20;
+                   
+                    string generado = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                    gfx.DrawString($"Generado el {generado}", fontSub, XBrushes.DimGray,
+                        new XRect(0, top, page.Width, 0), XStringFormats.TopCenter);
+                    top += 20;
 
                     using var ms = new MemoryStream(pngBytes);
                     using var xImg = XImage.FromStream(ms);
@@ -187,7 +192,7 @@ namespace WebAPI.Endpoints
 
                 using var outStream = new MemoryStream();
                 document.Save(outStream, false);
-                var fileName = $"HistorialPrecios_{DateTime.Now:yyyy-MM-dd}.pdf";
+                var fileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf";
                 return Results.File(outStream.ToArray(), "application/pdf", fileName);
             });
         }

@@ -132,11 +132,7 @@
             var pdfBytes = await reporteApiClient.GetReporteVentasPdfAsync(selectedPersonaId);
             if (pdfBytes != null)
             {
-                var selectedPersona = personas?.FirstOrDefault(p => p.IdPersona == selectedPersonaId);
-                // #CORRECCIÓN: Se ajusta el nombre del archivo según el formato solicitado.
-                // #Nota: Se usan guiones en la fecha para compatibilidad.
-                var nombreVendedor = selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario";
-                var fileName = $"{nombreVendedor} Reporte {DateTime.Now:dd-MM-yyyy}.pdf";
+                var fileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf";
                 var base64 = Convert.ToBase64String(pdfBytes);
                 await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, base64);
             }
@@ -146,4 +142,5 @@
             isDownloadingPdf = false;
         }
     }
+
 }

@@ -25,6 +25,11 @@
             this.btnExportarPdf.Text = "Exportar PDF";
             this.btnExportarPdf.UseVisualStyleBackColor = true;
             this.btnExportarPdf.Click += new System.EventHandler(this.btnExportarPdf_Click);
+            this.btnExportarPdf.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnExportarPdf.BackColor = System.Drawing.Color.FromArgb(49, 108, 244);
+            this.btnExportarPdf.ForeColor = System.Drawing.Color.White;
+            this.btnExportarPdf.UseVisualStyleBackColor = false;
+
             // 
             // formsPlot1
             // 
