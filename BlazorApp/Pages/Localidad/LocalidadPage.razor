@@ -12,11 +12,13 @@
     <div class="tbl-header">
         <h2 class="tbl-title">Localidades</h2>
 
-        <div class="tbl-search" style="gap:.5rem; flex-wrap:wrap;">
-            <span class="bi bi-search tbl-search-icon" aria-hidden="true"></span>
-            <input class="tbl-input" type="text" placeholder="Buscar localidad..."
-                   @bind="TextoBusqueda" @bind:event="oninput" />
-            <select class="form-select" style="min-width:260px" @onchange="ProvinciaChanged">
+        <div class="filter-bar">
+            <div class="search-container">
+                <span class="bi bi-search search-icon" aria-hidden="true"></span>
+                <input class="form-control search-input" type="text" placeholder="Buscar localidad..."
+                       @bind="TextoBusqueda" @bind:event="oninput" />
+            </div>
+            <select class="form-select province-select" @onchange="ProvinciaChanged">
                 <option value="">Todas las provincias</option>
                 @foreach (var pv in provincias)
                 {
@@ -37,7 +39,7 @@
     else
     {
         <div class="tbl-wrapper">
-            <table class="tbl table-striped table-hover">
+            <table class="tbl">
                 <thead>
                     <tr>
                         <th style="width:100px">ID</th>
@@ -90,7 +92,7 @@
 
     private void AplicarFiltro()
     {
-        IEnumerable<LocalidadDTO> src = localidades ?? new();
+        IEnumerable<LocalidadDTO> src = localidades ?? new List<LocalidadDTO>();
 
         if (!string.IsNullOrWhiteSpace(TextoBusqueda))
         {
@@ -107,3 +109,4 @@
     private string NombreProvincia(int? idProv)
         => provincias.FirstOrDefault(p => p.IdProvincia == idProv)?.Nombre ?? "N/A";
 }
+

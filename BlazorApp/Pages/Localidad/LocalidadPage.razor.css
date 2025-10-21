@@ -1,56 +1,222 @@
-﻿.tbl-container {
-    padding: 1rem 1.25rem;
+﻿/* // --- Estilos para la página de Localidades con Tema Oscuro --- */
+
+/* // Contenedor principal de la página. Se definen las variables del tema aquí para encapsularlas. */
+.page-container {
+    --bg-page: #0b1220;
+    --text: #e6edf6;
+    --text-muted: #a8b3cf;
+    --accent: #3b82f6;
+    --accent-600: #2563eb;
+    --border: #253046;
+    --surface-1: #0f172a;
+    --surface-2: #111a2f;
+    --radius: 10px;
+    --shadow: 0 8px 30px rgba(0, 0, 0, .35);
+    --card: #121a30;
+    --card-2: #15203a;
+    --muted: #9aa8c4;
+    --primary: #3b82f6;
+    --primary-600: #2563eb;
+    --row-hover: rgba(59,130,246,.10);
+    /* // Estilos adaptados de .tbl-container */
+    margin: 2rem auto;
+    width: min(1100px, 100%);
+    padding: 1.25rem;
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
 }
 
-.tbl-title {
-    margin-bottom: .75rem;
-}
-
-.loc-toolbar {
+/* // Cabecera con título y barra de filtros */
+.page-header {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    justify-content: space-between;
+    gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: .75rem;
+    margin-bottom: 1.25rem;
 }
 
-.loc-input {
-    min-width: 320px;
-    max-width: 420px;
+.page-title {
+    margin: 0;
+    font-size: 1.6rem;
+    letter-spacing: .2px;
+    color: var(--text);
 }
 
-.loc-select {
+/* // Barra de filtros */
+.filter-bar {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* // Contenedor del campo de búsqueda para posicionar el ícono */
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.search-icon {
+    position: absolute;
+    left: .8rem;
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    min-width: 280px;
+    max-width: 320px;
+    padding: .6rem .9rem .6rem 2.2rem;
+    background: #0f1a33;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border .15s, box-shadow .15s, background .15s;
+    outline: none;
+}
+
+    .search-input::placeholder {
+        color: #8593b2;
+    }
+
+    .search-input:focus {
+        border-color: var(--primary);
+        background: #0d1830;
+        box-shadow: 0 0 0 .2rem rgba(59,130,246,.18) !important;
+    }
+
+.province-select {
     min-width: 260px;
-    max-width: 360px;
-    height: 38px;
-    line-height: 38px;
-    padding-top: 6px; 
-    padding-bottom: 6px;
+    padding: .6rem .9rem;
+    background-color: #0f1a33 !important;
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 10px !important;
+    transition: border .15s, box-shadow .15s, background .15s;
+    outline: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a8b3cf' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
-.tbl-search .tbl-search-icon {
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-}
+    .province-select:focus {
+        border-color: var(--primary) !important;
+        background-color: #0d1830 !important;
+        box-shadow: 0 0 0 .2rem rgba(59,130,246,.18) !important;
+    }
 
-.tbl-input {
-    padding-left: 2rem;
-}
-
-.tbl-wrapper {
+/* // Contenedor de la tabla para permitir scroll */
+.table-wrapper {
+    width: 100%;
     overflow: auto;
-    border-radius: .5rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: #172443;
 }
 
-.tbl td,
-.tbl th {
+.data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 720px;
+}
+
+    .data-table thead th {
+        text-align: left;
+        font-size: .85rem;
+        color: #c8d4ee;
+        font-weight: 700;
+        border-bottom: 1px solid var(--border);
+        padding: .9rem;
+        background: #1b2a52;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        white-space: nowrap;
+    }
+
+    .data-table tbody td {
+        padding: .85rem .9rem;
+        border-bottom: 1px solid #213056;
+        background: #182a50;
+        color: var(--text);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .data-table tbody tr:nth-child(even) td {
+        background: #1a2e57;
+    }
+
+    .data-table tbody tr:hover td {
+        background: #203765;
+    }
+
+/* // Anchos fijos para las columnas */
+.col-id {
+    width: 100px;
+}
+
+.col-provincia {
+    width: 320px;
+}
+
+.col-localidad {
+}
+
+.truncate-text {
+    max-width: 280px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* // Indicadores de estado (Cargando, No hay datos) */
+.state-indicator {
+    display: flex;
+    gap: .6rem;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    border-radius: 10px;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    background: #15233f;
+    font-size: 1.1rem;
+}
+
+    .state-indicator .bi {
+        margin-right: .5rem;
+    }
+
+/* // Animación para el ícono de carga */
+.spin {
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* // Estilos responsivos para pantallas pequeñas */
 @media (max-width: 768px) {
-    .loc-input,
-    .loc-select {
+    .page-header, .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-input,
+    .province-select {
         min-width: 100%;
         max-width: 100%;
     }
