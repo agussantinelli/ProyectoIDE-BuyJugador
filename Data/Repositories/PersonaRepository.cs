@@ -46,6 +46,7 @@ namespace Data.Repositories
         public async Task<Persona?> GetByIdAsync(int id)
         {
             return await _context.Personas
+                .IgnoreQueryFilters()
                 .Include(p => p.IdLocalidadNavigation)
                     .ThenInclude(l => l.IdProvinciaNavigation)
                 .FirstOrDefaultAsync(p => p.IdPersona == id);
@@ -77,4 +78,3 @@ namespace Data.Repositories
         }
     }
 }
-

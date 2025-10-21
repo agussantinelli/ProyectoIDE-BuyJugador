@@ -1,7 +1,6 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
-// #CORRECCIÓN: Se mantiene el using, pero se ajustan las llamadas a los métodos.
 using BCrypt.Net;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,7 +52,6 @@ namespace DominioServicios
                 NombreCompleto = personaDto.NombreCompleto,
                 Dni = personaDto.Dni,
                 Email = personaDto.Email,
-                // #CORRECCIÓN: Se utiliza la clase estática BCrypt dentro del namespace BCrypt.Net
                 Password = BCrypt.Net.BCrypt.HashPassword(personaDto.Password),
                 Telefono = personaDto.Telefono,
                 Direccion = personaDto.Direccion,
@@ -88,11 +86,9 @@ namespace DominioServicios
         public async Task<bool> DeleteAsync(int id)
         {
             var persona = await _unitOfWork.PersonaRepository.GetByIdAsync(id);
-            if (persona == null) return false;
+            if (persona == null || !persona.Estado) return false;
 
-            // #Lógica: Se cambia el estado a inactivo en lugar de eliminar.
             persona.Estado = false;
-            _unitOfWork.PersonaRepository.Update(persona);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
@@ -100,10 +96,9 @@ namespace DominioServicios
         public async Task<bool> ReactivarAsync(int id)
         {
             var persona = await _unitOfWork.PersonaRepository.GetByIdToReactivateAsync(id);
-            if (persona == null) return false;
+            if (persona == null || persona.Estado) return false;
 
             persona.Estado = true;
-            _unitOfWork.PersonaRepository.Update(persona);
             await _unitOfWork.SaveChangesAsync();
             return true;
         }
@@ -112,7 +107,6 @@ namespace DominioServicios
         {
             var persona = await _unitOfWork.PersonaRepository.GetByDniAsync(dni);
 
-            // #CORRECCIÓN: Se utiliza la clase estática BCrypt para el método Verify.
             if (persona == null || !persona.Estado || !BCrypt.Net.BCrypt.Verify(password, persona.Password))
             {
                 return null;
@@ -124,4 +118,3 @@ namespace DominioServicios
         }
     }
 }
-
