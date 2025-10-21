@@ -3,7 +3,6 @@
     gap: 2.4rem;
 }
 
-/* --- Panel de bienvenida (restaurado del viejo) --- */
 .welcome-panel {
     background: linear-gradient(180deg, rgba(17,26,47,.72), rgba(17,26,47,.58));
     border: 1px solid var(--border);
@@ -35,7 +34,6 @@
         font-weight: 600;
     }
 
-/* --- KPIs --- */
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
