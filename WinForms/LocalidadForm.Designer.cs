@@ -25,9 +25,6 @@
             btnOrdenarZA = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvLocalidades).BeginInit();
             SuspendLayout();
-            // 
-            // dgvLocalidades
-            // 
             dgvLocalidades.AllowUserToAddRows = false;
             dgvLocalidades.AllowUserToDeleteRows = false;
             dgvLocalidades.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -39,9 +36,6 @@
             dgvLocalidades.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvLocalidades.Size = new Size(905, 441);
             dgvLocalidades.TabIndex = 0;
-            // 
-            // btnVolver
-            // 
             btnVolver.Location = new Point(14, 534);
             btnVolver.Margin = new Padding(4, 4, 4, 4);
             btnVolver.Name = "btnVolver";
@@ -50,9 +44,6 @@
             btnVolver.Text = "Volver";
             btnVolver.UseVisualStyleBackColor = true;
             btnVolver.Click += btnVolver_Click;
-            // 
-            // cboProvincias
-            // 
             cboProvincias.DropDownStyle = ComboBoxStyle.DropDownList;
             cboProvincias.FormattingEnabled = true;
             cboProvincias.Location = new Point(194, 24);
@@ -61,9 +52,6 @@
             cboProvincias.Size = new Size(291, 28);
             cboProvincias.TabIndex = 2;
             cboProvincias.SelectedIndexChanged += cboProvincias_SelectedIndexChanged;
-            // 
-            // lblFiltrar
-            // 
             lblFiltrar.AutoSize = true;
             lblFiltrar.Location = new Point(14, 29);
             lblFiltrar.Margin = new Padding(4, 0, 4, 0);
@@ -71,9 +59,6 @@
             lblFiltrar.Size = new Size(153, 20);
             lblFiltrar.TabIndex = 3;
             lblFiltrar.Text = "Filtrar por Provincia:";
-            // 
-            // btnOrdenarAZ
-            // 
             btnOrdenarAZ.Location = new Point(632, 22);
             btnOrdenarAZ.Margin = new Padding(4, 4, 4, 4);
             btnOrdenarAZ.Name = "btnOrdenarAZ";
@@ -82,9 +67,6 @@
             btnOrdenarAZ.Text = "Ordenar A-Z";
             btnOrdenarAZ.UseVisualStyleBackColor = true;
             btnOrdenarAZ.Click += btnOrdenar_Click;
-            // 
-            // btnOrdenarZA
-            // 
             btnOrdenarZA.Location = new Point(752, 22);
             btnOrdenarZA.Margin = new Padding(4, 4, 4, 4);
             btnOrdenarZA.Name = "btnOrdenarZA";
@@ -93,9 +75,6 @@
             btnOrdenarZA.Text = "Ordenar Z-A";
             btnOrdenarZA.UseVisualStyleBackColor = true;
             btnOrdenarZA.Click += btnOrdenar_Click;
-            // 
-            // LocalidadForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(933, 588);

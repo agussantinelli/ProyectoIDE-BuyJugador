@@ -27,9 +27,6 @@
             this.errorProvider = new System.Windows.Forms.ErrorProvider(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
-            // 
-            // lblDni
-            // 
             this.lblDni.AutoSize = true;
             this.lblDni.Font = new System.Drawing.Font("Century Gothic", 10F);
             this.lblDni.ForeColor = System.Drawing.Color.Gainsboro;
@@ -38,9 +35,6 @@
             this.lblDni.Size = new System.Drawing.Size(37, 19);
             this.lblDni.TabIndex = 0;
             this.lblDni.Text = "DNI:";
-            // 
-            // txtDni
-            // 
             this.txtDni.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(66)))), ((int)(((byte)(82)))));
             this.txtDni.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtDni.Font = new System.Drawing.Font("Century Gothic", 11F);
@@ -49,9 +43,6 @@
             this.txtDni.Name = "txtDni";
             this.txtDni.Size = new System.Drawing.Size(200, 25);
             this.txtDni.TabIndex = 1;
-            // 
-            // lblPassword
-            // 
             this.lblPassword.AutoSize = true;
             this.lblPassword.Font = new System.Drawing.Font("Century Gothic", 10F);
             this.lblPassword.ForeColor = System.Drawing.Color.Gainsboro;
@@ -60,9 +51,6 @@
             this.lblPassword.Size = new System.Drawing.Size(90, 19);
             this.lblPassword.TabIndex = 2;
             this.lblPassword.Text = "Contraseña:";
-            // 
-            // txtPassword
-            // 
             this.txtPassword.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(49)))), ((int)(((byte)(66)))), ((int)(((byte)(82)))));
             this.txtPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtPassword.Font = new System.Drawing.Font("Century Gothic", 11F);
@@ -72,10 +60,6 @@
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(200, 25);
             this.txtPassword.TabIndex = 3;
-            // 
-            // btnLogin
-            // 
-            // # ESTILO: Consistente con tu StyleManager
             this.btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(32)))), ((int)(((byte)(40)))));
             this.btnLogin.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(80)))), ((int)(((byte)(200)))));
             this.btnLogin.FlatAppearance.BorderSize = 1;
@@ -90,9 +74,6 @@
             this.btnLogin.Text = "Ingresar";
             this.btnLogin.UseVisualStyleBackColor = false;
             this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
-            // 
-            // loadingBar
-            // 
             this.loadingBar.Location = new System.Drawing.Point(44, 185);
             this.loadingBar.MarqueeAnimationSpeed = 50;
             this.loadingBar.Name = "loadingBar";
@@ -100,13 +81,7 @@
             this.loadingBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.loadingBar.TabIndex = 5;
             this.loadingBar.Visible = false;
-            // 
-            // errorProvider
-            // 
             this.errorProvider.ContainerControl = this;
-            // 
-            // LoginForm
-            // 
             this.AcceptButton = this.btnLogin;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;

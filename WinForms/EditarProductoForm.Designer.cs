@@ -46,86 +46,56 @@
             txtPrecio = new TextBox();
             ((System.ComponentModel.ISupportInitialize)numStock).BeginInit();
             SuspendLayout();
-            // 
-            // lblNombre
-            // 
             lblNombre.AutoSize = true;
             lblNombre.Location = new Point(23, 62);
             lblNombre.Name = "lblNombre";
             lblNombre.Size = new Size(72, 20);
             lblNombre.TabIndex = 2;
             lblNombre.Text = "Nombre:";
-            // 
-            // txtNombre
-            // 
             txtNombre.Location = new Point(144, 62);
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(245, 25);
             txtNombre.TabIndex = 3;
-            // 
-            // lblDescripcion
-            // 
             lblDescripcion.AutoSize = true;
             lblDescripcion.Location = new Point(23, 100);
             lblDescripcion.Name = "lblDescripcion";
             lblDescripcion.Size = new Size(100, 20);
             lblDescripcion.TabIndex = 4;
             lblDescripcion.Text = "Descripción:";
-            // 
-            // txtDescripcion
-            // 
             txtDescripcion.Location = new Point(144, 97);
             txtDescripcion.Multiline = true;
             txtDescripcion.Name = "txtDescripcion";
             txtDescripcion.Size = new Size(245, 52);
             txtDescripcion.TabIndex = 5;
-            // 
-            // lblStock
-            // 
             lblStock.AutoSize = true;
             lblStock.Location = new Point(23, 159);
             lblStock.Name = "lblStock";
             lblStock.Size = new Size(53, 20);
             lblStock.TabIndex = 6;
             lblStock.Text = "Stock:";
-            // 
-            // numStock
-            // 
             numStock.Location = new Point(144, 157);
             numStock.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
             numStock.Name = "numStock";
             numStock.Size = new Size(120, 25);
             numStock.TabIndex = 7;
-            // 
-            // lblTipoProducto
-            // 
             lblTipoProducto.AutoSize = true;
             lblTipoProducto.Location = new Point(23, 195);
             lblTipoProducto.Name = "lblTipoProducto";
             lblTipoProducto.Size = new Size(113, 20);
             lblTipoProducto.TabIndex = 8;
             lblTipoProducto.Text = "Tipo Producto:";
-            // 
-            // cmbTipoProducto
-            // 
             cmbTipoProducto.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTipoProducto.FormattingEnabled = true;
             cmbTipoProducto.Location = new Point(144, 192);
             cmbTipoProducto.Name = "cmbTipoProducto";
             cmbTipoProducto.Size = new Size(245, 28);
             cmbTipoProducto.TabIndex = 9;
-            // 
-            // lblPrecio
-            // 
             lblPrecio.AutoSize = true;
             lblPrecio.Location = new Point(23, 231);
             lblPrecio.Name = "lblPrecio";
             lblPrecio.Size = new Size(112, 20);
             lblPrecio.TabIndex = 10;
             lblPrecio.Text = "Precio Actual:";
-            // 
-            // btnGuardar
-            // 
             btnGuardar.Location = new Point(260, 272);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(100, 34);
@@ -133,9 +103,6 @@
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.Location = new Point(144, 272);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(100, 34);
@@ -143,32 +110,20 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // lblId
-            // 
             lblId.AutoSize = true;
             lblId.Location = new Point(23, 25);
             lblId.Name = "lblId";
             lblId.Size = new Size(29, 20);
             lblId.TabIndex = 0;
             lblId.Text = "ID:";
-            // 
-            // txtId
-            // 
             txtId.Location = new Point(144, 25);
             txtId.Name = "txtId";
             txtId.Size = new Size(245, 25);
             txtId.TabIndex = 1;
-            // 
-            // txtPrecio
-            // 
             txtPrecio.Location = new Point(144, 228);
             txtPrecio.Name = "txtPrecio";
             txtPrecio.Size = new Size(120, 25);
             txtPrecio.TabIndex = 11;
-            // 
-            // EditarProductoForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(414, 330);

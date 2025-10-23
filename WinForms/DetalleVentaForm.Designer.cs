@@ -29,9 +29,6 @@
             btnConfirmarCambios = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(dataGridDetalle)).BeginInit();
             this.SuspendLayout();
-            // 
-            // dataGridDetalle
-            // 
             dataGridDetalle.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -44,9 +41,6 @@
             dataGridDetalle.TabIndex = 0;
             dataGridDetalle.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridDetalle_CellEndEdit);
             dataGridDetalle.SelectionChanged += new System.EventHandler(this.dataGridDetalle_SelectionChanged);
-            // 
-            // lblIdVenta
-            // 
             lblIdVenta.AutoSize = true;
             lblIdVenta.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             lblIdVenta.Location = new System.Drawing.Point(12, 10);
@@ -54,27 +48,18 @@
             lblIdVenta.Size = new System.Drawing.Size(95, 21);
             lblIdVenta.TabIndex = 1;
             lblIdVenta.Text = "ID Venta: ...";
-            // 
-            // lblFecha
-            // 
             lblFecha.AutoSize = true;
             lblFecha.Location = new System.Drawing.Point(12, 44);
             lblFecha.Name = "lblFecha";
             lblFecha.Size = new System.Drawing.Size(75, 20);
             lblFecha.TabIndex = 2;
             lblFecha.Text = "Fecha: ...";
-            // 
-            // lblVendedor
-            // 
             lblVendedor.AutoSize = true;
             lblVendedor.Location = new System.Drawing.Point(200, 44);
             lblVendedor.Name = "lblVendedor";
             lblVendedor.Size = new System.Drawing.Size(104, 20);
             lblVendedor.TabIndex = 3;
             lblVendedor.Text = "Vendedor: ...";
-            // 
-            // lblTotal
-            // 
             lblTotal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             lblTotal.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
             lblTotal.Location = new System.Drawing.Point(572, 9);
@@ -83,9 +68,6 @@
             lblTotal.TabIndex = 4;
             lblTotal.Text = "Total: $0.00";
             lblTotal.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // btnCerrar
-            // 
             btnCerrar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             btnCerrar.Location = new System.Drawing.Point(697, 464);
             btnCerrar.Name = "btnCerrar";
@@ -94,9 +76,6 @@
             btnCerrar.Text = "Cerrar";
             btnCerrar.UseVisualStyleBackColor = true;
             btnCerrar.Click += new System.EventHandler(this.btnCerrar_Click);
-            // 
-            // btnAgregarLinea
-            // 
             btnAgregarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             btnAgregarLinea.Location = new System.Drawing.Point(12, 464);
             btnAgregarLinea.Name = "btnAgregarLinea";
@@ -105,9 +84,6 @@
             btnAgregarLinea.Text = "Agregar Producto";
             btnAgregarLinea.UseVisualStyleBackColor = true;
             btnAgregarLinea.Click += new System.EventHandler(this.btnAgregarLinea_Click);
-            // 
-            // btnEliminarLinea
-            // 
             btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             btnEliminarLinea.Location = new System.Drawing.Point(138, 464);
             btnEliminarLinea.Name = "btnEliminarLinea";
@@ -116,9 +92,6 @@
             btnEliminarLinea.Text = "Eliminar Producto";
             btnEliminarLinea.UseVisualStyleBackColor = true;
             btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
-            // 
-            // btnEditarCantidad
-            // 
             btnEditarCantidad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             btnEditarCantidad.Location = new System.Drawing.Point(264, 464);
             btnEditarCantidad.Name = "btnEditarCantidad";
@@ -127,9 +100,6 @@
             btnEditarCantidad.Text = "Editar Cantidad";
             btnEditarCantidad.UseVisualStyleBackColor = true;
             btnEditarCantidad.Click += new System.EventHandler(this.btnEditarCantidad_Click);
-            // 
-            // btnConfirmarCambios
-            // 
             btnConfirmarCambios.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             btnConfirmarCambios.Enabled = false;
             btnConfirmarCambios.Location = new System.Drawing.Point(551, 464);
@@ -139,9 +109,6 @@
             btnConfirmarCambios.Text = "Confirmar Cambios";
             btnConfirmarCambios.UseVisualStyleBackColor = true;
             btnConfirmarCambios.Click += new System.EventHandler(this.btnConfirmarCambios_Click);
-            // 
-            // DetalleVentaForm
-            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 511);

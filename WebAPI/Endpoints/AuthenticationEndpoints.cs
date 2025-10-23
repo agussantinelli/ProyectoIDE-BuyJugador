@@ -23,8 +23,6 @@ namespace WebAPI.Endpoints
                 {
                     return Results.Unauthorized();
                 }
-
-                // Generar el token JWT
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 

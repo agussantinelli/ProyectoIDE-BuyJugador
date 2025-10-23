@@ -51,7 +51,6 @@ namespace DominioServicios
             var existing = await _unitOfWork.ProductoRepository.GetByIdAsync(producto.IdProducto);
             if (existing != null)
             {
-                // Copia los valores del objeto entrante al objeto que EF está rastreando.
                 existing.Nombre = producto.Nombre;
                 existing.Descripcion = producto.Descripcion;
                 existing.Stock = producto.Stock;

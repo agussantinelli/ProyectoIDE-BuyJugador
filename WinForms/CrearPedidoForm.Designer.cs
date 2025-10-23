@@ -44,9 +44,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridLineasPedido)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numCantidad)).BeginInit();
             this.SuspendLayout();
-            // 
-            // cmbProveedores
-            // 
             this.cmbProveedores.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbProveedores.FormattingEnabled = true;
             this.cmbProveedores.Location = new System.Drawing.Point(12, 33);
@@ -54,18 +51,12 @@
             this.cmbProveedores.Size = new System.Drawing.Size(340, 28);
             this.cmbProveedores.TabIndex = 0;
             this.cmbProveedores.SelectedIndexChanged += new System.EventHandler(this.cmbProveedores_SelectedIndexChanged);
-            // 
-            // lblProveedor
-            // 
             this.lblProveedor.AutoSize = true;
             this.lblProveedor.Location = new System.Drawing.Point(12, 9);
             this.lblProveedor.Name = "lblProveedor";
             this.lblProveedor.Size = new System.Drawing.Size(87, 20);
             this.lblProveedor.TabIndex = 1;
             this.lblProveedor.Text = "Proveedor:";
-            // 
-            // dataGridLineasPedido
-            // 
             this.dataGridLineasPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -74,9 +65,6 @@
             this.dataGridLineasPedido.Name = "dataGridLineasPedido";
             this.dataGridLineasPedido.Size = new System.Drawing.Size(760, 273);
             this.dataGridLineasPedido.TabIndex = 8;
-            // 
-            // lblTotalPedido
-            // 
             this.lblTotalPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblTotalPedido.AutoSize = true;
             this.lblTotalPedido.Font = new System.Drawing.Font("Century Gothic", 14.25F, System.Drawing.FontStyle.Bold);
@@ -85,9 +73,6 @@
             this.lblTotalPedido.Size = new System.Drawing.Size(113, 23);
             this.lblTotalPedido.TabIndex = 9;
             this.lblTotalPedido.Text = "Total: $0.00";
-            // 
-            // btnConfirmarPedido
-            // 
             this.btnConfirmarPedido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnConfirmarPedido.Location = new System.Drawing.Point(648, 437);
             this.btnConfirmarPedido.Name = "btnConfirmarPedido";
@@ -96,9 +81,6 @@
             this.btnConfirmarPedido.Text = "Confirmar";
             this.btnConfirmarPedido.UseVisualStyleBackColor = true;
             this.btnConfirmarPedido.Click += new System.EventHandler(this.btnConfirmarPedido_Click);
-            // 
-            // btnCancelar
-            // 
             this.btnCancelar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancelar.Location = new System.Drawing.Point(518, 437);
             this.btnCancelar.Name = "btnCancelar";
@@ -107,9 +89,6 @@
             this.btnCancelar.Text = "Cancelar";
             this.btnCancelar.UseVisualStyleBackColor = true;
             this.btnCancelar.Click += new System.EventHandler(this.btnCancelar_Click);
-            // 
-            // btnEliminarLinea
-            // 
             this.btnEliminarLinea.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnEliminarLinea.Location = new System.Drawing.Point(652, 95);
             this.btnEliminarLinea.Name = "btnEliminarLinea";
@@ -118,9 +97,6 @@
             this.btnEliminarLinea.Text = "Eliminar Línea";
             this.btnEliminarLinea.UseVisualStyleBackColor = true;
             this.btnEliminarLinea.Click += new System.EventHandler(this.btnEliminarLinea_Click);
-            //
-            // chkMarcarRecibido
-            //
             this.chkMarcarRecibido.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkMarcarRecibido.AutoSize = true;
             this.chkMarcarRecibido.Location = new System.Drawing.Point(16, 410);
@@ -129,35 +105,23 @@
             this.chkMarcarRecibido.TabIndex = 12;
             this.chkMarcarRecibido.Text = "Marcar pedido como recibido";
             this.chkMarcarRecibido.UseVisualStyleBackColor = true;
-            // 
-            // lblProductos
-            // 
             this.lblProductos.AutoSize = true;
             this.lblProductos.Location = new System.Drawing.Point(12, 70);
             this.lblProductos.Name = "lblProductos";
             this.lblProductos.Size = new System.Drawing.Size(81, 20);
             this.lblProductos.TabIndex = 2;
             this.lblProductos.Text = "Producto:";
-            // 
-            // cmbProductos
-            // 
             this.cmbProductos.FormattingEnabled = true;
             this.cmbProductos.Location = new System.Drawing.Point(12, 95);
             this.cmbProductos.Name = "cmbProductos";
             this.cmbProductos.Size = new System.Drawing.Size(340, 28);
             this.cmbProductos.TabIndex = 3;
-            // 
-            // lblCantidad
-            // 
             this.lblCantidad.AutoSize = true;
             this.lblCantidad.Location = new System.Drawing.Point(368, 70);
             this.lblCantidad.Name = "lblCantidad";
             this.lblCantidad.Size = new System.Drawing.Size(82, 20);
             this.lblCantidad.TabIndex = 4;
             this.lblCantidad.Text = "Cantidad:";
-            // 
-            // numCantidad
-            // 
             this.numCantidad.Location = new System.Drawing.Point(368, 97);
             this.numCantidad.Maximum = new decimal(new int[] {
             1000,
@@ -177,9 +141,6 @@
             0,
             0,
             0});
-            // 
-            // btnAgregarProducto
-            // 
             this.btnAgregarProducto.Location = new System.Drawing.Point(504, 95);
             this.btnAgregarProducto.Name = "btnAgregarProducto";
             this.btnAgregarProducto.Size = new System.Drawing.Size(130, 30);
@@ -187,9 +148,6 @@
             this.btnAgregarProducto.Text = "Agregar";
             this.btnAgregarProducto.UseVisualStyleBackColor = true;
             this.btnAgregarProducto.Click += new System.EventHandler(this.btnAgregarProducto_Click);
-            // 
-            // CrearPedidoForm
-            // 
             this.ClientSize = new System.Drawing.Size(784, 483);
             this.Controls.Add(this.btnAgregarProducto);
             this.Controls.Add(this.numCantidad);

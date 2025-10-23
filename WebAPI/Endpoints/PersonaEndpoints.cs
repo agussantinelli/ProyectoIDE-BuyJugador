@@ -16,8 +16,6 @@ namespace WebAPI.Endpoints
                 var personas = await service.GetAllAsync();
                 return Results.Ok(personas);
             });
-
-            // #NUEVO: Endpoint optimizado para el reporte.
             group.MapGet("/activos-reporte", async (PersonaService service) =>
             {
                 var personas = await service.GetPersonasActivasParaReporteAsync();

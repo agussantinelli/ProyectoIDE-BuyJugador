@@ -47,8 +47,6 @@ namespace WebAPI.Endpoints
 
                 return Results.Ok(productosDto);
             });
-
-            // #NUEVO: Endpoint para obtener productos por tipo.
             app.MapGet("/api/productos/tipo/{idTipoProducto}", async (int idTipoProducto, ProductoService productoService) =>
             {
                 var productos = await productoService.GetByTipoProductoIdAsync(idTipoProducto);

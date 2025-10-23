@@ -25,9 +25,6 @@
             btnCancelar = new Button();
             ((System.ComponentModel.ISupportInitialize)numPrecio).BeginInit();
             SuspendLayout();
-            // 
-            // lblProductoInfo
-            // 
             lblProductoInfo.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblProductoInfo.Location = new Point(12, 10);
             lblProductoInfo.Name = "lblProductoInfo";
@@ -35,9 +32,6 @@
             lblProductoInfo.TabIndex = 0;
             lblProductoInfo.Text = "Producto: 'Nombre del Producto'";
             lblProductoInfo.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // lblProveedorInfo
-            // 
             lblProveedorInfo.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             lblProveedorInfo.Location = new Point(12, 36);
             lblProveedorInfo.Name = "lblProveedorInfo";
@@ -45,27 +39,18 @@
             lblProveedorInfo.TabIndex = 5;
             lblProveedorInfo.Text = "Proveedor: 'Razón Social'";
             lblProveedorInfo.TextAlign = ContentAlignment.MiddleCenter;
-            // 
-            // lblPrecio
-            // 
             lblPrecio.AutoSize = true;
             lblPrecio.Location = new Point(34, 85);
             lblPrecio.Name = "lblPrecio";
             lblPrecio.Size = new Size(114, 20);
             lblPrecio.TabIndex = 1;
             lblPrecio.Text = "Nuevo Precio:";
-            // 
-            // numPrecio
-            // 
             numPrecio.DecimalPlaces = 2;
             numPrecio.Location = new Point(154, 83);
             numPrecio.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numPrecio.Name = "numPrecio";
             numPrecio.Size = new Size(120, 25);
             numPrecio.TabIndex = 2;
-            // 
-            // btnGuardar
-            // 
             btnGuardar.Location = new Point(172, 135);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(100, 34);
@@ -73,9 +58,6 @@
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.Location = new Point(12, 135);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(100, 34);
@@ -83,9 +65,6 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // AsignarPrecioProductoProveedorForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(284, 182);

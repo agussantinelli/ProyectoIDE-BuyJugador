@@ -42,94 +42,61 @@
             ((System.ComponentModel.ISupportInitialize)numStock).BeginInit();
             ((System.ComponentModel.ISupportInitialize)numPrecio).BeginInit();
             SuspendLayout();
-            // 
-            // lblNombre
-            // 
             lblNombre.AutoSize = true;
             lblNombre.Location = new Point(26, 28);
             lblNombre.Name = "lblNombre";
             lblNombre.Size = new Size(72, 20);
             lblNombre.TabIndex = 0;
             lblNombre.Text = "Nombre:";
-            // 
-            // txtNombre
-            // 
             txtNombre.Location = new Point(169, 28);
             txtNombre.Name = "txtNombre";
             txtNombre.Size = new Size(200, 25);
             txtNombre.TabIndex = 1;
-            // 
-            // lblDescripcion
-            // 
             lblDescripcion.AutoSize = true;
             lblDescripcion.Location = new Point(26, 68);
             lblDescripcion.Name = "lblDescripcion";
             lblDescripcion.Size = new Size(100, 20);
             lblDescripcion.TabIndex = 2;
             lblDescripcion.Text = "Descripción:";
-            // 
-            // txtDescripcion
-            // 
             txtDescripcion.Location = new Point(169, 65);
             txtDescripcion.Name = "txtDescripcion";
             txtDescripcion.Size = new Size(200, 25);
             txtDescripcion.TabIndex = 3;
-            // 
-            // lblStock
-            // 
             lblStock.AutoSize = true;
             lblStock.Location = new Point(26, 108);
             lblStock.Name = "lblStock";
             lblStock.Size = new Size(53, 20);
             lblStock.TabIndex = 4;
             lblStock.Text = "Stock:";
-            // 
-            // numStock
-            // 
             numStock.Location = new Point(169, 108);
             numStock.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
             numStock.Name = "numStock";
             numStock.Size = new Size(120, 25);
             numStock.TabIndex = 5;
-            // 
-            // lblTipoProducto
-            // 
             lblTipoProducto.AutoSize = true;
             lblTipoProducto.Location = new Point(26, 147);
             lblTipoProducto.Name = "lblTipoProducto";
             lblTipoProducto.Size = new Size(137, 20);
             lblTipoProducto.TabIndex = 8;
             lblTipoProducto.Text = "Tipo de Producto:";
-            // 
-            // cmbTipoProducto
-            // 
             cmbTipoProducto.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTipoProducto.FormattingEnabled = true;
             cmbTipoProducto.Location = new Point(169, 144);
             cmbTipoProducto.Name = "cmbTipoProducto";
             cmbTipoProducto.Size = new Size(200, 28);
             cmbTipoProducto.TabIndex = 9;
-            // 
-            // lblPrecio
-            // 
             lblPrecio.AutoSize = true;
             lblPrecio.Location = new Point(26, 187);
             lblPrecio.Name = "lblPrecio";
             lblPrecio.Size = new Size(60, 20);
             lblPrecio.TabIndex = 10;
             lblPrecio.Text = "Precio:";
-            // 
-            // numPrecio
-            // 
             numPrecio.DecimalPlaces = 2;
             numPrecio.Location = new Point(169, 185);
             numPrecio.Maximum = new decimal(new int[] { 1000000, 0, 0, 0 });
             numPrecio.Name = "numPrecio";
             numPrecio.Size = new Size(120, 25);
             numPrecio.TabIndex = 11;
-            // 
-            // btnCrear
-            // 
             btnCrear.Location = new Point(262, 236);
             btnCrear.Name = "btnCrear";
             btnCrear.Size = new Size(100, 34);
@@ -137,9 +104,6 @@
             btnCrear.Text = "Crear";
             btnCrear.UseVisualStyleBackColor = true;
             btnCrear.Click += btnCrear_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.Location = new Point(150, 236);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(100, 34);
@@ -147,9 +111,6 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // CrearProductoForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(384, 296);

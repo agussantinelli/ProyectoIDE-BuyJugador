@@ -32,9 +32,6 @@
             btnCancelar = new Button();
             ((System.ComponentModel.ISupportInitialize)dgvProductos).BeginInit();
             SuspendLayout();
-            // 
-            // dgvProductos
-            // 
             dgvProductos.AllowUserToAddRows = false;
             dgvProductos.AllowUserToDeleteRows = false;
             dgvProductos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -47,24 +44,15 @@
             dgvProductos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProductos.Size = new Size(694, 330);
             dgvProductos.TabIndex = 0;
-            // 
-            // Precio
-            // 
             Precio.DataPropertyName = "PrecioCompra";
             Precio.HeaderText = "Precio";
             Precio.Name = "Precio";
             Precio.ReadOnly = true;
-            // 
-            // txtCantidad
-            // 
             txtCantidad.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             txtCantidad.Location = new Point(113, 358);
             txtCantidad.Name = "txtCantidad";
             txtCantidad.Size = new Size(100, 25);
             txtCantidad.TabIndex = 1;
-            // 
-            // lblCantidad
-            // 
             lblCantidad.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             lblCantidad.AutoSize = true;
             lblCantidad.Location = new Point(12, 361);
@@ -72,9 +60,6 @@
             lblCantidad.Size = new Size(82, 20);
             lblCantidad.TabIndex = 2;
             lblCantidad.Text = "Cantidad:";
-            // 
-            // btnAceptar
-            // 
             btnAceptar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnAceptar.Location = new Point(550, 353);
             btnAceptar.Name = "btnAceptar";
@@ -83,9 +68,6 @@
             btnAceptar.Text = "Aceptar";
             btnAceptar.UseVisualStyleBackColor = true;
             btnAceptar.Click += btnAceptar_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnCancelar.Location = new Point(631, 353);
             btnCancelar.Name = "btnCancelar";
@@ -94,9 +76,6 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // AñadirProductoPedidoForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(718, 399);

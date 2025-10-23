@@ -49,26 +49,17 @@
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
             panelBotones.SuspendLayout();
             SuspendLayout();
-            // 
-            // txtBuscar
-            // 
             txtBuscar.Location = new Point(221, 12);
             txtBuscar.Name = "txtBuscar";
             txtBuscar.Size = new Size(300, 25);
             txtBuscar.TabIndex = 1;
             txtBuscar.TextChanged += txtBuscar_TextChanged;
-            // 
-            // lblBuscar
-            // 
             lblBuscar.AutoSize = true;
             lblBuscar.Location = new Point(12, 15);
             lblBuscar.Name = "lblBuscar";
             lblBuscar.Size = new Size(186, 20);
             lblBuscar.TabIndex = 0;
             lblBuscar.Text = "Buscar por Razón Social:";
-            // 
-            // tabControlProveedores
-            // 
             tabControlProveedores.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
@@ -78,45 +69,30 @@
             tabControlProveedores.Size = new Size(1176, 420);
             tabControlProveedores.TabIndex = 2;
             tabControlProveedores.SelectedIndexChanged += tabControlProveedores_SelectedIndexChanged;
-            // 
-            // tabPageActivos
-            // 
             tabPageActivos.Controls.Add(dgvActivos);
             tabPageActivos.Location = new Point(4, 29);
             tabPageActivos.Name = "tabPageActivos";
             tabPageActivos.Size = new Size(1168, 387);
             tabPageActivos.TabIndex = 0;
             tabPageActivos.Text = "Activos";
-            // 
-            // dgvActivos
-            // 
             dgvActivos.Dock = DockStyle.Fill;
             dgvActivos.Location = new Point(0, 0);
             dgvActivos.Name = "dgvActivos";
             dgvActivos.Size = new Size(1168, 387);
             dgvActivos.TabIndex = 0;
             dgvActivos.SelectionChanged += dgv_SelectionChanged;
-            // 
-            // tabPageInactivos
-            // 
             tabPageInactivos.Controls.Add(dgvInactivos);
             tabPageInactivos.Location = new Point(4, 29);
             tabPageInactivos.Name = "tabPageInactivos";
             tabPageInactivos.Size = new Size(1168, 387);
             tabPageInactivos.TabIndex = 1;
             tabPageInactivos.Text = "Inactivos";
-            // 
-            // dgvInactivos
-            // 
             dgvInactivos.Dock = DockStyle.Fill;
             dgvInactivos.Location = new Point(0, 0);
             dgvInactivos.Name = "dgvInactivos";
             dgvInactivos.Size = new Size(1168, 387);
             dgvInactivos.TabIndex = 0;
             dgvInactivos.SelectionChanged += dgv_SelectionChanged;
-            // 
-            // panelBotones
-            // 
             panelBotones.Controls.Add(btnVolver);
             panelBotones.Controls.Add(btnNuevo);
             panelBotones.Controls.Add(btnEliminar);
@@ -129,63 +105,42 @@
             panelBotones.Name = "panelBotones";
             panelBotones.Size = new Size(1200, 65);
             panelBotones.TabIndex = 3;
-            // 
-            // btnVolver
-            // 
             btnVolver.Location = new Point(12, 17);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(115, 30);
             btnVolver.TabIndex = 0;
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
-            // 
-            // btnNuevo
-            // 
             btnNuevo.Location = new Point(133, 17);
             btnNuevo.Name = "btnNuevo";
             btnNuevo.Size = new Size(115, 30);
             btnNuevo.TabIndex = 1;
             btnNuevo.Text = "Nuevo";
             btnNuevo.Click += btnNuevo_Click;
-            // 
-            // btnEliminar
-            // 
             btnEliminar.Location = new Point(375, 17);
             btnEliminar.Name = "btnEliminar";
             btnEliminar.Size = new Size(115, 30);
             btnEliminar.TabIndex = 2;
             btnEliminar.Text = "Dar de Baja";
             btnEliminar.Click += btnEliminar_Click;
-            // 
-            // btnEditar
-            // 
             btnEditar.Location = new Point(254, 17);
             btnEditar.Name = "btnEditar";
             btnEditar.Size = new Size(115, 30);
             btnEditar.TabIndex = 3;
             btnEditar.Text = "Editar";
             btnEditar.Click += btnEditar_Click;
-            // 
-            // btnAsignarProductos
-            // 
             btnAsignarProductos.Location = new Point(496, 17);
             btnAsignarProductos.Name = "btnAsignarProductos";
             btnAsignarProductos.Size = new Size(150, 30);
             btnAsignarProductos.TabIndex = 4;
             btnAsignarProductos.Text = "Asignar Productos";
             btnAsignarProductos.Click += btnAsignarProductos_Click;
-            //
-            // btnVerProductos
-            //
             btnVerProductos.Location = new Point(652, 17);
             btnVerProductos.Name = "btnVerProductos";
             btnVerProductos.Size = new Size(150, 30);
             btnVerProductos.TabIndex = 6;
             btnVerProductos.Text = "Ver Productos";
             btnVerProductos.Click += btnVerProductos_Click;
-            // 
-            // btnReactivar
-            // 
             btnReactivar.Location = new Point(808, 17);
             btnReactivar.Name = "btnReactivar";
             btnReactivar.Size = new Size(115, 30);
@@ -193,9 +148,6 @@
             btnReactivar.Text = "Reactivar";
             btnReactivar.Visible = false;
             btnReactivar.Click += btnReactivar_Click;
-            // 
-            // ProveedorForm
-            // 
             ClientSize = new Size(1200, 530);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);

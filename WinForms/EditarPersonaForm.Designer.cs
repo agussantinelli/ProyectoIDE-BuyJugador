@@ -49,30 +49,18 @@
             lblDni = new Label();
             txtDni = new TextBox();
             SuspendLayout();
-            // 
-            // txtEmail
-            // 
             txtEmail.Location = new Point(192, 125);
             txtEmail.Name = "txtEmail";
             txtEmail.Size = new Size(150, 25);
             txtEmail.TabIndex = 9;
-            // 
-            // txtTelefono
-            // 
             txtTelefono.Location = new Point(192, 159);
             txtTelefono.Name = "txtTelefono";
             txtTelefono.Size = new Size(150, 25);
             txtTelefono.TabIndex = 11;
-            // 
-            // txtDireccion
-            // 
             txtDireccion.Location = new Point(192, 193);
             txtDireccion.Name = "txtDireccion";
             txtDireccion.Size = new Size(150, 25);
             txtDireccion.TabIndex = 13;
-            // 
-            // cmbProvincia
-            // 
             cmbProvincia.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbProvincia.FormattingEnabled = true;
             cmbProvincia.Location = new Point(192, 227);
@@ -80,27 +68,18 @@
             cmbProvincia.Size = new Size(150, 28);
             cmbProvincia.TabIndex = 15;
             cmbProvincia.SelectedIndexChanged += cmbProvincia_SelectedIndexChanged;
-            // 
-            // lblProvincia
-            // 
             lblProvincia.AutoSize = true;
             lblProvincia.Location = new Point(30, 227);
             lblProvincia.Name = "lblProvincia";
             lblProvincia.Size = new Size(82, 20);
             lblProvincia.TabIndex = 14;
             lblProvincia.Text = "Provincia:";
-            // 
-            // cmbLocalidad
-            // 
             cmbLocalidad.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbLocalidad.FormattingEnabled = true;
             cmbLocalidad.Location = new Point(192, 261);
             cmbLocalidad.Name = "cmbLocalidad";
             cmbLocalidad.Size = new Size(150, 28);
             cmbLocalidad.TabIndex = 17;
-            // 
-            // btnGuardar
-            // 
             btnGuardar.Location = new Point(221, 306);
             btnGuardar.Name = "btnGuardar";
             btnGuardar.Size = new Size(100, 34);
@@ -108,9 +87,6 @@
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = true;
             btnGuardar.Click += btnGuardar_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.Location = new Point(53, 306);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(100, 34);
@@ -118,93 +94,60 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = true;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // lblEmail
-            // 
             lblEmail.AutoSize = true;
             lblEmail.Location = new Point(30, 125);
             lblEmail.Name = "lblEmail";
             lblEmail.Size = new Size(50, 20);
             lblEmail.TabIndex = 8;
             lblEmail.Text = "Email:";
-            // 
-            // lblTelefono
-            // 
             lblTelefono.AutoSize = true;
             lblTelefono.Location = new Point(30, 159);
             lblTelefono.Name = "lblTelefono";
             lblTelefono.Size = new Size(75, 20);
             lblTelefono.TabIndex = 10;
             lblTelefono.Text = "Teléfono:";
-            // 
-            // lblDireccion
-            // 
             lblDireccion.AutoSize = true;
             lblDireccion.Location = new Point(30, 193);
             lblDireccion.Name = "lblDireccion";
             lblDireccion.Size = new Size(84, 20);
             lblDireccion.TabIndex = 12;
             lblDireccion.Text = "Dirección:";
-            // 
-            // lblLocalidad
-            // 
             lblLocalidad.AutoSize = true;
             lblLocalidad.Location = new Point(30, 261);
             lblLocalidad.Name = "lblLocalidad";
             lblLocalidad.Size = new Size(86, 20);
             lblLocalidad.TabIndex = 16;
             lblLocalidad.Text = "Localidad:";
-            // 
-            // lblId
-            // 
             lblId.AutoSize = true;
             lblId.Location = new Point(30, 23);
             lblId.Name = "lblId";
             lblId.Size = new Size(29, 20);
             lblId.TabIndex = 0;
             lblId.Text = "ID:";
-            // 
-            // txtId
-            // 
             txtId.Location = new Point(192, 23);
             txtId.Name = "txtId";
             txtId.Size = new Size(150, 25);
             txtId.TabIndex = 1;
-            // 
-            // lblNombreCompleto
-            // 
             lblNombreCompleto.AutoSize = true;
             lblNombreCompleto.Location = new Point(30, 57);
             lblNombreCompleto.Name = "lblNombreCompleto";
             lblNombreCompleto.Size = new Size(149, 20);
             lblNombreCompleto.TabIndex = 2;
             lblNombreCompleto.Text = "Nombre Completo:";
-            // 
-            // txtNombreCompleto
-            // 
             txtNombreCompleto.Location = new Point(192, 57);
             txtNombreCompleto.Name = "txtNombreCompleto";
             txtNombreCompleto.Size = new Size(150, 25);
             txtNombreCompleto.TabIndex = 3;
-            // 
-            // lblDni
-            // 
             lblDni.AutoSize = true;
             lblDni.Location = new Point(30, 91);
             lblDni.Name = "lblDni";
             lblDni.Size = new Size(40, 20);
             lblDni.TabIndex = 4;
             lblDni.Text = "DNI:";
-            // 
-            // txtDni
-            // 
             txtDni.Location = new Point(192, 91);
             txtDni.Name = "txtDni";
             txtDni.Size = new Size(150, 25);
             txtDni.TabIndex = 5;
-            // 
-            // EditarPersonaForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(393, 364);

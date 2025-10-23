@@ -4,16 +4,11 @@ using System.Threading.Tasks;
 
 namespace Data
 {
-    // #NUEVO: Clase de Unidad de Trabajo (Unit of Work).
-    // #Intención: Centralizar el acceso a todos los repositorios y gestionar las transacciones
-    // #de la base de datos a través de una única instancia del DbContext.
     public class UnitOfWork : IDisposable
     {
         private readonly BuyJugadorContext _context;
         private bool _disposed = false;
 
-        // #Intención: Exponer una única instancia de cada repositorio.
-        // #Lógica: Se utiliza "lazy instantiation" para crear los repositorios solo cuando se necesitan.
         public LineaPedidoRepository LineaPedidoRepository { get; private set; }
         public LineaVentaRepository LineaVentaRepository { get; private set; }
         public LocalidadRepository LocalidadRepository { get; private set; }
@@ -32,8 +27,6 @@ namespace Data
         public UnitOfWork(BuyJugadorContext context)
         {
             _context = context;
-            // #Lógica: Se instancian todos los repositorios, compartiendo el mismo DbContext.
-            // #Esto es crucial para que las transacciones funcionen correctamente.
             LineaPedidoRepository = new LineaPedidoRepository(_context);
             LineaVentaRepository = new LineaVentaRepository(_context);
             LocalidadRepository = new LocalidadRepository(_context);
@@ -50,14 +43,11 @@ namespace Data
             VentaRepository = new VentaRepository(_context);
         }
 
-        // #Intención: Confirmar todos los cambios pendientes en la base de datos
-        // #como una única transacción.
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
         }
 
-        // #Intención: Liberar la conexión y los recursos del DbContext.
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)

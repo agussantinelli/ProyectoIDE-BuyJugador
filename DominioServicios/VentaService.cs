@@ -43,7 +43,6 @@ namespace DominioServicios
                 Estado = dto.Finalizada ? "Finalizada" : "Pendiente",
             };
             await _unitOfWork.VentaRepository.AddAsync(nuevaVenta);
-            // Se debe guardar para obtener el ID de la venta
             await _unitOfWork.SaveChangesAsync();
 
             var idsProductos = dto.Lineas.Where(l => l.IdProducto.HasValue).Select(l => l.IdProducto!.Value).Distinct().ToList();

@@ -42,9 +42,6 @@ namespace WinForms
             ((System.ComponentModel.ISupportInitialize)dgvVentas).BeginInit();
             panelBotones.SuspendLayout();
             SuspendLayout();
-            // 
-            // lblTitulo
-            // 
             lblTitulo.AutoSize = true;
             lblTitulo.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             lblTitulo.Location = new Point(12, 10);
@@ -52,18 +49,12 @@ namespace WinForms
             lblTitulo.Size = new Size(171, 21);
             lblTitulo.TabIndex = 0;
             lblTitulo.Text = "Ventas de <Persona>";
-            // 
-            // lblBuscar
-            // 
             lblBuscar.AutoSize = true;
             lblBuscar.Location = new Point(12, 50);
             lblBuscar.Name = "lblBuscar";
             lblBuscar.Size = new Size(153, 20);
             lblBuscar.TabIndex = 1;
             lblBuscar.Text = "Buscar (ID / Fecha):";
-            // 
-            // txtBuscar
-            // 
             txtBuscar.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtBuscar.Location = new Point(171, 47);
             txtBuscar.Name = "txtBuscar";
@@ -71,9 +62,6 @@ namespace WinForms
             txtBuscar.Size = new Size(524, 25);
             txtBuscar.TabIndex = 2;
             txtBuscar.TextChanged += FiltrosChanged;
-            // 
-            // lblEstado
-            // 
             lblEstado.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             lblEstado.AutoSize = true;
             lblEstado.Location = new Point(701, 50);
@@ -81,9 +69,6 @@ namespace WinForms
             lblEstado.Size = new Size(62, 20);
             lblEstado.TabIndex = 3;
             lblEstado.Text = "Estado:";
-            // 
-            // cmbEstado
-            // 
             cmbEstado.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             cmbEstado.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbEstado.FormattingEnabled = true;
@@ -93,9 +78,6 @@ namespace WinForms
             cmbEstado.Size = new Size(151, 28);
             cmbEstado.TabIndex = 4;
             cmbEstado.SelectedIndexChanged += FiltrosChanged;
-            // 
-            // dgvVentas
-            // 
             dgvVentas.AllowUserToAddRows = false;
             dgvVentas.AllowUserToDeleteRows = false;
             dgvVentas.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -111,9 +93,6 @@ namespace WinForms
             dgvVentas.TabIndex = 5;
             dgvVentas.CellDoubleClick += DgvVentas_CellDoubleClick;
             dgvVentas.SelectionChanged += DgvVentas_SelectionChanged;
-            // 
-            // panelBotones
-            // 
             panelBotones.Controls.Add(btnVerDetalle);
             panelBotones.Controls.Add(btnCerrar);
             panelBotones.Dock = DockStyle.Bottom;
@@ -121,9 +100,6 @@ namespace WinForms
             panelBotones.Name = "panelBotones";
             panelBotones.Size = new Size(929, 65);
             panelBotones.TabIndex = 6;
-            // 
-            // btnVerDetalle
-            // 
             btnVerDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnVerDetalle.Location = new Point(688, 14);
             btnVerDetalle.Name = "btnVerDetalle";
@@ -132,9 +108,6 @@ namespace WinForms
             btnVerDetalle.Text = "Ver Detalle";
             btnVerDetalle.UseVisualStyleBackColor = true;
             btnVerDetalle.Click += BtnVerDetalle_Click;
-            // 
-            // btnCerrar
-            // 
             btnCerrar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnCerrar.Location = new Point(809, 14);
             btnCerrar.Name = "btnCerrar";
@@ -143,9 +116,6 @@ namespace WinForms
             btnCerrar.Text = "Cerrar";
             btnCerrar.UseVisualStyleBackColor = true;
             btnCerrar.Click += BtnCerrar_Click;
-            // 
-            // VentasPersonaForm
-            // 
             AutoScaleDimensions = new SizeF(7F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(929, 580);

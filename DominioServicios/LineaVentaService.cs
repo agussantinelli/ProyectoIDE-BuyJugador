@@ -12,7 +12,7 @@ namespace DominioServicios
     {
         private readonly UnitOfWork _unitOfWork;
 
-        public LineaVentaService(UnitOfWork unitOfWork)
+        public LineaVentaService(UnitOfWork unitOfWork) 
         {
             _unitOfWork = unitOfWork;
         }
@@ -66,9 +66,6 @@ namespace DominioServicios
 
             producto.Stock -= diferenciaCantidad;
             lineaExistente.Cantidad = dto.Cantidad;
-
-            // #CAMBIO: No se actualiza la línea directamente, se confía en que el DbContext
-            // #rastrea los cambios en la entidad 'lineaExistente'.
             await _unitOfWork.SaveChangesAsync();
         }
 

@@ -28,9 +28,6 @@
             ((System.ComponentModel.ISupportInitialize)dgvAsignados).BeginInit();
             panelBotones.SuspendLayout();
             SuspendLayout();
-            // 
-            // dgvDisponibles
-            // 
             dgvDisponibles.AllowUserToAddRows = false;
             dgvDisponibles.AllowUserToDeleteRows = false;
             dgvDisponibles.BackgroundColor = Color.FromArgb(45, 55, 70);
@@ -42,9 +39,6 @@
             dgvDisponibles.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvDisponibles.Size = new Size(460, 520);
             dgvDisponibles.TabIndex = 2;
-            // 
-            // dgvAsignados
-            // 
             dgvAsignados.AllowUserToAddRows = false;
             dgvAsignados.AllowUserToDeleteRows = false;
             dgvAsignados.BackgroundColor = Color.FromArgb(45, 55, 70);
@@ -56,9 +50,6 @@
             dgvAsignados.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvAsignados.Size = new Size(525, 520);
             dgvAsignados.TabIndex = 3;
-            // 
-            // btnAsignar
-            // 
             btnAsignar.BackColor = Color.FromArgb(0, 80, 200);
             btnAsignar.Cursor = Cursors.Hand;
             btnAsignar.FlatAppearance.BorderSize = 0;
@@ -72,9 +63,6 @@
             btnAsignar.Text = ">";
             btnAsignar.UseVisualStyleBackColor = false;
             btnAsignar.Click += btnAsignar_Click;
-            // 
-            // btnQuitar
-            // 
             btnQuitar.BackColor = Color.FromArgb(220, 53, 69);
             btnQuitar.Cursor = Cursors.Hand;
             btnQuitar.FlatAppearance.BorderSize = 0;
@@ -88,9 +76,6 @@
             btnQuitar.Text = "<";
             btnQuitar.UseVisualStyleBackColor = false;
             btnQuitar.Click += btnQuitar_Click;
-            // 
-            // btnCancelar
-            // 
             btnCancelar.BackColor = Color.Gray;
             btnCancelar.Cursor = Cursors.Hand;
             btnCancelar.FlatAppearance.BorderSize = 0;
@@ -104,9 +89,6 @@
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = false;
             btnCancelar.Click += btnCancelar_Click;
-            // 
-            // lblDisponibles
-            // 
             lblDisponibles.AutoSize = true;
             lblDisponibles.Font = new Font("Century Gothic", 11F, FontStyle.Bold);
             lblDisponibles.Location = new Point(53, 25);
@@ -114,9 +96,6 @@
             lblDisponibles.Size = new Size(168, 18);
             lblDisponibles.TabIndex = 0;
             lblDisponibles.Text = "Productos Disponibles";
-            // 
-            // lblAsignados
-            // 
             lblAsignados.AutoSize = true;
             lblAsignados.Font = new Font("Century Gothic", 11F, FontStyle.Bold);
             lblAsignados.Location = new Point(663, 25);
@@ -124,9 +103,6 @@
             lblAsignados.Size = new Size(160, 18);
             lblAsignados.TabIndex = 1;
             lblAsignados.Text = "Productos Asignados";
-            // 
-            // btnGuardar
-            // 
             btnGuardar.BackColor = Color.FromArgb(40, 167, 69);
             btnGuardar.Cursor = Cursors.Hand;
             btnGuardar.FlatAppearance.BorderSize = 0;
@@ -140,18 +116,12 @@
             btnGuardar.Text = "Guardar";
             btnGuardar.UseVisualStyleBackColor = false;
             btnGuardar.Click += btnGuardar_Click;
-            // 
-            // panelBotones
-            // 
             panelBotones.Controls.Add(btnAsignar);
             panelBotones.Controls.Add(btnQuitar);
             panelBotones.Location = new Point(533, 260);
             panelBotones.Name = "panelBotones";
             panelBotones.Size = new Size(100, 150);
             panelBotones.TabIndex = 4;
-            // 
-            // AsignarProductosProveedorForm
-            // 
             AutoScaleDimensions = new SizeF(8F, 17F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(49, 66, 82);
