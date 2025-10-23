@@ -23,16 +23,29 @@
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <div style="min-width: 320px; flex-grow: 1;">
                 <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
-                <select id="vendedor" class="form-select" @onchange="OnVendedorSeleccionado" disabled="@(isLoadingReporte || isDownloadingPdf)">
+                <select id="vendedor"
+                        class="form-select @(showSelectAsInvalid ? "is-invalid" : "")"
+                        title="Para ver el reporte, el vendedor debe tener al menos 2 ventas en los últimos 7 días."
+                        @onchange="OnVendedorSeleccionado"
+                        disabled="@(isLoadingReporte || isDownloadingPdf)">
                     <option value="0">-- Por favor, elija un vendedor --</option>
                     @foreach (var persona in personas)
                     {
                         <option value="@persona.IdPersona">@persona.NombreCompleto</option>
                     }
                 </select>
+
+                @if (!string.IsNullOrWhiteSpace(validationMessage))
+                {
+                    <div class="invalid-feedback d-block">
+                        @validationMessage
+                    </div>
+                }
             </div>
 
-            <button class="btn btn-success align-self-end" @onclick="DescargarPdf" disabled="@(selectedPersonaId == 0 || reporteData == null || !reporteData.Any() || isDownloadingPdf)">
+            <button class="btn btn-success align-self-end"
+                    @onclick="DescargarPdf"
+                    disabled="@(!HasMinSales || isDownloadingPdf)">
                 @if (isDownloadingPdf)
                 {
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -52,7 +65,16 @@
         }
         else if (reporteData != null)
         {
-            if (reporteData.Any())
+            @if (blockedByRule)
+            {
+                <div class="alert alert-warning mt-3" role="alert" aria-live="polite">
+                    No se puede generar el informe: el vendedor seleccionado tiene
+                    <strong>@(ventasDetectadas)</strong> venta@(ventasDetectadas == 1 ? "" : "s")
+                    en los últimos 7 días. Se requieren <strong>@MinVentasRequeridas</strong> o más.
+                </div>
+            }
+
+            @if (HasMinSales)
             {
                 <div class="tbl-wrapper">
                     <table class="tbl">
@@ -84,10 +106,6 @@
                     </table>
                 </div>
             }
-            else
-            {
-                <div class="tbl-state mt-4">No se encontraron ventas para este vendedor en los últimos 7 días.</div>
-            }
         }
     }
 </div>
@@ -95,6 +113,14 @@
 @code {
     private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
+
+    private const int MinVentasRequeridas = 2;
+    private string? validationMessage;
+    private bool showSelectAsInvalid = false;
+    private bool blockedByRule = false;         
+    private int ventasDetectadas = 0;         
+    private bool HasMinSales => (reporteData?.Count ?? 0) >= MinVentasRequeridas;
+
     private bool isLoadingReporte = false;
     private bool isDownloadingPdf = false;
     private int selectedPersonaId = 0;
@@ -106,25 +132,55 @@
 
     private async Task OnVendedorSeleccionado(ChangeEventArgs e)
     {
+        validationMessage = null;
+        showSelectAsInvalid = false;
+        blockedByRule = false;
+        ventasDetectadas = 0;
+
         if (int.TryParse(e.Value?.ToString(), out selectedPersonaId) && selectedPersonaId > 0)
         {
             isLoadingReporte = true;
             reporteData = null;
             StateHasChanged();
 
+            // Traemos ventas últimos 7 días
             reporteData = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
 
             isLoadingReporte = false;
+
+            ventasDetectadas = reporteData?.Count ?? 0;
+
+            if (!HasMinSales)
+            {
+                blockedByRule = true;
+                showSelectAsInvalid = true;
+
+                var msg = $"No se puede generar el informe: el vendedor tiene {ventasDetectadas} " +
+                          $"venta{(ventasDetectadas == 1 ? "" : "s")} en los últimos 7 días. " +
+                          $"Se requieren al menos {MinVentasRequeridas}.";
+                validationMessage = msg;
+
+                await JSRuntime.InvokeVoidAsync("alert", msg);
+
+                await JSRuntime.InvokeVoidAsync("document.getElementById('vendedor').focus");
+
+
+                reporteData = new List<ReporteVentasDTO>();
+            }
         }
         else
         {
             reporteData = null;
+            validationMessage = null;
+            showSelectAsInvalid = false;
+            blockedByRule = false;
+            ventasDetectadas = 0;
         }
     }
 
     private async Task DescargarPdf()
     {
-        if (selectedPersonaId == 0 || isDownloadingPdf) return;
+        if (selectedPersonaId == 0 || isDownloadingPdf || !HasMinSales) return;
 
         isDownloadingPdf = true;
         try
@@ -142,5 +198,4 @@
             isDownloadingPdf = false;
         }
     }
-
 }
