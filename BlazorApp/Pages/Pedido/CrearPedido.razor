@@ -3,6 +3,7 @@
 
 @using DTOs
 @using ApiClient
+@using System.Net.Http
 @inject PedidoApiClient pedidoApiClient
 @inject ProveedorApiClient provedorApiClient
 @inject ProductoProveedorApiClient productoProvedorApiClient
@@ -72,10 +73,10 @@
                     </div>
                     <div class="form-group" style="min-width: 120px;">
                         <label for="cantidad">Cantidad:</label>
-                        <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" />
+                        <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                        <button type="button" class="btn btn-secondary" @onclick="AgregarLinea" disabled="@(lineaActual.IdProducto == 0)">
                             <i class="bi bi-plus-circle"></i> Agregar
                         </button>
                     </div>
@@ -136,7 +137,7 @@
     <EditForm Model="pedidoDto" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
         <div class="d-flex align-items-center gap-2 mt-3">
-            <InputCheckbox id="marcarRecibido" class="form-check-input" @bind-Value="pedidoDto.MarcarComoRecibido" />
+            <InputCheckbox id="marcarRecibido" class="form-check-input" @bind-Value="pedidoDto.MarcarComoRecibido" disabled="@isSaving" />
             <label class="form-check-label" for="marcarRecibido">
                 Marcar pedido como <strong>Recibido</strong> al crear
             </label>
@@ -146,11 +147,19 @@
         </p>
 
         <div class="form-actions mt-3">
-            <button type="submit" class="btn btn-primary" disabled="@(!pedidoDto.LineasPedido.Any())">
-                <i class="bi bi-save"></i>
-                <span>Guardar Pedido</span>
+            <button type="submit" class="btn btn-primary" disabled="@(!pedidoDto.LineasPedido.Any() || isSaving)">
+                @if (isSaving)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Guardando...</span>
+                }
+                else
+                {
+                    <i class="bi bi-save"></i>
+                    <span>Guardar Pedido</span>
+                }
             </button>
-            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar" disabled="@isSaving">
                 Cancelar
             </button>
         </div>
@@ -163,13 +172,14 @@
     [Inject] private ProductoProveedorApiClient productoProveedorApiClient { get; set; } = default!;
 
     private CrearPedidoCompletoDTO pedidoDto = new();
-    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 }; 
+    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 };
 
     private List<ProveedorDTO> proveedores = new();
     private List<ProductoAsignadoDTO> productosDisponibles = new();
 
     private string? mensajeError;
     private string? mensajeExito;
+    private bool isSaving = false;
     private int nroLineaCounter = 1;
 
     protected override async Task OnInitializedAsync()
@@ -210,6 +220,7 @@
                 mensajeError = $"Error al cargar productos: {ex.Message}";
             }
         }
+        StateHasChanged();
     }
 
     private void AgregarLinea()
@@ -228,6 +239,14 @@
         }
 
         var lineaExistente = pedidoDto.LineasPedido.FirstOrDefault(l => l.IdProducto == lineaActual.IdProducto);
+        var productoInfo = productosDisponibles.FirstOrDefault(p => p.IdProducto == lineaActual.IdProducto);
+
+        if (productoInfo == null)
+        {
+            mensajeError = "Producto seleccionado no válido o no disponible.";
+            return;
+        }
+
 
         if (lineaExistente != null)
         {
@@ -237,20 +256,29 @@
         {
             lineaActual.PrecioUnitario = GetPrecioProducto(lineaActual.IdProducto);
             lineaActual.NroLineaPedido = nroLineaCounter++;
-            pedidoDto.LineasPedido.Add(lineaActual);
+            pedidoDto.LineasPedido.Add(new LineaPedidoDTO
+            {
+                IdProducto = lineaActual.IdProducto,
+                Cantidad = lineaActual.Cantidad,
+                PrecioUnitario = lineaActual.PrecioUnitario,
+                NroLineaPedido = lineaActual.NroLineaPedido,
+                NombreProducto = productoInfo.Nombre
+            });
         }
 
-        lineaActual = new() { Cantidad = 1 };
+        lineaActual = new() { Cantidad = 1, IdProducto = 0 };
+        StateHasChanged();
     }
 
     private void QuitarLinea(LineaPedidoDTO linea)
     {
         pedidoDto.LineasPedido.Remove(linea);
+        StateHasChanged();
     }
 
     private string GetNombreProducto(int idProducto)
     {
-        return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.Nombre ?? "Producto no encontrado";
+        return productosDisponibles.FirstOrDefault(p => p.IdProducto == idProducto)?.Nombre ?? "N/A";
     }
 
     private decimal GetPrecioProducto(int idProducto)
@@ -274,6 +302,9 @@
             return;
         }
 
+        isSaving = true;
+        StateHasChanged();
+
         try
         {
             var resp = await pedidoApiClient.CreateAsync(pedidoDto);
@@ -281,7 +312,7 @@
             if (resp.IsSuccessStatusCode)
             {
                 mensajeExito = "Pedido creado exitosamente. Redirigiendo...";
-                await Task.Delay(2000); 
+                await Task.Delay(2000);
                 NavigationManager.NavigateTo("/pedido");
             }
             else
@@ -290,9 +321,18 @@
                 mensajeError = $"Error al crear el pedido: {resp.ReasonPhrase} ({errorApi})";
             }
         }
+        catch (HttpRequestException httpEx)
+        {
+            mensajeError = $"Error de red o API: {httpEx.StatusCode} - {httpEx.Message}";
+        }
         catch (Exception ex)
         {
-            mensajeError = $"Error de conexión: {ex.Message}";
+            mensajeError = $"Error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
         }
     }
 

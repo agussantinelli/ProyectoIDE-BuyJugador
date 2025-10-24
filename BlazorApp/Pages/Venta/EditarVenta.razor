@@ -2,9 +2,11 @@
 @attribute [Authorize]
 @using DTOs
 @using ApiClient
+@using System.Net.Http
 @inject VentaApiClient ventaApiClient
 @inject ProductoApiClient productoApiClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <div class="form-container">
     @if (isLoading)
@@ -23,38 +25,54 @@
             <button class="btn btn-secondary" @onclick="Volver"><i class="bi bi-arrow-left"></i> Volver</button>
         </div>
 
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+                <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        }
+
         <div class="row mb-4">
             <div class="col-md-4"><strong>Vendedor:</strong> @venta.NombreVendedor</div>
             <div class="col-md-4"><strong>Fecha:</strong> @venta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
             <div class="col-md-4"><strong>Estado:</strong> @venta.Estado</div>
         </div>
 
-        <div class="card mb-4 bg-transparent border-secondary">
-            <div class="card-header"><strong>Añadir Producto</strong></div>
-            <div class="card-body">
-                <div class="d-flex align-items-end gap-3">
-                    <div class="form-group flex-grow-1">
-                        <label for="producto">Producto:</label>
-                        <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
-                            <option value="0">-- Seleccione un producto --</option>
-                            @foreach (var p in productosDisponibles)
-                            {
-                                <option value="@p.IdProducto">@p.Nombre (@p.PrecioActual?.ToString("C")) - Stock: @p.Stock</option>
-                            }
-                        </InputSelect>
-                    </div>
-                    <div class="form-group" style="min-width: 100px;">
-                        <label for="cantidad">Cantidad:</label>
-                        <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
-                            <i class="bi bi-plus-circle"></i> Agregar
-                        </button>
+        @if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            <div class="card mb-4 bg-transparent border-secondary">
+                <div class="card-header"><strong>Añadir Producto</strong></div>
+                <div class="card-body">
+                    <div class="d-flex align-items-end gap-3">
+                        <div class="form-group flex-grow-1">
+                            <label for="producto">Producto:</label>
+                            <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                                <option value="0">-- Seleccione un producto --</option>
+                                @foreach (var p in productosDisponibles)
+                                {
+                                    <option value="@p.IdProducto">@p.Nombre (@p.PrecioActual?.ToString("C")) - Stock: @p.Stock</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="form-group" style="min-width: 100px;">
+                            <label for="cantidad">Cantidad:</label>
+                            <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" @onclick="AgregarLinea" disabled="@(lineaActual.IdProducto == 0)">
+                                <i class="bi bi-plus-circle"></i> Agregar
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
+        else
+        {
+            <div class="alert alert-info">Esta venta ya no está pendiente y no puede ser modificada.</div>
+        }
+
 
         <div class="tbl-wrapper">
             <table class="tbl">
@@ -64,7 +82,10 @@
                         <th class="tbl-text-end">Precio Unit.</th>
                         <th style="width: 120px;" class="tbl-text-end">Cantidad</th>
                         <th class="tbl-text-end">Subtotal</th>
-                        <th class="tbl-actions">Acción</th>
+                        @if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            <th class="tbl-actions">Acción</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -74,55 +95,63 @@
                             <td>@linea.NombreProducto</td>
                             <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
                             <td class="tbl-text-end">
-                                <InputNumber class="form-control form-control-sm text-end" @bind-Value="linea.Cantidad" min="1" @oninput="MarcarComoModificado" />
+                                @if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    <InputNumber class="form-control form-control-sm text-end" @bind-Value="linea.Cantidad" min="1" @oninput="(e) => OnCantidadChanged(linea, e)" />
+                                }
+                                else
+                                {
+                                    @linea.Cantidad
+                                }
                             </td>
                             <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
-                            <td class="tbl-actions">
-                                <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarLinea(linea)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
+                            @if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <td class="tbl-actions">
+                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarLinea(linea)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>
                 <tfoot>
                     <tr class="tbl-total-row">
-                        <td colspan="4" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                        <td colspan="@(venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true ? 4 : 3)" class="tbl-text-end"><strong>TOTAL:</strong></td>
                         <td class="tbl-text-end"><strong>@TotalVenta.ToString("C")</strong></td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        @if (venta.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
         {
-            <div class="alert alert-danger mt-3">@errorMessage</div>
+            <div class="form-actions mt-4">
+                <button class="btn btn-success" @onclick="GuardarCambios" disabled="@(!datosModificados || isSaving)">
+                    @if (isSaving && !finalizando)
+                    {
+                        <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
+                    }
+                    else
+                    {
+
+                        <span><i class="bi bi-save"></i> Guardar Cambios</span>
+                    }
+                </button>
+                <button class="btn btn-primary" @onclick="FinalizarVenta" disabled="@isSaving">
+                    @if (isSaving && finalizando)
+                    {
+                        <span><span class="spinner-border spinner-border-sm"></span> Finalizando...</span>
+                    }
+                    else
+                    {
+
+                        <span><i class="bi bi-check2-circle"></i> Finalizar Venta</span>
+                    }
+                </button>
+            </div>
         }
-
-        <div class="form-actions mt-4">
-            <button class="btn btn-success" @onclick="GuardarCambios" disabled="@(!datosModificados || isSaving)">
-                @if (isSaving && !finalizando)
-                {
-                    <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
-                }
-                else
-                {
-
-                    <span><i class="bi bi-save"></i> Guardar Cambios</span>
-                }
-            </button>
-            <button class="btn btn-primary" @onclick="FinalizarVenta" disabled="@isSaving">
-                @if (isSaving && finalizando)
-                {
-                    <span><span class="spinner-border spinner-border-sm"></span> Finalizando...</span>
-                }
-                else
-                {
-
-                    <span><i class="bi bi-check2-circle"></i> Finalizar Venta</span>
-                }
-            </button>
-        </div>
     }
 </div>
 
@@ -140,25 +169,45 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var ventaTask = ventaApiClient.GetByIdAsync(VentaId);
-        var productosTask = productoApiClient.GetAllAsync();
-        await Task.WhenAll(ventaTask, productosTask);
-
-        venta = ventaTask.Result;
-        todosLosProductos = productosTask.Result ?? new();
-        if (venta != null)
+        try
         {
-            lineasDeVenta = new(venta.Lineas ?? new());
-            ActualizarProductosDisponibles();
+            var ventaTask = ventaApiClient.GetByIdAsync(VentaId);
+            var productosTask = productoApiClient.GetAllAsync();
+            await Task.WhenAll(ventaTask, productosTask);
+
+            venta = ventaTask.Result;
+            todosLosProductos = productosTask.Result ?? new();
+            if (venta != null)
+            {
+                lineasDeVenta = new(venta.Lineas ?? new());
+                ActualizarProductosDisponibles();
+            }
+            else
+            {
+                errorMessage = "Venta no encontrada.";
+            }
         }
-        isLoading = false;
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al cargar datos: {httpEx.StatusCode} - {httpEx.Message}";
+            venta = null; 
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al cargar la venta: {ex.Message}";
+            venta = null;
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void ActualizarProductosDisponibles()
     {
         var ids = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
         productosDisponibles = todosLosProductos
-            .Where(p => p.Stock > 0 && p.PrecioActual.HasValue && !ids.Contains(p.IdProducto))
+            .Where(p => p.PrecioActual.HasValue && !ids.Contains(p.IdProducto))
             .OrderBy(p => p.Nombre).ToList();
     }
 
@@ -169,22 +218,34 @@
         if (lineaActual.Cantidad <= 0) { errorMessage = "La cantidad debe ser mayor a 0."; return; }
 
         var p = todosLosProductos.FirstOrDefault(x => x.IdProducto == lineaActual.IdProducto);
-        if (p == null) { errorMessage = "Producto inválido."; return; }
-        if (lineaActual.Cantidad > p.Stock) { errorMessage = $"Cantidad supera stock ({p.Stock})."; return; }
+        if (p == null || !p.PrecioActual.HasValue) { errorMessage = "Producto inválido o sin precio."; return; }
 
-        lineasDeVenta.Add(new LineaVentaDTO
+        var lineaExistente = lineasDeVenta.FirstOrDefault(l => l.IdProducto == lineaActual.IdProducto);
+        int cantidadTotalNecesaria = (lineaExistente?.Cantidad ?? 0) + lineaActual.Cantidad;
+
+        if (cantidadTotalNecesaria > p.Stock) { errorMessage = $"Cantidad supera stock ({p.Stock})."; return; }
+
+        if (lineaExistente != null)
         {
-            IdVenta = VentaId,
-            IdProducto = p.IdProducto,
-            NombreProducto = p.Nombre,
-            Cantidad = lineaActual.Cantidad,
-            PrecioUnitario = p.PrecioActual ?? 0,
-            EsNueva = true
-        });
+            lineaExistente.Cantidad = cantidadTotalNecesaria;
+        }
+        else
+        {
+            lineasDeVenta.Add(new LineaVentaDTO
+            {
+                IdVenta = VentaId,
+                IdProducto = p.IdProducto,
+                NombreProducto = p.Nombre,
+                Cantidad = lineaActual.Cantidad,
+                PrecioUnitario = p.PrecioActual.Value,
+                EsNueva = true
+            });
+            ActualizarProductosDisponibles();
+        }
 
-        ActualizarProductosDisponibles();
-        lineaActual = new() { Cantidad = 1 };
+        lineaActual = new() { Cantidad = 1, IdProducto = 0 };
         MarcarComoModificado();
+        StateHasChanged();
     }
 
     private void EliminarLinea(LineaVentaDTO l)
@@ -192,17 +253,72 @@
         lineasDeVenta.Remove(l);
         ActualizarProductosDisponibles();
         MarcarComoModificado();
+        StateHasChanged();
     }
 
-    private void MarcarComoModificado(ChangeEventArgs? _ = null) => datosModificados = true;
+    private void OnCantidadChanged(LineaVentaDTO linea, ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int nuevaCantidad) && nuevaCantidad > 0)
+        {
+            var producto = todosLosProductos.FirstOrDefault(p => p.IdProducto == linea.IdProducto);
+            if (producto != null && nuevaCantidad > producto.Stock)
+            {
+                errorMessage = $"Cantidad para '{linea.NombreProducto}' supera stock ({producto.Stock}). Se restablecerá.";
+                linea.Cantidad = producto.Stock;
+                StateHasChanged(); 
+                return; 
+            }
+            else if (linea.Cantidad != nuevaCantidad)
+            {
+                linea.Cantidad = nuevaCantidad;
+                MarcarComoModificado();
+            }
+        }
+        else
+        {
+            errorMessage = $"Cantidad inválida para '{linea.NombreProducto}'. Debe ser un número mayor a 0.";
+            StateHasChanged(); 
+        }
+    }
+
+
+    private void MarcarComoModificado()
+    {
+        datosModificados = true;
+        errorMessage = null; 
+        StateHasChanged();
+    }
+
 
     private async Task GuardarCambios() => await Guardar(false);
     private async Task FinalizarVenta() => await Guardar(true);
 
     private async Task Guardar(bool finalizar)
     {
-        if (venta?.IdPersona == null) return;
+        if (venta?.IdPersona == null || !lineasDeVenta.Any())
+        {
+            errorMessage = "La venta debe tener al menos una línea.";
+            return;
+        }
+
+        foreach (var linea in lineasDeVenta)
+        {
+            var producto = todosLosProductos.FirstOrDefault(p => p.IdProducto == linea.IdProducto);
+            if (producto != null && linea.Cantidad > producto.Stock)
+            {
+                errorMessage = $"La cantidad para '{linea.NombreProducto}' ({linea.Cantidad}) supera el stock actual ({producto.Stock}). Ajuste la cantidad antes de guardar.";
+                return;
+            }
+            if (linea.Cantidad <= 0)
+            {
+                errorMessage = $"La cantidad para '{linea.NombreProducto}' debe ser mayor a cero.";
+                return;
+            }
+        }
+
+
         isSaving = true; finalizando = finalizar; errorMessage = null;
+        StateHasChanged();
 
         var dto = new CrearVentaCompletaDTO
         {
@@ -215,11 +331,40 @@
         try
         {
             var resp = await ventaApiClient.UpdateCompletaAsync(dto);
-            if (resp.IsSuccessStatusCode) NavigationManager.NavigateTo("/venta");
-            else errorMessage = $"Error: {await resp.Content.ReadAsStringAsync()}";
+            if (resp.IsSuccessStatusCode)
+            {
+                datosModificados = false; 
+                if (finalizar)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "✅ Venta finalizada correctamente.");
+                    NavigationManager.NavigateTo("/venta", true); 
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "✅ Cambios guardados correctamente.");
+                    await OnInitializedAsync(); 
+                    StateHasChanged();
+                }
+
+            }
+            else
+            {
+                errorMessage = $"Error al guardar/finalizar: {await resp.Content.ReadAsStringAsync()}";
+            }
         }
-        catch (Exception ex) { errorMessage = $"Error de conexión: {ex.Message}"; }
-        finally { isSaving = false; finalizando = false; }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false; finalizando = false;
+            StateHasChanged();
+        }
     }
 
     private void Volver() => NavigationManager.NavigateTo("/venta");

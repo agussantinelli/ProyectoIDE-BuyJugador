@@ -5,8 +5,11 @@
 @using DTOs
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Net.Http
+@using System.Net.Http.Json
 @inject ProductoApiClient ProductoApi
 @inject TipoProductoApiClient TipoApi
+@inject PrecioVentaApiClient PrecioVentaApi
 @inject NavigationManager Nav
 @inject IJSRuntime JS
 
@@ -20,6 +23,22 @@
             <i class="bi bi-arrow-left"></i><span>Volver</span>
         </button>
     </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(successMessage))
+    {
+        <div class="alert alert-success" role="alert">
+            @successMessage
+            <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
 
     @if (isLoading)
     {
@@ -43,7 +62,7 @@
                 <ValidationMessage class="validation-message" For="@(() => Model.Descripcion)" />
             </div>
 
-            <div class="inline-2">
+            <div class="inline-3">
                 <div class="form-group">
                     <label for="tipo">Tipo de producto</label>
                     <InputSelect id="tipo" class="form-select" @bind-Value="Model.IdTipoProducto">
@@ -60,6 +79,12 @@
                     <label for="stock">Stock inicial</label>
                     <InputNumber id="stock" class="form-control" @bind-Value="Model.Stock" />
                     <ValidationMessage class="validation-message" For="@(() => Model.Stock)" />
+                </div>
+
+                <div class="form-group">
+                    <label for="precio">Precio inicial</label>
+                    <InputNumber id="precio" class="form-control" @bind-Value="Model.PrecioInicial" TValue="decimal?" ParsingErrorMessage="Ingrese un número válido" />
+                    <ValidationMessage class="validation-message" For="@(() => Model.PrecioInicial)" />
                 </div>
             </div>
 
@@ -85,10 +110,15 @@
         public string? Descripcion { get; set; }
 
         [Required(ErrorMessage = "Seleccione un tipo")]
+        [Range(1, int.MaxValue, ErrorMessage = "Seleccione un tipo válido")]
         public int? IdTipoProducto { get; set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
         public int Stock { get; set; } = 0;
+
+        [Required(ErrorMessage = "El precio inicial es obligatorio")]
+        [Range(0.01, (double)decimal.MaxValue, ErrorMessage = "El precio debe ser mayor a cero")]
+        public decimal? PrecioInicial { get; set; }
     }
 
     private ProductoCreateVM Model = new();
@@ -96,6 +126,9 @@
     private bool isLoading = true;
     private bool isSaving = false;
     private List<TipoProductoDTO> Tipos = new();
+    private string? errorMessage;
+    private string? successMessage;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -103,6 +136,14 @@
         try
         {
             Tipos = await TipoApi.GetAllAsync() ?? new();
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al cargar tipos: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al cargar tipos: {ex.Message}";
         }
         finally
         {
@@ -112,36 +153,106 @@
 
     private async Task Guardar()
     {
-        if (!await JS.InvokeAsync<bool>("confirm", "⚠️ Se creará el producto.\n¿Desea continuar?")) return;
+        if (editContext == null || !editContext.Validate())
+        {
+            errorMessage = "Por favor, corrija los errores de validación.";
+            successMessage = null;
+            return;
+        }
 
         isSaving = true;
+        errorMessage = null;
+        successMessage = null;
+        StateHasChanged();
+
+        HttpResponseMessage? responseProducto = null;
+        ProductoDTO? nuevoProducto = null;
+
+
         try
         {
             var dto = new ProductoDTO
             {
                 Nombre = Model.Nombre!.Trim(),
-                Descripcion = Model.Descripcion?.Trim(),
+                Descripcion = string.IsNullOrWhiteSpace(Model.Descripcion) ? null : Model.Descripcion.Trim(),
                 IdTipoProducto = Model.IdTipoProducto,
                 Stock = Model.Stock
             };
 
-            var resp = await ProductoApi.CreateAsync(dto);
-            if (resp.IsSuccessStatusCode)
+            responseProducto = await ProductoApi.CreateAsync(dto);
+
+            if (responseProducto.IsSuccessStatusCode)
             {
-                await JS.InvokeVoidAsync("alert", "✅ Producto creado.");
-                Nav.NavigateTo("/producto");
+                try
+                {
+                    nuevoProducto = await responseProducto.Content.ReadFromJsonAsync<ProductoDTO>();
+                }
+                catch { }
+
+                if (nuevoProducto == null)
+                {
+                    await Task.Delay(250);
+                    var todos = await ProductoApi.GetAllAsync();
+                    nuevoProducto = todos?.FirstOrDefault(p => p.Nombre == dto.Nombre && p.IdTipoProducto == dto.IdTipoProducto && p.Stock == dto.Stock);
+                }
+
+
+                if (nuevoProducto != null && nuevoProducto.IdProducto > 0)
+                {
+                    var precioDto = new PrecioVentaDTO
+                    {
+                        IdProducto = nuevoProducto.IdProducto,
+                        Monto = Model.PrecioInicial!.Value,
+                        FechaDesde = DateTime.Now
+                    };
+
+                    var responsePrecio = await PrecioVentaApi.CreateAsync(precioDto);
+
+                    if (responsePrecio.IsSuccessStatusCode)
+                    {
+                        successMessage = "Producto y precio inicial creados correctamente. Redirigiendo...";
+                        StateHasChanged();
+                        await Task.Delay(2000);
+                        Nav.NavigateTo("/producto");
+                    }
+                    else
+                    {
+                        var errorPrecio = await responsePrecio.Content.ReadAsStringAsync();
+                        errorMessage = $"Producto creado (ID: {nuevoProducto.IdProducto}), pero falló al crear el precio inicial: {errorPrecio}. Puede agregarlo editando el producto.";
+
+                    }
+                }
+                else
+                {
+                    errorMessage = "Producto creado, pero no se pudo obtener su ID para asignar el precio inicial. Edite el producto para agregar el precio.";
+
+                }
             }
             else
             {
-                var msg = await resp.Content.ReadAsStringAsync();
-                await JS.InvokeVoidAsync("alert", $"❌ Error: {msg}");
+                var msg = await responseProducto.Content.ReadAsStringAsync();
+                errorMessage = $"Error al crear el producto: {msg}";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al guardar: {ex.Message}";
+            if (responseProducto?.IsSuccessStatusCode == true && nuevoProducto == null)
+            {
+                errorMessage += " Se creó el producto, pero ocurrió un error antes de poder guardar el precio inicial. Edite el producto para agregarlo.";
             }
         }
         finally
         {
             isSaving = false;
+            StateHasChanged();
         }
     }
 
     private void Volver() => Nav.NavigateTo("/producto");
 }
+

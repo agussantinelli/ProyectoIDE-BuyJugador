@@ -3,30 +3,50 @@
 
 @using ApiClient
 @using DTOs
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http
 @inject TipoProductoApiClient tipoProductoApiClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
 <link href="css/Form.css" rel="stylesheet" />
 
 <div class="form-container">
-    @if (_tipoProducto == null)
+    @if (isLoading)
     {
         <div class="tbl-state">
             <i class="bi bi-arrow-repeat spin"></i> Cargando...
         </div>
     }
+    else if (_tipoProducto == null)
+    {
+        <div class="alert alert-danger">Tipo de producto no encontrado.</div>
+        <div class="form-actions mt-3">
+            <button class="btn btn-secondary" @onclick="Cancelar">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+        </div>
+    }
     else
     {
         <div class="form-header">
-            <h3 class="form-title">Editando: @_tipoProducto.Descripcion</h3>
+            <h3 class="form-title">Editando: @_originalDescripcion</h3>
             <button class="btn btn-secondary" @onclick="Cancelar">
                 <i class="bi bi-arrow-left"></i>
                 <span>Volver</span>
             </button>
         </div>
 
-        <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+                <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        }
+
+        <EditForm EditContext="@editContext" OnValidSubmit="Guardar">
             <DataAnnotationsValidator />
             <ValidationSummary />
 
@@ -37,11 +57,19 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i>
-                    <span>Guardar Cambios</span>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span> Guardando...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-save"></i>
+                        <span>Guardar Cambios</span>
+                    }
                 </button>
-                <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+                <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar" disabled="@isSaving">
                     <i class="bi bi-x-circle"></i>
                     <span>Cancelar</span>
                 </button>
@@ -52,18 +80,96 @@
 
 @code {
     [Parameter] public int Id { get; set; }
-    private TipoProductoDTO? _tipoProducto;
+
+    private class TipoProductoEditModel
+    {
+        public int IdTipoProducto { get; set; }
+
+        [Required(ErrorMessage = "La descripción es obligatoria.")]
+        [StringLength(100, ErrorMessage = "La descripción no puede exceder los 100 caracteres.")]
+        public string Descripcion { get; set; } = "";
+    }
+
+
+    private TipoProductoEditModel? _tipoProducto;
+    private EditContext? editContext;
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private string? _originalDescripcion;
+    private string? errorMessage;
+
 
     protected override async Task OnInitializedAsync()
     {
-        _tipoProducto = await tipoProductoApiClient.GetByIdAsync(Id);
+        try
+        {
+            var dto = await tipoProductoApiClient.GetByIdAsync(Id);
+            if (dto != null)
+            {
+                _tipoProducto = new TipoProductoEditModel { IdTipoProducto = dto.IdTipoProducto, Descripcion = dto.Descripcion };
+                _originalDescripcion = dto.Descripcion;
+                editContext = new EditContext(_tipoProducto);
+            }
+            else
+            {
+                errorMessage = "Tipo de producto no encontrado.";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al cargar: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al cargar: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private async Task Guardar()
     {
-        if (_tipoProducto is null) return;
-        await tipoProductoApiClient.UpdateAsync(Id, _tipoProducto);
-        NavigationManager.NavigateTo("/tipo-producto");
+        if (_tipoProducto == null || editContext == null || !editContext.Validate())
+        {
+            errorMessage = "Por favor, corrija los errores de validación.";
+            return;
+        }
+
+        if (!await JSRuntime.InvokeAsync<bool>("confirm",
+             "⚠️ Estás a punto de modificar este tipo de producto.\n" +
+             "Este cambio se aplicará a todos los productos asociados.\n\n" +
+             "¿Estás seguro de continuar?")) return;
+
+        isSaving = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var dtoToUpdate = new TipoProductoDTO { IdTipoProducto = _tipoProducto.IdTipoProducto, Descripcion = _tipoProducto.Descripcion.Trim() };
+            await tipoProductoApiClient.UpdateAsync(Id, dtoToUpdate);
+            await JSRuntime.InvokeVoidAsync("alert", "✅ Tipo de producto actualizado.");
+            NavigationManager.NavigateTo("/tipo-producto");
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al actualizar: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (InvalidOperationException opEx) when (opEx.Message.Contains("No se puede eliminar"))
+        {
+            errorMessage = opEx.Message;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al guardar: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
     }
 
     private void Cancelar() => NavigationManager.NavigateTo("/tipo-producto");

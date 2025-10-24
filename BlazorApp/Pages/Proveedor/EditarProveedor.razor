@@ -3,116 +3,127 @@
 
 @using ApiClient
 @using DTOs
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http
 @inject ProveedorApiClient proveedorApiClient
 @inject ProvinciaApiClient provinciaApiClient
 @inject LocalidadApiClient localidadApiClient
 @inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
 
 <link href="/css/Form.css" rel="stylesheet" />
 
 <div class="form-container">
-    @if (proveedor == null && !isLoading)
+    @if (isLoading)
+    {
+        <div class="text-center my-3">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p>Cargando datos del proveedor...</p>
+        </div>
+    }
+    else if (proveedor == null)
     {
         <div class="alert alert-danger">El proveedor solicitado no fue encontrado.</div>
+        <div class="form-actions mt-3">
+            <button class="btn btn-secondary" @onclick="Volver">
+                <i class="bi bi-arrow-left"></i> Volver
+            </button>
+        </div>
     }
     else
     {
-        <EditForm Model="@proveedor" OnValidSubmit="HandleValidSubmit">
+        <EditForm EditContext="@editContext" OnValidSubmit="HandleValidSubmit">
             <DataAnnotationsValidator />
             <h3 class="form-title">Editar Proveedor</h3>
 
-            @if (isLoading)
+            @if (!string.IsNullOrEmpty(errorMessage))
             {
-                <div class="text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Cargando...</span>
-                    </div>
-                    <p>Cargando datos del proveedor...</p>
+                <div class="alert alert-danger" role="alert">
+                    @errorMessage
+                    <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
                 </div>
             }
-            else if (proveedor != null)
-            {
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger" role="alert">
-                        @errorMessage
-                    </div>
-                }
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>ID Proveedor</label>
-                            <InputNumber class="form-control" @bind-Value="proveedor.IdProveedor" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label>Razón Social</label>
-                            <InputText class="form-control" @bind-Value="proveedor.RazonSocial" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label>CUIT</label>
-                            <InputText class="form-control" @bind-Value="proveedor.Cuit" disabled />
-                        </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <InputText type="email" class="form-control" @bind-Value="proveedor.Email" />
-                            <ValidationMessage For="@(() => proveedor.Email)" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Teléfono</label>
-                            <InputText class="form-control" @bind-Value="proveedor.Telefono" />
-                            <ValidationMessage For="@(() => proveedor.Telefono)" />
-                        </div>
-                        <div class="form-group">
-                            <label>Dirección</label>
-                            <InputText class="form-control" @bind-Value="proveedor.Direccion" />
-                            <ValidationMessage For="@(() => proveedor.Direccion)" />
-                        </div>
-                        <div class="form-group">
-                            <label>Provincia</label>
-                            <InputSelect class="form-control" Value="provinciaSeleccionadaIdString" ValueExpression="@(() => provinciaSeleccionadaIdString)" ValueChanged="@((string? value) => OnProvinciaChanged(value))">
-                                <option value="">Seleccione una provincia...</option>
-                                @foreach (var provincia in provincias)
-                                {
-                                    <option value="@provincia.IdProvincia">@provincia.Nombre</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="form-group">
-                            <label>Localidad</label>
-                            <InputSelect class="form-control" @bind-Value="LocalidadIdString" disabled="@(localidadesFiltradas.Count == 0)">
-                                <option value="">Seleccione una localidad...</option>
-                                @foreach (var localidad in localidadesFiltradas)
-                                {
-                                    <option value="@localidad.IdLocalidad">@localidad.Nombre</option>
-                                }
-                            </InputSelect>
-                            <ValidationMessage For="@(() => proveedor.IdLocalidad)" />
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-actions">
-                    <button type="button" class="btn btn-outline-secondary" @onclick="VerProductos">
-                        <i class="bi bi-box-seam"></i> Ver Productos
-                    </button>
-                    <button type="button" class="btn btn-secondary" @onclick="Volver">
-                        <i class="bi bi-arrow-left-circle"></i> Volver
-                    </button>
-                    <button type="submit" class="btn btn-primary" disabled="@isSaving">
-                        @if (isSaving)
-                        {
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            <span> Guardando...</span>
-                        }
-                        else
-                        {
-                            <span><i class="bi bi-check-circle"></i> Guardar Cambios</span>
-                        }
-                    </button>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>ID Proveedor</label>
+                        <InputNumber class="form-control" @bind-Value="proveedor.IdProveedor" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Razón Social</label>
+                        <InputText class="form-control" @bind-Value="proveedor.RazonSocial" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>CUIT</label>
+                        <InputText class="form-control" @bind-Value="proveedor.Cuit" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <InputText type="email" class="form-control" @bind-Value="proveedor.Email" />
+                        <ValidationMessage For="@(() => proveedor.Email)" />
+                    </div>
                 </div>
-            }
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <InputText class="form-control" @bind-Value="proveedor.Telefono" />
+                        <ValidationMessage For="@(() => proveedor.Telefono)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <InputText class="form-control" @bind-Value="proveedor.Direccion" />
+                        <ValidationMessage For="@(() => proveedor.Direccion)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Provincia</label>
+                        <InputSelect class="form-control" Value="provinciaSeleccionadaIdString" ValueExpression="@(() => provinciaSeleccionadaIdString)" ValueChanged="@((string? value) => OnProvinciaChanged(value))">
+                            <option value="">Seleccione una provincia...</option>
+                            @foreach (var provincia in provincias)
+                            {
+                                <option value="@provincia.IdProvincia">@provincia.Nombre</option>
+                            }
+                        </InputSelect>
+                        @if (editContext != null && editContext.GetValidationMessages(() => proveedor.IdLocalidad).Any() && string.IsNullOrEmpty(provinciaSeleccionadaIdString))
+                        {
+                            <div class="validation-message">Seleccione una provincia primero.</div>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <label>Localidad</label>
+                        <InputSelect class="form-control" @bind-Value="LocalidadIdString" disabled="@(localidadesFiltradas.Count == 0)">
+                            <option value="">Seleccione una localidad...</option>
+                            @foreach (var localidad in localidadesFiltradas)
+                            {
+                                <option value="@localidad.IdLocalidad">@localidad.Nombre</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(() => proveedor.IdLocalidad)" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" class="btn btn-outline-secondary" @onclick="VerProductos">
+                    <i class="bi bi-box-seam"></i> Ver Productos
+                </button>
+                <button type="button" class="btn btn-secondary" @onclick="Volver">
+                    <i class="bi bi-arrow-left-circle"></i> Volver
+                </button>
+                <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span> Guardando...</span>
+                    }
+                    else
+                    {
+                        <span><i class="bi bi-check-circle"></i> Guardar Cambios</span>
+                    }
+                </button>
+            </div>
         </EditForm>
     }
 </div>
@@ -122,6 +133,7 @@
     public int IdProveedor { get; set; }
 
     private ProveedorDTO? proveedor;
+    private EditContext? editContext;
     private List<ProvinciaDTO> provincias = new();
     private List<LocalidadDTO> todasLasLocalidades = new();
     private List<LocalidadDTO> localidadesFiltradas = new();
@@ -139,7 +151,7 @@
         {
             if (proveedor != null)
             {
-                if (int.TryParse(value, out var id))
+                if (int.TryParse(value, out var id) && id > 0)
                 {
                     proveedor.IdLocalidad = id;
                 }
@@ -147,6 +159,7 @@
                 {
                     proveedor.IdLocalidad = null;
                 }
+                editContext?.NotifyFieldChanged(FieldIdentifier.Create(() => proveedor.IdLocalidad));
             }
         }
     }
@@ -154,11 +167,16 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadProviderData();
+        if (proveedor != null)
+        {
+            editContext = new EditContext(proveedor);
+        }
     }
 
     private async Task LoadProviderData()
     {
         isLoading = true;
+        errorMessage = null;
         try
         {
             var proveedorTask = proveedorApiClient.GetByIdAsync(IdProveedor);
@@ -183,10 +201,20 @@
                         .ToList();
                 }
             }
+            else if (proveedor == null)
+            {
+                errorMessage = "Proveedor no encontrado.";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al cargar datos: {httpEx.StatusCode} - {httpEx.Message}";
+            proveedor = null;
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error al cargar los datos: {ex.Message}";
+            errorMessage = $"Error inesperado al cargar los datos: {ex.Message}";
+            proveedor = null;
         }
         finally
         {
@@ -197,36 +225,44 @@
     private void OnProvinciaChanged(string? value)
     {
         provinciaSeleccionadaIdString = value;
+        localidadesFiltradas.Clear();
         if (proveedor != null)
         {
             proveedor.IdLocalidad = null;
         }
 
-        if (int.TryParse(provinciaSeleccionadaIdString, out var idProvincia))
+
+        if (int.TryParse(provinciaSeleccionadaIdString, out var idProvincia) && idProvincia > 0)
         {
             localidadesFiltradas = todasLasLocalidades
                 .Where(l => l.IdProvincia == idProvincia)
                 .OrderBy(l => l.Nombre)
                 .ToList();
         }
-        else
-        {
-            localidadesFiltradas.Clear();
-        }
+        editContext?.NotifyFieldChanged(FieldIdentifier.Create(() => proveedor.IdLocalidad));
+        StateHasChanged();
     }
 
     private async Task HandleValidSubmit()
     {
-        if (proveedor == null) return;
+        if (proveedor == null || editContext == null || !editContext.Validate())
+        {
+            errorMessage = "Por favor, corrija los errores de validación.";
+            return;
+        }
+
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "⚠️ Se modificarán los datos del proveedor.\n¿Desea continuar?")) return;
 
         isSaving = true;
         errorMessage = null;
+        StateHasChanged();
 
         try
         {
             var response = await proveedorApiClient.UpdateAsync(IdProveedor, proveedor);
             if (response.IsSuccessStatusCode)
             {
+                await JSRuntime.InvokeVoidAsync("alert", "✅ Proveedor actualizado correctamente.");
                 navigationManager.NavigateTo("/proveedor");
             }
             else
@@ -235,13 +271,18 @@
                 errorMessage = $"Error al actualizar el proveedor: {errorContent}";
             }
         }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al actualizar: {httpEx.StatusCode} - {httpEx.Message}";
+        }
         catch (Exception ex)
         {
-            errorMessage = $"Error de conexión al intentar actualizar el proveedor: {ex.Message}";
+            errorMessage = $"Error inesperado al actualizar el proveedor: {ex.Message}";
         }
         finally
         {
             isSaving = false;
+            StateHasChanged();
         }
     }
 
@@ -255,4 +296,3 @@
         navigationManager.NavigateTo("/proveedor");
     }
 }
-

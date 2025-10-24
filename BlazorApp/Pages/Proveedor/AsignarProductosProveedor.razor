@@ -3,11 +3,13 @@
 
 @using ApiClient
 @using DTOs
+@using System.Net.Http
 @inject ProveedorApiClient proveedorApiClient
 @inject ProductoApiClient productoApiClient
 @inject ProductoProveedorApiClient productoProveedorApiClient
 @inject PrecioCompraApiClient precioCompraApiClient
 @inject NavigationManager navigationManager
+@inject IJSRuntime JSRuntime
 
 <link href="/css/Form.css" rel="stylesheet" />
 <link href="css/Table.css" rel="stylesheet" />
@@ -23,6 +25,14 @@ else if (proveedor != null)
 {
     <div class="form-container">
         <h2 class="form-title">Asignar Productos a @proveedor.RazonSocial</h2>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">
+                @errorMessage
+                <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        }
 
         <div class="assignment-container">
             <div class="product-column">
@@ -94,7 +104,7 @@ else if (proveedor != null)
                     <span> Guardar Cambios</span>
                 }
             </button>
-            <button class="btn btn-secondary" @onclick="VolverAProveedores">
+            <button class="btn btn-secondary" @onclick="VolverAProveedores" disabled="@isSaving">
                 <i class="bi bi-x-circle"></i> Cancelar
             </button>
         </div>
@@ -103,6 +113,11 @@ else if (proveedor != null)
 else
 {
     <div class="alert alert-danger">Proveedor no encontrado.</div>
+    <div class="form-actions mt-3">
+        <button class="btn btn-secondary" @onclick="VolverAProveedores">
+            <i class="bi bi-arrow-left"></i> Volver
+        </button>
+    </div>
 }
 
 <AsignarPrecioModal IsVisible="isPrecioModalVisible"
@@ -122,6 +137,7 @@ else
 
     private bool isLoading = true;
     private bool isSaving = false;
+    private string? errorMessage;
 
     private bool isPrecioModalVisible = false;
     private ProductoDisponibleRow? productoParaAsignar;
@@ -137,7 +153,11 @@ else
             await Task.WhenAll(proveedorTask, todosLosProductosTask, productosAsignadosTask);
 
             proveedor = proveedorTask.Result;
-            if (proveedor == null) return;
+            if (proveedor == null)
+            {
+                errorMessage = "Proveedor no encontrado.";
+                return;
+            }
 
             var todosLosProductos = todosLosProductosTask.Result ?? new();
             var productosAsignadosConPrecio = productosAsignadosTask.Result ?? new();
@@ -153,8 +173,13 @@ else
                 .Select(p => new ProductoAsignadoRow { IdProducto = p.IdProducto, Nombre = p.Nombre, PrecioCompra = p.PrecioCompra })
                 .ToList();
         }
-        catch (Exception)
+        catch (HttpRequestException httpEx)
         {
+            errorMessage = $"Error de red o API al cargar datos: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al cargar datos: {ex.Message}";
         }
         finally
         {
@@ -179,6 +204,7 @@ else
                 Nombre = productoParaAsignar.Nombre,
                 PrecioCompra = precio
             });
+            StateHasChanged();
         }
         CancelarAsignacion();
     }
@@ -197,11 +223,14 @@ else
             IdProducto = producto.IdProducto,
             Nombre = producto.Nombre
         });
+        StateHasChanged();
     }
 
     private async Task GuardarCambios()
     {
         isSaving = true;
+        errorMessage = null;
+        StateHasChanged();
 
         try
         {
@@ -224,18 +253,40 @@ else
             var idsToUpdate = _initialAssignedIds.Intersect(finalAssignedIds).ToList();
             foreach (var idProducto in idsToUpdate)
             {
-                var productoEnUI = productosAsignados.First(p => p.IdProducto == idProducto);
-                await precioCompraApiClient.UpdateAsync(idProducto, IdProveedor, new PrecioCompraDTO { Monto = productoEnUI.PrecioCompra });
+                var productoEnUI = productosAsignados.FirstOrDefault(p => p.IdProducto == idProducto);
+                var precioExistente = await precioCompraApiClient.GetByIdAsync(idProducto, IdProveedor);
+
+                if (productoEnUI != null)
+                {
+                    if (precioExistente != null)
+                    {
+                        if (precioExistente.Monto != productoEnUI.PrecioCompra)
+                        {
+                            await precioCompraApiClient.UpdateAsync(idProducto, IdProveedor, new PrecioCompraDTO { Monto = productoEnUI.PrecioCompra });
+                        }
+                    }
+                    else
+                    {
+                        await precioCompraApiClient.CreateAsync(new PrecioCompraDTO { IdProducto = idProducto, IdProveedor = IdProveedor, Monto = productoEnUI.PrecioCompra });
+                    }
+                }
             }
 
+            await JSRuntime.InvokeVoidAsync("alert", "✅ Cambios guardados exitosamente.");
             navigationManager.NavigateTo("/proveedor");
         }
-        catch (Exception)
+        catch (HttpRequestException httpEx)
         {
+            errorMessage = $"Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al guardar cambios: {ex.Message}";
         }
         finally
         {
             isSaving = false;
+            StateHasChanged();
         }
     }
 
@@ -257,3 +308,4 @@ else
         public decimal PrecioCompra { get; set; }
     }
 }
+

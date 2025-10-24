@@ -3,8 +3,11 @@
 
 @using ApiClient
 @using DTOs
+@using System.ComponentModel.DataAnnotations
+@using System.Net.Http
 @inject TipoProductoApiClient tipoProductoApiClient
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <link href="css/Table.css" rel="stylesheet" />
 <link href="css/Form.css" rel="stylesheet" />
@@ -18,7 +21,15 @@
         </button>
     </div>
 
-    <EditForm Model="@_tipoProducto" OnValidSubmit="Guardar">
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            @errorMessage
+            <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+        </div>
+    }
+
+    <EditForm EditContext="@editContext" OnValidSubmit="Guardar">
         <DataAnnotationsValidator />
         <ValidationSummary />
 
@@ -29,11 +40,19 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-save"></i>
-                <span>Guardar</span>
+            <button type="submit" class="btn btn-primary" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span> Guardando...</span>
+                }
+                else
+                {
+                    <i class="bi bi-save"></i>
+                    <span>Guardar</span>
+                }
             </button>
-            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
+            <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar" disabled="@isSaving">
                 <i class="bi bi-x-circle"></i>
                 <span>Cancelar</span>
             </button>
@@ -42,12 +61,67 @@
 </div>
 
 @code {
-    private TipoProductoDTO _tipoProducto = new();
+    private class TipoProductoCreateModel
+    {
+        [Required(ErrorMessage = "La descripción es obligatoria.")]
+        [StringLength(100, ErrorMessage = "La descripción no puede exceder los 100 caracteres.")]
+        public string Descripcion { get; set; } = "";
+    }
+
+    private TipoProductoCreateModel _tipoProducto = new();
+    private EditContext? editContext;
+    private bool isSaving = false;
+    private string? errorMessage;
+
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(_tipoProducto);
+    }
+
 
     private async Task Guardar()
     {
-        await tipoProductoApiClient.CreateAsync(_tipoProducto);
-        NavigationManager.NavigateTo("/tipo-producto");
+        if (editContext == null || !editContext.Validate())
+        {
+            errorMessage = "Por favor, corrija los errores de validación.";
+            return;
+        }
+
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", "⚠️ Se creará un nuevo tipo de producto.\n¿Desea continuar?")) return;
+
+        isSaving = true;
+        errorMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var dto = new TipoProductoDTO { Descripcion = _tipoProducto.Descripcion.Trim() };
+            var tipoCreado = await tipoProductoApiClient.CreateAsync(dto);
+
+            if (tipoCreado != null)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"✅ Tipo '{tipoCreado.Descripcion}' creado (ID: {tipoCreado.IdTipoProducto}).");
+                NavigationManager.NavigateTo("/tipo-producto");
+            }
+            else
+            {
+                errorMessage = "Error al crear el tipo de producto. La API no devolvió el objeto creado.";
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            errorMessage = $"Error de red o API al crear: {httpEx.StatusCode} - {httpEx.Message}";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error inesperado al guardar: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
     }
 
     private void Cancelar() => NavigationManager.NavigateTo("/tipo-producto");
