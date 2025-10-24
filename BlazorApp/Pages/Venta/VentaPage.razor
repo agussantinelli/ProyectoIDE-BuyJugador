@@ -74,19 +74,19 @@
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(v)">
                                         <i class="bi bi-eye"></i>
                                     </button>
+                                    @if (v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <button class="tbl-icon-btn"
+                                                title="Editar"
+                                                @onclick="@(() => EditarVenta(v))">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    }
 
-                                    <button class="tbl-icon-btn"
-                                            title="@(estaPendiente ? "Editar" : "No se puede editar una venta finalizada")"
-                                            @onclick="@(() => EditarVenta(v))"
-                                            disabled="@(!estaPendiente)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-
-                                    <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
-                                            title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
+                                    <button class="tbl-icon-btn @(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true ? "tbl-icon-btn--success" : "")"
+                                            title="@(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true ? "Finalizar venta" : "Venta ya finalizada")"
                                             @onclick="() => Finalizar(v)"
-                                            disabled="@(!estaPendiente || ventaSiendoFinalizada != 0)">
-
+                                            disabled="@(!(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true) || ventaSiendoFinalizada != 0)">
                                         @if (ventaSiendoFinalizada == v.IdVenta)
                                         {
                                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -105,6 +105,7 @@
                                     }
                                 </div>
                             </td>
+
                         </tr>
                     }
                 </tbody>
