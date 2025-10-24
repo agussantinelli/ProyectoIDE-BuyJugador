@@ -5,6 +5,7 @@
 @inject ApiClient.VentaApiClient VentaApiClient
 @inject ApiClient.PedidoApiClient PedidoApiClient
 @inject IJSRuntime JS
+@inject UserSessionService userSession
 
 <PageTitle>Inicio</PageTitle>
 
@@ -115,20 +116,23 @@
                 <p class="muted">Altas, ediciones y consultas</p>
             </div>
         </a>
-        <a class="qcard" href="/reporte/precios">
-            <span class="bi bi-activity"></span>
-            <div class="qcard-text">
-                <h4>Historial de Precios</h4>
-                <p class="muted">Evolución de precios</p>
-            </div>
-        </a>
-        <a class="qcard" href="/reporte/ventas">
-            <span class="bi bi-file-earmark-bar-graph"></span>
-            <div class="qcard-text">
-                <h4>Reporte de Ventas</h4>
-                <p class="muted">Ventas por vendedor</p>
-            </div>
-        </a>
+        @if (_esAdmin)
+        {
+            <a class="qcard" href="/reporte/precios">
+                <span class="bi bi-activity"></span>
+                <div class="qcard-text">
+                    <h4>Historial de Precios</h4>
+                    <p class="muted">Evolución de precios</p>
+                </div>
+            </a>
+            <a class="qcard" href="/reporte/ventas">
+                <span class="bi bi-file-earmark-bar-graph"></span>
+                <div class="qcard-text">
+                    <h4>Reporte de Ventas</h4>
+                    <p class="muted">Ventas por vendedor</p>
+                </div>
+            </a>
+        }
     </section>
 </div>
 
@@ -138,6 +142,7 @@
     private string? _userName;
     private KpiData? _kpiData;
     private bool _isLoadingKpis = true;
+    private bool _esAdmin = false;   
 
     public class KpiData
     {
@@ -149,6 +154,7 @@
     protected override async Task OnInitializedAsync()
     {
         _userName = "Admin";
+        _esAdmin = await userSession.EsAdminAsync();   
         await LoadKpiData();
         _isLoadingKpis = false;
     }
