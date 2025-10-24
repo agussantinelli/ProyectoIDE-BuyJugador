@@ -5,6 +5,7 @@ namespace DominioModelo
     public class ProductoProveedor
     {
         public int IdProducto { get; set; }
+
         public int IdProveedor { get; set; }
 
         [ForeignKey("IdProducto")]

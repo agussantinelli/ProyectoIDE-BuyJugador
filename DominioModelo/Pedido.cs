@@ -9,10 +9,13 @@ namespace DominioModelo
     {
         [Key]
         public int IdPedido { get; set; }
+
         public DateTime Fecha { get; set; }
         [Required]
         [StringLength(50)]
+
         public string Estado { get; set; }
+
         public int? IdProveedor { get; set; }
 
         [ForeignKey("IdProveedor")]

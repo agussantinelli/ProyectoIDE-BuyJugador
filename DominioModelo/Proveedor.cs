@@ -34,12 +34,16 @@ namespace DominioModelo
         public string Direccion { get; set; }
 
         public int? IdLocalidad { get; set; }
+
         public bool Activo { get; set; }
 
         [ForeignKey("IdLocalidad")]
         public virtual Localidad IdLocalidadNavigation { get; set; }
+
         public virtual ICollection<Pedido> Pedidos { get; set; }
+
         public virtual ICollection<PrecioCompra> PreciosCompra { get; set; }
+
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
     }
 }

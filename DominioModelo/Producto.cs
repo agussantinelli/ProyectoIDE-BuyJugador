@@ -27,16 +27,22 @@ namespace DominioModelo
         public string Descripcion { get; set; }
 
         public int Stock { get; set; }
+
         public int? IdTipoProducto { get; set; }
+
         public bool Activo { get; set; }
 
         [ForeignKey("IdTipoProducto")]
         public virtual TipoProducto IdTipoProductoNavigation { get; set; }
 
         public virtual ICollection<LineaVenta> LineaVenta { get; set; }
+
         public virtual ICollection<LineaPedido> LineaPedido { get; set; }
+
         public virtual ICollection<ProductoProveedor> ProductoProveedores { get; set; }
+
         public virtual ICollection<PrecioCompra> PreciosCompra { get; set; } 
+
         public virtual ICollection<PrecioVenta> PreciosVenta { get; set; }
     }
 }
