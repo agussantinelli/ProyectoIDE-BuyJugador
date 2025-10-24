@@ -61,9 +61,6 @@
                                 <td class="tbl-text-end">@p.Stock</td>
                                 <td class="col-acciones">
                                     <div class="tbl-actions">
-                                        <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
                                         <button class="tbl-icon-btn" title="Editar" @onclick="() => Editar(p)">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
@@ -121,7 +118,6 @@
             .ToList();
     }
 
-    private void VerDetalle(ProductoDTO p) => Nav.NavigateTo($"/producto/{p.IdProducto}");
     private void Editar(ProductoDTO p) => Nav.NavigateTo($"/producto/editar/{p.IdProducto}");
     private void Volver() => Nav.NavigateTo("/tipo-producto");
 }
