@@ -1,5 +1,4 @@
-﻿// VentaApiClient.cs
-using DTOs;
+﻿using DTOs;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;

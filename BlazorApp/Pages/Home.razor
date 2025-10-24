@@ -43,6 +43,13 @@
                     <span class="kpi-label placeholder-glow"><span class="placeholder col-10"></span></span>
                 </div>
             </div>
+            <div class="kpi-card is-loading">
+                <div class="kpi-icon placeholder-glow"><span class="placeholder col-12"></span></div>
+                <div class="kpi-content">
+                    <span class="kpi-value placeholder-glow"><span class="placeholder col-5"></span></span>
+                    <span class="kpi-label placeholder-glow"><span class="placeholder col-8"></span></span>
+                </div>
+            </div>
         }
         else
         {
@@ -55,6 +62,7 @@
                     <span class="kpi-label">Ventas Finalizadas de Hoy</span>
                 </div>
             </div>
+
             <div class="kpi-card">
                 <div class="kpi-icon kpi-orange">
                     <i class="bi bi-truck"></i>
@@ -64,26 +72,36 @@
                     <span class="kpi-label">Pedidos Pendientes</span>
                 </div>
             </div>
+
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background-color: rgba(239,68,68,.12); color:#ef4444;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="kpi-content" style="gap:.2rem;">
+                    <span class="kpi-value">@LowStockCount</span>
+                    <span class="kpi-label">Productos con stock &lt; 10</span>
+
+                    @if (LowStockCount > 0 && WorstLowStock is not null)
+                    {
+                        <small class="muted">
+                            @(LowStockCount > 10 ? "Peor caso" : "Menor stock"):
+                            <strong>@WorstLowStock!.Nombre</strong> (<strong>@WorstLowStock!.Stock</strong>)
+                        </small>
+                    }
+                    else
+                    {
+                        <small class="muted">Sin alertas de stock.</small>
+                    }
+
+                    <div style="margin-top:.35rem;">
+                        <a href="/producto" class="btn btn-primary btn-sm">
+                            <i class="bi bi-box-seam me-1"></i> Ver productos
+                        </a>
+                    </div>
+                </div>
+            </div>
         }
     </section>
-
-    @if (showLowStockBanner)
-    {
-        <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert" style="gap:.6rem;">
-            <div>
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                Tienes <strong>@_kpiData!.ProductosBajoStock.Count</strong> producto(s) con stock bajo (&lt; 10).
-            </div>
-            <div class="d-flex align-items-center" style="gap:.5rem;">
-                <a class="btn btn-primary btn-sm" href="/producto">
-                    <i class="bi bi-box-seam me-1"></i> Ver productos
-                </a>
-                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="CloseLowStockBanner">
-                    Ocultar
-                </button>
-            </div>
-        </div>
-    }
 
     @if (!_isLoadingKpis && _kpiData?.ProductosBajoStock?.Any() == true)
     {
@@ -110,9 +128,7 @@
             <span class="bi bi-bag"></span>
             <div class="qcard-text">
                 <h4>Gestionar Productos</h4>
-                <p class="muted">
-                    @(_esAdmin ? "Ver, crear y editar stock" : "Consultar stock y precios")
-                </p>
+                <p class="muted">@(_esAdmin ? "Ver, crear y editar stock" : "Consultar stock y precios")</p>
             </div>
         </a>
 
@@ -120,9 +136,7 @@
             <span class="bi bi-receipt"></span>
             <div class="qcard-text">
                 <h4>Registrar Ventas</h4>
-                <p class="muted">
-                    @(_esAdmin ? "Crear y administrar ventas" : "Crear y administrar ventas")
-                </p>
+                <p class="muted">@(_esAdmin ? "Crear y administrar ventas" : "Crear y administrar ventas")</p>
             </div>
         </a>
 
@@ -130,9 +144,7 @@
             <span class="bi bi-truck"></span>
             <div class="qcard-text">
                 <h4>Administrar Pedidos</h4>
-                <p class="muted">
-                    @(_esAdmin ? "Crear, editar, recibir y eliminar pedidos" : "Crear, editar y recibir pedidos")
-                </p>
+                <p class="muted">@(_esAdmin ? "Crear, editar, recibir y eliminar pedidos" : "Crear, editar y recibir pedidos")</p>
             </div>
         </a>
 
@@ -140,9 +152,7 @@
             <span class="bi bi-building"></span>
             <div class="qcard-text">
                 <h4>Proveedores</h4>
-                <p class="muted">
-                    @(_esAdmin ? "Altas, ediciones, bajas y consultas" : "Consultar y ver productos asignados")
-                </p>
+                <p class="muted">@(_esAdmin ? "Altas, ediciones, bajas y consultas" : "Consultar y ver productos asignados")</p>
             </div>
         </a>
 
@@ -170,12 +180,15 @@
     private bool showWelcome = true;
     private bool _loadedWelcome = false;
 
-    private bool showLowStockBanner = false; 
-
     private string? _userName;
     private KpiData? _kpiData;
     private bool _isLoadingKpis = true;
     private bool _esAdmin = false;
+
+    private List<DTOs.ProductoDTO> _lowStock = new();
+    private int LowStockCount => _lowStock?.Count ?? 0;
+    private DTOs.ProductoDTO? WorstLowStock =>
+        _lowStock.OrderBy(p => p.Stock).ThenBy(p => p.Nombre).FirstOrDefault();
 
     public class KpiData
     {
@@ -189,34 +202,50 @@
         _userName = "Admin";
         _esAdmin = await userSession.EsAdminAsync();
         await LoadKpiData();
-        showLowStockBanner = _kpiData?.ProductosBajoStock?.Any() == true;
         _isLoadingKpis = false;
     }
 
     private async Task LoadKpiData()
     {
-        try
+        const int LIMITE = 10;
+
+        decimal ventasHoy = 0;
+        int pedidosPend = 0;
+        var lowFromApi = new List<DTOs.ProductoDTO>();
+        var allProducts = new List<DTOs.ProductoDTO>();
+
+        var t1 = Task.Run(async () =>
         {
-            var ventasTask = VentaApiClient.GetTotalVentasHoyAsync();
-            var pedidosTask = PedidoApiClient.GetCantidadPedidosPendientesAsync();
-            var productosTask = ProductoApiClient.GetAllAsync(); 
-
-            await Task.WhenAll(ventasTask, pedidosTask, productosTask);
-
-            var todos = productosTask.Result ?? new List<DTOs.ProductoDTO>();
-            var bajo10 = todos.Where(p => p != null && p.Stock < 10).ToList();
-
-            _kpiData = new KpiData
-            {
-                VentasHoy = await ventasTask,
-                PedidosPendientes = await pedidosTask,
-                ProductosBajoStock = bajo10
-            };
-        }
-        catch
+            try { ventasHoy = await VentaApiClient.GetTotalVentasHoyAsync(); } catch { ventasHoy = 0; }
+        });
+        var t2 = Task.Run(async () =>
         {
-            _kpiData = new KpiData();
-        }
+            try { pedidosPend = await PedidoApiClient.GetCantidadPedidosPendientesAsync(); } catch { pedidosPend = 0; }
+        });
+        var t3 = Task.Run(async () =>
+        {
+            try { lowFromApi = await ProductoApiClient.GetProductosBajoStockAsync(LIMITE) ?? new(); } catch { lowFromApi = new(); }
+        });
+        var t4 = Task.Run(async () =>
+        {
+            try { allProducts = await ProductoApiClient.GetAllAsync() ?? new(); } catch { allProducts = new(); }
+        });
+
+        await Task.WhenAll(t1, t2, t3, t4);
+
+        var lowLocal = allProducts.Where(p => p != null && p.Stock < LIMITE).ToList();
+
+        _lowStock = lowFromApi.Concat(lowLocal)
+                              .GroupBy(p => p.IdProducto)
+                              .Select(g => g.First())
+                              .ToList();
+
+        _kpiData = new KpiData
+        {
+            VentasHoy = ventasHoy,
+            PedidosPendientes = pedidosPend,
+            ProductosBajoStock = _lowStock
+        };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -239,11 +268,5 @@
     {
         showWelcome = false;
         try { await JS.InvokeVoidAsync("localStorage.setItem", "hideWelcome", "1"); } catch { }
-    }
-
-    private void CloseLowStockBanner()
-    {
-        showLowStockBanner = false;
-        StateHasChanged();
     }
 }

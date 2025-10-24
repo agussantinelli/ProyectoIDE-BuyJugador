@@ -37,8 +37,9 @@
 .kpi-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-    gap: 1.6rem;
+    gap: 2.2rem;
     margin-top: 1.2rem;
+    margin-bottom: 1.4rem;
 }
 
 .kpi-card {
@@ -135,6 +136,7 @@
 .stock-alert-panel .muted {
     margin: .25rem 0 1rem;
     font-size: .92rem;
+    margin-top: 1rem;
 }
 
 .stock-alert-list {
@@ -168,8 +170,8 @@
 .quick-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.75rem;
-    margin-top: 2rem; 
+    gap: 2.2rem;
+    margin-top: 2.2rem;
 }
 
 .qcard {
