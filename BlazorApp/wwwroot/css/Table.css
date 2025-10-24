@@ -210,3 +210,10 @@
         padding-bottom: 0.75rem;
         color: var(--text-emphasis);
     }
+
+.tbl-actions .tbl-icon-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(80%);
+    pointer-events: none;
+}

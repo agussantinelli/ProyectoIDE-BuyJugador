@@ -4,6 +4,7 @@
 @using DTOs
 @using ApiClient
 @using BlazorApp.Auth
+@using System.Net.Http
 @inject VentaApiClient ventaApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
@@ -74,19 +75,18 @@
                                     <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(v)">
                                         <i class="bi bi-eye"></i>
                                     </button>
-                                    @if (v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true)
-                                    {
-                                        <button class="tbl-icon-btn"
-                                                title="Editar"
-                                                @onclick="@(() => EditarVenta(v))">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    }
 
-                                    <button class="tbl-icon-btn @(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true ? "tbl-icon-btn--success" : "")"
-                                            title="@(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true ? "Finalizar venta" : "Venta ya finalizada")"
+                                    <button class="tbl-icon-btn"
+                                            title="@(estaPendiente ? "Editar" : "No se puede editar una venta finalizada")"
+                                            disabled="@(!estaPendiente)"
+                                            @onclick="@(() => EditarVenta(v))">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+
+                                    <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
+                                            title="@(estaPendiente ? "Finalizar venta" : "Venta ya finalizada")"
                                             @onclick="() => Finalizar(v)"
-                                            disabled="@(!(v.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true) || ventaSiendoFinalizada != 0)">
+                                            disabled="@(!estaPendiente || ventaSiendoFinalizada != 0)">
                                         @if (ventaSiendoFinalizada == v.IdVenta)
                                         {
                                             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -156,6 +156,12 @@
             ventas = await ventaApiClient.GetAllAsync() ?? new();
             AplicarFiltro();
         }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"No se pudieron cargar las ventas (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
+            ventas = new();
+        }
         catch (Exception ex)
         {
             _mensaje = $"No se pudieron cargar las ventas: {ex.Message}";
@@ -176,6 +182,7 @@
             .Where(v =>
                 string.IsNullOrWhiteSpace(textoFiltro)
                 || (v.NombreVendedor?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .OrderByDescending(v => v.Fecha)
             .ToList() ?? new();
     }
 
@@ -225,6 +232,11 @@
                 throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"Error al eliminar la venta (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
+        }
         catch (Exception ex)
         {
             _mensaje = $"Error al eliminar: {ex.Message}";
@@ -265,7 +277,7 @@
 
             if (response.IsSuccessStatusCode)
             {
-                _mensaje = "Venta finalizada correctamente.";
+                _mensaje = $"Venta #{venta.IdVenta} finalizada correctamente.";
                 _esError = false;
                 await CargarVentas();
             }
@@ -274,6 +286,11 @@
                 var error = await response.Content.ReadAsStringAsync();
                 throw new Exception(string.IsNullOrWhiteSpace(error) ? response.ReasonPhrase : error);
             }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"Error al finalizar la venta (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
         }
         catch (Exception ex)
         {
@@ -287,4 +304,3 @@
         }
     }
 }
-

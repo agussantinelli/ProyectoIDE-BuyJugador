@@ -23,7 +23,7 @@
     else if (Model is null)
     {
         <div class="alert alert-danger">No se encontró el producto.</div>
-        <div class="form-actions">
+        <div class="form-actions mt-3">
             <button class="btn btn-secondary" @onclick="Volver">
                 <i class="bi bi-arrow-left"></i><span>Volver</span>
             </button>
@@ -32,17 +32,23 @@
     else
     {
         <div class="form-header">
-            <h3 class="form-title">Editando: @originalNombre</h3>
+            <h3 class="form-title">Editando: @Model.Nombre</h3>
             <button class="btn btn-secondary" @onclick="Volver">
                 <i class="bi bi-arrow-left"></i><span>Volver</span>
             </button>
         </div>
-
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger" role="alert">
                 @errorMessage
                 <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                @successMessage
+                <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
             </div>
         }
 
@@ -111,7 +117,7 @@
         [Range(1, int.MaxValue, ErrorMessage = "Seleccione un tipo válido")]
         public int? IdTipoProducto { get; set; }
 
-        [Range(0, int.MaxValue)]
+        [Range(0, int.MaxValue, ErrorMessage = "El stock no puede ser negativo")]
         public int Stock { get; set; }
     }
 
@@ -120,25 +126,20 @@
     private bool isLoading = true;
     private bool isSaving = false;
     private List<TipoProductoDTO> Tipos = new();
-    private string? originalNombre;
     private string? errorMessage;
+    private string? successMessage;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var dtoTask = ProductoApi.GetByIdAsync(Id);
-            var tiposTask = TipoApi.GetAllAsync();
-
-            await Task.WhenAll(dtoTask, tiposTask);
-
-            var dto = dtoTask.Result;
-            Tipos = tiposTask.Result ?? new();
+            var dto = await ProductoApi.GetByIdAsync(Id);
+            Tipos = await TipoApi.GetAllAsync() ?? new();
 
             if (dto is null)
             {
                 Model = null;
-                errorMessage = "No se encontró el producto especificado.";
+                errorMessage = "No se encontró el producto.";
                 return;
             }
 
@@ -150,7 +151,6 @@
                 IdTipoProducto = dto.IdTipoProducto,
                 Stock = dto.Stock
             };
-            originalNombre = dto.Nombre;
             editContext = new EditContext(Model);
         }
         catch (HttpRequestException httpEx)
@@ -174,12 +174,13 @@
         if (Model is null || editContext == null || !editContext.Validate())
         {
             errorMessage = "Por favor, corrija los errores de validación.";
+            successMessage = null;
             return;
         }
-        if (!await JS.InvokeAsync<bool>("confirm", "⚠️ Se guardarán los cambios.\n¿Desea continuar?")) return;
 
         isSaving = true;
         errorMessage = null;
+        successMessage = null;
         StateHasChanged();
 
         try
@@ -187,7 +188,7 @@
             var dto = new ProductoDTO
             {
                 IdProducto = Model.IdProducto,
-                Nombre = Model.Nombre!.Trim(),
+                Nombre = Model.Nombre!,
                 Descripcion = string.IsNullOrWhiteSpace(Model.Descripcion) ? null : Model.Descripcion.Trim(),
                 IdTipoProducto = Model.IdTipoProducto,
                 Stock = Model.Stock
@@ -196,22 +197,24 @@
             var resp = await ProductoApi.UpdateAsync(Model.IdProducto, dto);
             if (resp.IsSuccessStatusCode)
             {
-                await JS.InvokeVoidAsync("alert", "✅ Cambios guardados.");
+                successMessage = "✅ Cambios guardados. Redirigiendo...";
+                StateHasChanged();
+                await Task.Delay(2000);
                 Nav.NavigateTo("/producto");
             }
             else
             {
                 var msg = await resp.Content.ReadAsStringAsync();
-                errorMessage = $"Error al guardar cambios: {msg}";
+                errorMessage = $"❌ Error al guardar: {msg}";
             }
         }
         catch (HttpRequestException httpEx)
         {
-            errorMessage = $"Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
+            errorMessage = $"❌ Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error inesperado al guardar: {ex.Message}";
+            errorMessage = $"❌ Error inesperado al guardar: {ex.Message}";
         }
         finally
         {
@@ -222,3 +225,4 @@
 
     private void Volver() => Nav.NavigateTo("/producto");
 }
+

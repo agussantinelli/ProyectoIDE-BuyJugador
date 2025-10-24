@@ -4,6 +4,7 @@
 @using DTOs
 @using ApiClient
 @using BlazorApp.Auth
+@using System.Net.Http
 @inject PedidoApiClient pedidoApiClient
 @inject UserSessionService userSession
 @inject NavigationManager NavigationManager
@@ -74,14 +75,12 @@
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    @if (estaPendiente)
-                                    {
-                                        <button class="tbl-icon-btn"
-                                                title="Editar"
-                                                @onclick="@(() => EditarPedido(p.IdPedido))">
-                                            <i class="bi bi-pencil-square"></i>
-                                        </button>
-                                    }
+                                    <button class="tbl-icon-btn"
+                                            title="@(estaPendiente ? "Editar" : "No se puede editar un pedido recibido")"
+                                            disabled="@(!estaPendiente)"
+                                            @onclick="@(() => EditarPedido(p.IdPedido))">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
 
                                     <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
                                             title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
@@ -148,6 +147,12 @@
             pedidos = await pedidoApiClient.GetAllAsync() ?? new();
             AplicarFiltro();
         }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"No se pudieron cargar los pedidos (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
+            pedidos = new();
+        }
         catch (Exception ex)
         {
             _mensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
@@ -168,6 +173,7 @@
             .Where(p =>
                 string.IsNullOrWhiteSpace(textoFiltro)
                 || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
+            .OrderByDescending(p => p.Fecha)
             .ToList() ?? new();
     }
 
@@ -213,6 +219,11 @@
                 throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"Error al eliminar el pedido (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
+        }
         catch (Exception ex)
         {
             _mensaje = $"Error al eliminar el pedido: {ex.Message}";
@@ -236,6 +247,8 @@
             var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
             if (resp.IsSuccessStatusCode)
             {
+                _mensaje = $"Pedido #{p.IdPedido} marcado como recibido.";
+                _esError = false;
                 await CargarPedidos();
             }
             else
@@ -244,10 +257,19 @@
                 throw new Exception(string.IsNullOrWhiteSpace(errorBody) ? resp.ReasonPhrase : errorBody);
             }
         }
+        catch (HttpRequestException httpEx)
+        {
+            _mensaje = $"Error al finalizar el pedido (Error HTTP: {httpEx.StatusCode}): {httpEx.Message}";
+            _esError = true;
+        }
         catch (Exception ex)
         {
             _mensaje = $"Error al finalizar el pedido: {ex.Message}";
             _esError = true;
+        }
+        finally
+        {
+            StateHasChanged();
         }
     }
 }

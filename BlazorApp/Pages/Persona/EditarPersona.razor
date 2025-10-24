@@ -3,13 +3,12 @@
 
 @using ApiClient
 @using DTOs
-@using System.ComponentModel.DataAnnotations
-@using System.Net.Http
 @inject PersonaApiClient PersonaApi
 @inject ProvinciaApiClient ProvinciaApi
 @inject LocalidadApiClient LocalidadApi
 @inject NavigationManager Nav
 @inject IJSRuntime JS
+@using System.Net.Http
 
 <link href="css/Table.css" rel="stylesheet" />
 <link href="css/Form.css" rel="stylesheet" />
@@ -24,7 +23,7 @@
     else if (Model is null)
     {
         <div class="alert alert-danger">No se encontró la persona.</div>
-        <div class="form-actions">
+        <div class="form-actions mt-3">
             <button class="btn btn-secondary" @onclick="Cancelar">
                 <i class="bi bi-arrow-left"></i><span>Volver</span>
             </button>
@@ -38,12 +37,18 @@
                 <i class="bi bi-arrow-left"></i><span>Volver</span>
             </button>
         </div>
-
         @if (!string.IsNullOrEmpty(errorMessage))
         {
             <div class="alert alert-danger" role="alert">
                 @errorMessage
                 <button type="button" class="btn-close" @onclick="() => errorMessage = null" aria-label="Close"></button>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(successMessage))
+        {
+            <div class="alert alert-success" role="alert">
+                @successMessage
+                <button type="button" class="btn-close" @onclick="() => successMessage = null" aria-label="Close"></button>
             </div>
         }
 
@@ -83,7 +88,7 @@
             <div class="inline-2">
                 <div class="form-group">
                     <label for="provincia">Provincia</label>
-                    <InputSelect id="provincia" class="form-select" @bind-Value="IdProvincia" @oninput="OnProvinciaChanged">
+                    <InputSelect id="provincia" class="form-select" @bind-Value="IdProvincia" @onchange="OnProvinciaChanged">
                         <option value="">-- Seleccionar provincia --</option>
                         @foreach (var p in Provincias)
                         {
@@ -150,38 +155,54 @@
     private bool isLoading = true;
     private bool isSaving = false;
     private string? errorMessage;
+    private string? successMessage;
 
     private List<ProvinciaDTO> Provincias = new();
     private List<LocalidadDTO> LocalidadesTodas = new();
-    private int? IdProvincia;
+    private int? _idProvincia;
+    private int? IdProvincia
+    {
+        get => _idProvincia;
+        set
+        {
+            if (_idProvincia != value)
+            {
+                _idProvincia = value;
+
+                if (Model != null && value.HasValue && value > 0)
+                {
+                    Model.IdLocalidad = null;
+                }
+                else if (Model != null)
+                {
+                    Model.IdLocalidad = null;
+                }
+            }
+        }
+    }
+
 
     private List<LocalidadDTO> LocalidadesFiltradas =>
-        (IdProvincia is null || IdProvincia == 0) ? new() : LocalidadesTodas.Where(l => l.IdProvincia == IdProvincia).ToList();
+        (IdProvincia is null || IdProvincia == 0) ? new() : LocalidadesTodas.Where(l => l.IdProvincia == IdProvincia).OrderBy(l => l.Nombre).ToList();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            var dtoTask = PersonaApi.GetByIdAsync(Id);
-            var provinciasTask = ProvinciaApi.GetAllAsync();
-            var localidadesTask = LocalidadApi.GetAllOrderedAsync();
-
-            await Task.WhenAll(dtoTask, provinciasTask, localidadesTask);
-
-            var dto = dtoTask.Result;
-            Provincias = provinciasTask.Result ?? new();
-            LocalidadesTodas = localidadesTask.Result ?? new();
+            var dto = await PersonaApi.GetByIdAsync(Id);
+            Provincias = await ProvinciaApi.GetAllAsync() ?? new();
+            LocalidadesTodas = await LocalidadApi.GetAllOrderedAsync() ?? new();
 
             if (dto is null)
             {
                 Model = null;
-                errorMessage = "No se encontró la persona especificada.";
+                errorMessage = "No se encontró la persona.";
                 return;
             }
 
-            if (dto.IdLocalidad.HasValue)
+            if (dto.IdLocalidad.HasValue && dto.IdLocalidad > 0)
             {
-                var loc = LocalidadesTodas.FirstOrDefault(l => l.IdLocalidad == dto.IdLocalidad.Value);
+                var loc = LocalidadesTodas.FirstOrDefault(l => l.IdLocalidad == dto.IdLocalidad);
                 IdProvincia = loc?.IdProvincia;
             }
 
@@ -205,7 +226,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error inesperado al cargar los datos: {ex.Message}";
+            errorMessage = $"Error inesperado al cargar datos: {ex.Message}";
             Model = null;
         }
         finally
@@ -219,14 +240,13 @@
         if (Model is null || editContext == null || !editContext.Validate())
         {
             errorMessage = "Por favor, corrija los errores de validación.";
+            successMessage = null;
             return;
         }
 
-        var ok = await JS.InvokeAsync<bool>("confirm", "⚠️ Se modificarán los datos de la persona.\n¿Desea continuar?");
-        if (!ok) return;
-
         isSaving = true;
         errorMessage = null;
+        successMessage = null;
         StateHasChanged();
 
         try
@@ -243,25 +263,27 @@
             };
 
             var response = await PersonaApi.UpdateAsync(Id, dto);
+
             if (response.IsSuccessStatusCode)
             {
-                await JS.InvokeVoidAsync("alert", "✅ Persona actualizada exitosamente.");
+                successMessage = "✅ Persona actualizada exitosamente. Redirigiendo...";
+                StateHasChanged();
+                await Task.Delay(2000);
                 Nav.NavigateTo("/persona");
             }
             else
             {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Error al actualizar la persona: {errorContent}";
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"❌ Error al actualizar: {error}";
             }
-
         }
         catch (HttpRequestException httpEx)
         {
-            errorMessage = $"Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
+            errorMessage = $"❌ Error de red o API al guardar: {httpEx.StatusCode} - {httpEx.Message}";
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error inesperado al guardar: {ex.Message}";
+            errorMessage = $"❌ Error inesperado al guardar: {ex.Message}";
         }
         finally
         {
@@ -270,25 +292,21 @@
         }
     }
 
-    private Task OnProvinciaChanged(ChangeEventArgs e)
+    private async Task OnProvinciaChanged(ChangeEventArgs e)
     {
-        errorMessage = null;
-        if (Model != null)
+        if (int.TryParse(e.Value?.ToString(), out var idProvincia))
         {
-            Model.IdLocalidad = null; 
-        }
-        string? selectedValue = e.Value?.ToString();
-        if (int.TryParse(selectedValue, out int idProvincia))
-        {
-            IdProvincia = idProvincia;
+            IdProvincia = idProvincia > 0 ? idProvincia : (int?)null;
         }
         else
         {
             IdProvincia = null;
         }
-        editContext?.NotifyFieldChanged(FieldIdentifier.Create(() => Model.IdLocalidad));
-        return Task.CompletedTask;
+        if (Model != null) Model.IdLocalidad = null;
+        await Task.CompletedTask;
     }
+
 
     private void Cancelar() => Nav.NavigateTo("/persona");
 }
+
