@@ -60,7 +60,7 @@
                 <tbody>
                     @foreach (var p in pedidosFiltrados)
                     {
-                        bool estaPendiente = p.Estado == "Pendiente";
+                        bool estaPendiente = p.Estado?.Equals("Pendiente", StringComparison.OrdinalIgnoreCase) == true;
 
                         <tr>
                             <td>@p.IdPedido</td>
@@ -70,16 +70,18 @@
                             <td class="tbl-text-end">@FormatCurrency(p.Total)</td>
                             <td class="tbl-text-end">
                                 <div class="tbl-actions">
-                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p)">
+                                    <button class="tbl-icon-btn" title="Ver detalle" @onclick="() => VerDetalle(p.IdPedido)">
                                         <i class="bi bi-eye"></i>
                                     </button>
 
-                                    <button class="tbl-icon-btn"
-                                            title="@(estaPendiente ? "Editar" : "No se puede editar un pedido recibido")"
-                                            @onclick="() => VerDetalle(p)"
-                                            disabled="@(!estaPendiente)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
+                                    @if (estaPendiente)
+                                    {
+                                        <button class="tbl-icon-btn"
+                                                title="Editar"
+                                                @onclick="@(() => EditarPedido(p.IdPedido))">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                    }
 
                                     <button class="tbl-icon-btn @(estaPendiente ? "tbl-icon-btn--success" : "")"
                                             title="@(estaPendiente ? "Marcar como Recibido" : "Pedido ya recibido")"
@@ -124,15 +126,11 @@
     private string? _mensaje;
     private bool _esError;
 
-    // State for modal
     private bool _mostrarModalConfirmacion = false;
     private bool _isEliminando = false;
     private PedidoDTO? _pedidoParaEliminar;
 
-    private string FormatCurrency(decimal amount)
-    {
-        return amount.ToString("C");
-    }
+    private string FormatCurrency(decimal amount) => amount.ToString("C");
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,7 +152,6 @@
         {
             _mensaje = $"No se pudieron cargar los pedidos: {ex.Message}";
             _esError = true;
-            Console.WriteLine($"[ERROR] {_mensaje}");
             pedidos = new();
         }
     }
@@ -171,19 +168,12 @@
             .Where(p =>
                 string.IsNullOrWhiteSpace(textoFiltro)
                 || (p.ProveedorRazonSocial?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false))
-            .ToList() ??
-            new();
+            .ToList() ?? new();
     }
 
-    private void NuevoPedido()
-    {
-        NavigationManager.NavigateTo("/pedido/crear");
-    }
-
-    private void VerDetalle(PedidoDTO p)
-    {
-        NavigationManager.NavigateTo($"/pedido/detalle/{p.IdPedido}");
-    }
+    private void NuevoPedido() => NavigationManager.NavigateTo("/pedido/crear");
+    private void VerDetalle(int id) => NavigationManager.NavigateTo($"/pedido/detalle/{id}");
+    private void EditarPedido(int id) => NavigationManager.NavigateTo($"/pedido/editar/{id}");
 
     private void AbrirModalConfirmacion(PedidoDTO pedido)
     {
@@ -215,7 +205,7 @@
             {
                 _mensaje = "Pedido eliminado correctamente.";
                 _esError = false;
-                await CargarPedidos(); // Recargar la lista
+                await CargarPedidos();
             }
             else
             {
@@ -244,7 +234,6 @@
         try
         {
             var resp = await pedidoApiClient.MarcarComoRecibidoAsync(p.IdPedido);
-
             if (resp.IsSuccessStatusCode)
             {
                 await CargarPedidos();
@@ -262,4 +251,3 @@
         }
     }
 }
-

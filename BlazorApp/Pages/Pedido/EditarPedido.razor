@@ -1,0 +1,313 @@
+﻿@page "/pedido/editar/{PedidoId:int}"
+@attribute [Authorize]
+
+@using DTOs
+@using ApiClient
+@inject PedidoApiClient pedidoApiClient
+@inject ProductoProveedorApiClient productoProveedorApiClient
+@inject NavigationManager NavigationManager
+@inject UserSessionService userSession
+
+<div class="form-container">
+    @if (isLoading)
+    {
+        <div class="tbl-state"><i class="bi bi-arrow-repeat spin"></i> Cargando pedido...</div>
+    }
+    else if (pedido == null)
+    {
+        <div class="alert alert-danger">No se encontró el pedido especificado.</div>
+        <div class="form-actions">
+            <button class="btn btn-secondary" @onclick="Volver"><i class="bi bi-arrow-left"></i> Volver</button>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="form-title mb-0">Editar Pedido #@pedido.IdPedido</h3>
+            <button class="btn btn-secondary" @onclick="Volver"><i class="bi bi-arrow-left"></i> Volver</button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-4"><strong>Proveedor:</strong> @pedido.ProveedorRazonSocial</div>
+            <div class="col-md-4"><strong>Fecha:</strong> @pedido.Fecha.ToString("dd/MM/yyyy")</div>
+            <div class="col-md-4"><strong>Estado:</strong> @pedido.Estado</div>
+        </div>
+
+        <div class="card mb-4 bg-transparent border-secondary">
+            <div class="card-header"><strong>Añadir Producto</strong></div>
+            <div class="card-body">
+                <div class="d-flex align-items-end gap-3">
+                    <div class="form-group flex-grow-1">
+                        <label for="producto">Producto:</label>
+                        <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                            <option value="0">-- Seleccione un producto --</option>
+                            @foreach (var p in productosDisponibles)
+                            {
+                                <option value="@p.IdProducto">@p.Nombre (@p.PrecioCompra.ToString("C"))</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="form-group" style="min-width: 100px;">
+                        <label for="cantidad">Cantidad:</label>
+                        <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                            <i class="bi bi-plus-circle"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tbl-wrapper">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="tbl-text-end">Precio Unit. (Costo)</th>
+                        <th style="width: 120px;" class="tbl-text-end">Cantidad</th>
+                        <th class="tbl-text-end">Subtotal</th>
+                        <th class="tbl-actions">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var linea in lineasDePedido)
+                    {
+                        <tr>
+                            <td>@linea.NombreProducto</td>
+                            <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
+                            <td class="tbl-text-end">
+                                <InputNumber class="form-control form-control-sm text-end" @bind-Value="linea.Cantidad" min="1" @oninput="MarcarComoModificado" />
+                            </td>
+                            <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
+                            <td class="tbl-actions">
+                                <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarLinea(linea)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="tbl-total-row">
+                        <td colspan="4" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                        <td class="tbl-text-end"><strong>@TotalPedido.ToString("C")</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(errorMessage))
+        {
+            <div class="alert alert-danger mt-3">@errorMessage</div>
+        }
+
+        <div class="form-actions mt-4">
+            <button class="btn btn-success" @onclick="GuardarCambios" disabled="@(!datosModificados || isSaving)">
+                @if (isSaving && !recibiendo)
+                {
+                    <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
+                }
+                else
+                {
+                    <span><i class="bi bi-save"></i> Guardar Cambios</span>
+                }
+            </button>
+            <button class="btn btn-primary" @onclick="RecibirPedido" disabled="@isSaving">
+                @if (isSaving && recibiendo)
+                {
+                    <span><span class="spinner-border spinner-border-sm"></span> Recibiendo...</span>
+                }
+                else
+                {
+                    <span><i class="bi bi-check2-circle"></i> Marcar como Recibido</span>
+                }
+            </button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int PedidoId { get; set; }
+
+    private PedidoDTO? pedido;
+    private List<LineaPedidoDTO> lineasDePedido = new();
+
+    private List<ProductoAsignadoDTO> productosDelProveedor = new();
+    private List<ProductoAsignadoDTO> productosDisponibles = new();
+    private LineaPedidoDTO lineaActual = new() { Cantidad = 1 };
+
+    private bool isLoading = true;
+    private bool isSaving = false;
+    private bool recibiendo = false;
+    private bool datosModificados = false;
+    private string? errorMessage;
+
+    private decimal TotalPedido => lineasDePedido.Sum(l => l.Subtotal);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            pedido = await pedidoApiClient.GetByIdAsync(PedidoId);
+
+            if (pedido != null && pedido.IdProveedor > 0)
+            {
+                lineasDePedido = new List<LineaPedidoDTO>(pedido.LineasPedido ?? new List<LineaPedidoDTO>());
+                productosDelProveedor = await productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(pedido.IdProveedor) ?? new();
+                ActualizarProductosDisponibles();
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error al cargar los datos: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ActualizarProductosDisponibles()
+    {
+        var idsEnPedido = lineasDePedido.Select(l => l.IdProducto).ToHashSet();
+        productosDisponibles = productosDelProveedor
+            .Where(p => !idsEnPedido.Contains(p.IdProducto))
+            .OrderBy(p => p.Nombre)
+            .ToList();
+    }
+
+    private void AgregarLinea()
+    {
+        errorMessage = null;
+        if (lineaActual.IdProducto == 0)
+        {
+            errorMessage = "Debe seleccionar un producto.";
+            return;
+        }
+        if (lineaActual.Cantidad <= 0)
+        {
+            errorMessage = "La cantidad debe ser mayor a 0.";
+            return;
+        }
+
+        var productoSeleccionado = productosDelProveedor.FirstOrDefault(p => p.IdProducto == lineaActual.IdProducto);
+        if (productoSeleccionado == null)
+        {
+            errorMessage = "El producto seleccionado no es válido para este proveedor.";
+            return;
+        }
+
+        lineasDePedido.Add(new LineaPedidoDTO
+        {
+            IdPedido = PedidoId,
+            IdProducto = productoSeleccionado.IdProducto,
+            NombreProducto = productoSeleccionado.Nombre,
+            Cantidad = lineaActual.Cantidad,
+            PrecioUnitario = productoSeleccionado.PrecioCompra,
+            EsNueva = true
+        });
+
+        ActualizarProductosDisponibles();
+        lineaActual = new() { Cantidad = 1 };
+        MarcarComoModificado();
+        StateHasChanged();
+    }
+
+    private void EliminarLinea(LineaPedidoDTO linea)
+    {
+        lineasDePedido.Remove(linea);
+        ActualizarProductosDisponibles();
+        MarcarComoModificado();
+        StateHasChanged();
+    }
+
+    private void MarcarComoModificado(ChangeEventArgs? e = null)
+    {
+        datosModificados = true;
+        StateHasChanged();
+    }
+
+    private async Task GuardarCambios()
+    {
+        if (pedido == null) return;
+
+        isSaving = true;
+        errorMessage = null;
+
+        var dto = new PedidoDTO
+        {
+            IdPedido = pedido.IdPedido,
+            IdProveedor = pedido.IdProveedor,
+            Fecha = pedido.Fecha,
+            Estado = pedido.Estado,
+            LineasPedido = lineasDePedido
+        };
+
+        try
+        {
+            var response = await pedidoApiClient.UpdateAsync(pedido.IdPedido, dto);
+            if (response.IsSuccessStatusCode)
+            {
+                datosModificados = false;
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Error al guardar: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private async Task RecibirPedido()
+    {
+        isSaving = true;
+        recibiendo = true;
+        errorMessage = null;
+
+        try
+        {
+            if (datosModificados)
+            {
+                await GuardarCambios();
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    isSaving = false;
+                    recibiendo = false;
+                    return;
+                }
+            }
+
+            var response = await pedidoApiClient.MarcarComoRecibidoAsync(PedidoId);
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/pedido", forceLoad: true);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Error al marcar como recibido: {error}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error de conexión: {ex.Message}";
+        }
+        finally
+        {
+            isSaving = false;
+            recibiendo = false;
+        }
+    }
+
+    private void Volver() => NavigationManager.NavigateTo("/pedido");
+}
