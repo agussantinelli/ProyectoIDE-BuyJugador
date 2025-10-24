@@ -127,11 +127,11 @@ namespace WinForms
 
         private void ActualizarTotal()
         {
-            decimal totalCalculado = 0;
+            decimal totalCalculado = 0m;
 
-            if (_lineasDePedido != null)
+            if (_lineasDePedido != null && _lineasDePedido.Count > 0)
             {
-                totalCalculado = _lineasDePedido.Sum(l => l.Subtotal);
+                totalCalculado = _lineasDePedido.Sum(l => l.Cantidad * l.PrecioUnitario);
             }
 
             if (_pedido != null)
@@ -139,8 +139,13 @@ namespace WinForms
                 _pedido.Total = totalCalculado;
             }
 
-            lblTotal.Text = $"Total: {totalCalculado:C2}";
-            lblTotal.Refresh();
+            var texto = $"Total: {totalCalculado.ToString("C2", System.Globalization.CultureInfo.CurrentCulture)}";
+            lblTotal.Text = texto;
+
+            if (TextRenderer.MeasureText(texto, lblTotal.Font).Width > lblTotal.Width)
+            {
+                lblTotal.Width = TextRenderer.MeasureText(texto, lblTotal.Font).Width + 20;
+            }
         }
 
 
