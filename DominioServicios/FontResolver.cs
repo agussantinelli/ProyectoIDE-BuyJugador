@@ -9,9 +9,6 @@ namespace DominioServicios
     {
         public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
         {
-            if (familyName.Equals(" ম্যাজিক ", StringComparison.OrdinalIgnoreCase))
-                return null;
-
             string fontName = familyName.ToLowerInvariant().Replace(" ", "");
             if (isBold && isItalic)
             {
@@ -42,7 +39,7 @@ namespace DominioServicios
                 {
                     stream.CopyTo(memoryStream);
                     return memoryStream.ToArray();
-                } 
+                }
             }
         }
     }
