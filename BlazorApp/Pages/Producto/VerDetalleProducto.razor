@@ -9,7 +9,6 @@
 <link href="css/Form.css" rel="stylesheet" />
 <link href="css/Table.css" rel="stylesheet" />
 
-
 <div class="form-container producto-detalle">
     @if (isLoading)
     {
@@ -24,10 +23,12 @@
         <div class="form-header detalle-header">
             <h3 class="form-title">Detalle de @Producto.Nombre</h3>
             <div class="detalle-actions">
-                <button class="btn btn-secondary" @onclick="@(() => Nav.NavigateTo("/producto"))">
+                <button class="btn btn-secondary" title="Volver al listado" @onclick="@(() => Nav.NavigateTo("/producto"))">
                     <i class="bi bi-arrow-left"></i><span>Volver</span>
                 </button>
-                <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo($"/producto/editar/{Producto.IdProducto}"))">
+
+                <button class="btn btn-primary" title="Editar producto"
+                        @onclick="@(() => Nav.NavigateTo($"/producto/editar/{Producto.IdProducto}"))">
                     <i class="bi bi-pencil-square"></i><span>Editar</span>
                 </button>
             </div>
