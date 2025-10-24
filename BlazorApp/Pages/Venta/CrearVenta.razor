@@ -51,6 +51,7 @@
             </div>
         </div>
     </div>
+
     <div class="tbl-wrapper">
         <table class="tbl">
             <thead>
@@ -100,6 +101,13 @@
         </table>
     </div>
 
+    <div class="d-flex align-items-center gap-2 mt-3">
+        <InputCheckbox id="finalizar" class="form-check-input" @bind-Value="venta.Finalizada" disabled="@isSaving" />
+        <label for="finalizar" class="form-check-label">
+            Marcar venta como <strong>Finalizada</strong>
+        </label>
+    </div>
+
     <div class="form-actions mt-3">
         <button type="button" class="btn btn-primary" @onclick="GuardarVenta" disabled="@(!venta.Lineas.Any() || isSaving)">
             @if (isSaving)
@@ -136,8 +144,12 @@
             return;
         }
         venta.IdPersona = userId.Value;
+
         todosLosProductos = await productoApiClient.GetAllAsync() ?? new();
-        productosDisponibles = todosLosProductos.Where(p => p.Stock > 0 && p.PrecioActual.HasValue).OrderBy(p => p.Nombre).ToList();
+        productosDisponibles = todosLosProductos
+            .Where(p => p.Stock > 0 && p.PrecioActual.HasValue)
+            .OrderBy(p => p.Nombre)
+            .ToList();
     }
 
     private void AgregarLinea()
@@ -195,6 +207,7 @@
     {
         isSaving = true;
         mensajeError = null;
+
         if (!venta.Lineas.Any())
         {
             mensajeError = "Debe agregar al menos un producto a la venta.";
@@ -202,7 +215,6 @@
             return;
         }
 
-        venta.Finalizada = false;
 
         try
         {
@@ -232,4 +244,3 @@
         NavigationManager.NavigateTo("/venta");
     }
 }
-
