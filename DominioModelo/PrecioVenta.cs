@@ -9,6 +9,7 @@ namespace DominioModelo
         public decimal Monto { get; set; }
 
         public DateTime FechaDesde { get; set; }
+
         public int IdProducto { get; set; }
 
         public virtual Producto Producto { get; set; } = null!;
