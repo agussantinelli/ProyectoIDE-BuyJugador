@@ -26,24 +26,6 @@
         </section>
     }
 
-    @if (showLowStockBanner)
-    {
-        <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert" style="gap:.6rem;">
-            <div>
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                Tienes <strong>@_kpiData!.ProductosBajoStock.Count</strong> producto(s) con stock bajo (&lt; 10).
-            </div>
-            <div class="d-flex align-items-center" style="gap:.5rem;">
-                <a class="btn btn-primary btn-sm" href="/producto">
-                    <i class="bi bi-box-seam me-1"></i> Ver productos
-                </a>
-                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="CloseLowStockBanner">
-                    Ocultar
-                </button>
-            </div>
-        </div>
-    }
-
     <section class="kpi-grid">
         @if (_isLoadingKpis)
         {
@@ -84,6 +66,24 @@
             </div>
         }
     </section>
+
+    @if (showLowStockBanner)
+    {
+        <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert" style="gap:.6rem;">
+            <div>
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Tienes <strong>@_kpiData!.ProductosBajoStock.Count</strong> producto(s) con stock bajo (&lt; 10).
+            </div>
+            <div class="d-flex align-items-center" style="gap:.5rem;">
+                <a class="btn btn-primary btn-sm" href="/producto">
+                    <i class="bi bi-box-seam me-1"></i> Ver productos
+                </a>
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="CloseLowStockBanner">
+                    Ocultar
+                </button>
+            </div>
+        </div>
+    }
 
     @if (!_isLoadingKpis && _kpiData?.ProductosBajoStock?.Any() == true)
     {
@@ -197,19 +197,20 @@
     {
         try
         {
-            const int LIMITE_BAJO_STOCK = 10;
-
             var ventasTask = VentaApiClient.GetTotalVentasHoyAsync();
             var pedidosTask = PedidoApiClient.GetCantidadPedidosPendientesAsync();
-            var stockTask = ProductoApiClient.GetProductosBajoStockAsync(LIMITE_BAJO_STOCK);
+            var productosTask = ProductoApiClient.GetAllAsync(); 
 
-            await Task.WhenAll(ventasTask, pedidosTask, stockTask);
+            await Task.WhenAll(ventasTask, pedidosTask, productosTask);
+
+            var todos = productosTask.Result ?? new List<DTOs.ProductoDTO>();
+            var bajo10 = todos.Where(p => p != null && p.Stock < 10).ToList();
 
             _kpiData = new KpiData
             {
                 VentasHoy = await ventasTask,
                 PedidosPendientes = await pedidosTask,
-                ProductosBajoStock = (await stockTask) ?? new List<DTOs.ProductoDTO>()
+                ProductosBajoStock = bajo10
             };
         }
         catch
