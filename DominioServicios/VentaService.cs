@@ -1,6 +1,7 @@
 ﻿using Data;
 using DominioModelo;
 using DTOs;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -164,10 +165,17 @@ namespace DominioServicios
 
         public async Task<decimal> GetTotalVentasHoyAsync()
         {
-            var ahoraEnArgentina = GetCurrentArgentinaTime();
-            var hoy = ahoraEnArgentina.Date;
+            var ahora = GetCurrentArgentinaTime();
+            var hoy = ahora.Date;
             var mañana = hoy.AddDays(1);
-            return await _unitOfWork.VentaRepository.GetTotalVentasEnRangoAsync(hoy, mañana);
+
+            var totalHoy = await _unitOfWork.VentaRepository
+                .GetVentas() 
+                .Where(v => v.Estado == "Finalizada" && v.Fecha >= hoy && v.Fecha < mañana)
+                .Select(v => v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario))
+                .SumAsync();
+
+            return totalHoy;
         }
     }
 }

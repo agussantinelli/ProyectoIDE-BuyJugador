@@ -70,7 +70,6 @@ public static class VentaEndpoints
                 return Results.Problem(ex.Message);
             }
         })
-        .RequireAuthorization()
         .WithTags("Ventas");
 
         group.MapPut("/completa/{id:int}", async (int id, CrearVentaCompletaDTO ventaDto, VentaService ventaService) =>

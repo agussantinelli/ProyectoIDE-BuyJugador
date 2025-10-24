@@ -48,7 +48,6 @@ public static class PedidoEndpoints
                 return Results.Problem(ex.Message);
             }
         })
-        .RequireAuthorization()
         .WithTags("Pedidos");
 
 
