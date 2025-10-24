@@ -1,5 +1,6 @@
-﻿using System; // <-- necesario por DateTime?
+﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -13,8 +14,23 @@ namespace ApiClient
 
         public ReporteApiClient(HttpClient http) => _http = http;
 
-        public Task<List<ReporteVentasDTO>?> GetReporteVentasPorVendedorAsync(int idPersona) =>
-            _http.GetFromJsonAsync<List<ReporteVentasDTO>>($"api/reportes/ventas-vendedor/{idPersona}");
+
+        public async Task<List<ReporteVentasDTO>?> GetReporteVentasPorVendedorAsync(int idPersona)
+        {
+            var resp = await _http.GetAsync($"api/reportes/ventas-vendedor/{idPersona}");
+
+            if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                return null; 
+            }
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                return new List<ReporteVentasDTO>(); 
+            }
+
+            return await resp.Content.ReadFromJsonAsync<List<ReporteVentasDTO>>() ?? new();
+        }
 
         public async Task<byte[]?> GetReporteVentasPdfAsync(int idPersona)
         {

@@ -6,6 +6,7 @@
 @inject PersonaApiClient personaApiClient
 @inject ReporteApiClient reporteApiClient
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Nav
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -25,7 +26,6 @@
                 <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
                 <select id="vendedor"
                         class="form-select @(showSelectAsInvalid ? "is-invalid" : "")"
-                        title="Para ver el reporte, el vendedor debe tener al menos 2 ventas en los últimos 7 días."
                         @onchange="OnVendedorSeleccionado"
                         disabled="@(isLoadingReporte || isDownloadingPdf)">
                     <option value="0">-- Por favor, elija un vendedor --</option>
@@ -69,8 +69,8 @@
             {
                 <div class="alert alert-warning mt-3" role="alert" aria-live="polite">
                     No se puede generar el informe: el vendedor seleccionado tiene
-                    <strong>@(ventasDetectadas)</strong> venta@(ventasDetectadas == 1 ? "" : "s")
-                    en los últimos 7 días. Se requieren <strong>@MinVentasRequeridas</strong> o más.
+                    <strong>@ventasDetectadas</strong> venta@(ventasDetectadas == 1 ? "" : "s")
+                    en los últimos 7 días. Se requiere al menos <strong>@MinVentasRequeridas</strong>.
                 </div>
             }
 
@@ -114,11 +114,12 @@
     private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
 
-    private const int MinVentasRequeridas = 2;
+    private const int MinVentasRequeridas = 1;
+
     private string? validationMessage;
     private bool showSelectAsInvalid = false;
-    private bool blockedByRule = false;         
-    private int ventasDetectadas = 0;         
+    private bool blockedByRule = false;
+    private int ventasDetectadas = 0;
     private bool HasMinSales => (reporteData?.Count ?? 0) >= MinVentasRequeridas;
 
     private bool isLoadingReporte = false;
@@ -136,45 +137,49 @@
         showSelectAsInvalid = false;
         blockedByRule = false;
         ventasDetectadas = 0;
+        reporteData = null;
 
-        if (int.TryParse(e.Value?.ToString(), out selectedPersonaId) && selectedPersonaId > 0)
+        if (!int.TryParse(e.Value?.ToString(), out selectedPersonaId) || selectedPersonaId <= 0)
+            return;
+
+        isLoadingReporte = true;
+        StateHasChanged();
+
+        try
         {
-            isLoadingReporte = true;
-            reporteData = null;
-            StateHasChanged();
+            var datos = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
 
-            // Traemos ventas últimos 7 días
-            reporteData = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
+            if (datos == null)
+            {
+                isLoadingReporte = false;
+                showSelectAsInvalid = true;
+                validationMessage = "Tu sesión expiró o no tenés permisos para ver este reporte. Iniciá sesión nuevamente.";
+                return;
+            }
 
-            isLoadingReporte = false;
+            ventasDetectadas = datos.Count;
 
-            ventasDetectadas = reporteData?.Count ?? 0;
-
-            if (!HasMinSales)
+            if (ventasDetectadas < MinVentasRequeridas)
             {
                 blockedByRule = true;
                 showSelectAsInvalid = true;
-
-                var msg = $"No se puede generar el informe: el vendedor tiene {ventasDetectadas} " +
-                          $"venta{(ventasDetectadas == 1 ? "" : "s")} en los últimos 7 días. " +
-                          $"Se requieren al menos {MinVentasRequeridas}.";
-                validationMessage = msg;
-
-                await JSRuntime.InvokeVoidAsync("alert", msg);
-
-                await JSRuntime.InvokeVoidAsync("document.getElementById('vendedor').focus");
-
-
-                reporteData = new List<ReporteVentasDTO>();
+                validationMessage = $"No se puede generar el informe: el vendedor seleccionado tiene {ventasDetectadas} venta{(ventasDetectadas == 1 ? "" : "s")} en los últimos 7 días. Se requiere al menos {MinVentasRequeridas}.";
+                reporteData = new List<ReporteVentasDTO>(); 
+            }
+            else
+            {
+                reporteData = datos; 
             }
         }
-        else
+        catch (Exception ex)
         {
-            reporteData = null;
-            validationMessage = null;
-            showSelectAsInvalid = false;
-            blockedByRule = false;
-            ventasDetectadas = 0;
+            showSelectAsInvalid = true;
+            validationMessage = $"Error al generar el reporte: {ex.Message}";
+            reporteData = new List<ReporteVentasDTO>();
+        }
+        finally
+        {
+            isLoadingReporte = false;
         }
     }
 

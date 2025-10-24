@@ -2,8 +2,7 @@
 
 namespace DTOs
 {
-    // #NUEVO: DTO específico para los datos del reporte.
-    // #Intención: Desacoplar la estructura del reporte de los DTOs existentes.
+
     public class ReporteVentasDTO
     {
         public int IdVenta { get; set; }

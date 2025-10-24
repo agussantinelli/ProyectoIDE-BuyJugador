@@ -12,7 +12,7 @@ namespace WebAPI.Endpoints
     {
         public static void MapReporteEndpoints(this IEndpointRouteBuilder app)
         {
-            var group = app.MapGroup("/api/reportes").RequireAuthorization();
+            var group = app.MapGroup("/api/reportes");
 
             group.MapGet("/ventas-vendedor/{idPersona:int}", async ([FromServices] ReporteService service, int idPersona) =>
             {

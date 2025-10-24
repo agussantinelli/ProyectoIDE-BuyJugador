@@ -31,13 +31,11 @@ namespace DominioServicios
             double leftMargin = 40;
             double rightMargin = page.Width - 40;
 
-            // --- Título ---
             gfx.DrawString($"Reporte de Ventas: {nombreVendedor}", fontTitle, XBrushes.Black, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
             yPos += 30;
             gfx.DrawString($"Últimos 7 días - Generado el {System.DateTime.Now:dd/MM/yyyy HH:mm}", fontBody, XBrushes.Gray, new XRect(0, yPos, page.Width, 0), XStringFormats.TopCenter);
             yPos += 40;
 
-            // --- Cabecera de la Tabla ---
             double[] columnWidths = { 80, 150, 120, 150 };
             string[] headers = { "ID Venta", "Fecha", "Estado", "Total" };
             double currentX = leftMargin;
@@ -52,7 +50,6 @@ namespace DominioServicios
             gfx.DrawLine(XPens.Gray, leftMargin, yPos, rightMargin, yPos);
             yPos += 10;
 
-            // --- Filas de Datos ---
             foreach (var item in reporteData)
             {
                 currentX = leftMargin;
@@ -73,23 +70,19 @@ namespace DominioServicios
                 }
             }
 
-            // --- Línea y Total General ---
             yPos += 10;
             gfx.DrawLine(XPens.Black, leftMargin, yPos, rightMargin, yPos);
             yPos += 15;
 
             var totalGeneral = reporteData.Sum(r => r.TotalVenta);
 
-            // #CORRECCIÓN: Se calcula la posición del texto y el total de forma segura para evitar valores negativos.
-            // #Intención: Dibujar la etiqueta "Total General:" a la izquierda del valor numérico.
-            double totalLabelWidth = 120; // Ancho para la etiqueta "Total General:"
+            double totalLabelWidth = 120; 
             double totalValueX = rightMargin - columnWidths[3];
-            double totalLabelX = totalValueX - totalLabelWidth - 5; // Posicionar etiqueta a la izquierda del valor con un espacio de 5.
+            double totalLabelX = totalValueX - totalLabelWidth - 5; 
 
             gfx.DrawString("Total General:", fontTotal, XBrushes.Black, new XRect(totalLabelX, yPos, totalLabelWidth, 0), XStringFormats.TopRight);
             gfx.DrawString(totalGeneral.ToString("C2"), fontTotal, XBrushes.Black, new XRect(totalValueX, yPos, columnWidths[3], 0), XStringFormats.TopRight);
 
-            // --- Guardar en memoria ---
             using (var stream = new MemoryStream())
             {
                 document.Save(stream, false);
