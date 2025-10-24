@@ -26,6 +26,24 @@
         </section>
     }
 
+    @if (showLowStockBanner)
+    {
+        <div class="alert alert-danger d-flex justify-content-between align-items-center" role="alert" style="gap:.6rem;">
+            <div>
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Tienes <strong>@_kpiData!.ProductosBajoStock.Count</strong> producto(s) con stock bajo (&lt; 10).
+            </div>
+            <div class="d-flex align-items-center" style="gap:.5rem;">
+                <a class="btn btn-primary btn-sm" href="/producto">
+                    <i class="bi bi-box-seam me-1"></i> Ver productos
+                </a>
+                <button type="button" class="btn btn-outline-danger btn-sm" @onclick="CloseLowStockBanner">
+                    Ocultar
+                </button>
+            </div>
+        </div>
+    }
+
     <section class="kpi-grid">
         @if (_isLoadingKpis)
         {
@@ -93,9 +111,7 @@
             <div class="qcard-text">
                 <h4>Gestionar Productos</h4>
                 <p class="muted">
-                    @(_esAdmin
-                                        ? "Ver, crear y editar stock"
-                                        : "Consultar stock y precios")
+                    @(_esAdmin ? "Ver, crear y editar stock" : "Consultar stock y precios")
                 </p>
             </div>
         </a>
@@ -105,9 +121,7 @@
             <div class="qcard-text">
                 <h4>Registrar Ventas</h4>
                 <p class="muted">
-                    @(_esAdmin
-                                        ? "Crear y administrar ventas"
-                                        : "Crear y administrar ventas")
+                    @(_esAdmin ? "Crear y administrar ventas" : "Crear y administrar ventas")
                 </p>
             </div>
         </a>
@@ -117,9 +131,7 @@
             <div class="qcard-text">
                 <h4>Administrar Pedidos</h4>
                 <p class="muted">
-                    @(_esAdmin
-                                        ? "Crear, editar, recibir y eliminar pedidos"
-                                        : "Crear, editar y recibir pedidos")
+                    @(_esAdmin ? "Crear, editar, recibir y eliminar pedidos" : "Crear, editar y recibir pedidos")
                 </p>
             </div>
         </a>
@@ -129,9 +141,7 @@
             <div class="qcard-text">
                 <h4>Proveedores</h4>
                 <p class="muted">
-                    @(_esAdmin
-                                        ? "Altas, ediciones, bajas y consultas"
-                                        : "Consultar y ver productos asignados")
+                    @(_esAdmin ? "Altas, ediciones, bajas y consultas" : "Consultar y ver productos asignados")
                 </p>
             </div>
         </a>
@@ -159,6 +169,9 @@
 @code {
     private bool showWelcome = true;
     private bool _loadedWelcome = false;
+
+    private bool showLowStockBanner = false; 
+
     private string? _userName;
     private KpiData? _kpiData;
     private bool _isLoadingKpis = true;
@@ -176,6 +189,7 @@
         _userName = "Admin";
         _esAdmin = await userSession.EsAdminAsync();
         await LoadKpiData();
+        showLowStockBanner = _kpiData?.ProductosBajoStock?.Any() == true;
         _isLoadingKpis = false;
     }
 
@@ -183,11 +197,14 @@
     {
         try
         {
-            const int LIMITE_BAJO_STOCK = 5;
+            const int LIMITE_BAJO_STOCK = 10;
+
             var ventasTask = VentaApiClient.GetTotalVentasHoyAsync();
             var pedidosTask = PedidoApiClient.GetCantidadPedidosPendientesAsync();
             var stockTask = ProductoApiClient.GetProductosBajoStockAsync(LIMITE_BAJO_STOCK);
+
             await Task.WhenAll(ventasTask, pedidosTask, stockTask);
+
             _kpiData = new KpiData
             {
                 VentasHoy = await ventasTask,
@@ -220,10 +237,12 @@
     private async Task CloseWelcome()
     {
         showWelcome = false;
-        try
-        {
-            await JS.InvokeVoidAsync("localStorage.setItem", "hideWelcome", "1");
-        }
-        catch { }
+        try { await JS.InvokeVoidAsync("localStorage.setItem", "hideWelcome", "1"); } catch { }
+    }
+
+    private void CloseLowStockBanner()
+    {
+        showLowStockBanner = false;
+        StateHasChanged();
     }
 }
