@@ -12,7 +12,13 @@
 <link href="css/Table.css" rel="stylesheet" />
 
 <div class="form-container">
-    <h2 class="form-title">Nuevo Pedido</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="form-title mb-0">Nuevo Pedido</h3>
+        <button class="btn btn-secondary" @onclick="Cancelar">
+            <i class="bi bi-arrow-left"></i>
+            <span>Volver al Listado</span>
+        </button>
+    </div>
 
     @if (!string.IsNullOrEmpty(mensajeError))
     {
@@ -26,110 +32,131 @@
         <div class="alert alert-success" role="alert">@mensajeExito</div>
     }
 
-    <div class="form-group">
-        <label for="proveedor">Proveedor:</label>
-        <InputSelect id="proveedor" class="form-control" @bind-Value="pedidoDto.IdProveedor" @oninput="OnProveedorChanged">
-            <option value="0">-- Seleccione un proveedor --</option>
-            @if (proveedores.Any())
-            {
-                @foreach (var p in proveedores)
-                {
-                    <option value="@p.IdProveedor">@p.RazonSocial</option>
-                }
-            }
-        </InputSelect>
-    </div>
-
-    @if (pedidoDto.IdProveedor > 0)
-    {
-        <hr />
-        <h5>Agregar Productos</h5>
-        <div class="form-row">
-            <div class="form-group col-6">
-                <label for="producto">Producto:</label>
-                <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
-                    <option value="0">-- Seleccione un producto --</option>
-                    @if (productosDisponibles.Any())
+    <div class="card mb-4 bg-transparent border-secondary">
+        <div class="card-header"><strong>Seleccionar Proveedor</strong></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="proveedor">Proveedor:</label>
+                <InputSelect id="proveedor" class="form-control" @bind-Value="pedidoDto.IdProveedor" @oninput="OnProveedorChanged">
+                    <option value="0">-- Seleccione un proveedor --</option>
+                    @if (proveedores.Any())
                     {
-                        @foreach (var p in productosDisponibles)
+                        @foreach (var p in proveedores)
                         {
-                            <option value="@p.IdProducto">@p.Nombre (@p.PrecioCompra.ToString("C"))</option>
+                            <option value="@p.IdProveedor">@p.RazonSocial</option>
                         }
                     }
                 </InputSelect>
             </div>
-            <div class="form-group col-3">
-                <label for="cantidad">Cantidad:</label>
-                <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" />
-            </div>
-            <div class="form-group col-3 d-flex align-items-end">
-                <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
-                    <i class="bi bi-plus-circle"></i> Agregar
-                </button>
+        </div>
+    </div>
+
+    @if (pedidoDto.IdProveedor > 0)
+    {
+        <div class="card mb-4 bg-transparent border-secondary">
+            <div class="card-header"><strong>Añadir Producto</strong></div>
+            <div class="card-body">
+                <div class="d-flex align-items-end gap-3">
+                    <div class="form-group flex-grow-1">
+                        <label for="producto">Producto:</label>
+                        <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
+                            <option value="0">-- Seleccione un producto --</option>
+                            @if (productosDisponibles.Any())
+                            {
+                                @foreach (var p in productosDisponibles)
+                                {
+                                    <option value="@p.IdProducto">@p.Nombre (@p.PrecioCompra.ToString("C"))</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="form-group" style="min-width: 120px;">
+                        <label for="cantidad">Cantidad:</label>
+                        <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" />
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
+                            <i class="bi bi-plus-circle"></i> Agregar
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        @if (pedidoDto.LineasPedido.Any())
-        {
-            <div class="tbl-wrapper">
-                <table class="tbl table-striped">
-                    <thead>
-                        <tr>
-                            <th>Producto</th>
-                            <th>Cantidad</th>
-                            <th class="tbl-text-end">Precio Unit.</th>
-                            <th class="tbl-text-end">Subtotal</th>
-                            <th class="tbl-text-end">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+        <div class="tbl-wrapper">
+            <table class="tbl">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="tbl-text-end">Cantidad</th>
+                        <th class="tbl-text-end">Precio Unit.</th>
+                        <th class="tbl-text-end">Subtotal</th>
+                        <th class="tbl-actions">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (pedidoDto.LineasPedido.Any())
+                    {
                         @foreach (var linea in pedidoDto.LineasPedido)
                         {
                             <tr>
                                 <td>@GetNombreProducto(linea.IdProducto)</td>
-                                <td>@linea.Cantidad</td>
+                                <td class="tbl-text-end">@linea.Cantidad</td>
                                 <td class="tbl-text-end">@GetPrecioProducto(linea.IdProducto).ToString("C")</td>
                                 <td class="tbl-text-end">@((linea.Cantidad * GetPrecioProducto(linea.IdProducto)).ToString("C"))</td>
-                                <td class="tbl-text-end">
+                                <td class="tbl-actions">
                                     <button class="tbl-icon-btn tbl-icon-btn--danger" title="Quitar" @onclick="() => QuitarLinea(linea)">
-                                        <i class="bi bi-trash3"></i>
+                                        <i class="bi bi-trash"></i>
                                     </button>
                                 </td>
                             </tr>
                         }
-                    </tbody>
-                    <tfoot>
+                    }
+                    else
+                    {
                         <tr>
-                            <td colspan="3" class="tbl-text-end"><strong>Total:</strong></td>
-                            <td class="tbl-text-end"><strong>@CalcularTotal().ToString("C")</strong></td>
-                            <td></td>
+                            <td colspan="5">
+                                <div class="tbl-state text-center d-block">
+                                    <i class="bi bi-bag-plus"></i> Agregue productos para continuar.
+                                </div>
+                            </td>
                         </tr>
-                    </tfoot>
-                </table>
-            </div>
-        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="tbl-total-row">
+                        <td colspan="4" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                        <td class="tbl-text-end"><strong>@CalcularTotal().ToString("C")</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
     }
 
-    <hr />
     <EditForm Model="pedidoDto" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator />
-
-        <div class="form-check mb-3">
+        <div class="d-flex align-items-center gap-2 mt-3">
             <InputCheckbox id="marcarRecibido" class="form-check-input" @bind-Value="pedidoDto.MarcarComoRecibido" />
-            <label class="form-check-label" for="marcarRecibido">Marcar como recibido al crear</label>
+            <label class="form-check-label" for="marcarRecibido">
+                Marcar pedido como <strong>Recibido</strong> al crear
+            </label>
         </div>
+        <p class="text-muted small mt-1">
+            Si lo marcás como recibido, se actualizará el stock automáticamente.
+        </p>
 
-        <div class="form-actions">
+        <div class="form-actions mt-3">
             <button type="submit" class="btn btn-primary" disabled="@(!pedidoDto.LineasPedido.Any())">
-                <i class="bi bi-save"></i> Guardar Pedido
+                <i class="bi bi-save"></i>
+                <span>Guardar Pedido</span>
             </button>
             <button type="button" class="btn btn-outline-secondary" @onclick="Cancelar">
                 Cancelar
             </button>
         </div>
     </EditForm>
-
 </div>
+
 
 @code {
     [Inject] private ProveedorApiClient proveedorApiClient { get; set; } = default!;
