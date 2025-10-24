@@ -1,12 +1,8 @@
 ﻿@page "/venta/detalle/{VentaId:int}"
 @attribute [Authorize]
-@using System.ComponentModel
 @using DTOs
 @using ApiClient
-@using System.Threading
 @inject VentaApiClient ventaApiClient
-@inject ProductoApiClient productoApiClient
-@inject UserSessionService userSession
 @inject NavigationManager NavigationManager
 
 <div class="form-container">
@@ -18,299 +14,65 @@
     {
         <div class="alert alert-danger">No se encontró la venta especificada.</div>
         <div class="form-actions">
-            <button class="btn btn-secondary" @onclick="Volver">
-                <i class="bi bi-arrow-left"></i> Volver al Listado
-            </button>
+            <button class="btn btn-secondary" @onclick="Volver"><i class="bi bi-arrow-left"></i> Volver al Listado</button>
         </div>
     }
     else
     {
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="form-title mb-0">Detalle de Venta #@venta.IdVenta</h3>
-            <button class="btn btn-secondary" @onclick="Volver">
-                <i class="bi bi-arrow-left"></i> Volver al Listado
-            </button>
+            <button class="btn btn-secondary" @onclick="Volver"><i class="bi bi-arrow-left"></i> Volver al Listado</button>
         </div>
+
         <div class="row mb-4">
             <div class="col-md-4"><strong>Vendedor:</strong> @venta.NombreVendedor</div>
             <div class="col-md-4"><strong>Fecha:</strong> @venta.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
             <div class="col-md-4"><strong>Estado:</strong> @venta.Estado</div>
         </div>
-        @if (puedeEditar)
-        {
-            <div class="card mb-4 bg-transparent border-secondary">
-                <div class="card-header"><strong>Añadir Producto</strong></div>
-                <div class="card-body">
-                    <div class="d-flex align-items-end gap-3">
-                        <div class="form-group flex-grow-1">
-                            <label for="producto">Producto:</label>
-                            <InputSelect id="producto" class="form-control" @bind-Value="lineaActual.IdProducto">
-                                <option value="0">-- Seleccione un producto --</option>
-                                @foreach (var p in productosDisponibles)
-                                {
-                                    <option value="@p.IdProducto">@p.Nombre (@p.PrecioActual?.ToString("C")) - Stock: @p.Stock</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="form-group" style="min-width: 100px;">
-                            <label for="cantidad">Cantidad:</label>
-                            <InputNumber id="cantidad" class="form-control" @bind-Value="lineaActual.Cantidad" min="1" />
-                        </div>
-                        <div class="form-group">
-                            <button type="button" class="btn btn-secondary" @onclick="AgregarLinea">
-                                <i class="bi bi-plus-circle"></i> Agregar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
+
         <div class="tbl-wrapper">
             <table class="tbl">
                 <thead>
                     <tr>
                         <th>Producto</th>
                         <th class="tbl-text-end">Precio Unit.</th>
-                        <th style="width: 120px;" class="tbl-text-end">Cantidad</th>
+                        <th class="tbl-text-end">Cantidad</th>
                         <th class="tbl-text-end">Subtotal</th>
-                        @if (puedeEditar)
-                        {
-                            <th class="tbl-actions">Acción</th>
-                        }
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var linea in lineasDeVenta)
+                    @foreach (var l in venta.Lineas ?? new())
                     {
                         <tr>
-                            <td>@linea.NombreProducto</td>
-                            <td class="tbl-text-end">@linea.PrecioUnitario.ToString("C")</td>
-                            <td class="tbl-text-end">
-                                <InputNumber class="form-control form-control-sm text-end" @bind-Value="linea.Cantidad" min="1" disabled="@(!puedeEditar)" @oninput="MarcarComoModificado" />
-                            </td>
-                            <td class="tbl-text-end">@linea.Subtotal.ToString("C")</td>
-                            @if (puedeEditar)
-                            {
-                                <td class="tbl-actions">
-                                    <button class="tbl-icon-btn tbl-icon-btn--danger" title="Eliminar" @onclick="() => EliminarLinea(linea)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            }
+                            <td>@l.NombreProducto</td>
+                            <td class="tbl-text-end">@l.PrecioUnitario.ToString("C")</td>
+                            <td class="tbl-text-end">@l.Cantidad</td>
+                            <td class="tbl-text-end">@l.Subtotal.ToString("C")</td>
                         </tr>
                     }
                 </tbody>
                 <tfoot>
                     <tr class="tbl-total-row">
-                        <td colspan="@(puedeEditar ? 4 : 3)" class="tbl-text-end"><strong>TOTAL:</strong></td>
-                        <td class="tbl-text-end"><strong>@TotalVenta.ToString("C")</strong></td>
-                        @if (puedeEditar)
-                        {
-                            <td></td>
-                        }
+                        <td colspan="3" class="tbl-text-end"><strong>TOTAL:</strong></td>
+                        <td class="tbl-text-end">
+                            <strong>@((venta.Lineas ?? new()).Sum(x => x.Subtotal).ToString("C"))</strong>
+                        </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
-
-        @if (!string.IsNullOrWhiteSpace(errorMessage))
-        {
-            <div class="alert alert-danger mt-3">@errorMessage</div>
-        }
-        @if (puedeEditar)
-        {
-            <div class="form-actions mt-4">
-                <button class="btn btn-success" @onclick="GuardarCambios" disabled="@(!datosModificados || isSaving)">
-                    @if (isSaving && !finalizando)
-                    {
-                        <span><span class="spinner-border spinner-border-sm"></span> Guardando...</span>
-                    }
-                    else
-                    {
-
-                        <span><i class="bi bi-save"></i> Guardar Cambios</span>
-                    }
-                </button>
-                <button class="btn btn-primary" @onclick="FinalizarVenta" disabled="@isSaving">
-                    @if (isSaving && finalizando)
-                    {
-                        <span><span class="spinner-border spinner-border-sm"></span> Finalizando...</span>
-                    }
-                    else
-                    {
-
-                        <span><i class="bi bi-check2-circle"></i> Finalizar Venta</span>
-                    }
-                </button>
-            </div>
-        }
     }
 </div>
 
 @code {
-    [Parameter]
-    public int VentaId { get; set; }
-
+    [Parameter] public int VentaId { get; set; }
     private VentaDTO? venta;
-    private List<LineaVentaDTO> lineasDeVenta = new();
-    private List<ProductoDTO> todosLosProductos = new();
-    private List<ProductoDTO> productosDisponibles = new();
-    private LineaVentaDTO lineaActual = new() { Cantidad = 1 };
-
     private bool isLoading = true;
-    private bool isSaving = false;
-    private bool finalizando = false;
-    private bool esAdmin = false;
-    private bool puedeEditar = false;
-    private bool datosModificados = false;
-    private string? errorMessage;
-
-    private decimal TotalVenta => lineasDeVenta.Sum(l => l.Subtotal);
 
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            esAdmin = await userSession.EsAdminAsync();
-            var ventaTask = ventaApiClient.GetByIdAsync(VentaId);
-            var productosTask = productoApiClient.GetAllAsync();
-
-            await Task.WhenAll(ventaTask, productosTask);
-
-            venta = ventaTask.Result;
-            todosLosProductos = productosTask.Result ?? new List<ProductoDTO>();
-
-            if (venta != null)
-            {
-                lineasDeVenta = new List<LineaVentaDTO>(venta.Lineas ?? new List<LineaVentaDTO>());
-                puedeEditar = esAdmin && "Pendiente".Equals(venta.Estado, StringComparison.OrdinalIgnoreCase);
-
-                if (puedeEditar)
-                {
-                    ActualizarProductosDisponibles();
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error al cargar los datos: {ex.Message}";
-        }
-        finally
-        {
-            isLoading = false;
-        }
+        venta = await ventaApiClient.GetByIdAsync(VentaId);
+        isLoading = false;
     }
-
-    private void ActualizarProductosDisponibles()
-    {
-        var idsEnVenta = lineasDeVenta.Select(l => l.IdProducto).ToHashSet();
-
-        productosDisponibles = todosLosProductos
-            .Where(p => p.Stock > 0 && p.PrecioActual.HasValue && !idsEnVenta.Contains(p.IdProducto))
-            .OrderBy(p => p.Nombre)
-            .ToList();
-    }
-
-    private void AgregarLinea()
-    {
-        errorMessage = null;
-        if (lineaActual.IdProducto == 0)
-        {
-            errorMessage = "Debe seleccionar un producto.";
-            return;
-        }
-        if (lineaActual.Cantidad <= 0)
-        {
-            errorMessage = "La cantidad debe ser mayor a 0.";
-            return;
-        }
-
-        var productoSeleccionado = todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaActual.IdProducto);
-        if (productoSeleccionado == null)
-        {
-            errorMessage = "El producto seleccionado no es válido.";
-            return;
-        }
-
-        if (lineaActual.Cantidad > productoSeleccionado.Stock)
-        {
-            errorMessage = $"La cantidad solicitada ({lineaActual.Cantidad}) supera el stock disponible ({productoSeleccionado.Stock}).";
-            return;
-        }
-
-        lineasDeVenta.Add(new LineaVentaDTO
-        {
-            IdVenta = VentaId,
-            IdProducto = productoSeleccionado.IdProducto,
-            NombreProducto = productoSeleccionado.Nombre,
-            Cantidad = lineaActual.Cantidad,
-            PrecioUnitario = productoSeleccionado.PrecioActual ?? 0,
-            EsNueva = true 
-        });
-
-        ActualizarProductosDisponibles();
-        lineaActual = new() { Cantidad = 1 }; 
-        MarcarComoModificado();
-        StateHasChanged();
-    }
-
-    private void EliminarLinea(LineaVentaDTO linea)
-    {
-        lineasDeVenta.Remove(linea);
-
-        ActualizarProductosDisponibles();
-        MarcarComoModificado();
-        StateHasChanged();
-    }
-
-    private void MarcarComoModificado(ChangeEventArgs? e = null)
-    {
-        datosModificados = true;
-        StateHasChanged();
-    }
-
-    private async Task GuardarCambios() => await Guardar(finalizar: false);
-    private async Task FinalizarVenta() => await Guardar(finalizar: true);
-
-    private async Task Guardar(bool finalizar)
-    {
-        if (venta?.IdPersona == null) return;
-
-        isSaving = true;
-        finalizando = finalizar;
-        errorMessage = null;
-
-        var dto = new CrearVentaCompletaDTO
-        {
-            IdVenta = venta.IdVenta,
-            IdPersona = venta.IdPersona.Value,
-            Lineas = lineasDeVenta.ToList(),
-            Finalizada = finalizar
-        };
-
-        try
-        {
-            var response = await ventaApiClient.UpdateCompletaAsync(dto);
-            if (response.IsSuccessStatusCode)
-            {
-                NavigationManager.NavigateTo("/venta");
-            }
-            else
-            {
-                var error = await response.Content.ReadAsStringAsync();
-                errorMessage = $"Error al guardar: {error}";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Error de conexión: {ex.Message}";
-        }
-        finally
-        {
-            isSaving = false;
-            finalizando = false;
-        }
-    }
-
     private void Volver() => NavigationManager.NavigateTo("/venta");
 }

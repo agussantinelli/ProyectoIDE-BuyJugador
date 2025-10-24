@@ -77,7 +77,7 @@
 
                                     <button class="tbl-icon-btn"
                                             title="@(estaPendiente ? "Editar" : "No se puede editar una venta finalizada")"
-                                            @onclick="() => VerDetalle(v)"
+                                            @onclick="@(() => EditarVenta(v))"
                                             disabled="@(!estaPendiente)">
                                         <i class="bi bi-pencil-square"></i>
                                     </button>
@@ -134,7 +134,6 @@
     private bool _esError;
     private int ventaSiendoFinalizada = 0;
 
-    // Modal state
     private bool _mostrarModalConfirmacion = false;
     private bool _isEliminando = false;
     private VentaDTO? _ventaParaEliminar;
@@ -182,6 +181,11 @@
     private void NuevaVenta() => NavigationManager.NavigateTo("/venta/crear");
 
     private void VerDetalle(VentaDTO venta) => NavigationManager.NavigateTo($"/venta/detalle/{venta.IdVenta}");
+
+    private void EditarVenta(VentaDTO venta)
+    {
+        NavigationManager.NavigateTo($"/venta/editar/{venta.IdVenta}");
+    }
 
     private void AbrirModalConfirmacion(VentaDTO venta)
     {
