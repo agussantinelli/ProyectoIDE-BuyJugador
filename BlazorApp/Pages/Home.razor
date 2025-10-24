@@ -92,30 +92,50 @@
             <span class="bi bi-bag"></span>
             <div class="qcard-text">
                 <h4>Gestionar Productos</h4>
-                <p class="muted">Ver, crear y editar stock</p>
+                <p class="muted">
+                    @(_esAdmin
+                                        ? "Ver, crear y editar stock"
+                                        : "Consultar stock y precios")
+                </p>
             </div>
         </a>
+
         <a class="qcard" href="/venta">
             <span class="bi bi-receipt"></span>
             <div class="qcard-text">
                 <h4>Registrar Ventas</h4>
-                <p class="muted">Crear nuevas ventas y ver historial</p>
+                <p class="muted">
+                    @(_esAdmin
+                                        ? "Crear y administrar ventas"
+                                        : "Crear y administrar ventas")
+                </p>
             </div>
         </a>
+
         <a class="qcard" href="/pedido">
             <span class="bi bi-truck"></span>
             <div class="qcard-text">
                 <h4>Administrar Pedidos</h4>
-                <p class="muted">Gestionar pedidos a proveedores</p>
+                <p class="muted">
+                    @(_esAdmin
+                                        ? "Crear, editar, recibir y eliminar pedidos"
+                                        : "Crear, editar y recibir pedidos")
+                </p>
             </div>
         </a>
+
         <a class="qcard" href="/proveedor">
             <span class="bi bi-building"></span>
             <div class="qcard-text">
                 <h4>Proveedores</h4>
-                <p class="muted">Altas, ediciones y consultas</p>
+                <p class="muted">
+                    @(_esAdmin
+                                        ? "Altas, ediciones, bajas y consultas"
+                                        : "Consultar y ver productos asignados")
+                </p>
             </div>
         </a>
+
         @if (_esAdmin)
         {
             <a class="qcard" href="/reporte/precios">
@@ -142,7 +162,7 @@
     private string? _userName;
     private KpiData? _kpiData;
     private bool _isLoadingKpis = true;
-    private bool _esAdmin = false;   
+    private bool _esAdmin = false;
 
     public class KpiData
     {
@@ -154,7 +174,7 @@
     protected override async Task OnInitializedAsync()
     {
         _userName = "Admin";
-        _esAdmin = await userSession.EsAdminAsync();   
+        _esAdmin = await userSession.EsAdminAsync();
         await LoadKpiData();
         _isLoadingKpis = false;
     }
