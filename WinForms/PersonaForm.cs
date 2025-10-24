@@ -14,7 +14,8 @@ namespace WinForms
         private readonly PersonaApiClient _personaApiClient;
         private readonly ProvinciaApiClient _provinciaApiClient;
         private readonly LocalidadApiClient _localidadApiClient;
-        private readonly IServiceProvider _serviceProvider; 
+        private readonly IServiceProvider _serviceProvider;
+        private readonly UserSessionService _userSessionService; 
 
         private List<PersonaDTO> _activosCache = new();
         private List<PersonaDTO> _inactivosCache = new();
@@ -23,16 +24,18 @@ namespace WinForms
         public PersonaForm(IServiceProvider serviceProvider)
         {
             InitializeComponent();
-            _serviceProvider = serviceProvider; 
+            _serviceProvider = serviceProvider;
             _personaApiClient = serviceProvider.GetRequiredService<PersonaApiClient>();
             _provinciaApiClient = serviceProvider.GetRequiredService<ProvinciaApiClient>();
             _localidadApiClient = serviceProvider.GetRequiredService<LocalidadApiClient>();
+            _userSessionService = serviceProvider.GetRequiredService<UserSessionService>();
+
 
             StyleManager.ApplyDataGridViewStyle(dgvActivos);
             StyleManager.ApplyDataGridViewStyle(dgvInactivos);
             StyleManager.ApplyButtonStyle(btnNuevo);
             StyleManager.ApplyButtonStyle(btnEditar);
-            StyleManager.ApplyButtonStyle(btnEliminar);
+            StyleManager.ApplyButtonStyle(btnEliminar); 
             StyleManager.ApplyButtonStyle(btnVerVentas);
             StyleManager.ApplyButtonStyle(btnReactivar);
             StyleManager.ApplyButtonStyle(btnVolver);
@@ -43,6 +46,8 @@ namespace WinForms
 
         private void PrepararGrid(DataGridView dgv)
         {
+            if (dgv.Columns.Count > 0) return;
+
             dgv.AutoGenerateColumns = false;
             dgv.Columns.Clear();
             dgv.ReadOnly = true;
@@ -61,18 +66,29 @@ namespace WinForms
 
         private async void PersonaForm_Load(object sender, EventArgs e)
         {
+            ConfigurarVisibilidadInicialControles();
             await CargarYMostrarDatos();
         }
+        private void ConfigurarVisibilidadInicialControles()
+        {
+            bool esAdmin = _userSessionService.EsAdmin; 
+            btnNuevo.Visible = esAdmin;
+            btnEditar.Visible = esAdmin;
+            btnEliminar.Visible = esAdmin; 
+            btnReactivar.Visible = esAdmin; 
+        }
+
 
         private async Task CargarYMostrarDatos()
         {
             try
             {
                 _activosCache = await _personaApiClient.GetAllAsync() ?? new List<PersonaDTO>();
-                _inactivosCache = await _personaApiClient.GetInactivosAsync() ?? new List<PersonaDTO>();
+                _inactivosCache = _userSessionService.EsAdmin ? (await _personaApiClient.GetInactivosAsync() ?? new List<PersonaDTO>()) : new List<PersonaDTO>();
+
 
                 AplicarFiltro();
-                ActualizarVisibilidadBotones();
+                ActualizarEstadoBotones(); 
             }
             catch (Exception ex)
             {
@@ -93,7 +109,14 @@ namespace WinForms
             var dgvActual = esTabActivos ? dgvActivos : dgvInactivos;
             var cacheActual = esTabActivos ? _activosCache : _inactivosCache;
 
-            dgvActual.DataSource = null;
+            if (tabControlPersonas.TabPages.Contains(tabPageInactivos) && !_userSessionService.EsAdmin && !esTabActivos)
+            {
+                dgvInactivos.DataSource = null; 
+                return; 
+            }
+
+
+            dgvActual.DataSource = null; 
 
             List<PersonaDTO> datosFiltrados;
             if (string.IsNullOrWhiteSpace(filtro))
@@ -104,18 +127,32 @@ namespace WinForms
             {
                 datosFiltrados = cacheActual
                     .Where(p => (p.NombreCompleto != null && p.NombreCompleto.ToLowerInvariant().Contains(filtro)) ||
-                                (p.Dni.ToString().Contains(filtro)))
+                                (p.Dni != null && p.Dni.ToString().Contains(filtro))) 
                     .ToList();
             }
 
             var bindingSource = new BindingSource { DataSource = datosFiltrados };
             dgvActual.DataSource = bindingSource;
+
+            if (dgvActual.Columns.Count == 0)
+            {
+                PrepararGrid(dgvActual);
+            }
         }
 
         private PersonaDTO? ObtenerSeleccionado(DataGridView dgv)
         {
-            return dgv.SelectedRows.Count > 0 ? dgv.SelectedRows[0].DataBoundItem as PersonaDTO : null;
+            if (dgv.CurrentRow != null && dgv.CurrentRow.DataBoundItem is PersonaDTO personaFromCurrent)
+            {
+                return personaFromCurrent;
+            }
+            if (dgv.SelectedRows.Count > 0 && dgv.SelectedRows[0].DataBoundItem is PersonaDTO personaFromSelected)
+            {
+                return personaFromSelected;
+            }
+            return null;
         }
+
 
         private void btnNuevo_Click(object sender, EventArgs e)
         {
@@ -153,7 +190,7 @@ namespace WinForms
             else
             {
                 var form = new EditarPersonaForm(_personaApiClient, _provinciaApiClient, _localidadApiClient, persona);
-                form.Tag = persona.IdPersona;
+                form.Tag = persona.IdPersona; 
                 form.MdiParent = this.MdiParent;
                 form.FormClosed += async (s, args) => {
                     if (form.DialogResult == DialogResult.OK)
@@ -183,7 +220,7 @@ namespace WinForms
                 }
                 else
                 {
-                    MessageBox.Show("No se pudo dar de baja a la persona.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"No se pudo dar de baja a la persona. Razón: {resp.ReasonPhrase}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -210,7 +247,7 @@ namespace WinForms
                 }
                 else
                 {
-                    MessageBox.Show("No se pudo reactivar la persona.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"No se pudo reactivar la persona. Razón: {resp.ReasonPhrase}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
@@ -227,39 +264,61 @@ namespace WinForms
             var persona = esTabActivos ? ObtenerSeleccionado(dgvActivos) : ObtenerSeleccionado(dgvInactivos);
             if (persona == null)
             {
-                MessageBox.Show("Seleccione una persona.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
-            var ventaApi = _serviceProvider.GetRequiredService<VentaApiClient>();
-            var form = new VentasPersonaForm(ventaApi, persona, _serviceProvider)
+            var existingForm = this.MdiParent?.MdiChildren.OfType<VentasPersonaForm>()
+                                   .FirstOrDefault(f => f.Tag is int personaId && personaId == persona.IdPersona);
+
+            if (existingForm != null)
             {
-                MdiParent = this.MdiParent
-            };
-            form.Show();
+                existingForm.BringToFront();
+            }
+            else
+            {
+                var ventaApi = _serviceProvider.GetRequiredService<VentaApiClient>();
+                var form = new VentasPersonaForm(ventaApi, persona, _serviceProvider)
+                {
+                    MdiParent = this.MdiParent,
+                    Tag = persona.IdPersona 
+                };
+                form.Show();
+            }
         }
 
-        private void ActualizarVisibilidadBotones()
+        private void ActualizarEstadoBotones()
         {
+            bool esAdmin = _userSessionService.EsAdmin;
             bool esTabActivos = tabControlPersonas.SelectedTab == tabPageActivos;
             bool activoSeleccionado = ObtenerSeleccionado(dgvActivos) != null;
+            bool esTabInactivos = tabControlPersonas.SelectedTab == tabPageInactivos;
             bool inactivoSeleccionado = ObtenerSeleccionado(dgvInactivos) != null;
 
-            btnEditar.Visible = esTabActivos && activoSeleccionado;
-            btnEliminar.Visible = esTabActivos && activoSeleccionado;
-            btnReactivar.Visible = !esTabActivos && inactivoSeleccionado;
-            btnVerVentas.Visible = activoSeleccionado || inactivoSeleccionado;
-            btnVerVentas.Enabled = btnVerVentas.Visible;
+            if (esAdmin)
+            {
+                btnEditar.Enabled = esTabActivos && activoSeleccionado;
+                btnEliminar.Enabled = esTabActivos && activoSeleccionado; 
+                btnReactivar.Enabled = esTabInactivos && inactivoSeleccionado; 
+            }
+            else
+            {
+                btnEditar.Enabled = false;
+                btnEliminar.Enabled = false;
+                btnReactivar.Enabled = false;
+            }
+
+
+            btnVerVentas.Enabled = activoSeleccionado || inactivoSeleccionado;
         }
 
-        private void dgvActivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
-        private void dgvInactivos_SelectionChanged(object sender, EventArgs e) => ActualizarVisibilidadBotones();
+
+        private void dgvActivos_SelectionChanged(object sender, EventArgs e) => ActualizarEstadoBotones();
+        private void dgvInactivos_SelectionChanged(object sender, EventArgs e) => ActualizarEstadoBotones();
 
         private void tabControlPersonas_SelectedIndexChanged(object sender, EventArgs e)
         {
-            AplicarFiltro();
-            ActualizarVisibilidadBotones();
+            AplicarFiltro(); 
+            ActualizarEstadoBotones(); 
         }
     }
 }
-

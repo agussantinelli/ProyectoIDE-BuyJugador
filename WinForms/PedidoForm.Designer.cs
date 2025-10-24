@@ -43,17 +43,20 @@
             // 
             dataGridPedidos.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridPedidos.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridPedidos.Location = new Point(12, 53);
+            dataGridPedidos.Location = new Point(15, 62);
+            dataGridPedidos.Margin = new Padding(4, 4, 4, 4);
             dataGridPedidos.Name = "dataGridPedidos";
-            dataGridPedidos.Size = new Size(754, 427);
+            dataGridPedidos.RowHeadersWidth = 51;
+            dataGridPedidos.Size = new Size(969, 502);
             dataGridPedidos.TabIndex = 3;
             dataGridPedidos.SelectionChanged += DataGridPedidos_SelectionChanged;
             // 
             // btnNuevoPedido
             // 
-            btnNuevoPedido.Location = new Point(133, 19);
+            btnNuevoPedido.Location = new Point(171, 22);
+            btnNuevoPedido.Margin = new Padding(4, 4, 4, 4);
             btnNuevoPedido.Name = "btnNuevoPedido";
-            btnNuevoPedido.Size = new Size(115, 34);
+            btnNuevoPedido.Size = new Size(148, 40);
             btnNuevoPedido.TabIndex = 1;
             btnNuevoPedido.Text = "Nuevo";
             btnNuevoPedido.UseVisualStyleBackColor = true;
@@ -62,9 +65,10 @@
             // btnVerDetalle
             // 
             btnVerDetalle.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnVerDetalle.Location = new Point(651, 19);
+            btnVerDetalle.Location = new Point(837, 22);
+            btnVerDetalle.Margin = new Padding(4, 4, 4, 4);
             btnVerDetalle.Name = "btnVerDetalle";
-            btnVerDetalle.Size = new Size(115, 34);
+            btnVerDetalle.Size = new Size(148, 40);
             btnVerDetalle.TabIndex = 4;
             btnVerDetalle.Text = "Ver Detalle";
             btnVerDetalle.UseVisualStyleBackColor = true;
@@ -72,9 +76,10 @@
             // 
             // btnEliminar
             // 
-            btnEliminar.Location = new Point(254, 19);
+            btnEliminar.Location = new Point(327, 22);
+            btnEliminar.Margin = new Padding(4, 4, 4, 4);
             btnEliminar.Name = "btnEliminar";
-            btnEliminar.Size = new Size(115, 34);
+            btnEliminar.Size = new Size(148, 40);
             btnEliminar.TabIndex = 2;
             btnEliminar.Text = "Eliminar";
             btnEliminar.UseVisualStyleBackColor = true;
@@ -82,9 +87,10 @@
             // 
             // btnFinalizarPedido
             // 
-            btnFinalizarPedido.Location = new Point(375, 19);
+            btnFinalizarPedido.Location = new Point(482, 22);
+            btnFinalizarPedido.Margin = new Padding(4, 4, 4, 4);
             btnFinalizarPedido.Name = "btnFinalizarPedido";
-            btnFinalizarPedido.Size = new Size(160, 34);
+            btnFinalizarPedido.Size = new Size(248, 40);
             btnFinalizarPedido.TabIndex = 3;
             btnFinalizarPedido.Text = "Recibido";
             btnFinalizarPedido.UseVisualStyleBackColor = true;
@@ -92,9 +98,10 @@
             // 
             // btnVolver
             // 
-            btnVolver.Location = new Point(12, 19);
+            btnVolver.Location = new Point(15, 22);
+            btnVolver.Margin = new Padding(4, 4, 4, 4);
             btnVolver.Name = "btnVolver";
-            btnVolver.Size = new Size(115, 34);
+            btnVolver.Size = new Size(148, 40);
             btnVolver.TabIndex = 0;
             btnVolver.Text = "Volver";
             btnVolver.UseVisualStyleBackColor = true;
@@ -102,18 +109,20 @@
             // 
             // txtBuscarProveedor
             // 
-            txtBuscarProveedor.Location = new Point(88, 12);
+            txtBuscarProveedor.Location = new Point(113, 14);
+            txtBuscarProveedor.Margin = new Padding(4, 4, 4, 4);
             txtBuscarProveedor.Name = "txtBuscarProveedor";
-            txtBuscarProveedor.Size = new Size(262, 25);
+            txtBuscarProveedor.Size = new Size(336, 30);
             txtBuscarProveedor.TabIndex = 0;
             txtBuscarProveedor.TextChanged += FiltrosChanged;
             // 
             // lblBuscar
             // 
             lblBuscar.AutoSize = true;
-            lblBuscar.Location = new Point(12, 15);
+            lblBuscar.Location = new Point(15, 18);
+            lblBuscar.Margin = new Padding(4, 0, 4, 0);
             lblBuscar.Name = "lblBuscar";
-            lblBuscar.Size = new Size(62, 20);
+            lblBuscar.Size = new Size(76, 22);
             lblBuscar.TabIndex = 2;
             lblBuscar.Text = "Buscar:";
             // 
@@ -121,9 +130,10 @@
             // 
             cmbFiltroGasto.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFiltroGasto.FormattingEnabled = true;
-            cmbFiltroGasto.Location = new Point(366, 12);
+            cmbFiltroGasto.Location = new Point(471, 14);
+            cmbFiltroGasto.Margin = new Padding(4, 4, 4, 4);
             cmbFiltroGasto.Name = "cmbFiltroGasto";
-            cmbFiltroGasto.Size = new Size(225, 28);
+            cmbFiltroGasto.Size = new Size(288, 29);
             cmbFiltroGasto.TabIndex = 1;
             cmbFiltroGasto.SelectedIndexChanged += FiltrosChanged;
             // 
@@ -135,20 +145,22 @@
             panelBotones.Controls.Add(btnFinalizarPedido);
             panelBotones.Controls.Add(btnVerDetalle);
             panelBotones.Dock = DockStyle.Bottom;
-            panelBotones.Location = new Point(0, 486);
+            panelBotones.Location = new Point(0, 572);
+            panelBotones.Margin = new Padding(4, 4, 4, 4);
             panelBotones.Name = "panelBotones";
-            panelBotones.Size = new Size(778, 70);
+            panelBotones.Size = new Size(1000, 82);
             panelBotones.TabIndex = 4;
             // 
             // PedidoForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 17F);
-            ClientSize = new Size(778, 556);
+            AutoScaleDimensions = new SizeF(9F, 20F);
+            ClientSize = new Size(1000, 654);
             Controls.Add(panelBotones);
             Controls.Add(cmbFiltroGasto);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscarProveedor);
             Controls.Add(dataGridPedidos);
+            Margin = new Padding(4, 4, 4, 4);
             Name = "PedidoForm";
             Text = "Gestión de Pedidos";
             Load += PedidoForm_Load;

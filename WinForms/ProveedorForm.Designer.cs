@@ -17,7 +17,7 @@
         private Button btnReactivar;
         private Button btnVolver;
         private Button btnAsignarProductos;
-        private Button btnVerProductos; // # NUEVO
+        private Button btnVerProductos; 
 
         protected override void Dispose(bool disposing)
         {
@@ -40,7 +40,7 @@
             btnEliminar = new Button();
             btnEditar = new Button();
             btnAsignarProductos = new Button();
-            btnVerProductos = new Button(); // # NUEVO
+            btnVerProductos = new Button();
             btnReactivar = new Button();
             tabControlProveedores.SuspendLayout();
             tabPageActivos.SuspendLayout();
@@ -49,17 +49,26 @@
             ((System.ComponentModel.ISupportInitialize)dgvInactivos).BeginInit();
             panelBotones.SuspendLayout();
             SuspendLayout();
-            txtBuscar.Location = new Point(221, 12);
+            // 
+            // txtBuscar
+            // 
+            txtBuscar.Location = new Point(249, 12);
             txtBuscar.Name = "txtBuscar";
-            txtBuscar.Size = new Size(300, 25);
+            txtBuscar.Size = new Size(300, 30);
             txtBuscar.TabIndex = 1;
             txtBuscar.TextChanged += txtBuscar_TextChanged;
+            // 
+            // lblBuscar
+            // 
             lblBuscar.AutoSize = true;
             lblBuscar.Location = new Point(12, 15);
             lblBuscar.Name = "lblBuscar";
-            lblBuscar.Size = new Size(186, 20);
+            lblBuscar.Size = new Size(231, 22);
             lblBuscar.TabIndex = 0;
             lblBuscar.Text = "Buscar por Razón Social:";
+            // 
+            // tabControlProveedores
+            // 
             tabControlProveedores.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             tabControlProveedores.Controls.Add(tabPageActivos);
             tabControlProveedores.Controls.Add(tabPageInactivos);
@@ -69,85 +78,129 @@
             tabControlProveedores.Size = new Size(1176, 420);
             tabControlProveedores.TabIndex = 2;
             tabControlProveedores.SelectedIndexChanged += tabControlProveedores_SelectedIndexChanged;
+            // 
+            // tabPageActivos
+            // 
             tabPageActivos.Controls.Add(dgvActivos);
-            tabPageActivos.Location = new Point(4, 29);
+            tabPageActivos.Location = new Point(4, 30);
             tabPageActivos.Name = "tabPageActivos";
-            tabPageActivos.Size = new Size(1168, 387);
+            tabPageActivos.Size = new Size(1168, 386);
             tabPageActivos.TabIndex = 0;
             tabPageActivos.Text = "Activos";
+            // 
+            // dgvActivos
+            // 
+            dgvActivos.ColumnHeadersHeight = 29;
             dgvActivos.Dock = DockStyle.Fill;
             dgvActivos.Location = new Point(0, 0);
             dgvActivos.Name = "dgvActivos";
-            dgvActivos.Size = new Size(1168, 387);
+            dgvActivos.RowHeadersWidth = 51;
+            dgvActivos.Size = new Size(1168, 386);
             dgvActivos.TabIndex = 0;
             dgvActivos.SelectionChanged += dgv_SelectionChanged;
+            // 
+            // tabPageInactivos
+            // 
             tabPageInactivos.Controls.Add(dgvInactivos);
-            tabPageInactivos.Location = new Point(4, 29);
+            tabPageInactivos.Location = new Point(4, 30);
             tabPageInactivos.Name = "tabPageInactivos";
-            tabPageInactivos.Size = new Size(1168, 387);
+            tabPageInactivos.Size = new Size(1168, 386);
             tabPageInactivos.TabIndex = 1;
             tabPageInactivos.Text = "Inactivos";
+            // 
+            // dgvInactivos
+            // 
+            dgvInactivos.ColumnHeadersHeight = 29;
             dgvInactivos.Dock = DockStyle.Fill;
             dgvInactivos.Location = new Point(0, 0);
             dgvInactivos.Name = "dgvInactivos";
-            dgvInactivos.Size = new Size(1168, 387);
+            dgvInactivos.RowHeadersWidth = 51;
+            dgvInactivos.Size = new Size(1168, 386);
             dgvInactivos.TabIndex = 0;
             dgvInactivos.SelectionChanged += dgv_SelectionChanged;
+            // 
+            // panelBotones
+            // 
             panelBotones.Controls.Add(btnVolver);
             panelBotones.Controls.Add(btnNuevo);
             panelBotones.Controls.Add(btnEliminar);
             panelBotones.Controls.Add(btnEditar);
             panelBotones.Controls.Add(btnAsignarProductos);
-            panelBotones.Controls.Add(btnVerProductos); // # NUEVO
+            panelBotones.Controls.Add(btnVerProductos);
             panelBotones.Controls.Add(btnReactivar);
             panelBotones.Dock = DockStyle.Bottom;
             panelBotones.Location = new Point(0, 465);
             panelBotones.Name = "panelBotones";
             panelBotones.Size = new Size(1200, 65);
             panelBotones.TabIndex = 3;
+            // 
+            // btnVolver
+            // 
             btnVolver.Location = new Point(12, 17);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(115, 30);
             btnVolver.TabIndex = 0;
             btnVolver.Text = "Volver";
             btnVolver.Click += btnVolver_Click;
-            btnNuevo.Location = new Point(133, 17);
+            // 
+            // btnNuevo
+            // 
+            btnNuevo.Location = new Point(148, 17);
             btnNuevo.Name = "btnNuevo";
             btnNuevo.Size = new Size(115, 30);
             btnNuevo.TabIndex = 1;
             btnNuevo.Text = "Nuevo";
             btnNuevo.Click += btnNuevo_Click;
-            btnEliminar.Location = new Point(375, 17);
+            // 
+            // btnEliminar
+            // 
+            btnEliminar.Location = new Point(419, 17);
             btnEliminar.Name = "btnEliminar";
-            btnEliminar.Size = new Size(115, 30);
+            btnEliminar.Size = new Size(139, 30);
             btnEliminar.TabIndex = 2;
             btnEliminar.Text = "Dar de Baja";
             btnEliminar.Click += btnEliminar_Click;
-            btnEditar.Location = new Point(254, 17);
+            // 
+            // btnEditar
+            // 
+            btnEditar.Location = new Point(284, 17);
             btnEditar.Name = "btnEditar";
             btnEditar.Size = new Size(115, 30);
             btnEditar.TabIndex = 3;
             btnEditar.Text = "Editar";
             btnEditar.Click += btnEditar_Click;
-            btnAsignarProductos.Location = new Point(496, 17);
+            // 
+            // btnAsignarProductos
+            // 
+            btnAsignarProductos.Location = new Point(715, 17);
             btnAsignarProductos.Name = "btnAsignarProductos";
-            btnAsignarProductos.Size = new Size(150, 30);
+            btnAsignarProductos.Size = new Size(207, 30);
             btnAsignarProductos.TabIndex = 4;
             btnAsignarProductos.Text = "Asignar Productos";
             btnAsignarProductos.Click += btnAsignarProductos_Click;
-            btnVerProductos.Location = new Point(652, 17);
+            // 
+            // btnVerProductos
+            // 
+            btnVerProductos.Location = new Point(1034, 17);
             btnVerProductos.Name = "btnVerProductos";
             btnVerProductos.Size = new Size(150, 30);
             btnVerProductos.TabIndex = 6;
             btnVerProductos.Text = "Ver Productos";
             btnVerProductos.Click += btnVerProductos_Click;
-            btnReactivar.Location = new Point(808, 17);
+            // 
+            // btnReactivar
+            // 
+            btnReactivar.Location = new Point(578, 17);
             btnReactivar.Name = "btnReactivar";
             btnReactivar.Size = new Size(115, 30);
             btnReactivar.TabIndex = 5;
             btnReactivar.Text = "Reactivar";
             btnReactivar.Visible = false;
             btnReactivar.Click += btnReactivar_Click;
+            // 
+            // ProveedorForm
+            // 
+            AutoScaleDimensions = new SizeF(9F, 20F);
             ClientSize = new Size(1200, 530);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
