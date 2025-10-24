@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading.Tasks; 
 
 namespace WinForms
 {
@@ -39,6 +40,8 @@ namespace WinForms
             _lineasDeVenta = new BindingList<LineaVentaDTO>();
 
             this.StartPosition = FormStartPosition.CenterScreen;
+            dataGridDetalle.AutoGenerateColumns = false; 
+
 
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
@@ -69,8 +72,8 @@ namespace WinForms
                 lblVendedor.Text = $"Vendedor: {_venta.NombreVendedor}";
 
                 ConfigurarVisibilidadControles();
-                dataGridDetalle.DataSource = _lineasDeVenta;
                 ConfigurarColumnas();
+                dataGridDetalle.DataSource = _lineasDeVenta; 
                 ActualizarTotal();
 
                 btnConfirmarCambios.Enabled = false;
@@ -87,6 +90,7 @@ namespace WinForms
 
         private void ConfigurarVisibilidadControles()
         {
+            if (_venta == null) return; 
             bool ventaPendiente = "Pendiente".Equals(_venta.Estado, StringComparison.OrdinalIgnoreCase);
             bool puedeEditar = _esAdmin && ventaPendiente;
 
@@ -104,7 +108,8 @@ namespace WinForms
 
         private void ConfigurarColumnas()
         {
-            dataGridDetalle.AutoGenerateColumns = false;
+            if (dataGridDetalle.Columns.Count > 0 && dataGridDetalle.Columns.Contains("NombreProducto")) return;
+
             dataGridDetalle.Columns.Clear();
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", HeaderText = "Producto", DataPropertyName = "NombreProducto", ReadOnly = true, AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", HeaderText = "Cantidad", DataPropertyName = "Cantidad" });
@@ -114,9 +119,20 @@ namespace WinForms
 
         private void ActualizarTotal()
         {
-            _venta.Total = _lineasDeVenta.Sum(l => l.Subtotal);
-            lblTotal.Text = $"Total: {_venta.Total:C2}";
+            decimal totalCalculado = 0; 
+            if (_lineasDeVenta != null)
+            {
+                totalCalculado = _lineasDeVenta.Sum(l => l.Subtotal);
+            }
+
+            if (_venta != null) 
+            {
+                _venta.Total = totalCalculado;
+            }
+            lblTotal.Text = $"Total: {totalCalculado:C2}";
+            lblTotal.Refresh(); 
         }
+
 
         private void MarcarComoModificado()
         {
@@ -151,7 +167,7 @@ namespace WinForms
                     IdProducto = productoSeleccionado.IdProducto,
                     NombreProducto = productoSeleccionado.Nombre,
                     Cantidad = cantidad,
-                    PrecioUnitario = (decimal)productoSeleccionado.PrecioActual,
+                    PrecioUnitario = (decimal)(productoSeleccionado.PrecioActual ?? 0),
                     EsNueva = true
                 };
 
@@ -161,7 +177,7 @@ namespace WinForms
             }
         }
 
-        private void btnEliminarLinea_Click(object sender, EventArgs e)
+        private async void btnEliminarLinea_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow?.DataBoundItem is not LineaVentaDTO lineaSeleccionada)
             {
@@ -173,27 +189,83 @@ namespace WinForms
             if (confirm == DialogResult.Yes)
             {
                 _lineasDeVenta.Remove(lineaSeleccionada);
-                MarcarComoModificado();
-                ActualizarTotal();
+                ActualizarTotal(); 
+
+                if (_lineasDeVenta.Count == 0)
+                {
+                    await EliminarVentaCompleta();
+                }
+                else
+                {
+                    MarcarComoModificado(); 
+                }
             }
         }
 
-        // # MEJORA DE UX:
-        // # Al hacer clic en el botón, se establece el foco directamente en la celda "Cantidad"
-        // # de la fila seleccionada y se inicia el modo de edición.
+        private async Task EliminarVentaCompleta()
+        {
+            if (_venta == null) return;
+
+            this.Cursor = Cursors.WaitCursor;
+            try
+            {
+                var response = await _ventaApiClient.DeleteAsync(_venta.IdVenta);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Venta eliminada automáticamente al quedar vacía.", "Venta Eliminada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _datosModificados = false; 
+                    this.DialogResult = DialogResult.OK; 
+                    this.Close();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al eliminar la venta vacía: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar la venta: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
+
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow != null && dataGridDetalle.Columns.Contains("Cantidad"))
             {
-                // 1. Establecer la celda "Cantidad" de la fila actual como la celda activa.
                 dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
-                // 2. Iniciar el modo de edición y seleccionar todo el texto.
                 dataGridDetalle.BeginEdit(true);
             }
         }
 
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
         {
+            if (_lineasDeVenta.Count == 0)
+            {
+                var confirmDeleteVenta = MessageBox.Show("La venta está vacía. ¿Desea eliminar la venta completa en lugar de guardar?",
+                                                         "Venta Vacía", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (confirmDeleteVenta == DialogResult.Yes)
+                {
+                    await EliminarVentaCompleta();
+                }
+                return;
+            }
+
+            if (_venta == null || !_datosModificados || !_venta.IdPersona.HasValue)
+            {
+                MessageBox.Show("No se puede guardar: Faltan datos de la venta o del vendedor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show("¿Desea guardar los cambios en la venta?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirm != DialogResult.Yes) return;
+
+
             this.Cursor = Cursors.WaitCursor;
             try
             {
@@ -239,18 +311,25 @@ namespace WinForms
                 {
                     return;
                 }
+                this.DialogResult = DialogResult.Cancel;
             }
-            this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
+            else
+            {
+                this.DialogResult = DialogResult.Cancel;
+            }
             this.Close();
         }
 
         private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0 || e.ColumnIndex != dataGridDetalle.Columns["Cantidad"].Index) return;
+
 
             var lineaEditada = _lineasDeVenta[e.RowIndex];
+            var cellValue = dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value;
 
-            if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
+
+            if (cellValue == null || !int.TryParse(cellValue.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
             {
                 MessageBox.Show("Por favor, ingrese una cantidad numérica válida y mayor a cero.", "Cantidad Inválida", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 dataGridDetalle.CancelEdit();
@@ -261,32 +340,40 @@ namespace WinForms
             var producto = _todosLosProductos.FirstOrDefault(p => p.IdProducto == lineaEditada.IdProducto);
             if (producto == null) return;
 
-            int cantidadOriginalEnVenta = _venta.Lineas.FirstOrDefault(l => l.NroLineaVenta == lineaEditada.NroLineaVenta)?.Cantidad ?? 0;
+            int cantidadOriginalEnVenta = 0;
+            var lineaOriginal = _venta.Lineas?.FirstOrDefault(l => l.NroLineaVenta == lineaEditada.NroLineaVenta);
+            if (lineaOriginal != null)
+            {
+                cantidadOriginalEnVenta = lineaOriginal.Cantidad;
+            }
+
+
             int stockDisponible = producto.Stock + cantidadOriginalEnVenta;
 
             if (nuevaCantidad > stockDisponible)
             {
-                MessageBox.Show($"Stock insuficiente. Stock total disponible para este producto: {stockDisponible}", "Error de Stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Stock insuficiente. Stock total disponible para este producto (incluyendo el original en esta venta): {stockDisponible}", "Error de Stock", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 dataGridDetalle.CancelEdit();
                 _lineasDeVenta.ResetItem(e.RowIndex);
                 return;
             }
 
-            lineaEditada.Cantidad = nuevaCantidad;
-
-            MarcarComoModificado();
-            _lineasDeVenta.ResetItem(e.RowIndex);
-            ActualizarTotal();
+            if (lineaEditada.Cantidad != nuevaCantidad)
+            {
+                lineaEditada.Cantidad = nuevaCantidad;
+                MarcarComoModificado();
+                _lineasDeVenta.ResetItem(e.RowIndex);
+                ActualizarTotal();
+            }
         }
 
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
             bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            bool puedeEditar = _esAdmin && "Pendiente".Equals(_venta?.Estado, StringComparison.OrdinalIgnoreCase);
+            bool puedeEditar = _esAdmin && _venta != null && "Pendiente".Equals(_venta.Estado, StringComparison.OrdinalIgnoreCase);
 
             btnEliminarLinea.Enabled = hayFilaSeleccionada && puedeEditar;
             btnEditarCantidad.Enabled = hayFilaSeleccionada && puedeEditar;
         }
     }
 }
-

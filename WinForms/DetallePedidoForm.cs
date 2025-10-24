@@ -5,6 +5,9 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 
 namespace WinForms
 {
@@ -37,6 +40,8 @@ namespace WinForms
             _lineasDePedido = new BindingList<LineaPedidoDTO>();
             _productosDelProveedor = new List<ProductoDTO>();
 
+            dataGridDetalle.AutoGenerateColumns = false;
+
             StyleManager.ApplyDataGridViewStyle(dataGridDetalle);
             StyleManager.ApplyButtonStyle(btnAgregarLinea);
             StyleManager.ApplyButtonStyle(btnEliminarLinea);
@@ -58,16 +63,25 @@ namespace WinForms
                     return;
                 }
 
+                if (_pedido.IdProveedor <= 0)
+                {
+                    MessageBox.Show("El pedido no tiene un proveedor asignado válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    this.Close();
+                    return;
+                }
+
                 _productosDelProveedor = await _productoApiClient.GetProductosByProveedorIdAsync(_pedido.IdProveedor) ?? new List<ProductoDTO>();
+
 
                 lblIdPedido.Text = $"ID Pedido: {_pedido.IdPedido}";
                 lblProveedor.Text = $"Proveedor: {_pedido.ProveedorRazonSocial}";
                 lblFecha.Text = $"Fecha: {_pedido.Fecha:dd/MM/yyyy}";
 
                 _lineasDePedido = new BindingList<LineaPedidoDTO>(_pedido.LineasPedido ?? new List<LineaPedidoDTO>());
-                dataGridDetalle.DataSource = _lineasDePedido;
 
                 ConfigurarColumnas();
+                dataGridDetalle.DataSource = _lineasDePedido;
+
                 ConfigurarVisibilidadControles();
                 ActualizarTotal();
             }
@@ -91,7 +105,7 @@ namespace WinForms
             btnEliminarLinea.Visible = puedeEditar;
             btnEditarCantidad.Visible = puedeEditar;
             btnConfirmarCambios.Visible = puedeEditar;
-            btnConfirmarCambios.Enabled = false;
+            btnConfirmarCambios.Enabled = _datosModificados;
             dataGridDetalle.ReadOnly = !puedeEditar;
 
             if (dataGridDetalle.Columns.Contains("Cantidad"))
@@ -102,7 +116,8 @@ namespace WinForms
 
         private void ConfigurarColumnas()
         {
-            dataGridDetalle.AutoGenerateColumns = false;
+            if (dataGridDetalle.Columns.Count > 0 && dataGridDetalle.Columns.Contains("NombreProducto")) return;
+
             dataGridDetalle.Columns.Clear();
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "NombreProducto", DataPropertyName = "NombreProducto", HeaderText = "Producto", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill, ReadOnly = true });
             dataGridDetalle.Columns.Add(new DataGridViewTextBoxColumn { Name = "Cantidad", DataPropertyName = "Cantidad", HeaderText = "Cantidad", Width = 80 });
@@ -112,9 +127,22 @@ namespace WinForms
 
         private void ActualizarTotal()
         {
-            _pedido.Total = _lineasDePedido.Sum(l => l.Cantidad * l.PrecioUnitario);
-            lblTotal.Text = $"Total: {_pedido.Total:C2}";
+            decimal totalCalculado = 0;
+
+            if (_lineasDePedido != null)
+            {
+                totalCalculado = _lineasDePedido.Sum(l => l.Subtotal);
+            }
+
+            if (_pedido != null)
+            {
+                _pedido.Total = totalCalculado;
+            }
+
+            lblTotal.Text = $"Total: {totalCalculado:C2}";
+            lblTotal.Refresh();
         }
+
 
         private void MarcarComoModificado()
         {
@@ -124,7 +152,8 @@ namespace WinForms
 
         private void btnAgregarLinea_Click(object sender, EventArgs e)
         {
-            if (_pedido == null) return;
+            if (_pedido == null || _pedido.IdProveedor <= 0) return;
+
 
             var idsProductosEnPedido = _lineasDePedido.Select(l => l.IdProducto).ToList();
             var productosDisponibles = _productosDelProveedor
@@ -142,12 +171,15 @@ namespace WinForms
 
             if (form.ShowDialog() == DialogResult.OK && form.ProductoSeleccionado != null)
             {
+                decimal precioUnitario = form.ProductoSeleccionado.PrecioCompra;
+
+
                 var nuevaLinea = new LineaPedidoDTO
                 {
                     IdProducto = form.ProductoSeleccionado.IdProducto,
                     NombreProducto = form.ProductoSeleccionado.Nombre,
                     Cantidad = form.CantidadSeleccionada,
-                    PrecioUnitario = form.ProductoSeleccionado.PrecioCompra
+                    PrecioUnitario = precioUnitario
                 };
 
                 _lineasDePedido.Add(nuevaLinea);
@@ -156,15 +188,64 @@ namespace WinForms
             }
         }
 
-        private void btnEliminarLinea_Click(object sender, EventArgs e)
+        private async void btnEliminarLinea_Click(object sender, EventArgs e)
         {
             if (dataGridDetalle.CurrentRow?.DataBoundItem is LineaPedidoDTO linea)
             {
-                _lineasDePedido.Remove(linea);
-                MarcarComoModificado();
-                ActualizarTotal();
+                var confirmResult = MessageBox.Show($"¿Está seguro de eliminar el producto '{linea.NombreProducto}' del pedido?",
+                                                 "Confirmar Eliminación", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (confirmResult == DialogResult.Yes)
+                {
+                    _lineasDePedido.Remove(linea);
+                    ActualizarTotal(); 
+
+                    if (_lineasDePedido.Count == 0)
+                    {
+                        await EliminarPedidoCompleto();
+                    }
+                    else
+                    {
+                        MarcarComoModificado(); 
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleccione una línea para eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
+        private async Task EliminarPedidoCompleto()
+        {
+            if (_pedido == null) return;
+
+            this.Cursor = Cursors.WaitCursor;
+            try
+            {
+                var response = await _pedidoApiClient.DeleteAsync(_pedido.IdPedido);
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Pedido eliminado automáticamente al quedar vacío.", "Pedido Eliminado", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _datosModificados = false; 
+                    this.DialogResult = DialogResult.OK; 
+                    this.Close();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al eliminar el pedido vacío: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al eliminar el pedido: {ex.Message}", "Error");
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
+        }
+
 
         private void btnEditarCantidad_Click(object sender, EventArgs e)
         {
@@ -173,10 +254,26 @@ namespace WinForms
                 dataGridDetalle.CurrentCell = dataGridDetalle.CurrentRow.Cells["Cantidad"];
                 dataGridDetalle.BeginEdit(true);
             }
+            else
+            {
+                MessageBox.Show("Seleccione una línea para editar la cantidad.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private async void btnConfirmarCambios_Click(object sender, EventArgs e)
         {
+            if (_lineasDePedido.Count == 0)
+            {
+                var confirmDeletePedido = MessageBox.Show("El pedido está vacío. ¿Desea eliminar el pedido completo en lugar de guardar?",
+                                                         "Pedido Vacío", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (confirmDeletePedido == DialogResult.Yes)
+                {
+                    await EliminarPedidoCompleto();
+                }
+                return;
+            }
+
+
             if (_pedido == null || !_datosModificados) return;
             var confirm = MessageBox.Show("¿Desea guardar los cambios en el pedido?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
@@ -185,7 +282,10 @@ namespace WinForms
             try
             {
                 _pedido.LineasPedido = _lineasDePedido.ToList();
+
+
                 var response = await _pedidoApiClient.UpdateAsync(_pedido.IdPedido, _pedido);
+
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -210,6 +310,7 @@ namespace WinForms
             }
         }
 
+
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             if (_datosModificados)
@@ -224,37 +325,59 @@ namespace WinForms
                 {
                     return;
                 }
+                this.DialogResult = DialogResult.Cancel;
             }
-            this.DialogResult = _datosModificados ? DialogResult.OK : DialogResult.Cancel;
+            else
+            {
+                this.DialogResult = DialogResult.Cancel;
+            }
             this.Close();
         }
 
+
         private void dataGridDetalle_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0) return;
-            var lineaEditada = _lineasDePedido[e.RowIndex];
+            if (e.RowIndex < 0 || e.ColumnIndex != dataGridDetalle.Columns["Cantidad"].Index) return;
 
-            if (!int.TryParse(dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value?.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
+
+            var lineaEditada = _lineasDePedido[e.RowIndex];
+            var cellValue = dataGridDetalle.Rows[e.RowIndex].Cells["Cantidad"].Value;
+
+
+            if (cellValue == null || !int.TryParse(cellValue.ToString(), out int nuevaCantidad) || nuevaCantidad <= 0)
             {
                 MessageBox.Show("Por favor, ingrese una cantidad numérica válida y mayor a cero.", "Cantidad Inválida", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 dataGridDetalle.CancelEdit();
-                _lineasDePedido.ResetItem(e.RowIndex);
+
                 return;
             }
 
-            lineaEditada.Cantidad = nuevaCantidad;
-            _lineasDePedido.ResetItem(e.RowIndex);
-            ActualizarTotal();
-            MarcarComoModificado();
+            if (lineaEditada.Cantidad != nuevaCantidad)
+            {
+                lineaEditada.Cantidad = nuevaCantidad;
+                _lineasDePedido.ResetItem(e.RowIndex);
+                ActualizarTotal();
+                MarcarComoModificado();
+            }
         }
+
 
         private void dataGridDetalle_SelectionChanged(object sender, EventArgs e)
         {
             bool hayFilaSeleccionada = dataGridDetalle.CurrentRow != null;
-            bool puedeEditar = _esAdmin && "Pendiente".Equals(_pedido?.Estado, StringComparison.OrdinalIgnoreCase);
+            bool puedeEditar = _esAdmin && _pedido != null && "Pendiente".Equals(_pedido.Estado, StringComparison.OrdinalIgnoreCase);
 
             btnEliminarLinea.Enabled = hayFilaSeleccionada && puedeEditar;
             btnEditarCantidad.Enabled = hayFilaSeleccionada && puedeEditar;
         }
+        private void dataGridDetalle_DataError(object sender, DataGridViewDataErrorEventArgs e)
+        {
+            MessageBox.Show($"Error en la grilla: {e.Exception.Message}\nContexto: {e.Context}", "Error de Datos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            e.ThrowException = false;
+            e.Cancel = true;
+        }
+
     }
 }
+

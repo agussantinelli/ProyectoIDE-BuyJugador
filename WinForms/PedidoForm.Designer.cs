@@ -87,13 +87,13 @@
             // 
             // btnFinalizarPedido
             // 
-            btnFinalizarPedido.Location = new Point(482, 22);
+            btnFinalizarPedido.Location = new Point(482, 22);
             btnFinalizarPedido.Margin = new Padding(4, 4, 4, 4);
             btnFinalizarPedido.Name = "btnFinalizarPedido";
             btnFinalizarPedido.Size = new Size(248, 40);
             btnFinalizarPedido.TabIndex = 3;
-            btnFinalizarPedido.Text = "Recibido";
-            btnFinalizarPedido.UseVisualStyleBackColor = true;
+            btnFinalizarPedido.Text = "Marcar como Recibido"; 
+            btnFinalizarPedido.UseVisualStyleBackColor = true;
             btnFinalizarPedido.Click += btnFinalizarPedido_Click;
             // 
             // btnVolver

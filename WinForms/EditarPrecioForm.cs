@@ -7,8 +7,6 @@ using System.Windows.Forms;
 
 namespace WinForms
 {
-    // # REFACTORIZADO: Este formulario se mantiene como un diálogo modal, 
-    // # pero ahora hereda de BaseForm para consistencia de estilo.
     public partial class EditarPrecioForm : BaseForm
     {
         private readonly PrecioVentaApiClient _precioApiClient;

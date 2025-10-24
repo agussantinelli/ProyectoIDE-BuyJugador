@@ -102,7 +102,7 @@ namespace WinForms
             tabControl.Location = new Point(20, 50);
             tabControl.Name = "tabControl";
             tabControl.SelectedIndex = 0;
-            tabControl.Size = new Size(1150, 420);
+            tabControl.Size = new Size(1249, 420);
             tabControl.TabIndex = 4;
             tabControl.SelectedIndexChanged += tabControl_SelectedIndexChanged;
             // 
@@ -112,7 +112,7 @@ namespace WinForms
             tabActivos.Location = new Point(4, 30);
             tabActivos.Name = "tabActivos";
             tabActivos.Padding = new Padding(3);
-            tabActivos.Size = new Size(1142, 386);
+            tabActivos.Size = new Size(1241, 386);
             tabActivos.TabIndex = 0;
             tabActivos.Text = "Activos";
             tabActivos.UseVisualStyleBackColor = true;
@@ -130,7 +130,7 @@ namespace WinForms
             dgvActivos.ReadOnly = true;
             dgvActivos.RowHeadersWidth = 51;
             dgvActivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvActivos.Size = new Size(1136, 380);
+            dgvActivos.Size = new Size(1235, 380);
             dgvActivos.TabIndex = 0;
             dgvActivos.CellDoubleClick += dgvProductos_CellDoubleClick;
             dgvActivos.CellMouseDown += dgvProductos_CellMouseDown;
@@ -191,7 +191,7 @@ namespace WinForms
             // btnNuevo
             // 
             btnNuevo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnNuevo.Location = new Point(140, 480);
+            btnNuevo.Location = new Point(146, 480);
             btnNuevo.Name = "btnNuevo";
             btnNuevo.Size = new Size(100, 30);
             btnNuevo.TabIndex = 5;
@@ -202,7 +202,7 @@ namespace WinForms
             // btnEditar
             // 
             btnEditar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEditar.Location = new Point(260, 480);
+            btnEditar.Location = new Point(269, 480);
             btnEditar.Name = "btnEditar";
             btnEditar.Size = new Size(100, 30);
             btnEditar.TabIndex = 6;
@@ -213,7 +213,7 @@ namespace WinForms
             // btnDarBaja
             // 
             btnDarBaja.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnDarBaja.Location = new Point(380, 480);
+            btnDarBaja.Location = new Point(393, 480);
             btnDarBaja.Name = "btnDarBaja";
             btnDarBaja.Size = new Size(139, 30);
             btnDarBaja.TabIndex = 7;
@@ -224,7 +224,7 @@ namespace WinForms
             // btnReactivar
             // 
             btnReactivar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnReactivar.Location = new Point(538, 480);
+            btnReactivar.Location = new Point(556, 480);
             btnReactivar.Name = "btnReactivar";
             btnReactivar.Size = new Size(100, 30);
             btnReactivar.TabIndex = 8;
@@ -235,7 +235,7 @@ namespace WinForms
             // btnVolver
             // 
             btnVolver.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnVolver.Location = new Point(20, 480);
+            btnVolver.Location = new Point(24, 480);
             btnVolver.Name = "btnVolver";
             btnVolver.Size = new Size(100, 30);
             btnVolver.TabIndex = 11;
@@ -246,7 +246,7 @@ namespace WinForms
             // btnEditarPrecio
             // 
             btnEditarPrecio.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEditarPrecio.Location = new Point(835, 480);
+            btnEditarPrecio.Location = new Point(860, 480);
             btnEditarPrecio.Name = "btnEditarPrecio";
             btnEditarPrecio.Size = new Size(130, 30);
             btnEditarPrecio.TabIndex = 10;
@@ -257,7 +257,7 @@ namespace WinForms
             // btnVerProveedores
             // 
             btnVerProveedores.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnVerProveedores.Location = new Point(986, 480);
+            btnVerProveedores.Location = new Point(1078, 480);
             btnVerProveedores.Name = "btnVerProveedores";
             btnVerProveedores.Size = new Size(184, 30);
             btnVerProveedores.TabIndex = 12;
@@ -268,7 +268,7 @@ namespace WinForms
             // btnVerHistorial
             // 
             btnVerHistorial.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnVerHistorial.Location = new Point(663, 480);
+            btnVerHistorial.Location = new Point(686, 480);
             btnVerHistorial.Name = "btnVerHistorial";
             btnVerHistorial.Size = new Size(150, 30);
             btnVerHistorial.TabIndex = 9;
@@ -279,7 +279,7 @@ namespace WinForms
             // ProductoForm
             // 
             AutoScaleDimensions = new SizeF(9F, 20F);
-            ClientSize = new Size(1200, 530);
+            ClientSize = new Size(1299, 530);
             Controls.Add(lblBuscar);
             Controls.Add(txtBuscar);
             Controls.Add(cmbFiltroStock);

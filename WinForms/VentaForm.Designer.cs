@@ -150,14 +150,15 @@
             // 
             // btnFinalizarVenta
             // 
-            btnFinalizarVenta.Location = new Point(482, 22);
+            btnFinalizarVenta.Location = new Point(482, 22);
             btnFinalizarVenta.Margin = new Padding(4, 4, 4, 4);
             btnFinalizarVenta.Name = "btnFinalizarVenta";
             btnFinalizarVenta.Size = new Size(241, 40);
             btnFinalizarVenta.TabIndex = 4;
-            btnFinalizarVenta.Text = "Finalizado";
-            btnFinalizarVenta.UseVisualStyleBackColor = true;
+            btnFinalizarVenta.Text = "Marcar como Finalizada"; 
+            btnFinalizarVenta.UseVisualStyleBackColor = true;
             btnFinalizarVenta.Click += btnFinalizarVenta_Click;
+            // 
             // 
             // VentaForm
             // 
