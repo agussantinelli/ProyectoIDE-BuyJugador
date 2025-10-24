@@ -1,9 +1,9 @@
 ﻿using DTOs;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace Data.Repositories
@@ -22,7 +22,13 @@ namespace Data.Repositories
         public async Task<List<ReporteVentasDTO>> GetVentasPorPersonaUltimos7DiasAsync(int idPersona)
         {
             var reportes = new List<ReporteVentasDTO>();
-            var fechaDesde = DateTime.UtcNow.AddDays(-7);
+
+            var tzId = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                ? "Argentina Standard Time"
+                : "America/Argentina/Buenos_Aires";
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+            var ahoraAr = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+            var fechaDesde = ahoraAr.AddDays(-7);
 
             const string query = @"
                 SELECT
@@ -66,4 +72,3 @@ namespace Data.Repositories
         }
     }
 }
-
