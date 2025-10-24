@@ -168,14 +168,7 @@ namespace DominioServicios
             var ahora = GetCurrentArgentinaTime();
             var hoy = ahora.Date;
             var mañana = hoy.AddDays(1);
-
-            var totalHoy = await _unitOfWork.VentaRepository
-                .GetVentas() 
-                .Where(v => v.Estado == "Finalizada" && v.Fecha >= hoy && v.Fecha < mañana)
-                .Select(v => v.LineaVenta.Sum(l => l.Cantidad * l.PrecioUnitario))
-                .SumAsync();
-
-            return totalHoy;
+            return await _unitOfWork.VentaRepository.GetTotalVentasEnRangoAsync(hoy, mañana);
         }
     }
 }

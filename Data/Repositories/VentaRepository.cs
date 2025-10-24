@@ -58,9 +58,9 @@ namespace Data.Repositories
         public async Task<decimal> GetTotalVentasEnRangoAsync(DateTime desde, DateTime hasta)
         {
             return await _context.Ventas
-               .Where(v => v.Fecha >= desde && v.Fecha < hasta && v.Estado == "Finalizada")
-               .SelectMany(v => v.LineaVenta)
-               .SumAsync(lv => (decimal?)lv.Cantidad * lv.PrecioUnitario) ?? 0;
+                .Where(v => v.Fecha >= desde && v.Fecha < hasta && v.Estado == "Finalizada")
+                .SelectMany(v => v.LineaVenta)
+                .SumAsync(lv => (decimal?)lv.Cantidad * lv.PrecioUnitario) ?? 0m;
         }
 
         public void RemoveLineas(IEnumerable<LineaVenta> lineas)
