@@ -6,7 +6,6 @@
 @inject PersonaApiClient personaApiClient
 @inject ReporteApiClient reporteApiClient
 @inject IJSRuntime JSRuntime
-@inject NavigationManager Nav
 
 <link href="css/Table.css" rel="stylesheet" />
 
@@ -26,6 +25,7 @@
                 <label for="vendedor" class="form-label">Seleccione un vendedor:</label>
                 <select id="vendedor"
                         class="form-select @(showSelectAsInvalid ? "is-invalid" : "")"
+                        title="Para ver el reporte, el vendedor debe tener al menos 1 venta en los últimos 7 días."
                         @onchange="OnVendedorSeleccionado"
                         disabled="@(isLoadingReporte || isDownloadingPdf)">
                     <option value="0">-- Por favor, elija un vendedor --</option>
@@ -70,7 +70,7 @@
                 <div class="alert alert-warning mt-3" role="alert" aria-live="polite">
                     No se puede generar el informe: el vendedor seleccionado tiene
                     <strong>@ventasDetectadas</strong> venta@(ventasDetectadas == 1 ? "" : "s")
-                    en los últimos 7 días. Se requiere al menos <strong>@MinVentasRequeridas</strong>.
+                    en los últimos 7 días. Se requiere al menos <strong>1</strong>.
                 </div>
             }
 
@@ -114,13 +114,11 @@
     private List<PersonaSimpleDTO>? personas;
     private List<ReporteVentasDTO>? reporteData;
 
-    private const int MinVentasRequeridas = 1;
-
     private string? validationMessage;
     private bool showSelectAsInvalid = false;
     private bool blockedByRule = false;
     private int ventasDetectadas = 0;
-    private bool HasMinSales => (reporteData?.Count ?? 0) >= MinVentasRequeridas;
+    private bool HasMinSales => (reporteData?.Count ?? 0) >= 1;
 
     private bool isLoadingReporte = false;
     private bool isDownloadingPdf = false;
@@ -137,49 +135,48 @@
         showSelectAsInvalid = false;
         blockedByRule = false;
         ventasDetectadas = 0;
-        reporteData = null;
 
-        if (!int.TryParse(e.Value?.ToString(), out selectedPersonaId) || selectedPersonaId <= 0)
-            return;
-
-        isLoadingReporte = true;
-        StateHasChanged();
-
-        try
+        if (int.TryParse(e.Value?.ToString(), out selectedPersonaId) && selectedPersonaId > 0)
         {
-            var datos = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
+            isLoadingReporte = true;
+            reporteData = null;
+            StateHasChanged();
 
-            if (datos == null)
+            try
+            {
+                var data = await reporteApiClient.GetReporteVentasPorVendedorAsync(selectedPersonaId);
+                reporteData = data ?? new List<ReporteVentasDTO>();
+                ventasDetectadas = reporteData.Count;
+
+                if (!HasMinSales)
+                {
+                    blockedByRule = true;
+                    showSelectAsInvalid = true;
+
+                    validationMessage = $"No se puede generar el informe: el vendedor seleccionado tiene {ventasDetectadas} " +
+                                        $"venta{(ventasDetectadas == 1 ? "" : "s")} en los últimos 7 días. Se requiere al menos 1.";
+
+                    await JSRuntime.InvokeVoidAsync("document.getElementById", "vendedor");
+                }
+            }
+            catch (Exception ex)
+            {
+                validationMessage = $"Error al generar el reporte: {ex.Message}";
+                showSelectAsInvalid = true;
+                reporteData = new List<ReporteVentasDTO>();
+            }
+            finally
             {
                 isLoadingReporte = false;
-                showSelectAsInvalid = true;
-                validationMessage = "Tu sesión expiró o no tenés permisos para ver este reporte. Iniciá sesión nuevamente.";
-                return;
-            }
-
-            ventasDetectadas = datos.Count;
-
-            if (ventasDetectadas < MinVentasRequeridas)
-            {
-                blockedByRule = true;
-                showSelectAsInvalid = true;
-                validationMessage = $"No se puede generar el informe: el vendedor seleccionado tiene {ventasDetectadas} venta{(ventasDetectadas == 1 ? "" : "s")} en los últimos 7 días. Se requiere al menos {MinVentasRequeridas}.";
-                reporteData = new List<ReporteVentasDTO>(); 
-            }
-            else
-            {
-                reporteData = datos; 
             }
         }
-        catch (Exception ex)
+        else
         {
-            showSelectAsInvalid = true;
-            validationMessage = $"Error al generar el reporte: {ex.Message}";
-            reporteData = new List<ReporteVentasDTO>();
-        }
-        finally
-        {
-            isLoadingReporte = false;
+            reporteData = null;
+            validationMessage = null;
+            showSelectAsInvalid = false;
+            blockedByRule = false;
+            ventasDetectadas = 0;
         }
     }
 
@@ -193,7 +190,10 @@
             var pdfBytes = await reporteApiClient.GetReporteVentasPdfAsync(selectedPersonaId);
             if (pdfBytes != null)
             {
-                var fileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf";
+                var vendedor = personas?.FirstOrDefault(p => p.IdPersona == selectedPersonaId)?.NombreCompleto ?? $"ID_{selectedPersonaId}";
+                var vendedorSanitizado = string.Join("_", vendedor.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)).Replace(' ', '_');
+
+                var fileName = $"Reporte_{vendedorSanitizado}_{DateTime.Now:dd-MM-yyyy_HH.mm.ss}.pdf";
                 var base64 = Convert.ToBase64String(pdfBytes);
                 await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, base64);
             }
