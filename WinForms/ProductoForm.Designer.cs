@@ -88,7 +88,7 @@ namespace WinForms
             // 
             cmbFiltroStock.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFiltroStock.Items.AddRange(new object[] { "Todos", "Con stock", "Sin stock", "Stock < 10" });
-            cmbFiltroStock.Location = new Point(538, 12);
+            cmbFiltroStock.Location = new Point(538, 16);
             cmbFiltroStock.Name = "cmbFiltroStock";
             cmbFiltroStock.Size = new Size(160, 29);
             cmbFiltroStock.TabIndex = 3;
@@ -164,7 +164,7 @@ namespace WinForms
             tabInactivos.Location = new Point(4, 30);
             tabInactivos.Name = "tabInactivos";
             tabInactivos.Padding = new Padding(3);
-            tabInactivos.Size = new Size(1142, 386);
+            tabInactivos.Size = new Size(1241, 386);
             tabInactivos.TabIndex = 1;
             tabInactivos.Text = "Inactivos";
             tabInactivos.UseVisualStyleBackColor = true;
@@ -182,7 +182,7 @@ namespace WinForms
             dgvInactivos.ReadOnly = true;
             dgvInactivos.RowHeadersWidth = 51;
             dgvInactivos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvInactivos.Size = new Size(1136, 380);
+            dgvInactivos.Size = new Size(1235, 380);
             dgvInactivos.TabIndex = 0;
             dgvInactivos.CellDoubleClick += dgvProductos_CellDoubleClick;
             dgvInactivos.CellMouseDown += dgvProductos_CellMouseDown;

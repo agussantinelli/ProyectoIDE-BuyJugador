@@ -6,6 +6,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Drawing;
+using System.Net.Http; 
+using System.Net.Http.Json; 
+
 
 namespace WinForms
 {
@@ -32,7 +36,7 @@ namespace WinForms
 
         private BindingList<ProductoDisponibleRow> _disponiblesBindingList = new();
         private BindingList<ProductoAsignadoRow> _asignadosBindingList = new();
-        private HashSet<int> _initialAssignedIds;
+        private HashSet<int> _initialAssignedIds = new HashSet<int>();
 
         public AsignarProductosProveedorForm(
             int idProveedor,
@@ -60,14 +64,15 @@ namespace WinForms
 
         private async void AsignarProductosProveedorForm_Load(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             try
             {
                 var todosLosProductosTask = _productoApiClient.GetAllAsync();
                 var productosAsignadosTask = _productoProveedorApiClient.GetProductosAsignadosByProveedorIdAsync(_idProveedor);
                 await Task.WhenAll(todosLosProductosTask, productosAsignadosTask);
 
-                var todosLosProductos = todosLosProductosTask.Result;
-                var productosAsignadosConPrecio = productosAsignadosTask.Result;
+                var todosLosProductos = todosLosProductosTask.Result ?? new List<ProductoDTO>();
+                var productosAsignadosConPrecio = productosAsignadosTask.Result ?? new List<ProductoAsignadoDTO>();
                 _initialAssignedIds = new HashSet<int>(productosAsignadosConPrecio.Select(p => p.IdProducto));
 
                 var productosDisponibles = todosLosProductos
@@ -100,6 +105,13 @@ namespace WinForms
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar los productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                btnAsignar.Enabled = false;
+                btnQuitar.Enabled = false;
+                btnGuardar.Enabled = false;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
@@ -110,24 +122,24 @@ namespace WinForms
 
             dgvDisponibles.Columns.AddRange(new DataGridViewColumn[]
             {
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoDisponibleRow.IdProducto),
-                    HeaderText = "ID",
-                    Width = 60,
-                    DefaultCellStyle = new DataGridViewCellStyle
-                    {
-                        Alignment = DataGridViewContentAlignment.MiddleCenter,
-                        Font = new Font("Century Gothic", 9F, FontStyle.Bold)
-                    }
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoDisponibleRow.Nombre),
-                    HeaderText = "Nombre",
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 260
-                }
+                 new DataGridViewTextBoxColumn
+                 {
+                     DataPropertyName = nameof(ProductoDisponibleRow.IdProducto),
+                     HeaderText = "ID",
+                     Width = 60,
+                     DefaultCellStyle = new DataGridViewCellStyle
+                     {
+                         Alignment = DataGridViewContentAlignment.MiddleCenter,
+                         Font = new Font("Century Gothic", 9F, FontStyle.Bold)
+                     }
+                 },
+                 new DataGridViewTextBoxColumn
+                 {
+                     DataPropertyName = nameof(ProductoDisponibleRow.Nombre),
+                     HeaderText = "Nombre",
+                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                     FillWeight = 260
+                 }
             });
         }
 
@@ -138,36 +150,36 @@ namespace WinForms
 
             dgvAsignados.Columns.AddRange(new DataGridViewColumn[]
             {
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoAsignadoRow.IdProducto),
-                    HeaderText = "ID",
-                    Width = 60,
-                    DefaultCellStyle = new DataGridViewCellStyle
-                    {
-                        Alignment = DataGridViewContentAlignment.MiddleCenter,
-                        Font = new Font("Century Gothic", 9F, FontStyle.Bold)
-                    }
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoAsignadoRow.Nombre),
-                    HeaderText = "Nombre",
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 210
-                },
-                new DataGridViewTextBoxColumn
-                {
-                    DataPropertyName = nameof(ProductoAsignadoRow.PrecioCompra),
-                    HeaderText = "Precio Compra",
-                    AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                    FillWeight = 100,
-                    DefaultCellStyle = new DataGridViewCellStyle
-                    {
-                        Format = "C2",
-                        Alignment = DataGridViewContentAlignment.MiddleRight
-                    }
-                }
+                 new DataGridViewTextBoxColumn
+                 {
+                     DataPropertyName = nameof(ProductoAsignadoRow.IdProducto),
+                     HeaderText = "ID",
+                     Width = 60,
+                     DefaultCellStyle = new DataGridViewCellStyle
+                     {
+                         Alignment = DataGridViewContentAlignment.MiddleCenter,
+                         Font = new Font("Century Gothic", 9F, FontStyle.Bold)
+                     }
+                 },
+                 new DataGridViewTextBoxColumn
+                 {
+                     DataPropertyName = nameof(ProductoAsignadoRow.Nombre),
+                     HeaderText = "Nombre",
+                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                     FillWeight = 210
+                 },
+                 new DataGridViewTextBoxColumn
+                 {
+                     DataPropertyName = nameof(ProductoAsignadoRow.PrecioCompra),
+                     HeaderText = "Precio Compra",
+                     AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                     FillWeight = 100,
+                     DefaultCellStyle = new DataGridViewCellStyle
+                     {
+                         Format = "C2",
+                         Alignment = DataGridViewContentAlignment.MiddleRight
+                     }
+                 }
             });
         }
 
@@ -183,7 +195,7 @@ namespace WinForms
                     productoSeleccionado.Nombre,
                     _razonSocial);
 
-                if (formPrecio.ShowDialog() == DialogResult.OK)
+                if (formPrecio.ShowDialog(this) == DialogResult.OK)
                 {
                     _disponiblesBindingList.Remove(productoSeleccionado);
                     _asignadosBindingList.Add(new ProductoAsignadoRow
@@ -193,6 +205,10 @@ namespace WinForms
                         PrecioCompra = formPrecio.Precio
                     });
                 }
+            }
+            else
+            {
+                MessageBox.Show("Seleccione un producto disponible para asignar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -207,16 +223,24 @@ namespace WinForms
                     Nombre = productoSeleccionado.Nombre
                 });
             }
+            else
+            {
+                MessageBox.Show("Seleccione un producto asignado para quitar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
+            this.Cursor = Cursors.WaitCursor;
             try
             {
                 var finalAssignedIds = new HashSet<int>(_asignadosBindingList.Select(p => p.IdProducto));
                 var idsToRemove = _initialAssignedIds.Except(finalAssignedIds).ToList();
                 foreach (var idProducto in idsToRemove)
+                {
                     await _productoProveedorApiClient.DeleteAsync(idProducto, _idProveedor);
+                }
+
 
                 var idsToAdd = finalAssignedIds.Except(_initialAssignedIds).ToList();
                 foreach (var idProducto in idsToAdd)
@@ -233,6 +257,23 @@ namespace WinForms
                     await _precioCompraApiClient.CreateAsync(pcDto);
                 }
 
+                var idsToCheckForUpdate = _initialAssignedIds.Intersect(finalAssignedIds).ToList();
+                foreach (var idProducto in idsToCheckForUpdate)
+                {
+                    var productoEnLista = _asignadosBindingList.FirstOrDefault(p => p.IdProducto == idProducto);
+                    if (productoEnLista != null )
+                    {
+                        var pcDto = new PrecioCompraDTO
+                        {
+                            IdProducto = idProducto,
+                            IdProveedor = _idProveedor,
+                            Monto = productoEnLista.PrecioCompra
+                        };
+                        await _precioCompraApiClient.CreateOrUpdateAsync(pcDto);
+                    }
+                }
+
+
                 MessageBox.Show("Cambios guardados exitosamente.", "Éxito",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
                 DialogResult = DialogResult.OK;
@@ -243,6 +284,10 @@ namespace WinForms
                 MessageBox.Show($"Ocurrió un error al guardar los cambios: {ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            finally
+            {
+                this.Cursor = Cursors.Default;
+            }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
@@ -251,4 +296,27 @@ namespace WinForms
             Close();
         }
     }
+
+
+    public static class PrecioCompraApiClientExtensions
+    {
+        public static async Task<System.Net.Http.HttpResponseMessage> CreateOrUpdateAsync(this PrecioCompraApiClient client, PrecioCompraDTO dto)
+        {
+
+            var httpClient = (System.Net.Http.HttpClient)typeof(PrecioCompraApiClient)
+                             .GetField("_httpClient", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                             ?.GetValue(client);
+            if (httpClient == null) throw new InvalidOperationException("HttpClient not found.");
+
+
+            var updateResponse = await httpClient.PutAsJsonAsync($"api/precioscompra/{dto.IdProducto}/{dto.IdProveedor}", dto);
+            if (updateResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+
+                return await httpClient.PostAsJsonAsync("api/precioscompra", dto);
+            }
+            return updateResponse;
+        }
+    }
 }
+

@@ -44,14 +44,20 @@ namespace WinForms
             await CargarProductos();
             ConfigurarGrilla();
             dataGridLineasVenta.DataSource = _lineasVentaActual;
+            ActualizarTotal();
         }
 
         private async Task CargarProductos()
         {
+            this.Cursor = Cursors.WaitCursor;
             try
             {
                 _productosDisponibles = await _productoApiClient.GetAllAsync() ?? new List<ProductoDTO>();
-                cmbProductos.DataSource = _productosDisponibles;
+                var productosConStockYPrecio = _productosDisponibles
+                    .Where(p => p.Stock > 0 && p.PrecioActual.HasValue && p.PrecioActual > 0)
+                    .ToList();
+
+                cmbProductos.DataSource = productosConStockYPrecio;
                 cmbProductos.DisplayMember = "Nombre";
                 cmbProductos.ValueMember = "IdProducto";
                 cmbProductos.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -62,6 +68,13 @@ namespace WinForms
             catch (Exception ex)
             {
                 MessageBox.Show($"Error al cargar productos: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                cmbProductos.DataSource = null;
+                cmbProductos.Enabled = false;
+                btnAgregarProducto.Enabled = false;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
@@ -76,7 +89,7 @@ namespace WinForms
             dataGridLineasVenta.CellEndEdit += DataGridLineasVenta_CellEndEdit;
         }
 
-        private async void btnAgregarProducto_Click(object sender, EventArgs e)
+        private void btnAgregarProducto_Click(object sender, EventArgs e)
         {
             if (cmbProductos.SelectedItem is not ProductoDTO productoSeleccionado)
             {
@@ -91,56 +104,49 @@ namespace WinForms
                 return;
             }
 
-            try
+            if (!productoSeleccionado.PrecioActual.HasValue || productoSeleccionado.PrecioActual <= 0)
             {
-                var precioVenta = await _precioVentaApiClient.GetPrecioVigenteAsync(productoSeleccionado.IdProducto);
-                if (precioVenta == null)
-                {
-                    MessageBox.Show($"El producto '{productoSeleccionado.Nombre}' no tiene un precio de venta asignado.", "Precio no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
-                var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
-
-                if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
-                {
-                    MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'.", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (lineaExistente != null)
-                {
-                    lineaExistente.Cantidad += cantidadDeseada;
-                }
-                else
-                {
-                    _lineasVentaActual.Add(new LineaVentaDTO
-                    {
-                        IdProducto = productoSeleccionado.IdProducto,
-                        NombreProducto = productoSeleccionado.Nombre,
-                        Cantidad = cantidadDeseada,
-                        PrecioUnitario = precioVenta.Monto,
-                        NroLineaVenta = _nroLineaCounter++
-                    });
-                }
-
-                _lineasVentaActual.ResetBindings();
-                ActualizarTotal();
-                cmbProductos.SelectedIndex = -1;
-                cmbProductos.Text = "";
-                numCantidad.Value = 1;
-                cmbProductos.Focus();
+                MessageBox.Show($"El producto '{productoSeleccionado.Nombre}' no tiene un precio de venta válido asignado.", "Precio no encontrado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
-            catch (Exception ex)
+
+            var lineaExistente = _lineasVentaActual.FirstOrDefault(l => l.IdProducto == productoSeleccionado.IdProducto);
+            var cantidadYaEnCarro = lineaExistente?.Cantidad ?? 0;
+
+            if (cantidadYaEnCarro + cantidadDeseada > productoSeleccionado.Stock)
             {
-                MessageBox.Show($"Error al verificar el precio: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Stock insuficiente para '{productoSeleccionado.Nombre}'. Stock disponible: {productoSeleccionado.Stock - cantidadYaEnCarro}", "Stock Insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
+
+            if (lineaExistente != null)
+            {
+                lineaExistente.Cantidad += cantidadDeseada;
+            }
+            else
+            {
+                _lineasVentaActual.Add(new LineaVentaDTO
+                {
+                    IdProducto = productoSeleccionado.IdProducto,
+                    NombreProducto = productoSeleccionado.Nombre,
+                    Cantidad = cantidadDeseada,
+                    PrecioUnitario = productoSeleccionado.PrecioActual.Value,
+                    NroLineaVenta = _nroLineaCounter++
+                });
+            }
+
+            _lineasVentaActual.ResetBindings();
+            ActualizarTotal();
+            cmbProductos.SelectedIndex = -1;
+            cmbProductos.Text = "";
+            numCantidad.Value = 1;
+            cmbProductos.Focus();
+
         }
 
         private void DataGridLineasVenta_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex != dataGridLineasVenta.Columns["Cantidad"].Index) return;
+            if (e.RowIndex < 0 || e.ColumnIndex != dataGridLineasVenta.Columns["Cantidad"].Index) return;
 
             if (dataGridLineasVenta.Rows[e.RowIndex].DataBoundItem is LineaVentaDTO linea)
             {
@@ -152,21 +158,27 @@ namespace WinForms
                 {
                     if (nuevaCantidad > producto.Stock)
                     {
-                        MessageBox.Show($"Stock insuficiente. Máximo: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show($"Stock insuficiente. Máximo disponible: {producto.Stock}", "Stock insuficiente", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         celda.Value = linea.Cantidad;
+                        dataGridLineasVenta.CancelEdit();
                         return;
                     }
-                    linea.Cantidad = nuevaCantidad;
+                    if (linea.Cantidad != nuevaCantidad)
+                    {
+                        linea.Cantidad = nuevaCantidad;
+                        _lineasVentaActual.ResetItem(e.RowIndex);
+                        ActualizarTotal();
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Cantidad inválida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Cantidad inválida. Debe ser un número mayor a cero.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     celda.Value = linea.Cantidad;
+                    dataGridLineasVenta.CancelEdit();
                 }
-                _lineasVentaActual.ResetBindings();
-                ActualizarTotal();
             }
         }
+
 
         private void btnEliminarLinea_Click(object sender, EventArgs e)
         {
@@ -174,6 +186,10 @@ namespace WinForms
             {
                 _lineasVentaActual.Remove(lineaSeleccionada);
                 ActualizarTotal();
+            }
+            else
+            {
+                MessageBox.Show("Seleccione una línea para eliminar.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -192,7 +208,7 @@ namespace WinForms
             }
             if (_userSessionService.CurrentUser == null)
             {
-                MessageBox.Show("Error de sesión.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error de sesión. No se pudo identificar al vendedor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -203,17 +219,30 @@ namespace WinForms
                 Finalizada = chkMarcarFinalizada.Checked
             };
 
+            this.Cursor = Cursors.WaitCursor;
             try
             {
                 var response = await _ventaApiClient.CreateCompletaAsync(ventaCompletaDto);
-                var ventaCreada = await response.Content.ReadFromJsonAsync<VentaDTO>();
-                MessageBox.Show($"Venta #{ventaCreada?.IdVenta} creada.", "Venta Finalizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                if (response.IsSuccessStatusCode)
+                {
+                    var ventaCreada = await response.Content.ReadFromJsonAsync<VentaDTO>();
+                    MessageBox.Show($"Venta #{ventaCreada?.IdVenta} creada exitosamente.", "Venta Finalizada", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Error al crear la venta: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al crear la venta: {ex.Message}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocurrió un error inesperado al crear la venta: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 

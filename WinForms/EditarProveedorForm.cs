@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic; 
+
 
 namespace WinForms
 {
@@ -25,7 +27,7 @@ namespace WinForms
             _proveedorApiClient = proveedorApiClient;
             _provinciaApiClient = provinciaApiClient;
             _localidadApiClient = localidadApiClient;
-            _proveedor = proveedor;
+            _proveedor = proveedor ?? throw new ArgumentNullException(nameof(proveedor));
 
             StyleManager.ApplyButtonStyle(btnGuardar);
             StyleManager.ApplyButtonStyle(btnCancelar);
@@ -48,67 +50,127 @@ namespace WinForms
             txtTelefono.Text = _proveedor.Telefono;
             txtDireccion.Text = _proveedor.Direccion;
 
-            var provincias = await _provinciaApiClient.GetAllAsync();
-            cmbProvincia.DataSource = provincias;
-            cmbProvincia.DisplayMember = "Nombre";
-            cmbProvincia.ValueMember = "IdProvincia";
-
-            if (_proveedor.IdLocalidad.HasValue)
+            this.Cursor = Cursors.WaitCursor;
+            try
             {
-                var localidadActual = await _localidadApiClient.GetByIdAsync(_proveedor.IdLocalidad.Value);
-                if (localidadActual != null && localidadActual.IdProvincia.HasValue)
+                var provincias = await _provinciaApiClient.GetAllAsync() ?? new List<ProvinciaDTO>();
+                cmbProvincia.DataSource = provincias;
+                cmbProvincia.DisplayMember = "Nombre";
+                cmbProvincia.ValueMember = "IdProvincia";
+
+                if (_proveedor.IdLocalidad.HasValue)
                 {
-                    cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
-                    await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
-                    cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
+                    var localidadActual = await _localidadApiClient.GetByIdAsync(_proveedor.IdLocalidad.Value);
+                    if (localidadActual != null && localidadActual.IdProvincia.HasValue)
+                    {
+                        cmbProvincia.SelectedValue = localidadActual.IdProvincia.Value;
+                        await CargarLocalidadesAsync(localidadActual.IdProvincia.Value);
+                        cmbLocalidad.SelectedValue = localidadActual.IdLocalidad;
+                    }
+                    else if (provincias.Any())
+                    {
+                        cmbProvincia.SelectedIndex = 0;
+                        await CargarLocalidadesAsync(provincias[0].IdProvincia);
+                    }
                 }
+                else if (provincias.Any())
+                {
+                    cmbProvincia.SelectedIndex = 0;
+                    await CargarLocalidadesAsync(provincias[0].IdProvincia);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar datos iniciales: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                cmbProvincia.Enabled = false;
+                cmbLocalidad.Enabled = false;
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
         private async Task CargarLocalidadesAsync(int idProvincia)
         {
-            var localidades = await _localidadApiClient.GetAllOrderedAsync();
-            cmbLocalidad.DataSource = localidades?.Where(l => l.IdProvincia == idProvincia).ToList();
-            cmbLocalidad.DisplayMember = "Nombre";
-            cmbLocalidad.ValueMember = "IdLocalidad";
+            cmbLocalidad.DataSource = null;
+            cmbLocalidad.Enabled = false;
+            if (idProvincia <= 0) return;
+
+            try
+            {
+                var localidades = await _localidadApiClient.GetAllOrderedAsync();
+                var filtradas = localidades?.Where(l => l.IdProvincia == idProvincia).ToList() ?? new List<LocalidadDTO>();
+                cmbLocalidad.DataSource = filtradas;
+                cmbLocalidad.DisplayMember = "Nombre";
+                cmbLocalidad.ValueMember = "IdLocalidad";
+                cmbLocalidad.Enabled = filtradas.Any();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar localidades: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async void cmbProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cmbProvincia.SelectedItem is ProvinciaDTO provinciaSeleccionada)
+            if (cmbProvincia.SelectedValue is int idProvincia)
             {
-                await CargarLocalidadesAsync(provinciaSeleccionada.IdProvincia);
+                this.Cursor = Cursors.WaitCursor;
+                await CargarLocalidadesAsync(idProvincia);
+                this.Cursor = Cursors.Default;
             }
         }
 
         private async void btnGuardar_Click(object sender, EventArgs e)
         {
+            if (cmbLocalidad.SelectedValue == null || (int)cmbLocalidad.SelectedValue <= 0)
+            {
+                MessageBox.Show("Debe seleccionar una localidad válida.", "Atención", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var confirm = MessageBox.Show("⚠️ Se modificarán los datos del proveedor.\n¿Desea continuar?", "Confirmar edición", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
-            _proveedor.Email = txtEmail.Text.Trim();
-            _proveedor.Telefono = txtTelefono.Text.Trim();
-            _proveedor.Direccion = txtDireccion.Text.Trim();
-            _proveedor.IdLocalidad = (cmbLocalidad.SelectedItem as LocalidadDTO)?.IdLocalidad;
+            _proveedor.Email = string.IsNullOrWhiteSpace(txtEmail.Text) ? null : txtEmail.Text.Trim();
+            _proveedor.Telefono = string.IsNullOrWhiteSpace(txtTelefono.Text) ? null : txtTelefono.Text.Trim();
+            _proveedor.Direccion = string.IsNullOrWhiteSpace(txtDireccion.Text) ? null : txtDireccion.Text.Trim();
+            _proveedor.IdLocalidad = (int)cmbLocalidad.SelectedValue;
 
-            var resp = await _proveedorApiClient.UpdateAsync(_proveedor.IdProveedor, _proveedor);
-            if (resp.IsSuccessStatusCode)
+
+            this.Cursor = Cursors.WaitCursor;
+            try
             {
-                MessageBox.Show("Proveedor actualizado.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                DialogResult = DialogResult.OK;
-                this.Close(); // # REFACTORIZADO para MDI
+                var resp = await _proveedorApiClient.UpdateAsync(_proveedor.IdProveedor, _proveedor);
+                if (resp.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Proveedor actualizado.", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    var error = await resp.Content.ReadAsStringAsync();
+                    MessageBox.Show($"No se pudo actualizar el proveedor: {error}", "Error de API", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("No se pudo actualizar el proveedor.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Ocurrió un error inesperado al guardar: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
-            this.Close(); // # REFACTORIZADO para MDI
+            this.Close();
         }
+
 
         private void txtRazonSocial_TextChanged(object sender, EventArgs e)
         {
