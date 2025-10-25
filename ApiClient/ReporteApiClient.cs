@@ -10,55 +10,52 @@ namespace ApiClient
 {
     public class ReporteApiClient
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
 
-        public ReporteApiClient(HttpClient httpClient)
+        public ReporteApiClient(HttpClient http)
         {
-            _httpClient = httpClient;
+            _http = http;
         }
 
         public async Task<List<ReporteVentasDTO>?> GetReporteVentasPorVendedorAsync(int idPersona)
         {
-            var resp = await _httpClient.GetAsync($"api/reportes/ventas-vendedor/{idPersona}");
-
-            if (resp.StatusCode == HttpStatusCode.Unauthorized)
-            {
-                return null;
-            }
-
-            if (!resp.IsSuccessStatusCode)
-            {
-                return new List<ReporteVentasDTO>();
-            }
-
-            return await resp.Content.ReadFromJsonAsync<List<ReporteVentasDTO>>() ?? new List<ReporteVentasDTO>();
+            var resp = await _http.GetAsync($"api/reportes/ventas-vendedor/{idPersona}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) return null;
+            if (!resp.IsSuccessStatusCode) return new List<ReporteVentasDTO>();
+            return await resp.Content.ReadFromJsonAsync<List<ReporteVentasDTO>>() ?? new();
         }
 
         public async Task<byte[]?> GetReporteVentasPdfAsync(int idPersona)
         {
-            var resp = await _httpClient.GetAsync($"api/reportes/ventas-vendedor/{idPersona}/pdf");
-            if (resp.IsSuccessStatusCode)
-            {
-                return await resp.Content.ReadAsByteArrayAsync();
-            }
-
-            return null;
+            var resp = await _http.GetAsync($"api/reportes/ventas-vendedor/{idPersona}/pdf");
+            return resp.IsSuccessStatusCode ? await resp.Content.ReadAsByteArrayAsync() : null;
         }
 
         public async Task<byte[]?> GetHistorialPreciosPdfAsync(DateTime? from = null, DateTime? to = null, int w = 1200, int h = 500)
         {
-            var fromStr = from.HasValue ? from.Value.ToString("yyyy-MM-dd") : string.Empty;
-            var toStr = to.HasValue ? to.Value.ToString("yyyy-MM-dd") : string.Empty;
+            var parts = new List<string>();
+            if (from.HasValue) parts.Add($"from={from.Value:yyyy-MM-dd}");
+            if (to.HasValue) parts.Add($"to={to.Value:yyyy-MM-dd}");
+            parts.Add($"w={w}");
+            parts.Add($"h={h}");
 
-            var url = $"api/precios-venta/historial.pdf?from={fromStr}&to={toStr}&w={w}&h={h}";
-            var resp = await _httpClient.GetAsync(url);
-
-            if (resp.IsSuccessStatusCode)
-            {
-                return await resp.Content.ReadAsByteArrayAsync();
-            }
-
-            return null;
+            var url = $"api/reportes/historial-precios.pdf?{string.Join("&", parts)}";
+            var resp = await _http.GetAsync(url);
+            return resp.IsSuccessStatusCode ? await resp.Content.ReadAsByteArrayAsync() : null;
         }
+
+        public async Task<byte[]?> GetHistorialPreciosPngAsync(DateTime? from = null, DateTime? to = null, int w = 1200, int h = 500)
+        {
+            var parts = new List<string>();
+            if (from.HasValue) parts.Add($"from={from.Value:yyyy-MM-dd}");
+            if (to.HasValue) parts.Add($"to={to.Value:yyyy-MM-dd}");
+            parts.Add($"w={w}");
+            parts.Add($"h={h}");
+
+            var url = $"api/reportes/historial-precios.png?{string.Join("&", parts)}";
+            var resp = await _http.GetAsync(url);
+            return resp.IsSuccessStatusCode ? await resp.Content.ReadAsByteArrayAsync() : null;
+        }
+
     }
 }

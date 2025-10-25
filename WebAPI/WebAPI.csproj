@@ -14,7 +14,7 @@
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-		<PackageReference Include="ScottPlot" Version="5.0.21" />
+		<PackageReference Include="ScottPlot" Version="5.1.57" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -7,9 +7,10 @@ using Microsoft.OpenApi.Models;
 using PdfSharp.Fonts;
 using System.Text;
 using WebAPI.Endpoints;
+using Data.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
-PdfReportService.Configure();
+ReporteService.Configure();
 GlobalFontSettings.FontResolver = new FontResolver();
 builder.Services.AddCors(options =>
 {
@@ -20,6 +21,9 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddDbContext<BuyJugadorContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("BuyJugadorConnection")));
+
+builder.Services.AddScoped<ReporteRepository>();
+
 builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<PersonaService>();
 builder.Services.AddScoped<ProductoService>();
@@ -35,7 +39,6 @@ builder.Services.AddScoped<VentaService>();
 builder.Services.AddScoped<LineaPedidoService>();
 builder.Services.AddScoped<LineaVentaService>();
 builder.Services.AddScoped<ReporteService>();
-builder.Services.AddScoped<PdfReportService>();
 
 
 builder.Services.AddEndpointsApiExplorer();

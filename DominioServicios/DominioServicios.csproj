@@ -23,6 +23,7 @@
 	<ItemGroup>
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="PDFsharp" Version="6.1.0" />
+		<PackageReference Include="ScottPlot" Version="5.1.57" />
 		<PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
 	</ItemGroup>
 

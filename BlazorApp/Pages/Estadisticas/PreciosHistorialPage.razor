@@ -1,99 +1,11 @@
 ﻿@page "/reporte/precios"
 @using System
 @using System.Linq
+@using System.Collections.Generic
 @using ApiClient
 @inject ReporteApiClient Reportes
 @inject PrecioVentaApiClient Precios
 @inject IJSRuntime JS
-
-@code {
-    private string ApiBase => "https://localhost:7145";
-
-    DateTime Today = DateTime.Today;
-    DateTime HardMin = new DateTime(2022, 1, 1);
-    DateTime? MinFrom; 
-    DateTime EffectiveMinFrom => (MinFrom.HasValue && MinFrom.Value > HardMin) ? MinFrom.Value.Date : HardMin;
-
-    DateTime? from;
-    DateTime? to;
-
-    int cacheBust = 0;
-    bool loading = false;
-
-    string ImgUrl => $"{ApiBase}/api/precios-venta/historial.png" +
-                     $"?from={(from.HasValue ? from.Value.ToString("yyyy-MM-dd") : "")}" +
-                     $"&to={(to.HasValue ? to.Value.ToString("yyyy-MM-dd") : "")}" +
-                     $"&w=1200&h=500&_={cacheBust}";
-
-    string MinFromStr => EffectiveMinFrom.ToString("yyyy-MM-dd");
-    string TodayStr => Today.ToString("yyyy-MM-dd");
-
-    protected override async Task OnInitializedAsync()
-    {
-        var hist = await Precios.GetHistorialAsync();
-        MinFrom = hist?
-            .SelectMany(p => p.Puntos)
-            .Select(p => (DateTime?)p.Fecha.Date)
-            .OrderBy(d => d)
-            .FirstOrDefault();
-
-        from = Today.AddDays(-180);
-        if (from < EffectiveMinFrom) from = EffectiveMinFrom;
-        to = Today;
-    }
-
-    bool RangoInvalido => from.HasValue && to.HasValue && from.Value.Date > to.Value.Date;
-    bool CanExport => !RangoInvalido && from.HasValue && to.HasValue;
-
-    void NormalizeFrom()
-    {
-        if (!from.HasValue) return;
-        from = from.Value.Date;
-        if (from < EffectiveMinFrom) from = EffectiveMinFrom;
-        if (to.HasValue && from > to) to = from;
-    }
-
-    void NormalizeTo()
-    {
-        if (!to.HasValue) return;
-        to = to.Value.Date;
-        if (to > Today) to = Today;
-        if (from.HasValue && to < from) from = to;
-    }
-
-    async Task RefrescarAsync()
-    {
-        NormalizeFrom();
-        NormalizeTo();
-
-        loading = true;
-        cacheBust++;
-        try
-        {
-            await Task.Delay(120);
-        }
-        finally
-        {
-            loading = false;
-        }
-        StateHasChanged();
-    }
-
-    async Task DescargarPdfAsync()
-    {
-        NormalizeFrom();
-        NormalizeTo();
-
-        if (!CanExport) return;
-
-        var bytes = await Reportes.GetHistorialPreciosPdfAsync(from, to, 1200, 500);
-        if (bytes is null) return;
-
-        var base64 = Convert.ToBase64String(bytes);
-        var safeName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf";
-        await JS.InvokeVoidAsync("saveAsFile", safeName, base64);
-    }
-}
 
 <div class="report-wrap">
     <div class="report-card">
@@ -106,7 +18,7 @@
             <div class="actions">
                 <button class="btn btn-primary"
                         @onclick="RefrescarAsync"
-                        disabled="@RangoInvalido || loading">
+                        disabled="@(!CanShowChart || loading)">
                     @if (loading)
                     {
                         <span class="spinner-border spinner-border-sm me-2"></span>
@@ -132,61 +44,65 @@
             <div class="filter-group">
                 <label class="form-label">Desde</label>
                 <InputDate @bind-Value="from"
-                           @bind-Value:event="oninput"
+                           @bind-Value:after="OnFromAfterBind"
                            class="form-control"
                            min="@MinFromStr"
-                           max="@TodayStr"
-                           @onblur="@(_ => NormalizeFrom())" />
+                           max="@TodayStr" />
                 <small class="text-muted">Mínimo permitido: @EffectiveMinFrom.ToString("dd/MM/yyyy")</small>
             </div>
 
             <div class="filter-group">
                 <label class="form-label">Hasta</label>
                 <InputDate @bind-Value="to"
-                           @bind-Value:event="oninput"
+                           @bind-Value:after="OnToAfterBind"
                            class="form-control"
                            min="@MinFromStr"
-                           max="@TodayStr"
-                           @onblur="@(_ => NormalizeTo())" />
+                           max="@TodayStr" />
                 <small class="text-muted">Máximo permitido: @Today.ToString("dd/MM/yyyy")</small>
             </div>
 
             <div class="hint">
-                @if (RangoInvalido)
+                @if (ValidationErrors.Count > 0)
                 {
-                    <span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i> El rango es inválido</span>
+                    <div class="alert alert-warning py-2 px-3 mb-0" role="alert">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-exclamation-triangle me-2 mt-1"></i>
+                            <div>
+                                <strong>No se puede mostrar el gráfico.</strong>
+                                <ul class="mb-0 mt-1">
+                                    @foreach (var msg in ValidationErrors)
+                                    {
+                                        <li>@msg</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 }
-                else if (from.HasValue || to.HasValue)
+                else if (from.HasValue && to.HasValue)
                 {
-                    <span class="text-muted">
-                        @if (from.HasValue && to.HasValue)
-                        {
-                            <i class="bi bi-calendar2-range me-1"></i>
-                            <span>Mostrando de @from.Value.ToString("dd/MM/yyyy") a @to.Value.ToString("dd/MM/yyyy")</span>
-                        }
-                        else if (from.HasValue)
-                        {
-                            <i class="bi bi-calendar2-plus me-1"></i>
-                            <span>Desde @from.Value.ToString("dd/MM/yyyy")</span>
-                        }
-                        else if (to.HasValue)
-                        {
-                            <i class="bi bi-calendar2-minus me-1"></i>
-                            <span>Hasta @to.Value.ToString("dd/MM/yyyy")</span>
-                        }
-                    </span>
+                    <div class="text-muted small d-flex align-items-center">
+                        <i class="bi bi-calendar2-range me-2"></i>
+                        <span>
+                            <strong>Rango:</strong> @from.Value.ToString("dd/MM/yyyy") &rarr; @to.Value.ToString("dd/MM/yyyy")
+                            (<span>@((int)RangeDays)</span> día(s))
+                        </span>
+                        <span class="ms-2 text-muted">• Mínimo: @MinSpanDays días</span>
+                    </div>
                 }
             </div>
         </div>
 
         <div class="chart-card">
-            @if (RangoInvalido)
+            @if (!CanShowChart)
             {
                 <div class="state">
-                    <i class="bi bi-slash-circle"></i>
+                    <i class="bi bi-info-circle"></i>
                     <div>
-                        <strong>Rango inválido</strong>
-                        <div>La fecha “Desde” no puede ser mayor que “Hasta”.</div>
+                        <strong>No se puede mostrar el gráfico.</strong>
+                        <div>
+                            Revisá el rango seleccionado.
+                        </div>
                     </div>
                 </div>
             }
@@ -201,9 +117,219 @@
                             <div class="sk-row"></div>
                         </div>
                     }
-                    <img src="@ImgUrl" class="img-fluid chart-image @(loading ? "d-none" : "")" alt="Historial de precios" />
+                    else
+                    {
+                        <img src="@ImgUrl" class="img-fluid chart-image" alt="Historial de precios" />
+                    }
                 </div>
+
+                @if (LastImageError404)
+                {
+                    <div class="alert alert-secondary mt-3" role="alert">
+                        <i class="bi bi-info-circle me-1"></i>
+                        No hay datos suficientes para ese rango (cada producto necesita al menos 2 puntos). Probá ampliarlo.
+                    </div>
+                }
             }
         </div>
     </div>
 </div>
+
+@code {
+    private string ApiBase => "https://localhost:7145";
+
+    const int MinSpanDays = 60;
+
+    DateTime Today = DateTime.Today;
+    DateTime HardMin = new DateTime(2022, 1, 1);
+
+    DateTime? MinFrom;
+    DateTime EffectiveMinFrom => (MinFrom.HasValue && MinFrom.Value > HardMin) ? MinFrom.Value.Date : HardMin;
+
+    DateTime? from;
+    DateTime? to;
+
+    int cacheBust = 0;
+    bool loading = false;
+    bool LastImageError404 = false;
+
+    string ImgUrl
+    {
+        get
+        {
+            var qs = new List<string>();
+            if (from.HasValue) qs.Add($"from={from.Value:yyyy-MM-dd}");
+            if (to.HasValue) qs.Add($"to={to.Value:yyyy-MM-dd}");
+            qs.Add("w=1200");
+            qs.Add("h=500");
+            qs.Add($"_={cacheBust}");
+            return $"{ApiBase}/api/reportes/historial-precios.png?{string.Join("&", qs)}";
+        }
+    }
+
+    string MinFromStr => EffectiveMinFrom.ToString("yyyy-MM-dd");
+    string TodayStr => Today.ToString("yyyy-MM-dd");
+
+    protected override async Task OnInitializedAsync()
+    {
+        var hist = await Precios.GetHistorialAsync();
+        MinFrom = hist?
+            .SelectMany(p => p.Puntos)
+            .Select(p => (DateTime?)p.Fecha.Date)
+            .OrderBy(d => d)
+            .FirstOrDefault();
+
+        to = Today;
+        from = to.Value.AddDays(-MinSpanDays);
+        if (from < EffectiveMinFrom) from = EffectiveMinFrom;
+        EnforceMinSpan();
+    }
+
+    bool RangoInvalido => from.HasValue && to.HasValue && from.Value.Date > to.Value.Date;
+
+    double RangeDays => (from.HasValue && to.HasValue)
+        ? (to.Value.Date - from.Value.Date).TotalDays + 1
+        : 0;
+
+    bool HasMinSpan => (from.HasValue && to.HasValue) && RangeDays >= MinSpanDays;
+
+    bool DatesInsideBounds =>
+        (!from.HasValue || (from.Value.Date >= EffectiveMinFrom && from.Value.Date <= Today)) &&
+        (!to.HasValue || (to.Value.Date >= EffectiveMinFrom && to.Value.Date <= Today));
+
+    bool BothSet => from.HasValue && to.HasValue;
+
+    bool CanShowChart => BothSet && DatesInsideBounds && !RangoInvalido && HasMinSpan;
+    bool CanExport => CanShowChart && !loading;
+
+    List<string> ValidationErrors => BuildValidationErrors();
+
+    List<string> BuildValidationErrors()
+    {
+        var errors = new List<string>();
+
+        if (!from.HasValue || !to.HasValue)
+        {
+            errors.Add("Debés elegir ambas fechas (Desde y Hasta).");
+            return errors;
+        }
+
+        if (from.Value.Date < EffectiveMinFrom || from.Value.Date > Today)
+            errors.Add($"“Desde” debe estar entre {EffectiveMinFrom:dd/MM/yyyy} y {Today:dd/MM/yyyy}.");
+
+        if (to.Value.Date < EffectiveMinFrom || to.Value.Date > Today)
+            errors.Add($"“Hasta” debe estar entre {EffectiveMinFrom:dd/MM/yyyy} y {Today:dd/MM/yyyy}.");
+
+        if (from.Value.Date > to.Value.Date)
+            errors.Add("“Desde” no puede ser mayor que “Hasta”.");
+
+        var days = (to.Value.Date - from.Value.Date).TotalDays + 1;
+        if (days < MinSpanDays)
+            errors.Add($"El rango debe ser de al menos {MinSpanDays} días (actual: {(int)days}).");
+
+        return errors;
+    }
+
+    void ClampToBounds()
+    {
+        if (from.HasValue)
+        {
+            var f = from.Value.Date;
+            if (f < EffectiveMinFrom) f = EffectiveMinFrom;
+            if (f > Today) f = Today;
+            from = f;
+        }
+        if (to.HasValue)
+        {
+            var t = to.Value.Date;
+            if (t < EffectiveMinFrom) t = EffectiveMinFrom;
+            if (t > Today) t = Today;
+            to = t;
+        }
+    }
+
+    void EnsureOrder()
+    {
+        if (BothSet && from!.Value.Date > to!.Value.Date)
+            (from, to) = (to, from);
+    }
+
+    void EnforceMinSpan()
+    {
+        if (!BothSet) return;
+
+        var f = from!.Value.Date;
+        var t = to!.Value.Date;
+
+        if ((t - f).TotalDays + 1 < MinSpanDays)
+        {
+            f = t.AddDays(-MinSpanDays + 1);
+
+            if (f < EffectiveMinFrom)
+            {
+                f = EffectiveMinFrom;
+                var minT = f.AddDays(MinSpanDays - 1);
+                if (minT > Today) minT = Today; 
+                t = minT;
+            }
+        }
+
+        from = f;
+        to = t;
+    }
+
+    private async Task OnFromAfterBind()
+    {
+        ClampToBounds();
+        EnsureOrder();
+        EnforceMinSpan();
+        await RefrescarAsync();
+    }
+
+    private async Task OnToAfterBind()
+    {
+        ClampToBounds();
+        EnsureOrder();
+        EnforceMinSpan();
+        await RefrescarAsync();
+    }
+
+    async Task RefrescarAsync()
+    {
+        LastImageError404 = false;
+        loading = true;
+        cacheBust++; 
+
+        try
+        {
+            await Task.Delay(120);
+        }
+        finally
+        {
+            loading = false;
+        }
+
+        StateHasChanged();
+    }
+
+    async Task DescargarPdfAsync()
+    {
+        ClampToBounds();
+        EnsureOrder();
+        EnforceMinSpan();
+
+        if (!CanExport) return;
+
+        var bytes = await Reportes.GetHistorialPreciosPdfAsync(from, to, 1200, 500);
+        if (bytes is null)
+        {
+            LastImageError404 = true;
+            StateHasChanged();
+            return;
+        }
+
+        var base64 = Convert.ToBase64String(bytes);
+        var safeName = $"HistorialDePrecios_{DateTime.Now:dd-MM-yyyy_HH.mm.ss}.pdf";
+        await JS.InvokeVoidAsync("saveAsFile", safeName, base64);
+    }
+}

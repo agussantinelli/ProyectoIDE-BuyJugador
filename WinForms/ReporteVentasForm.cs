@@ -130,7 +130,6 @@ namespace WinForms
             };
             dgvReporte.Columns.Add(totalColumn);
         }
-
         private async void btnDescargarPdf_Click(object sender, EventArgs e)
         {
             if (cmbVendedores.SelectedValue is not int idPersona || idPersona == 0 || _currentReportData == null || !_currentReportData.Any())
@@ -142,10 +141,13 @@ namespace WinForms
             using (var saveFileDialog = new SaveFileDialog())
             {
                 saveFileDialog.Filter = "PDF Document (*.pdf)|*.pdf";
-                var selectedPersona = cmbVendedores.SelectedItem as PersonaSimpleDTO;
 
-                var nombreVendedor = selectedPersona?.NombreCompleto?.Replace(" ", "_") ?? "Usuario";
-                saveFileDialog.FileName = $"{nombreVendedor} Reporte {DateTime.Now:dd-MM-yyyy}.pdf";
+                var vendedor = (cmbVendedores.SelectedItem as PersonaSimpleDTO)?.NombreCompleto ?? $"ID_{idPersona}";
+                var vendedorSanitizado = string.Join("_",
+                    vendedor.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries))
+                    .Replace(' ', '_');
+
+                saveFileDialog.FileName = $"Reporte_{vendedorSanitizado}_{DateTime.Now:dd-MM-yyyy_HH.mm.ss}.pdf";
 
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -158,16 +160,19 @@ namespace WinForms
                         if (pdfBytes != null)
                         {
                             await File.WriteAllBytesAsync(saveFileDialog.FileName, pdfBytes);
-                            MessageBox.Show($"Reporte guardado exitosamente en:\n{saveFileDialog.FileName}", "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            MessageBox.Show($"Reporte guardado exitosamente en:\n{saveFileDialog.FileName}", "Éxito",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("No se pudo generar el archivo PDF.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("No se pudo generar el archivo PDF.", "Error",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ocurrió un error al guardar el PDF: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Ocurrió un error al guardar el PDF: {ex.Message}", "Error",
+                            MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     finally
                     {
@@ -177,6 +182,7 @@ namespace WinForms
                 }
             }
         }
+
     }
 }
 

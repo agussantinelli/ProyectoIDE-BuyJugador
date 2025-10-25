@@ -100,7 +100,7 @@ namespace WinForms
                 using var sfd = new SaveFileDialog
                 {
                     Filter = "PDF (*.pdf)|*.pdf",
-                    FileName = $"Historial {DateTime.Now:dd-MM-yyyy HH.mm.ss}.pdf"
+                    FileName = $"HistorialDePrecios_{DateTime.Now:dd-MM-yyyy_HH.mm.ss}.pdf"
                 };
                 if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
