@@ -13,16 +13,13 @@ namespace WebAPI.Endpoints
         public static void MapAuthenticationEndpoints(this WebApplication app)
         {
             app.MapPost("/api/Authentication/login", [AllowAnonymous] async (
-                LoginRequestDto loginRequest,
+                LoginRequestDTO loginRequest,
                 PersonaService personaService,
                 IConfiguration config) =>
             {
                 var personaDto = await personaService.LoginAsync(loginRequest.Dni, loginRequest.Password);
+                if (personaDto == null) return Results.Unauthorized();
 
-                if (personaDto == null)
-                {
-                    return Results.Unauthorized();
-                }
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
@@ -40,23 +37,14 @@ namespace WebAPI.Endpoints
                     expires: DateTime.Now.AddMinutes(60),
                     signingCredentials: credentials);
 
-                var generatedToken = new JwtSecurityTokenHandler().WriteToken(token);
-
                 var response = new LoginResponseDTO
                 {
-                    Token = generatedToken,
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
                     UserInfo = personaDto
                 };
 
                 return Results.Ok(response);
             });
         }
-
-        public class LoginRequestDto
-        {
-            public int Dni { get; set; }
-            public string Password { get; set; } = null!;
-        }
     }
 }
-
