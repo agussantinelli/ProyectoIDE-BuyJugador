@@ -3,6 +3,7 @@
     public class TipoProductoDTO
     {
         public int IdTipoProducto { get; set; }
+
         public string Descripcion { get; set; }
 
         public static TipoProductoDTO FromDominio(DominioModelo.TipoProducto entidad)

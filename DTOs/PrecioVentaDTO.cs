@@ -5,7 +5,9 @@ namespace DTOs
     public class PrecioVentaDTO
     {
         public int IdProducto { get; set; }
+
         public DateTime FechaDesde { get; set; }
+
         public decimal Monto { get; set; }
 
         public string? NombreProducto { get; set; }

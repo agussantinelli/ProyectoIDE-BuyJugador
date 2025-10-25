@@ -3,6 +3,7 @@
     public class ProvinciaDTO
     {
         public int IdProvincia { get; set; }
+
         public string Nombre { get; set; }
 
         public static ProvinciaDTO FromDominio(DominioModelo.Provincia entidad)

@@ -5,16 +5,27 @@ namespace DTOs
     public class PersonaDTO
     {
         public int IdPersona { get; set; }
+
         public string? NombreCompleto { get; set; }
+
         public int Dni { get; set; }
+
         public string? Email { get; set; }
+
         public string? Password { get; set; }
+
         public string? Telefono { get; set; }
+
         public string? Direccion { get; set; }
+
         public int? IdLocalidad { get; set; }
+
         public DateOnly? FechaIngreso { get; set; }
+
         public string? LocalidadNombre { get; set; }
+
         public string? ProvinciaNombre { get; set; }
+
         public string Rol => !FechaIngreso.HasValue ? "Admin" : "Empleado";
 
         public string FechaIngresoFormateada => FechaIngreso.HasValue ? FechaIngreso.Value.ToString("dd/MM/yy") : "-";

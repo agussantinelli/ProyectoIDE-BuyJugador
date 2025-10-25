@@ -3,9 +3,13 @@
     public class PrecioCompraDTO
     {
         public int IdProducto { get; set; }
+
         public int IdProveedor { get; set; }
+
         public decimal Monto { get; set; }
+
         public string? NombreProducto { get; set; }
+
         public string? RazonSocialProveedor { get; set; }
 
         public static PrecioCompraDTO? FromDominio(DominioModelo.PrecioCompra e)

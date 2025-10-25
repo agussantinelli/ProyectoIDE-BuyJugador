@@ -7,11 +7,17 @@ namespace DTOs
     public class ProductoDTO
     {
         public int IdProducto { get; set; }
+
         public string Nombre { get; set; } = string.Empty;
+
         public string? Descripcion { get; set; }
+
         public int Stock { get; set; }
+
         public int? IdTipoProducto { get; set; }
+
         public string? TipoProductoDescripcion { get; set; }
+
         public decimal? PrecioActual { get; set; }
 
         public decimal PrecioCompra { get; set; }

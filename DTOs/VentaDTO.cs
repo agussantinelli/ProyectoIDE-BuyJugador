@@ -6,11 +6,17 @@ namespace DTOs
     public class VentaDTO
     {
         public int IdVenta { get; set; }
+
         public DateTime Fecha { get; set; }
+
         public string Estado { get; set; }
+
         public int? IdPersona { get; set; }
+
         public string NombreVendedor { get; set; } = string.Empty;
+
         public decimal Total { get; set; }
+
         public List<LineaVentaDTO> Lineas { get; set; } = new List<LineaVentaDTO>();
 
         public static VentaDTO FromDominio(DominioModelo.Venta entidad)

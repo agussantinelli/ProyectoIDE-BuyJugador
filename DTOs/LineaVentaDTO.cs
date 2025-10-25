@@ -3,13 +3,19 @@
     public class LineaVentaDTO
     {
         public int Cantidad { get; set; }
+
         public int IdVenta { get; set; }
+
         public int? IdProducto { get; set; }
+
         public int NroLineaVenta { get; set; }
+
         public string NombreProducto { get; set; } = "N/A";
+
         public decimal PrecioUnitario { get; set; }
 
         public decimal Subtotal => Cantidad * PrecioUnitario;
+
         public bool EsNueva { get; set; } = false;
 
         public static LineaVentaDTO? FromDominio(DominioModelo.LineaVenta entidad)

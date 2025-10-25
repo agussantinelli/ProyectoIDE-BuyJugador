@@ -82,7 +82,6 @@ namespace DominioServicios
                 IdProveedor = crearPedidoDto.IdProveedor
             };
             await _unitOfWork.PedidoRepository.AddAsync(nuevoPedido);
-            // Se debe guardar para obtener el ID del pedido
             await _unitOfWork.SaveChangesAsync();
 
             var idsProductos = crearPedidoDto.LineasPedido.Select(l => l.IdProducto).Distinct().ToList();
