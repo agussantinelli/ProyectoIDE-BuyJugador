@@ -31,17 +31,5 @@ namespace ApiClient
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<ProvinciaDTO>();
         }
-
-        public async Task UpdateAsync(int id, ProvinciaDTO provincia)
-        {
-            var response = await _httpClient.PutAsJsonAsync($"api/provincias/{id}", provincia);
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var response = await _httpClient.DeleteAsync($"api/provincias/{id}");
-            response.EnsureSuccessStatusCode();
-        }
     }
 }

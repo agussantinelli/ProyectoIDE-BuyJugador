@@ -36,26 +36,5 @@ namespace DominioServicios
             provinciaDto.IdProvincia = provincia.IdProvincia;
             return provinciaDto;
         }
-
-        public async Task<bool> UpdateAsync(int id, ProvinciaDTO provinciaDto)
-        {
-            var provincia = await _unitOfWork.ProvinciaRepository.GetByIdAsync(id);
-            if (provincia == null) return false;
-
-            provincia.Nombre = provinciaDto.Nombre;
-            _unitOfWork.ProvinciaRepository.Update(provincia);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var provincia = await _unitOfWork.ProvinciaRepository.GetByIdAsync(id);
-            if (provincia == null) return false;
-
-            _unitOfWork.ProvinciaRepository.Remove(provincia);
-            await _unitOfWork.SaveChangesAsync();
-            return true;
-        }
     }
 }

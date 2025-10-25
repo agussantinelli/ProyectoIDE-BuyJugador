@@ -11,7 +11,8 @@ namespace WebAPI.Endpoints
 
             group.MapGet("/", async (LocalidadService service) =>
             {
-                return Results.Ok(await service.GetAllAsync());
+                var todas = await service.GetAllAsync();
+                return Results.Ok(todas);
             });
 
             group.MapGet("/{id}", async (int id, LocalidadService service) =>
@@ -26,24 +27,11 @@ namespace WebAPI.Endpoints
                 return Results.Created($"/api/localidades/{nuevo.IdLocalidad}", nuevo);
             });
 
-            group.MapPut("/{id}", async (int id, LocalidadDTO dto, LocalidadService service) =>
-            {
-                await service.UpdateAsync(id, dto);
-                return Results.NoContent();
-            });
-
-            group.MapDelete("/{id}", async (int id, LocalidadService service) =>
-            {
-                await service.DeleteAsync(id);
-                return Results.NoContent();
-            });
-
             group.MapGet("/ordenadas", async (LocalidadService service) =>
             {
                 var localidadesOrdenadas = await service.GetAllOrderedAsync();
                 return Results.Ok(localidadesOrdenadas);
             });
-
         }
     }
 }

@@ -27,18 +27,6 @@ namespace WebAPI.Endpoints
                 var createdProvincia = await provinciaService.CreateAsync(provinciaDto);
                 return Results.Created($"/api/provincias/{createdProvincia.IdProvincia}", createdProvincia);
             });
-
-            routes.MapPut("/api/provincias/{id}", async (int id, ProvinciaDTO provinciaDto, ProvinciaService provinciaService) =>
-            {
-                var updated = await provinciaService.UpdateAsync(id, provinciaDto);
-                return updated ? Results.Ok() : Results.NotFound();
-            });
-
-            routes.MapDelete("/api/provincias/{id}", async (int id, ProvinciaService provinciaService) =>
-            {
-                var deleted = await provinciaService.DeleteAsync(id);
-                return deleted ? Results.Ok() : Results.NotFound();
-            });
         }
     }
 }

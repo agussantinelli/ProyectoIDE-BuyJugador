@@ -29,15 +29,5 @@ namespace Data.Repositories
         {
             await _context.Provincias.AddAsync(entity);
         }
-
-        public void Update(Provincia entity)
-        {
-            _context.Provincias.Update(entity);
-        }
-
-        public void Remove(Provincia entity)
-        {
-            _context.Provincias.Remove(entity);
-        }
     }
 }

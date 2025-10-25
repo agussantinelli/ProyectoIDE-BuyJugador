@@ -35,28 +35,6 @@ namespace DominioServicios
             return LocalidadDTO.FromDominio(entidad);
         }
 
-        public async Task UpdateAsync(int id, LocalidadDTO dto)
-        {
-            var entidad = await _unitOfWork.LocalidadRepository.GetByIdAsync(id);
-            if (entidad != null)
-            {
-                entidad.Nombre = dto.Nombre;
-                entidad.IdProvincia = dto.IdProvincia;
-                _unitOfWork.LocalidadRepository.Update(entidad);
-                await _unitOfWork.SaveChangesAsync();
-            }
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var entidad = await _unitOfWork.LocalidadRepository.GetByIdAsync(id);
-            if (entidad != null)
-            {
-                _unitOfWork.LocalidadRepository.Remove(entidad);
-                await _unitOfWork.SaveChangesAsync();
-            }
-        }
-
         public async Task<List<LocalidadDTO>> GetAllOrderedAsync()
         {
             var entidades = await _unitOfWork.LocalidadRepository.GetAllOrderedByNameAsync();

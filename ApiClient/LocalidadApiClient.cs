@@ -32,22 +32,9 @@ namespace ApiClient
             return await response.Content.ReadFromJsonAsync<LocalidadDTO>();
         }
 
-        public async Task UpdateAsync(int id, LocalidadDTO localidad)
-        {
-            var response = await _httpClient.PutAsJsonAsync($"api/localidades/{id}", localidad);
-            response.EnsureSuccessStatusCode();
-        }
-
-        public async Task DeleteAsync(int id)
-        {
-            var response = await _httpClient.DeleteAsync($"api/localidades/{id}");
-            response.EnsureSuccessStatusCode();
-        }
-
         public async Task<List<LocalidadDTO>?> GetAllOrderedAsync()
         {
             return await _httpClient.GetFromJsonAsync<List<LocalidadDTO>>("api/localidades/ordenadas");
         }
-
     }
 }

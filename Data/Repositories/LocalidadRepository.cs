@@ -35,16 +35,6 @@ namespace Data.Repositories
             await _context.Localidades.AddAsync(entity);
         }
 
-        public void Update(Localidad entity)
-        {
-            _context.Localidades.Update(entity);
-        }
-
-        public void Remove(Localidad entity)
-        {
-            _context.Localidades.Remove(entity);
-        }
-
         public async Task<List<Localidad>> GetAllOrderedByNameAsync()
         {
             return await _context.Localidades
