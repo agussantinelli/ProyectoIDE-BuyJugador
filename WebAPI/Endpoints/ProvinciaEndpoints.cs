@@ -2,10 +2,7 @@
 using DTOs;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace WebAPI.Endpoints
 {

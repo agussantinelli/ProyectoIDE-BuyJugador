@@ -12,7 +12,11 @@ namespace WebAPI.Endpoints
         {
             var group = app.MapGroup("/api/preciocompra");
 
-            group.MapGet("/", async (PrecioCompraService service) => Results.Ok(await service.GetAllAsync()));
+            group.MapGet("/", async (PrecioCompraService service) =>
+            {
+                var todos = await service.GetAllAsync();
+                return Results.Ok(todos);
+            });
 
             group.MapGet("/{idProducto}/{idProveedor}", async (int idProducto, int idProveedor, PrecioCompraService service) =>
             {
@@ -40,4 +44,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-

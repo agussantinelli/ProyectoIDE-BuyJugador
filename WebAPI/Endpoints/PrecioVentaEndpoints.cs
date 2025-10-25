@@ -1,5 +1,5 @@
-﻿using DominioServicios;
-using DTOs;
+﻿using DTOs;
+using DominioServicios;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,9 +22,17 @@ namespace WebAPI.Endpoints
         {
             var g = app.MapGroup("/api/precios-venta");
 
-            g.MapGet("/historial", async (PrecioVentaService service) => Results.Ok(await service.GetHistorialPreciosAsync()));
+            g.MapGet("/historial", async (PrecioVentaService service) =>
+            {
+                var historial = await service.GetHistorialPreciosAsync();
+                return Results.Ok(historial);
+            });
 
-            g.MapGet("", async (PrecioVentaService service) => Results.Ok(await service.GetAllAsync()));
+            g.MapGet("", async (PrecioVentaService service) =>
+            {
+                var todos = await service.GetAllAsync();
+                return Results.Ok(todos);
+            });
 
             g.MapGet("/vigente/{idProducto:int}", async (int idProducto, PrecioVentaService service) =>
             {
@@ -82,7 +90,7 @@ namespace WebAPI.Endpoints
                 {
                     var puntos = prod.Puntos
                         .Where(p => (!from.HasValue || p.Fecha.Date >= from.Value.Date) &&
-                                      (!to.HasValue || p.Fecha.Date <= to.Value.Date))
+                                    (!to.HasValue || p.Fecha.Date <= to.Value.Date))
                         .OrderBy(p => p.Fecha)
                         .ToList();
 
@@ -128,7 +136,7 @@ namespace WebAPI.Endpoints
                 {
                     var puntos = prod.Puntos
                         .Where(p => (!from.HasValue || p.Fecha.Date >= from.Value.Date) &&
-                                      (!to.HasValue || p.Fecha.Date <= to.Value.Date))
+                                    (!to.HasValue || p.Fecha.Date <= to.Value.Date))
                         .OrderBy(p => p.Fecha)
                         .ToList();
 
@@ -202,4 +210,3 @@ namespace WebAPI.Endpoints
         }
     }
 }
-
