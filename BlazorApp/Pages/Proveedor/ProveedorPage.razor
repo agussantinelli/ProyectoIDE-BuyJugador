@@ -132,8 +132,8 @@
 </ConfirmationModal>
 
 @code {
-    private List<ProveedorRow>? activos;
-    private List<ProveedorRow>? inactivos;
+    private List<ProveedorDTO>? activos;
+    private List<ProveedorDTO>? inactivos;
     private List<ProvinciaDTO> provincias = new();
     private List<LocalidadDTO> localidades = new();
 
@@ -144,10 +144,9 @@
     private string? _mensaje;
     private bool _esError;
 
-    // Modal state
     private bool _mostrarModalConfirmacion = false;
     private bool _isEliminando = false;
-    private ProveedorRow? _proveedorParaEliminar;
+    private ProveedorDTO? _proveedorParaEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -173,8 +172,11 @@
             provincias = provinciasTask.Result ?? new();
             localidades = localidadesTask.Result ?? new();
 
-            activos = activosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
-            inactivos = inactivosDto.Select(p => ProveedorRow.From(p, localidades, provincias)).ToList();
+            EnriquecerUbicacion(activosDto, localidades, provincias);
+            EnriquecerUbicacion(inactivosDto, localidades, provincias);
+
+            activos = activosDto;
+            inactivos = inactivosDto;
         }
         catch (Exception ex)
         {
@@ -189,7 +191,17 @@
         }
     }
 
-    private IEnumerable<ProveedorRow> ProveedoresFiltrados =>
+    private static void EnriquecerUbicacion(List<ProveedorDTO> lista, List<LocalidadDTO> locs, List<ProvinciaDTO> provs)
+    {
+        foreach (var p in lista)
+        {
+            var loc = locs.FirstOrDefault(l => l.IdLocalidad == p.IdLocalidad);
+            p.LocalidadNombre = loc?.Nombre;
+            p.ProvinciaNombre = provs.FirstOrDefault(pr => pr.IdProvincia == (loc?.IdProvincia ?? 0))?.Nombre;
+        }
+    }
+
+    private IEnumerable<ProveedorDTO> ProveedoresFiltrados =>
         (mostrarActivos ? activos : inactivos)?
         .Where(p =>
             string.IsNullOrWhiteSpace(textoFiltro)
@@ -198,14 +210,11 @@
             || (p.Email?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
             || (p.LocalidadNombre?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
             || (p.ProvinciaNombre?.Contains(textoFiltro, StringComparison.OrdinalIgnoreCase) ?? false)
-        ) ?? Enumerable.Empty<ProveedorRow>();
+        ) ?? Enumerable.Empty<ProveedorDTO>();
 
-    private void CambiarTab(bool esActivo)
-    {
-        mostrarActivos = esActivo;
-    }
+    private void CambiarTab(bool esActivo) => mostrarActivos = esActivo;
 
-    private void AbrirModalConfirmacion(ProveedorRow proveedor)
+    private void AbrirModalConfirmacion(ProveedorDTO proveedor)
     {
         _proveedorParaEliminar = proveedor;
         _mostrarModalConfirmacion = true;
@@ -254,7 +263,7 @@
         }
     }
 
-    private async Task Reactivar(ProveedorRow proveedor)
+    private async Task Reactivar(ProveedorDTO proveedor)
     {
         _mensaje = null;
         try
@@ -279,42 +288,12 @@
         }
     }
 
-    private void VerProductos(ProveedorRow proveedor)
-    {
+    private void VerProductos(ProveedorDTO proveedor) =>
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/productos");
-    }
 
-    private void AsignarProductos(ProveedorRow proveedor)
-    {
+    private void AsignarProductos(ProveedorDTO proveedor) =>
         navigationManager.NavigateTo($"/proveedor/{proveedor.IdProveedor}/asignar-productos");
-    }
 
     private void NuevoProveedor() => navigationManager.NavigateTo("/proveedor/nuevo");
-    private void Editar(ProveedorRow proveedor) => navigationManager.NavigateTo($"/proveedor/editar/{proveedor.IdProveedor}");
-
-    private class ProveedorRow
-    {
-        public int IdProveedor { get; set; }
-        public string RazonSocial { get; set; } = string.Empty;
-        public string Cuit { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string? LocalidadNombre { get; set; }
-        public string? ProvinciaNombre { get; set; }
-
-        public static ProveedorRow From(ProveedorDTO p, List<LocalidadDTO> locs, List<ProvinciaDTO> provs)
-        {
-            var loc = locs.FirstOrDefault(l => l.IdLocalidad == p.IdLocalidad);
-            var prov = provs.FirstOrDefault(x => x.IdProvincia == loc?.IdProvincia);
-            return new ProveedorRow
-            {
-                IdProveedor = p.IdProveedor,
-                RazonSocial = p.RazonSocial,
-                Cuit = p.Cuit,
-                Email = p.Email,
-                LocalidadNombre = loc?.Nombre,
-                ProvinciaNombre = prov?.Nombre
-            };
-        }
-    }
+    private void Editar(ProveedorDTO proveedor) => navigationManager.NavigateTo($"/proveedor/editar/{proveedor.IdProveedor}");
 }
-
