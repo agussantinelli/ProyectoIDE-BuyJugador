@@ -41,7 +41,7 @@
 </p>
 
 <p>
-    Es un trabajo práctico de la cátedra <strong>IDE</strong> (UTN-FRRO) desarrollado en equipo, con foco en:
+    Es un trabajo práctico de la cátedra <strong>Tecnologías de Desarrollo de Software IDE</strong> (UTN-FRRO) desarrollado en equipo, con foco en:
 </p>
 
 <ul>
@@ -423,7 +423,7 @@ dotnet run
     <li><strong>Tomás Levrand</strong> – <a href="https://github.com/tomy19012005" target="_blank">@tomy19012005</a></li>
 </ul>
 
-<p>Proyecto académico desarrollado para la UTN FRRO (cátedra IDE).</p>
+<p>Proyecto académico desarrollado para la UTN FRRO (cátedra Tecnologías de Desarrollo de Software IDE).</p>
 
 <hr>
 
