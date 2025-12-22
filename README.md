@@ -1,4 +1,4 @@
-<h1>🛒 ProyectoIDE - BuyJugador</h1>
+<h1 align="center">🛒 ProyectoIDE - BuyJugador</h1>
 
 <div align="center">
     <a href="https://github.com/agussantinelli/ProyectoIDE-BuyJugador" target="_blank" style="text-decoration: none;">
