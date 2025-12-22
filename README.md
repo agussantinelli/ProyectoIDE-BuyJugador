@@ -125,7 +125,7 @@
     <li><strong>DTOs</strong>: modelos de request/response para transporte entre capas.</li>
 </ul>
 
-<p><strong>Topología de ejecución (ports por defecto):</strong></p>
+<p><strong>Topología de ejecución (puertos por defecto):</strong></p>
 <ul>
     <li><strong>WebAPI</strong>: <code>https://localhost:7145</code></li>
     <li><strong>BlazorApp</strong>: <code>https://localhost:7035</code></li>
@@ -317,7 +317,7 @@
 <h3>Autenticación</h3>
 
 <ul>
-    <li>Passwords de <code>Persona</code> almacenadas hasheadas con <strong>BCrypt.Net</strong>.</li>
+    <li><strong>Contraseñas</strong> de <code>Persona</code> almacenadas hasheadas con <strong>BCrypt.Net</strong>.</li>
     <li>Al loguearse, la WebAPI emite un <strong>JWT</strong> con claims de:
         <ul>
             <li>Id de persona.</li>
@@ -345,6 +345,13 @@
             <li>Filtros globales de EF Core para excluir registros inactivos por defecto.</li>
         </ul>
     </li>
+</ul>
+
+<h3>Roles y Permisos</h3>
+
+<ul>
+    <li><strong>Administrador</strong>: Acceso total al sistema (ABM de productos, proveedores, usuarios, reportes).</li>
+    <li><strong>Empleado</strong>: Acceso restringido (Registrar ventas, ver catálogo y stock).</li>
 </ul>
 
 <h3>Patrones de workflow</h3>
@@ -412,13 +419,16 @@
 cd ProyectoIDE-BuyJugador
 </code></pre>
     </li>
-    <li>Configurar la <strong>connection string</strong> en <code>appsettings.json</code> (proyecto WebAPI), por ejemplo:
+    <li>Configurar la <strong>connection string</strong> en <code>WebAPI/appsettings.json</code>, por ejemplo:
         <pre><code>"ConnectionStrings": {
   "BuyJugadorConnection": "Server=.\\SQLEXPRESS;Database=BuyJugadorDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;"
 }
 </code></pre>
     </li>
-    <li>Ejecutar migraciones o dejar que el <strong>DbSeeder</strong> configure los datos iniciales según la estrategia definida en el proyecto (personas demo, productos, datos geográficos, etc.).</li>
+    <li>Ejecutar migraciones para crear la base de datos:
+        <pre><code>dotnet ef database update --project Data --startup-project WebAPI</code></pre>
+        Opcionalmente, el <strong>DbSeeder</strong> configurará datos iniciales si la base está vacía.
+    </li>
     <li>Levantar la WebAPI:
         <pre><code>cd WebAPI
 dotnet run
