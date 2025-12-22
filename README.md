@@ -215,14 +215,20 @@
 <p><strong>Servicios de dominio clave (proyecto <code>DominioServicios</code>):</strong></p>
 
 <ul>
-    <li><code>VentaService</code> – gestión de ventas (creación, líneas, total del día).</li>
-    <li><code>PedidoService</code> – gestión de pedidos (pendientes, marcarlos como recibidos).</li>
-    <li><code>ProductoService</code> – CRUD de productos, stock y bajas lógicas.</li>
-    <li><code>PrecioVentaService</code>, <code>PrecioCompraService</code> – manejo de historial de precios.</li>
-    <li><code>PersonaService</code> – usuarios, autenticación, hashing de contraseñas con BCrypt.</li>
-    <li><code>ProveedorService</code> – administración de proveedores.</li>
+    <li><code>VentaService</code> – gestión de ventas (creación, líneas, existencia de productos, total del día).</li>
+    <li><code>PedidoService</code> – gestión de pedidos (pendientes, marcarlos como recibidos, actualización de stock).</li>
+    <li><code>ProductoService</code> – CRUD de productos, control de stock y bajas lógicas.</li>
+    <li><code>PrecioVentaService</code>, <code>PrecioCompraService</code> – manejo de historial de precios y vigencia.</li>
+    <li><code>PersonaService</code> – administración de usuarios, autenticación y hashing de contraseñas con BCrypt.</li>
+    <li><code>ProveedorService</code> – administración de proveedores y sus estados.</li>
     <li><code>ReporteService</code> – generación de reportes PDF/PNG (ventas por vendedor, historial de precios).</li>
+    <li><code>TipoProductoService</code> – gestión de categorías de productos.</li>
+    <li><code>ProductoProveedorService</code> – administración de relaciones producto-proveedor.</li>
 </ul>
+
+
+
+
 
 <hr>
 
