@@ -138,6 +138,33 @@
 
 <hr>
 
+<h2>📂 Estructura del Proyecto</h2>
+
+<pre><code>ProyectoIDE-BuyJugador/
+├── ApiClient/                   # Cliente HTTP compartido (Refit/HttpClient)
+├── BlazorApp/                   # Aplicación Web (Blazor WebAssembly)
+│   ├── Auth/                    # Estado de autenticación y JWT
+│   ├── Layout/                  # Estructura visual base (Sidebar, Topbar)
+│   ├── Pages/                   # Vistas y páginas (Razor Components)
+│   └── Shared/                  # Componentes UI reutilizables
+├── Data/                        # Capa de Infraestructura de Datos
+│   ├── Migrations/              # Historial de cambios de esquema BD
+│   ├── Repositories/            # Acceso a datos abstracto (Repositorios)
+│   └── UnitOfWork.cs            # Implementación del patrón Unit of Work
+├── DominioModelo/               # Entidades de Negocio (Core)
+├── DominioServicios/            # Lógica de Negocio y Reglas
+│   ├── Fonts/                   # Recursos para reportes PDF
+│   └── *Service.cs              # Servicios de dominio
+├── DTOs/                        # Objetos de Transferencia de Datos
+├── WebAPI/                      # Backend Server (ASP.NET Core)
+│   ├── Endpoints/               # Rutas de la API (Minimal APIs)
+│   └── appsettings.json         # Configuración (DB, JWT)
+└── WinForms/                    # Aplicación de Escritorio
+    └── *Form.cs                 # Ventanas y formularios de la UI
+</code></pre>
+
+<hr>
+
 <h2>🧩 Dominios de Negocio</h2>
 
 <p>Los principales dominios de negocio son:</p>
