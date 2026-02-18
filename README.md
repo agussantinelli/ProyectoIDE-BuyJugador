@@ -95,7 +95,7 @@
   </tr>
   <tr>
    <td><strong>Acceso a Datos</strong></td>
-   <td>Entity Framework Core 8.0</td>
+   <td>Entity Framework Core 8.0 + ADO.NET</td>
    <td>SQL Server provider, Repository + UnitOfWork, filtros de consulta globales.</td>
   </tr>
   <tr>
