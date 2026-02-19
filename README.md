@@ -478,40 +478,22 @@ dotnet run
 
 <p>Proyecto académico desarrollado para la UTN FRRO (cátedra Tecnologías de Desarrollo de Software IDE).</p>
 
-<hr>
-
-<h2>🤝 Contribuir</h2>
-
-<ol>
-    <li>Haz un <strong>fork</strong> del repositorio.</li>
-    <li>Crea una rama con el formato <code>feature/...</code> o <code>fix/...</code>.</li>
-    <li>Realiza los cambios siguiendo el estilo del proyecto (capas, DTOs, servicios, etc.).</li>
-    <li>Incluye tests o ejemplos de uso si agregás lógica de negocio relevante.</li>
-    <li>Abre un <strong>Pull Request</strong> explicando claramente:
-        <ul>
-            <li>Qué problema resuelve o qué funcionalidad agrega.</li>
-            <li>Qué capas toca (Blazor, WinForms, WebAPI, DominioServicios, Data, etc.).</li>
-            <li>Si requiere cambios de BD o configuración.</li>
-        </ul>
-    </li>
-</ol>
-
-<hr>
+<hr />
 
 <h2 align="left">⚖️ Licencia</h2>
 
 <p align="left">
-  Este proyecto está bajo la <b>Licencia MIT</b>. Para más detalles, puedes consultar el archivo 
+  Este proyecto está bajo la <b>Licencia GNU General Public License v3.0 (GPLv3)</b>. Puedes consultar los términos legales completos en el archivo 
   <a href="LICENSE"><code>LICENSE</code></a> incluido en la raíz de este repositorio.
 </p>
 
 <p align="left">
   <i>
-    La licencia MIT permite el uso, copia, modificación y distribución del software de forma gratuita, 
-    siempre que se incluya el aviso de copyright original.
+    🤝 <b>Compromiso Copyleft:</b> La GPLv3 permite el uso, estudio, modificación y distribución de este software. Sin embargo, cualquier obra derivada o modificación distribuida debe ser publicada bajo esta misma licencia, garantizando que el software permanezca libre y accesible para todos.
   </i>
 </p>
 
-<hr>
+<hr />
+
 
 <p><em>BuyJugador – Sistema multi-cliente de inventario y ventas para productos de gaming y componentes electrónicos.</em></p>
